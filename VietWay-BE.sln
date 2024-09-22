@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.11.35222.181
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VietWayManagementAPI", "VietWayManagementAPI\VietWayManagementAPI.csproj", "{304A102F-CE24-44B3-9003-C54B8746E61A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Repository", "Repository\Repository.csproj", "{C725CDEF-D4DE-4E47-8C78-C7E745171115}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{304A102F-CE24-44B3-9003-C54B8746E61A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{304A102F-CE24-44B3-9003-C54B8746E61A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{304A102F-CE24-44B3-9003-C54B8746E61A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{304A102F-CE24-44B3-9003-C54B8746E61A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C725CDEF-D4DE-4E47-8C78-C7E745171115}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C725CDEF-D4DE-4E47-8C78-C7E745171115}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C725CDEF-D4DE-4E47-8C78-C7E745171115}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C725CDEF-D4DE-4E47-8C78-C7E745171115}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {947122FC-739F-4B89-92AA-96AB386F9F05}
+	EndGlobalSection
+EndGlobal
