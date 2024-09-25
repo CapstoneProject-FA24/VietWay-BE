@@ -8,19 +8,22 @@ using System.Threading.Tasks;
 
 namespace Repository.ModelEntity
 {
-    public class CustomerInfo
+    public class TourGuideInfo
     {
         [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int CustomerId { get; set; }
+        public int TourGuideId { get; set; }
         [ForeignKey(nameof(Account))]
         public int AccountId { get; set; }
+        [ForeignKey(nameof(CompanyId))]
+        public int CompanyId { get; set; }
         public required string FullName { get; set; }
-        public required DateOnly DateOfBirth { get; set; }
-        [Required, ForeignKey(nameof(Province))]
-        public int ProvinceId { get; set; }
-        public Enum.Gender Gender { get; set; }
+        public DateOnly DateOfBirth { get; set; }
+        public DateTime AddedDate { get; set; }
+        [ForeignKey(nameof(CompanyStaffInfo))]
+        public int AddedBy { get; set; }
 
+        public virtual CompanyStaffInfo? CompanyStaffInfo { get; set; }
         public virtual Account? Account { get; set; }
-        public virtual Province? Province { get; set; }
+        public virtual Company? Company { get; set; }
     }
 }

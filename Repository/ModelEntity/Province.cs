@@ -13,5 +13,6 @@ namespace Repository.ModelEntity
         [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int ProvinceId { get; set; }
         public required string ProvinceName { get; set; }
+        public required int ImageId { get; set; }
     }
 }

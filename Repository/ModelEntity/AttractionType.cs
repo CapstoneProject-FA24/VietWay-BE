@@ -13,10 +13,10 @@ namespace Repository.ModelEntity
         [Key,DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int AttractionTypeId { get; set; }
         [Required]
-        public required string AttractionTypeName { get; set; }
+        public required string Name { get; set; }
         [Required]
-        public required string AttractionTypeDescription { get; set; }
-        public required DateTime CreateDate { get; set; }
+        public required string Description { get; set; }
+        public required DateTime CreatedDate { get; set; }
 
         public virtual ICollection<Attraction>? Attractions { get; set; }
     }

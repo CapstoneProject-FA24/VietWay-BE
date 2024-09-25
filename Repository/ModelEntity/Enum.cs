@@ -34,6 +34,15 @@ namespace Repository.ModelEntity
             Approved,
             Rejected
         }
+        public enum TourStatus
+        {
+            Scheduled,
+            Closed,
+            OnGoing,
+            Completed,
+            Cancelled,
+
+        }
         public enum CompanyStatus
         {
             Inactive,
@@ -43,6 +52,20 @@ namespace Repository.ModelEntity
         {
             Inactive,
             Active
+        }
+        public enum BookingStatus
+        {
+            Pending,
+            Confirmed,
+            Cancelled,
+            Completed,
+            NoShow
+        }
+        public enum PaymentStatus
+        {
+            Pending,
+            Paid,
+            Cancelled
         }
     }
 }

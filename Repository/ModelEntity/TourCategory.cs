@@ -8,12 +8,11 @@ using System.Threading.Tasks;
 
 namespace Repository.ModelEntity
 {
-    public class Image
+    public class TourCategory
     {
-        [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int ImageId { get; set; }
-        public string Name { get; set; }
-        public string Path { get; set; }
-        public string ContentType { get; set; }
+        [Key,DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public int TourCategoryId { get; set; }
+        [Required]
+        public required string Name { get; set; }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -9,18 +10,27 @@ namespace Repository.ModelEntity
     public class TourTemplate
     {
         public int TourTemplateId { get; set; }
-        public string TourName { get; set; }
-        public string Description { get; set; }
-        public string TourTemplateDuration { get; set; }
-        public string TourTemplateCategory { get; set; }
-        public string TourTemplateFacility { get; set; }
-        public string TourTemplatePolicy { get; set; }
-        public string TourTemplateNote { get; set; }
-        public string TourTemplateStatus { get; set; }
-        public string TourTemplateCreatedDate { get; set; }
-        public string TourTemplateUpdatedDate { get; set; }
-        public string TourTemplateCreatedBy { get; set; }
-        public string TourTemplateUpdatedBy { get; set; }
-        
+        public required string TourName { get; set; }
+        public required string Description { get; set; }
+        public required string Duration { get; set; }
+        [ForeignKey(nameof(TourCategory))]
+        public required int TourCategoryId { get; set; }
+        [ForeignKey(nameof(Company))]
+        public required int CompanyId { get; set; }
+        public required string Policy { get; set; }
+        public required string Note { get; set; }
+        public required string Schedule { get; set; }
+        public Enum.TourTemplateStatus Status { get; set; }
+        public required DateTime CreatedDate { get; set; }
+        [ForeignKey(nameof(CompanyStaffInfo))]
+        public required int CreatedBy { get; set; }
+
+        public virtual CompanyStaffInfo? CompanyStaffInfo { get; set; }
+        public virtual TourCategory? TourCategory { get; set; }
+        public virtual Company? Company { get; set; }
+        public virtual ICollection<Tour>? Tours { get; set; }
+        public virtual ICollection<TourTemplateProvince>? TourTemplateProvinces { get; set; }
+        public virtual ICollection<TourTemplateAttraction>? TourTemplateAttractions { get; set; }
+        public virtual ICollection<TourTemplateImage>? TourTemplateImages { get;set; }
     }
 }

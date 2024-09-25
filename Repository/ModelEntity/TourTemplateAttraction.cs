@@ -8,15 +8,15 @@ using System.Threading.Tasks;
 
 namespace Repository.ModelEntity
 {
-    [PrimaryKey("TourTemplateId", "DayNumber")]
-    public class TourTemplateSchedule
+    [PrimaryKey(nameof(TourTemplateId), nameof(AttractionId))]
+    public class TourTemplateAttraction
     {
         [ForeignKey(nameof(TourTemplate))]
         public int TourTemplateId { get; set; }
-        public int DayNumber { get; set; }
-        public string ScheduleTitle { get; set; }
-        public string ScheduleDescription { get; set; }
+        [ForeignKey(nameof(Attraction))]
+        public int AttractionId { get; set; }
 
         public virtual TourTemplate? TourTemplate { get; set; }
+        public virtual Attraction? Attraction { get; set; }
     }
 }

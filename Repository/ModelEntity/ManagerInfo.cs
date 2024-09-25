@@ -8,15 +8,14 @@ using System.Threading.Tasks;
 
 namespace Repository.ModelEntity
 {
-    public class Account
+    public class ManagerInfo
     {
         [Key,DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public int ManagerId { get; set; }
+        [ForeignKey(nameof(Account))]
         public int AccountId { get; set; }
-        public required string PhoneNumber { get; set; }
-        public string? Email { get; set; }
-        public required string Password { get; set; }
-        public required Enum.AccountStatus AccountStatus { get; set; }
-        public required DateTime CreatedDate { get; set; }
-        public Enum.UserRole Role { get; set; }
+        public required string FullName { get; set; }
+
+        public virtual Account? Account { get; set; }
     }
 }
