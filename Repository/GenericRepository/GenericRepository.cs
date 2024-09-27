@@ -18,25 +18,25 @@ namespace Repository.Repository
             _dbContext = dbContext;
             _dbSet = dbContext.Set<T>();
         }
-        public void Create(T entity)
+        public async Task Create(T entity)
         {
             _dbSet.Add(entity);
-            _dbContext.SaveChanges();
+            await _dbContext.SaveChangesAsync();
         }
 
-        public void Delete(T entity)
+        public async Task Delete(T entity)
         {
             _dbSet?.Remove(entity);
-            _dbContext.SaveChanges();
+            await _dbContext.SaveChangesAsync();
         }
 
-        public void Update(T entity)
+        public async Task Update(T entity)
         {
             _dbSet.Update(entity).State = EntityState.Modified;
-            _dbContext.SaveChanges();
+            await _dbContext.SaveChangesAsync();
         }
 
-        protected IQueryable<T> Query()
+        public IQueryable<T> Query()
         {
             return _dbSet.AsQueryable();
         }
