@@ -1,4 +1,6 @@
 
+using Repository.UnitOfWork;
+
 namespace VietWayManagementAPI
 {
     public class Program
@@ -13,6 +15,8 @@ namespace VietWayManagementAPI
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
+
+            builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
             var app = builder.Build();
 

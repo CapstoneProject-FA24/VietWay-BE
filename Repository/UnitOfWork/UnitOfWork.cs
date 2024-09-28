@@ -9,7 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Repository.UnitofWork
+namespace Repository.UnitOfWork
 {
     public class UnitOfWork : IUnitOfWork
     {
@@ -29,22 +29,15 @@ namespace Repository.UnitofWork
         {
             get
             {
-                if(this.accountRepository == null)
-                {
-                    this.accountRepository = new  GenericRepository<Account>(_dbContext);
-                }
+                this.accountRepository ??= new  GenericRepository<Account>(_dbContext);
                 return this.accountRepository;
             }
         }
-
         public IGenericRepository<CustomerInfo> CustomerInfoRepository
         {
             get
             {
-                if (this.customerInfoRepository == null)
-                {
-                    this.customerInfoRepository = new GenericRepository<CustomerInfo>(_dbContext);
-                }
+                this.customerInfoRepository ??= new GenericRepository<CustomerInfo>(_dbContext);
                 return this.customerInfoRepository;
             }
         }
@@ -52,22 +45,15 @@ namespace Repository.UnitofWork
         {
             get
             {
-                if( this.imageRepository == null)
-                {
-                    this.imageRepository = new GenericRepository<Image>(_dbContext);
-                }
+                this.imageRepository ??= new GenericRepository<Image>(_dbContext);
                 return this.imageRepository;
             }
         }
-
         public IGenericRepository<ManagerInfo> ManagerInfoRepository
         {
             get
             {
-                if(this.managerInfoRepository == null)
-                {
-                    this.managerInfoRepository = new GenericRepository<ManagerInfo>(_dbContext);
-                }
+                this.managerInfoRepository ??= new GenericRepository<ManagerInfo>(_dbContext);
                 return this.managerInfoRepository;
             }
         }
@@ -75,14 +61,10 @@ namespace Repository.UnitofWork
         {
             get
             {
-                if(this.provinceRepository == null)
-                {
-                    this.provinceRepository = new GenericRepository<Province>(_dbContext);
-                }
+                this.provinceRepository ??= new GenericRepository<Province>(_dbContext);
                 return this.provinceRepository;
             }
         }
-
         public void Save()
         {
             _dbContext.SaveChanges();
