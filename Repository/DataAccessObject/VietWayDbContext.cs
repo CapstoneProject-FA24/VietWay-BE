@@ -11,15 +11,13 @@ namespace Repository.DataAccessObject
 {
     public class VietWayDbContext() : DbContext()
     {
-        
         #region DbSets
         public DbSet<Account> Account { get; set; }
         public DbSet<Attraction> Attraction { get; set; }
         public DbSet<AttractionImage> AttractionImage { get; set; }
         public DbSet<AttractionType> AttractionType { get; set; }
         public DbSet<BookingPayment> BookingPayment { get; set; }
-        public DbSet<Company> Company { get; set; }
-        public DbSet<CompanyStaffInfo> CompanyStaffInfo { get; set;  }
+        public DbSet<StaffInfo> CompanyStaffInfo { get; set;  }
         public DbSet<CustomerFeedback> CustomerFeedback { get; set; }
         public DbSet<CustomerInfo> CustomerInfo { get; set; }
         public DbSet<Image> Image { get; set; }
@@ -28,8 +26,6 @@ namespace Repository.DataAccessObject
         public DbSet<Tour> Tour { get; set; }
         public DbSet<TourBooking> TourBooking { get; set; }
         public DbSet<TourCategory> TourCategory { get; set; }
-        public DbSet<TourGuideAssignment> TourGuideAssignment { get; set; }
-        public DbSet<TourGuideInfo> TourGuideInfo { get; set; }
         public DbSet<TourTemplate> TourTemplate { get; set; }
         public DbSet<TourTemplateAttraction> TourTemplateAttraction { get;set; }
         public DbSet<TourTemplateImage> TourTemplateImage { get; set; }

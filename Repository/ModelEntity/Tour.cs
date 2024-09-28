@@ -26,10 +26,9 @@ namespace Repository.ModelEntity
         [ForeignKey(nameof(CompanyStaffInfo))]
         public int CreatedBy { get; set; }
 
-        public virtual CompanyStaffInfo? CompanyStaffInfo { get; set; }
+        public virtual StaffInfo? CompanyStaffInfo { get; set; }
         public virtual TourTemplate? TourTemplate { get; set; }
         public virtual ICollection<TourBooking>? Bookings { get; set; }
-        public virtual ICollection<TourGuideAssignment>? TourGuideAssignments { get; set; }
 
     }
 }
