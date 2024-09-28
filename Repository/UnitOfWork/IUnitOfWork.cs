@@ -15,6 +15,8 @@ namespace Repository.UnitOfWork
         public IGenericRepository<Image> ImageRepository { get; }
         public IGenericRepository<ManagerInfo> ManagerInfoRepository { get; }
         public IGenericRepository<Province> ProvinceRepository { get; }
+        public IGenericRepository<TourTemplate> TourTemplateRepository { get; }
+        public IGenericRepository<Tour> TourRepository { get; }
         void Save();
     }
 }
