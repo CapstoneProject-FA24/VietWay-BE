@@ -1,4 +1,4 @@
-
+using Repository.UnitOfWork;
 using IdGen.DependencyInjection;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
@@ -56,6 +56,8 @@ namespace VietWayManagementAPI
                     ClockSkew = TimeSpan.Zero
                 };
             });
+          
+            builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.

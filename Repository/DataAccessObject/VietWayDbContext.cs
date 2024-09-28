@@ -9,10 +9,8 @@ using System.Threading.Tasks;
 
 namespace Repository.DataAccessObject
 {
-    public class VietWayDbContext(IConfiguration configuration) : DbContext()
+    public class VietWayDbContext() : DbContext()
     {
-        private readonly IConfiguration _configuration = configuration;
-
         #region DbSets
         public DbSet<Account> Account { get; set; }
         public DbSet<Attraction> Attraction { get; set; }
@@ -42,9 +40,19 @@ namespace Repository.DataAccessObject
         private string GetConnectionString()
         {
             string? environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
-            string? connectionString = environment == "Development" ?
-                _configuration.GetConnectionString("SQLDatabase") :
-                Environment.GetEnvironmentVariable("VietWayDB_ConnectionString");
+
+            string? connectionString;
+
+            if (environment == "Development")
+            {
+                IConfiguration configuration = new ConfigurationBuilder().SetBasePath(Directory.GetCurrentDirectory())
+                    .AddJsonFile("appsettings.json", false, true).Build();
+                connectionString = configuration.GetConnectionString("SQLDatabase");
+            }
+            else
+            {
+                connectionString = Environment.GetEnvironmentVariable("VietWayDbConnectionString");
+            }
             return connectionString ?? throw new Exception("Cannot get connection string");
         }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
