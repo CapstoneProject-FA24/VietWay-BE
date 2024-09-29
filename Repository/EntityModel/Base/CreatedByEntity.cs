@@ -13,6 +13,6 @@ namespace VietWay.Repository.EntityModel.Base
         public long CreatedBy { get; set; }
         public DateTime CreatedDate { get; set; }
 
-        public virtual T? Creator { get; }
+        public virtual T? Creator { get; set; }
     }
 }
