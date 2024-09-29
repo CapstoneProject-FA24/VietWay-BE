@@ -10,7 +10,7 @@ using VietWay.Repository.ModelEntity;
 
 namespace VietWay.Repository.DataAccessObject
 {
-    public class VietWayDbContext(IConfiguration configuration) : DbContext()
+    public class VietWayDbContext() : DbContext()
     {
         #region DbSets
         public DbSet<Account> Account { get; set; }
