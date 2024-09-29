@@ -6,14 +6,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Repository.ModelEntity
+namespace VietWay.Repository.ModelEntity
 {
     public class Tour
     {
-        [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int TourId { get; set; }
+        [Key]
+        public long TourId { get; set; }
         [ForeignKey(nameof(TourTemplate))]
-        public int TourTemplateId { get; set; }
+        public long TourTemplateId { get; set; }
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
         [Column(TypeName = "decimal(18,2)")]
@@ -21,12 +21,12 @@ namespace Repository.ModelEntity
         public int MaxParticipant { get; set; }
         public int MinParticipant { get; set; }
         public int CurrentParticipant { get; set; }
-        public Enum.TourStatus Status { get; set; }
+        public TourStatus Status { get; set; }
         public DateTime CreatedDate { get; set; }
-        [ForeignKey(nameof(CompanyStaffInfo))]
-        public int CreatedBy { get; set; }
+        [ForeignKey(nameof(StaffInfo))]
+        public long CreatedBy { get; set; }
 
-        public virtual StaffInfo? CompanyStaffInfo { get; set; }
+        public virtual StaffInfo? Creator { get; set; }
         public virtual TourTemplate? TourTemplate { get; set; }
         public virtual ICollection<TourBooking>? Bookings { get; set; }
 

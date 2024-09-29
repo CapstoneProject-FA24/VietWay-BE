@@ -2,17 +2,17 @@
 using System.ComponentModel.DataAnnotations.Schema;
 
 
-namespace Repository.ModelEntity
+namespace VietWay.Repository.ModelEntity
 {
     public class TourBooking
     {
-        [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int BookingId { get; set; }
+        [Key]
+        public long BookingId { get; set; }
         [ForeignKey(nameof(Tour))]
-        public int TourId { get; set; }
+        public long TourId { get; set; }
         [ForeignKey(nameof(CustomerInfo))]
-        public int CustomerId { get; set; }
-        public Enum.BookingStatus Status { get; set; }
+        public long CustomerId { get; set; }
+        public BookingStatus Status { get; set; }
 
         public virtual Tour? Tour { get; set; }
         public virtual CustomerInfo? CustomerInfo { get; set; }

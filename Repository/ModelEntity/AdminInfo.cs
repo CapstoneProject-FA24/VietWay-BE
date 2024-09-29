@@ -8,11 +8,12 @@ using System.Threading.Tasks;
 
 namespace VietWay.Repository.ModelEntity
 {
-    public class TourCategory
+    public class AdminInfo
     {
-        [Key]
-        public long TourCategoryId { get; set; }
-        [Required]
-        public required string Name { get; set; }
+        [Key, ForeignKey(nameof(Account))]
+        public long AdminId { get; set; }
+        public required string FullName { get; set; }
+
+        public virtual Account? Account { get; set; }
     }
 }

@@ -6,19 +6,17 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Repository.ModelEntity
+namespace VietWay.Repository.ModelEntity
 {
     public class CustomerInfo
     {
-        [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int CustomerId { get; set; }
-        [ForeignKey(nameof(Account))]
-        public int AccountId { get; set; }
+        [Key, ForeignKey(nameof(Account))]
+        public long CustomerId { get; set; }
         public required string FullName { get; set; }
         public required DateOnly DateOfBirth { get; set; }
         [Required, ForeignKey(nameof(Province))]
-        public int ProvinceId { get; set; }
-        public Enum.Gender Gender { get; set; }
+        public long ProvinceId { get; set; }
+        public Gender Gender { get; set; }
 
         public virtual Account? Account { get; set; }
         public virtual Province? Province { get; set; }

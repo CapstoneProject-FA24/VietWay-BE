@@ -6,14 +6,15 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Repository.ModelEntity
+namespace VietWay.Repository.ModelEntity
 {
     public class Image
     {
-        [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int ImageId { get; set; }
-        public string Name { get; set; }
-        public string Path { get; set; }
-        public string ContentType { get; set; }
+        [Key]
+        public long ImageId { get; set; }
+        public required string PublicId { get; set; }
+        public required string Url { get; set; }
+        public required string ContentType { get; set; }
+        public DateTime CreatedAt { get; set; }
     }
 }

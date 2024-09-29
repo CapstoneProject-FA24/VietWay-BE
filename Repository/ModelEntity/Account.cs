@@ -6,17 +6,18 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Repository.ModelEntity
+namespace VietWay.Repository.ModelEntity
 {
-    public class Account
+    public class Account : SoftDeleteEntity
     {
-        [Key,DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int AccountId { get; set; }
+        [Key]
+        public long AccountId { get; set; }
+        [Required]
+        [MaxLength(10)]
         public required string PhoneNumber { get; set; }
         public string? Email { get; set; }
         public required string Password { get; set; }
-        public required Enum.AccountStatus AccountStatus { get; set; }
-        public required DateTime CreatedDate { get; set; }
-        public Enum.UserRole Role { get; set; }
+        public required DateTime CreatedAt { get; set; }
+        public UserRole Role { get; set; }
     }
 }

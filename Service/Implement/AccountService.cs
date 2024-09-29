@@ -1,14 +1,14 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Repository.ModelEntity;
-using Repository.UnitOfWork;
-using Service.Interface;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using VietWay.Repository.ModelEntity;
+using VietWay.Repository.UnitOfWork;
+using VietWay.Service.Interface;
 
-namespace Service.Implement
+namespace VietWay.Service.Implement
 {
     public class AccountService : IAccountService
     {

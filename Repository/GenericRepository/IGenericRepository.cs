@@ -5,7 +5,7 @@ using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Repository.Repository
+namespace VietWay.Repository.GenericRepository
 {
     public interface IGenericRepository<T> where T : class
     {

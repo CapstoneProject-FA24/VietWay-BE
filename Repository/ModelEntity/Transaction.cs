@@ -7,14 +7,14 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Transactions;
 
-namespace Repository.ModelEntity
+namespace VietWay.Repository.ModelEntity
 {
     public class Transaction
     {
-        [Key,DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int TransactionId { get; set; }
+        [Key]
+        public long TransactionId { get; set; }
         [ForeignKey(nameof(BookingPayment))]
-        public int PaymentId { get; set; }
+        public long PaymentId { get; set; }
         [Required, Range(0.00, 999999999999.99), Column(TypeName = "decimal(18,2)")]
         public decimal Amount { get; set; }
         [Required]

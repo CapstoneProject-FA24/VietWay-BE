@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace Repository.Migrations
+namespace VietWay.Repository.Migrations
 {
     /// <inheritdoc />
     public partial class Init : Migration
@@ -15,14 +15,14 @@ namespace Repository.Migrations
                 name: "Account",
                 columns: table => new
                 {
-                    AccountId = table.Column<int>(type: "int", nullable: false)
+                    AccountId = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    PhoneNumber = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    PhoneNumber = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: false),
                     Email = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Password = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    AccountStatus = table.Column<int>(type: "int", nullable: false),
-                    CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Role = table.Column<int>(type: "int", nullable: false)
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    Role = table.Column<int>(type: "int", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -30,49 +30,15 @@ namespace Repository.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "AttractionType",
-                columns: table => new
-                {
-                    AttractionTypeId = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_AttractionType", x => x.AttractionTypeId);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Company",
-                columns: table => new
-                {
-                    CompanyId = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Address = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    ContactInfo = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Website = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Logo = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    CompanyStatus = table.Column<int>(type: "int", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Company", x => x.CompanyId);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Image",
                 columns: table => new
                 {
-                    ImageId = table.Column<int>(type: "int", nullable: false)
+                    ImageId = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Path = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    ContentType = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    PublicId = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Url = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ContentType = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -80,24 +46,10 @@ namespace Repository.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Province",
-                columns: table => new
-                {
-                    ProvinceId = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    ProvinceName = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    ImageId = table.Column<int>(type: "int", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Province", x => x.ProvinceId);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "TourCategory",
                 columns: table => new
                 {
-                    TourCategoryId = table.Column<int>(type: "int", nullable: false)
+                    TourCategoryId = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
@@ -107,20 +59,18 @@ namespace Repository.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "ManagerInfo",
+                name: "AdminInfo",
                 columns: table => new
                 {
-                    ManagerId = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    AccountId = table.Column<int>(type: "int", nullable: false),
+                    AdminId = table.Column<long>(type: "bigint", nullable: false),
                     FullName = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_ManagerInfo", x => x.ManagerId);
+                    table.PrimaryKey("PK_AdminInfo", x => x.AdminId);
                     table.ForeignKey(
-                        name: "FK_ManagerInfo_Account_AccountId",
-                        column: x => x.AccountId,
+                        name: "FK_AdminInfo_Account_AdminId",
+                        column: x => x.AdminId,
                         principalTable: "Account",
                         principalColumn: "AccountId",
                         onDelete: ReferentialAction.Restrict);
@@ -130,26 +80,98 @@ namespace Repository.Migrations
                 name: "CompanyStaffInfo",
                 columns: table => new
                 {
-                    StaffId = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    AccountId = table.Column<int>(type: "int", nullable: false),
-                    FullName = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    CompanyId = table.Column<int>(type: "int", nullable: false)
+                    StaffId = table.Column<long>(type: "bigint", nullable: false),
+                    FullName = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_CompanyStaffInfo", x => x.StaffId);
                     table.ForeignKey(
-                        name: "FK_CompanyStaffInfo_Account_AccountId",
-                        column: x => x.AccountId,
+                        name: "FK_CompanyStaffInfo_Account_StaffId",
+                        column: x => x.StaffId,
+                        principalTable: "Account",
+                        principalColumn: "AccountId",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Province",
+                columns: table => new
+                {
+                    ProvinceId = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    ProvinceName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ImageId = table.Column<long>(type: "bigint", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Province", x => x.ProvinceId);
+                    table.ForeignKey(
+                        name: "FK_Province_Image_ImageId",
+                        column: x => x.ImageId,
+                        principalTable: "Image",
+                        principalColumn: "ImageId",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ManagerInfo",
+                columns: table => new
+                {
+                    ManagerId = table.Column<long>(type: "bigint", nullable: false),
+                    FullName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    CreatedBy = table.Column<long>(type: "bigint", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ManagerInfo", x => x.ManagerId);
+                    table.ForeignKey(
+                        name: "FK_ManagerInfo_Account_ManagerId",
+                        column: x => x.ManagerId,
                         principalTable: "Account",
                         principalColumn: "AccountId",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_CompanyStaffInfo_Company_CompanyId",
-                        column: x => x.CompanyId,
-                        principalTable: "Company",
-                        principalColumn: "CompanyId",
+                        name: "FK_ManagerInfo_AdminInfo_CreatedBy",
+                        column: x => x.CreatedBy,
+                        principalTable: "AdminInfo",
+                        principalColumn: "AdminId",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "TourTemplate",
+                columns: table => new
+                {
+                    TourTemplateId = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Code = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    TourName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Duration = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    TourCategoryId = table.Column<long>(type: "bigint", nullable: false),
+                    Policy = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Note = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Status = table.Column<int>(type: "int", nullable: false),
+                    CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    CreatedBy = table.Column<long>(type: "bigint", nullable: false),
+                    CreatorStaffId = table.Column<long>(type: "bigint", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_TourTemplate", x => x.TourTemplateId);
+                    table.ForeignKey(
+                        name: "FK_TourTemplate_CompanyStaffInfo_CreatorStaffId",
+                        column: x => x.CreatorStaffId,
+                        principalTable: "CompanyStaffInfo",
+                        principalColumn: "StaffId",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_TourTemplate_TourCategory_TourCategoryId",
+                        column: x => x.TourCategoryId,
+                        principalTable: "TourCategory",
+                        principalColumn: "TourCategoryId",
                         onDelete: ReferentialAction.Restrict);
                 });
 
@@ -157,20 +179,18 @@ namespace Repository.Migrations
                 name: "CustomerInfo",
                 columns: table => new
                 {
-                    CustomerId = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    AccountId = table.Column<int>(type: "int", nullable: false),
+                    CustomerId = table.Column<long>(type: "bigint", nullable: false),
                     FullName = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     DateOfBirth = table.Column<DateOnly>(type: "date", nullable: false),
-                    ProvinceId = table.Column<int>(type: "int", nullable: false),
+                    ProvinceId = table.Column<long>(type: "bigint", nullable: false),
                     Gender = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_CustomerInfo", x => x.CustomerId);
                     table.ForeignKey(
-                        name: "FK_CustomerInfo_Account_AccountId",
-                        column: x => x.AccountId,
+                        name: "FK_CustomerInfo_Account_CustomerId",
+                        column: x => x.CustomerId,
                         principalTable: "Account",
                         principalColumn: "AccountId",
                         onDelete: ReferentialAction.Restrict);
@@ -183,33 +203,22 @@ namespace Repository.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Attraction",
+                name: "AttractionType",
                 columns: table => new
                 {
-                    AttractionId = table.Column<int>(type: "int", nullable: false)
+                    AttractionTypeId = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Address = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    ContactInfo = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Website = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    CreatedBy = table.Column<int>(type: "int", nullable: false),
-                    AttractionTypeId = table.Column<int>(type: "int", nullable: false),
-                    AttractionStatus = table.Column<int>(type: "int", nullable: false),
-                    GoogleMapUrl = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    CreatedBy = table.Column<long>(type: "bigint", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Attraction", x => x.AttractionId);
+                    table.PrimaryKey("PK_AttractionType", x => x.AttractionTypeId);
                     table.ForeignKey(
-                        name: "FK_Attraction_AttractionType_AttractionTypeId",
-                        column: x => x.AttractionTypeId,
-                        principalTable: "AttractionType",
-                        principalColumn: "AttractionTypeId",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_Attraction_ManagerInfo_CreatedBy",
+                        name: "FK_AttractionType_ManagerInfo_CreatedBy",
                         column: x => x.CreatedBy,
                         principalTable: "ManagerInfo",
                         principalColumn: "ManagerId",
@@ -217,113 +226,12 @@ namespace Repository.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "TourGuideInfo",
-                columns: table => new
-                {
-                    TourGuideId = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    AccountId = table.Column<int>(type: "int", nullable: false),
-                    CompanyId = table.Column<int>(type: "int", nullable: false),
-                    FullName = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    DateOfBirth = table.Column<DateOnly>(type: "date", nullable: false),
-                    AddedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    AddedBy = table.Column<int>(type: "int", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_TourGuideInfo", x => x.TourGuideId);
-                    table.ForeignKey(
-                        name: "FK_TourGuideInfo_Account_AccountId",
-                        column: x => x.AccountId,
-                        principalTable: "Account",
-                        principalColumn: "AccountId",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_TourGuideInfo_CompanyStaffInfo_AddedBy",
-                        column: x => x.AddedBy,
-                        principalTable: "CompanyStaffInfo",
-                        principalColumn: "StaffId",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_TourGuideInfo_Company_CompanyId",
-                        column: x => x.CompanyId,
-                        principalTable: "Company",
-                        principalColumn: "CompanyId",
-                        onDelete: ReferentialAction.Restrict);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "TourTemplate",
-                columns: table => new
-                {
-                    TourTemplateId = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    TourName = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Duration = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    TourCategoryId = table.Column<int>(type: "int", nullable: false),
-                    CompanyId = table.Column<int>(type: "int", nullable: false),
-                    Policy = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Note = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Schedule = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Status = table.Column<int>(type: "int", nullable: false),
-                    CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    CreatedBy = table.Column<int>(type: "int", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_TourTemplate", x => x.TourTemplateId);
-                    table.ForeignKey(
-                        name: "FK_TourTemplate_CompanyStaffInfo_CreatedBy",
-                        column: x => x.CreatedBy,
-                        principalTable: "CompanyStaffInfo",
-                        principalColumn: "StaffId",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_TourTemplate_Company_CompanyId",
-                        column: x => x.CompanyId,
-                        principalTable: "Company",
-                        principalColumn: "CompanyId",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_TourTemplate_TourCategory_TourCategoryId",
-                        column: x => x.TourCategoryId,
-                        principalTable: "TourCategory",
-                        principalColumn: "TourCategoryId",
-                        onDelete: ReferentialAction.Restrict);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "AttractionImage",
-                columns: table => new
-                {
-                    AttractionId = table.Column<int>(type: "int", nullable: false),
-                    ImageId = table.Column<int>(type: "int", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_AttractionImage", x => new { x.AttractionId, x.ImageId });
-                    table.ForeignKey(
-                        name: "FK_AttractionImage_Attraction_AttractionId",
-                        column: x => x.AttractionId,
-                        principalTable: "Attraction",
-                        principalColumn: "AttractionId",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_AttractionImage_Image_ImageId",
-                        column: x => x.ImageId,
-                        principalTable: "Image",
-                        principalColumn: "ImageId",
-                        onDelete: ReferentialAction.Restrict);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Tour",
                 columns: table => new
                 {
-                    TourId = table.Column<int>(type: "int", nullable: false)
+                    TourId = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    TourTemplateId = table.Column<int>(type: "int", nullable: false),
+                    TourTemplateId = table.Column<long>(type: "bigint", nullable: false),
                     StartDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     EndDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     Price = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
@@ -332,14 +240,15 @@ namespace Repository.Migrations
                     CurrentParticipant = table.Column<int>(type: "int", nullable: false),
                     Status = table.Column<int>(type: "int", nullable: false),
                     CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    CreatedBy = table.Column<int>(type: "int", nullable: false)
+                    CreatedBy = table.Column<long>(type: "bigint", nullable: false),
+                    CreatorStaffId = table.Column<long>(type: "bigint", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Tour", x => x.TourId);
                     table.ForeignKey(
-                        name: "FK_Tour_CompanyStaffInfo_CreatedBy",
-                        column: x => x.CreatedBy,
+                        name: "FK_Tour_CompanyStaffInfo_CreatorStaffId",
+                        column: x => x.CreatorStaffId,
                         principalTable: "CompanyStaffInfo",
                         principalColumn: "StaffId",
                         onDelete: ReferentialAction.Restrict);
@@ -355,18 +264,14 @@ namespace Repository.Migrations
                 name: "TourTemplateAttraction",
                 columns: table => new
                 {
-                    TourTemplateId = table.Column<int>(type: "int", nullable: false),
-                    AttractionId = table.Column<int>(type: "int", nullable: false)
+                    TourTemplateId = table.Column<long>(type: "bigint", nullable: false),
+                    DayNumber = table.Column<int>(type: "int", nullable: false),
+                    Title = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_TourTemplateAttraction", x => new { x.TourTemplateId, x.AttractionId });
-                    table.ForeignKey(
-                        name: "FK_TourTemplateAttraction_Attraction_AttractionId",
-                        column: x => x.AttractionId,
-                        principalTable: "Attraction",
-                        principalColumn: "AttractionId",
-                        onDelete: ReferentialAction.Restrict);
+                    table.PrimaryKey("PK_TourTemplateAttraction", x => new { x.TourTemplateId, x.DayNumber });
                     table.ForeignKey(
                         name: "FK_TourTemplateAttraction_TourTemplate_TourTemplateId",
                         column: x => x.TourTemplateId,
@@ -379,8 +284,8 @@ namespace Repository.Migrations
                 name: "TourTemplateImage",
                 columns: table => new
                 {
-                    TourTemplateId = table.Column<int>(type: "int", nullable: false),
-                    ImageId = table.Column<int>(type: "int", nullable: false)
+                    TourTemplateId = table.Column<long>(type: "bigint", nullable: false),
+                    ImageId = table.Column<long>(type: "bigint", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -403,8 +308,8 @@ namespace Repository.Migrations
                 name: "TourTemplateProvince",
                 columns: table => new
                 {
-                    TourTemplateId = table.Column<int>(type: "int", nullable: false),
-                    ProvinceId = table.Column<int>(type: "int", nullable: false)
+                    TourTemplateId = table.Column<long>(type: "bigint", nullable: false),
+                    ProvinceId = table.Column<long>(type: "bigint", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -424,13 +329,46 @@ namespace Repository.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Attraction",
+                columns: table => new
+                {
+                    AttractionId = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Address = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ContactInfo = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Website = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    CreatedBy = table.Column<long>(type: "bigint", nullable: false),
+                    AttractionTypeId = table.Column<long>(type: "bigint", nullable: false),
+                    GoogleMapUrl = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Attraction", x => x.AttractionId);
+                    table.ForeignKey(
+                        name: "FK_Attraction_AttractionType_AttractionTypeId",
+                        column: x => x.AttractionTypeId,
+                        principalTable: "AttractionType",
+                        principalColumn: "AttractionTypeId",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Attraction_ManagerInfo_CreatedBy",
+                        column: x => x.CreatedBy,
+                        principalTable: "ManagerInfo",
+                        principalColumn: "ManagerId",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "TourBooking",
                 columns: table => new
                 {
-                    BookingId = table.Column<int>(type: "int", nullable: false)
+                    BookingId = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    TourId = table.Column<int>(type: "int", nullable: false),
-                    CustomerId = table.Column<int>(type: "int", nullable: false),
+                    TourId = table.Column<long>(type: "bigint", nullable: false),
+                    CustomerId = table.Column<long>(type: "bigint", nullable: false),
                     Status = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
@@ -451,34 +389,59 @@ namespace Repository.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "TourGuideAssignment",
+                name: "AttractionImage",
                 columns: table => new
                 {
-                    TourId = table.Column<int>(type: "int", nullable: false),
-                    TourGuideId = table.Column<int>(type: "int", nullable: false),
-                    AssignedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    AssignedBy = table.Column<int>(type: "int", nullable: false)
+                    AttractionId = table.Column<long>(type: "bigint", nullable: false),
+                    ImageId = table.Column<long>(type: "bigint", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_TourGuideAssignment", x => new { x.TourId, x.TourGuideId });
+                    table.PrimaryKey("PK_AttractionImage", x => new { x.AttractionId, x.ImageId });
                     table.ForeignKey(
-                        name: "FK_TourGuideAssignment_CompanyStaffInfo_AssignedBy",
-                        column: x => x.AssignedBy,
-                        principalTable: "CompanyStaffInfo",
-                        principalColumn: "StaffId",
+                        name: "FK_AttractionImage_Attraction_AttractionId",
+                        column: x => x.AttractionId,
+                        principalTable: "Attraction",
+                        principalColumn: "AttractionId",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_TourGuideAssignment_TourGuideInfo_TourGuideId",
-                        column: x => x.TourGuideId,
-                        principalTable: "TourGuideInfo",
-                        principalColumn: "TourGuideId",
+                        name: "FK_AttractionImage_Image_ImageId",
+                        column: x => x.ImageId,
+                        principalTable: "Image",
+                        principalColumn: "ImageId",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "AttractionSchedule",
+                columns: table => new
+                {
+                    DayNumber = table.Column<int>(type: "int", nullable: false),
+                    AttractionId = table.Column<long>(type: "bigint", nullable: false),
+                    TourTemplateId = table.Column<long>(type: "bigint", nullable: false),
+                    TourTemplateScheduleDayNumber = table.Column<int>(type: "int", nullable: true),
+                    TourTemplateScheduleTourTemplateId = table.Column<long>(type: "bigint", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_AttractionSchedule", x => new { x.AttractionId, x.DayNumber });
+                    table.ForeignKey(
+                        name: "FK_AttractionSchedule_Attraction_AttractionId",
+                        column: x => x.AttractionId,
+                        principalTable: "Attraction",
+                        principalColumn: "AttractionId",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_TourGuideAssignment_Tour_TourId",
-                        column: x => x.TourId,
-                        principalTable: "Tour",
-                        principalColumn: "TourId",
+                        name: "FK_AttractionSchedule_TourTemplateAttraction_TourTemplateId_DayNumber",
+                        columns: x => new { x.TourTemplateId, x.DayNumber },
+                        principalTable: "TourTemplateAttraction",
+                        principalColumns: new[] { "TourTemplateId", "DayNumber" },
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_AttractionSchedule_TourTemplateAttraction_TourTemplateScheduleTourTemplateId_TourTemplateScheduleDayNumber",
+                        columns: x => new { x.TourTemplateScheduleTourTemplateId, x.TourTemplateScheduleDayNumber },
+                        principalTable: "TourTemplateAttraction",
+                        principalColumns: new[] { "TourTemplateId", "DayNumber" },
                         onDelete: ReferentialAction.Restrict);
                 });
 
@@ -486,9 +449,9 @@ namespace Repository.Migrations
                 name: "BookingPayment",
                 columns: table => new
                 {
-                    PaymentId = table.Column<int>(type: "int", nullable: false)
+                    PaymentId = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    BookingId = table.Column<int>(type: "int", nullable: false),
+                    BookingId = table.Column<long>(type: "bigint", nullable: false),
                     PaymentDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     Amount = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     PaymentMethod = table.Column<string>(type: "nvarchar(max)", nullable: false),
@@ -509,9 +472,9 @@ namespace Repository.Migrations
                 name: "CustomerFeedback",
                 columns: table => new
                 {
-                    FeedbackId = table.Column<int>(type: "int", nullable: false)
+                    FeedbackId = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    BookingId = table.Column<int>(type: "int", nullable: false),
+                    BookingId = table.Column<long>(type: "bigint", nullable: false),
                     Rating = table.Column<int>(type: "int", nullable: false),
                     Feedback = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
@@ -530,9 +493,9 @@ namespace Repository.Migrations
                 name: "Transaction",
                 columns: table => new
                 {
-                    TransactionId = table.Column<int>(type: "int", nullable: false)
+                    TransactionId = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    PaymentId = table.Column<int>(type: "int", nullable: false),
+                    PaymentId = table.Column<long>(type: "bigint", nullable: false),
                     Amount = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     Note = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     CreateOn = table.Column<DateTime>(type: "datetime2", nullable: false),
@@ -569,20 +532,25 @@ namespace Repository.Migrations
                 column: "ImageId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_AttractionSchedule_TourTemplateId_DayNumber",
+                table: "AttractionSchedule",
+                columns: new[] { "TourTemplateId", "DayNumber" });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AttractionSchedule_TourTemplateScheduleTourTemplateId_TourTemplateScheduleDayNumber",
+                table: "AttractionSchedule",
+                columns: new[] { "TourTemplateScheduleTourTemplateId", "TourTemplateScheduleDayNumber" });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AttractionType_CreatedBy",
+                table: "AttractionType",
+                column: "CreatedBy");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_BookingPayment_BookingId",
                 table: "BookingPayment",
                 column: "BookingId",
                 unique: true);
-
-            migrationBuilder.CreateIndex(
-                name: "IX_CompanyStaffInfo_AccountId",
-                table: "CompanyStaffInfo",
-                column: "AccountId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_CompanyStaffInfo_CompanyId",
-                table: "CompanyStaffInfo",
-                column: "CompanyId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_CustomerFeedback_BookingId",
@@ -591,24 +559,24 @@ namespace Repository.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_CustomerInfo_AccountId",
-                table: "CustomerInfo",
-                column: "AccountId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_CustomerInfo_ProvinceId",
                 table: "CustomerInfo",
                 column: "ProvinceId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_ManagerInfo_AccountId",
+                name: "IX_ManagerInfo_CreatedBy",
                 table: "ManagerInfo",
-                column: "AccountId");
+                column: "CreatedBy");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Tour_CreatedBy",
+                name: "IX_Province_ImageId",
+                table: "Province",
+                column: "ImageId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Tour_CreatorStaffId",
                 table: "Tour",
-                column: "CreatedBy");
+                column: "CreatorStaffId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Tour_TourTemplateId",
@@ -626,49 +594,14 @@ namespace Repository.Migrations
                 column: "TourId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_TourGuideAssignment_AssignedBy",
-                table: "TourGuideAssignment",
-                column: "AssignedBy");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_TourGuideAssignment_TourGuideId",
-                table: "TourGuideAssignment",
-                column: "TourGuideId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_TourGuideInfo_AccountId",
-                table: "TourGuideInfo",
-                column: "AccountId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_TourGuideInfo_AddedBy",
-                table: "TourGuideInfo",
-                column: "AddedBy");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_TourGuideInfo_CompanyId",
-                table: "TourGuideInfo",
-                column: "CompanyId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_TourTemplate_CompanyId",
+                name: "IX_TourTemplate_CreatorStaffId",
                 table: "TourTemplate",
-                column: "CompanyId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_TourTemplate_CreatedBy",
-                table: "TourTemplate",
-                column: "CreatedBy");
+                column: "CreatorStaffId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_TourTemplate_TourCategoryId",
                 table: "TourTemplate",
                 column: "TourCategoryId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_TourTemplateAttraction_AttractionId",
-                table: "TourTemplateAttraction",
-                column: "AttractionId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_TourTemplateImage_ImageId",
@@ -693,13 +626,10 @@ namespace Repository.Migrations
                 name: "AttractionImage");
 
             migrationBuilder.DropTable(
+                name: "AttractionSchedule");
+
+            migrationBuilder.DropTable(
                 name: "CustomerFeedback");
-
-            migrationBuilder.DropTable(
-                name: "TourGuideAssignment");
-
-            migrationBuilder.DropTable(
-                name: "TourTemplateAttraction");
 
             migrationBuilder.DropTable(
                 name: "TourTemplateImage");
@@ -711,13 +641,10 @@ namespace Repository.Migrations
                 name: "Transaction");
 
             migrationBuilder.DropTable(
-                name: "TourGuideInfo");
-
-            migrationBuilder.DropTable(
                 name: "Attraction");
 
             migrationBuilder.DropTable(
-                name: "Image");
+                name: "TourTemplateAttraction");
 
             migrationBuilder.DropTable(
                 name: "BookingPayment");
@@ -726,10 +653,10 @@ namespace Repository.Migrations
                 name: "AttractionType");
 
             migrationBuilder.DropTable(
-                name: "ManagerInfo");
+                name: "TourBooking");
 
             migrationBuilder.DropTable(
-                name: "TourBooking");
+                name: "ManagerInfo");
 
             migrationBuilder.DropTable(
                 name: "CustomerInfo");
@@ -738,10 +665,16 @@ namespace Repository.Migrations
                 name: "Tour");
 
             migrationBuilder.DropTable(
+                name: "AdminInfo");
+
+            migrationBuilder.DropTable(
                 name: "Province");
 
             migrationBuilder.DropTable(
                 name: "TourTemplate");
+
+            migrationBuilder.DropTable(
+                name: "Image");
 
             migrationBuilder.DropTable(
                 name: "CompanyStaffInfo");
@@ -751,9 +684,6 @@ namespace Repository.Migrations
 
             migrationBuilder.DropTable(
                 name: "Account");
-
-            migrationBuilder.DropTable(
-                name: "Company");
         }
     }
 }

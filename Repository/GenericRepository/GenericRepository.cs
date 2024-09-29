@@ -1,13 +1,13 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Repository.DataAccessObject;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
+using VietWay.Repository.DataAccessObject;
 
-namespace Repository.Repository
+namespace VietWay.Repository.GenericRepository
 {
     public class GenericRepository<T> : IGenericRepository<T> where T : class
     {
