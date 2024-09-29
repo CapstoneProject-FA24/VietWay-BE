@@ -7,9 +7,9 @@ using VietWay.Repository.EntityModel;
 
 namespace VietWay.Service.Interface
 {
-    public interface IAccountService
+    public interface IProvinceService
     {
-        public Task<Account?> LoginByPhone(string phone, string password);
-        public Task<Account?> LoginByEmail(string email, string password);
+        public Task<List<Province>> GetAllProvince();
+        public Task<Province?> GetProvinceById(long id);
     }
 }

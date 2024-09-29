@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace VietWay.Repository.ModelEntity
+namespace VietWay.Repository.EntityModel
 {
     [PrimaryKey(nameof(TourTemplateId), nameof(ImageId))]
     public class TourTemplateImage

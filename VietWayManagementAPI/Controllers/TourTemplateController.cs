@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using VietWay.API.Management.ResponseModel;
-using VietWay.Repository.ModelEntity;
+using VietWay.Repository.EntityModel;
 using VietWay.Service.Interface;
 
 namespace VietWay.API.Management.Controllers

@@ -1,8 +1,9 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using VietWay.Repository.EntityModel.Base;
 
 
-namespace VietWay.Repository.ModelEntity
+namespace VietWay.Repository.EntityModel
 {
     public class TourBooking
     {
@@ -16,7 +17,7 @@ namespace VietWay.Repository.ModelEntity
         public BookingStatus Status { get; set; }
 
         public virtual Tour? Tour { get; set; }
-        public virtual CustomerInfo? CustomerInfo { get; set; }
+        public virtual Customer? CustomerInfo { get; set; }
         public virtual BookingPayment? BookingPayment { get; set; }
         public virtual CustomerFeedback? CustomerFeedback { get; set; }
     }

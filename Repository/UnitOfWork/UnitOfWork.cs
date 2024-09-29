@@ -5,8 +5,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using VietWay.Repository.DataAccessObject;
+using VietWay.Repository.EntityModel;
 using VietWay.Repository.GenericRepository;
-using VietWay.Repository.ModelEntity;
 
 namespace VietWay.Repository.UnitOfWork
 {
@@ -14,9 +14,9 @@ namespace VietWay.Repository.UnitOfWork
     {
         private readonly VietWayDbContext _dbContext = new();
         private IGenericRepository<Account> accountRepository;
-        private IGenericRepository<CustomerInfo> customerInfoRepository;
+        private IGenericRepository<Customer> customerInfoRepository;
         private IGenericRepository<Image> imageRepository;
-        private IGenericRepository<ManagerInfo> managerInfoRepository;
+        private IGenericRepository<Manager> managerInfoRepository;
         private IGenericRepository<Province> provinceRepository;
         private IGenericRepository<TourTemplate> tourTemplateRepository;
 
@@ -28,11 +28,11 @@ namespace VietWay.Repository.UnitOfWork
                 return accountRepository;
             }
         }
-        public IGenericRepository<CustomerInfo> CustomerInfoRepository
+        public IGenericRepository<Customer> CustomerInfoRepository
         {
             get
             {
-                customerInfoRepository ??= new GenericRepository<CustomerInfo>(_dbContext);
+                customerInfoRepository ??= new GenericRepository<Customer>(_dbContext);
                 return customerInfoRepository;
             }
         }
@@ -44,11 +44,11 @@ namespace VietWay.Repository.UnitOfWork
                 return imageRepository;
             }
         }
-        public IGenericRepository<ManagerInfo> ManagerInfoRepository
+        public IGenericRepository<Manager> ManagerInfoRepository
         {
             get
             {
-                managerInfoRepository ??= new GenericRepository<ManagerInfo>(_dbContext);
+                managerInfoRepository ??= new GenericRepository<Manager>(_dbContext);
                 return managerInfoRepository;
             }
         }

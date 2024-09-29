@@ -5,17 +5,20 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using VietWay.Repository.EntityModel.Base;
 
-namespace VietWay.Repository.ModelEntity
+namespace VietWay.Repository.EntityModel
 {
-    public class Image
+    public class Province
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.None)]
+        public long ProvinceId { get; set; }
+        [Required]
+        public required string ProvinceName { get; set; }
+        [ForeignKey(nameof(Image))]
         public long ImageId { get; set; }
-        public required string PublicId { get; set; }
-        public required string Url { get; set; }
-        public required string ContentType { get; set; }
-        public DateTime CreatedAt { get; set; }
+
+        public virtual Image? Image { get; set; }
     }
 }

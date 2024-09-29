@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace VietWay.Repository.ModelEntity
+namespace VietWay.Repository.EntityModel.Base
 {
     public enum Gender
     {
@@ -21,6 +21,13 @@ namespace VietWay.Repository.ModelEntity
         Admin
     }
     public enum TourTemplateStatus
+    {
+        Draft,
+        Pending,
+        Approved,
+        Rejected
+    }
+    public enum AttractionStatus
     {
         Draft,
         Pending,

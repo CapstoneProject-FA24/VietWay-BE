@@ -5,10 +5,11 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using VietWay.Repository.EntityModel.Base;
 
-namespace VietWay.Repository.ModelEntity
+namespace VietWay.Repository.EntityModel
 {
-    public class AttractionType
+    public class AttractionType : CreatedByEntity<Manager>
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.None)]
@@ -17,12 +18,6 @@ namespace VietWay.Repository.ModelEntity
         public required string Name { get; set; }
         [Required]
         public required string Description { get; set; }
-        public bool IsDeleted { get; set; }
-        public DateTime CreatedAt { get; set; }
-        [ForeignKey(nameof(Creator))]
-        public long CreatedBy { get; set; }
-
-        public virtual ManagerInfo? Creator { get; set; }
         public virtual ICollection<Attraction>? Attractions { get; set; }
     }
 }

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace VietWay.Repository.ModelEntity
+namespace VietWay.Repository.EntityModel.Base
 {
     public class SoftDeleteEntity
     {
