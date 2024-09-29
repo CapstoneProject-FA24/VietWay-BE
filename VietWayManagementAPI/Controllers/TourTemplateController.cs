@@ -14,6 +14,8 @@ namespace VietWay.API.Management.Controllers
         private readonly ITourTemplateService _tourTemplateService = tourTemplateService;
         private readonly IMapper _mapper = mapper;
         [HttpGet]
+        [Produces("application/json")]
+        [ProducesResponseType<DefaultResponseModel<DefaultPageResponse<TourTemplatePreviewResponse>>>(StatusCodes.Status200OK)]
         public async Task<IActionResult> GetAllTemplatesAsync(int pageSize, int pageIndex)
         {
             var result = await _tourTemplateService.GetAllTemplatesAsync(pageSize, pageIndex);

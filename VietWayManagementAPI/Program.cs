@@ -129,7 +129,7 @@ namespace VietWay.API.Management
                 app.UseSwagger();
                 app.UseSwaggerUI(c =>
                 {
-                    c.SwaggerEndpoint("/swagger/v1/swagger.json", "PreCare Api");
+                    c.SwaggerEndpoint("/swagger/v1/swagger.json", "VietWay Api");
                     c.InjectStylesheet("/SwaggerDark.css");
                     c.RoutePrefix = "";
                     c.EnableTryItOutByDefault();
