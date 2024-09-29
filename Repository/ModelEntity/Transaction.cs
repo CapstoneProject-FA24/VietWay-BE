@@ -12,6 +12,7 @@ namespace VietWay.Repository.ModelEntity
     public class Transaction
     {
         [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.None)]
         public long TransactionId { get; set; }
         [ForeignKey(nameof(BookingPayment))]
         public long PaymentId { get; set; }

@@ -11,6 +11,7 @@ namespace VietWay.Repository.ModelEntity
     public class TourTemplate
     {
         [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.None)]
         public long TourTemplateId { get; set; }
         public required string Code { get; set; }
         public required string TourName { get; set; }
@@ -22,7 +23,7 @@ namespace VietWay.Repository.ModelEntity
         public required string Note { get; set; }
         public TourTemplateStatus Status { get; set; }
         public required DateTime CreatedDate { get; set; }
-        [ForeignKey(nameof(StaffInfo))]
+        [ForeignKey(nameof(Creator))]
         public required long CreatedBy { get; set; }
 
         public virtual StaffInfo? Creator { get; set; }

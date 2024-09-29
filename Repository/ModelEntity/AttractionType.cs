@@ -11,6 +11,7 @@ namespace VietWay.Repository.ModelEntity
     public class AttractionType
     {
         [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.None)]
         public long AttractionTypeId { get; set; }
         [Required]
         public required string Name { get; set; }

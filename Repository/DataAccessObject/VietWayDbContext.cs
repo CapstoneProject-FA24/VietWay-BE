@@ -14,23 +14,25 @@ namespace VietWay.Repository.DataAccessObject
     {
         #region DbSets
         public DbSet<Account> Account { get; set; }
+        public DbSet<AdminInfo> AdminInfo { get; set; }
         public DbSet<Attraction> Attraction { get; set; }
         public DbSet<AttractionImage> AttractionImage { get; set; }
+        public DbSet<AttractionSchedule> AttractionSchedule { get; set; }
         public DbSet<AttractionType> AttractionType { get; set; }
         public DbSet<BookingPayment> BookingPayment { get; set; }
-        public DbSet<StaffInfo> CompanyStaffInfo { get; set; }
         public DbSet<CustomerFeedback> CustomerFeedback { get; set; }
         public DbSet<CustomerInfo> CustomerInfo { get; set; }
         public DbSet<Image> Image { get; set; }
         public DbSet<ManagerInfo> ManagerInfo { get; set; }
         public DbSet<Province> Province { get; set; }
+        public DbSet<StaffInfo> StaffInfo { get; set; }
         public DbSet<Tour> Tour { get; set; }
         public DbSet<TourBooking> TourBooking { get; set; }
         public DbSet<TourCategory> TourCategory { get; set; }
         public DbSet<TourTemplate> TourTemplate { get; set; }
-        public DbSet<TourTemplateSchedule> TourTemplateAttraction { get; set; }
         public DbSet<TourTemplateImage> TourTemplateImage { get; set; }
         public DbSet<TourTemplateProvince> TourTemplateProvince { get; set; }
+        public DbSet<TourTemplateSchedule> TourTemplateSchedule { get; set; }
         public DbSet<Transaction> Transaction { get; set; }
         #endregion
 

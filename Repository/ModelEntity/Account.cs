@@ -11,6 +11,7 @@ namespace VietWay.Repository.ModelEntity
     public class Account : SoftDeleteEntity
     {
         [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.None)]
         public long AccountId { get; set; }
         [Required]
         [MaxLength(10)]

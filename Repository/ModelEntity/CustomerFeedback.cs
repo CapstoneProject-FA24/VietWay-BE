@@ -11,6 +11,7 @@ namespace VietWay.Repository.ModelEntity
     public class CustomerFeedback
     {
         [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.None)]
         public long FeedbackId { get; set; }
         [ForeignKey(nameof(Booking))]
         public long BookingId { get; set; }
