@@ -30,26 +30,20 @@ namespace VietWay.API.Management
                 option.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
             }).AddJwtBearer(o =>
             {
-                string issuer;
-                string audience;
+                string? issuer = builder.Configuration["Jwt:Issuer"]
+                        ?? throw new Exception("Can not get JWT Issuer");
+                string? audience = builder.Configuration["Jwt:Audience"]
+                    ?? throw new Exception("Can not get JWT Audience");
                 string secretKey;
                 if (builder.Environment.IsDevelopment())
                 {
-                    issuer = builder.Configuration["Jwt:Issuer"]
-                        ?? throw new Exception("Can not get JWT Issuer");
-                    audience = builder.Configuration["Jwt:Audience"]
-                        ?? throw new Exception("Can not get JWT Audience");
-                    secretKey = builder.Configuration["Jwt:SecretKey"]
-                        ?? throw new Exception("Can not get JWT SecretKey");
+                    secretKey = builder.Configuration["Jwt:Key"]
+                        ?? throw new Exception("Can not get JWT Key");
                 }
                 else
                 {
-                    issuer = Environment.GetEnvironmentVariable("Jwt:Issuer")
-                        ?? throw new Exception("Can not get JWT Issuer");
-                    audience = Environment.GetEnvironmentVariable("Jwt:Audience")
-                        ?? throw new Exception("Can not get JWT Audience");
-                    secretKey = Environment.GetEnvironmentVariable("Jwt:SecretKey")
-                        ?? throw new Exception("Can not get JWT SecretKey");
+                    secretKey = builder.Configuration["Jwt:ProdKey"]
+                        ?? throw new Exception("Can not get JWT Key");
                 }
                 o.UseSecurityTokenValidators = true;
                 o.TokenValidationParameters = new()
