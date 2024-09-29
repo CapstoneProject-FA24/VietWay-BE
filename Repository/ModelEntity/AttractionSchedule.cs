@@ -8,15 +8,12 @@ using System.Threading.Tasks;
 
 namespace VietWay.Repository.ModelEntity
 {
-    [PrimaryKey("AttractionId", "ImageId")]
-    public class AttractionImage
+    public class AttractionSchedule
     {
+        public long TourTemplateId { get; set; }
+        public int DayNumber { get; set; }
         [ForeignKey(nameof(Attraction))]
         public long AttractionId { get; set; }
-        [ForeignKey(nameof(Image))]
-        public long ImageId { get; set; }
-
         public virtual Attraction? Attraction { get; set; }
-        public virtual Image? Image { get; set; }
     }
 }

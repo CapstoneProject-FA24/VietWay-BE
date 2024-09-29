@@ -6,12 +6,16 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Repository.ModelEntity
+namespace VietWay.Repository.ModelEntity
 {
     public class Province
     {
-        [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int ProvinceId { get; set; }
+        [Key]
+        public long ProvinceId { get; set; }
         public required string ProvinceName { get; set; }
+        [ForeignKey(nameof(Image))]
+        public required long ImageId { get; set; }
+
+        public virtual Image? Image { get; set; }
     }
 }

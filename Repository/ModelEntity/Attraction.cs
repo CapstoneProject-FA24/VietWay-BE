@@ -1,26 +1,30 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Repository.ModelEntity
+namespace VietWay.Repository.ModelEntity
 {
     public class Attraction
     {
-        public int AttractionId { get; set; }
-        public required string AttractionName { get; set; }
-        public required string AttractionAddress { get; set; }
-        public required string AttractionPhone { get; set; }
-        public required string AttractionEmail { get; set; }
-        public string? AttractionWebsite { get; set; }
-        public required string AttractionDescription { get; set; }
-        public required DateTime CreateDate { get; set; }
+        [Key]
+        public long AttractionId { get; set; }
+        public required string Name { get; set; }
+        public required string Address { get; set; }
+        public required string ContactInfo { get; set; }
+        public string? Website { get; set; }
+        public required string Description { get; set; }
+        public required DateTime CreatedDate { get; set; }
+        [ForeignKey(nameof(Creator))]
+        public long CreatedBy { get; set; }
         [ForeignKey(nameof(AttractionType))]
-        public int AttractionTypeId { get; set; }
-        public Enum.AttractionStatus AttractionStatus { get; set; }
+        public long AttractionTypeId { get; set; }
+        public string? GoogleMapUrl { get; set; }
 
+        public virtual ManagerInfo? Creator { get; set; }
         public virtual AttractionType? AttractionType { get; set; }
         public virtual ICollection<AttractionImage>? AttractionImages { get; set; }
     }

@@ -6,17 +6,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Repository.ModelEntity
+namespace VietWay.Repository.ModelEntity
 {
-    public class CompanyStaffInfo
+    public class AdminInfo
     {
-        [Key,ForeignKey(nameof(Account))]
-        public int AccountId { get; set; }
+        [Key, ForeignKey(nameof(Account))]
+        public long AdminId { get; set; }
         public required string FullName { get; set; }
-        [ForeignKey(nameof(Company))]
-        public int CompanyId { get; set; }
 
         public virtual Account? Account { get; set; }
-        public virtual Company? Company { get; set; }
     }
 }

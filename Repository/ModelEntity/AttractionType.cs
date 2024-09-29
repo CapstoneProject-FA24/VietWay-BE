@@ -6,18 +6,22 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Repository.ModelEntity
+namespace VietWay.Repository.ModelEntity
 {
     public class AttractionType
     {
-        [Key,DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int AttractionTypeId { get; set; }
+        [Key]
+        public long AttractionTypeId { get; set; }
         [Required]
-        public required string AttractionTypeName { get; set; }
+        public required string Name { get; set; }
         [Required]
-        public required string AttractionTypeDescription { get; set; }
-        public required DateTime CreateDate { get; set; }
+        public required string Description { get; set; }
+        public bool IsDeleted { get; set; }
+        public DateTime CreatedAt { get; set; }
+        [ForeignKey(nameof(Creator))]
+        public long CreatedBy { get; set; }
 
+        public virtual ManagerInfo? Creator { get; set; }
         public virtual ICollection<Attraction>? Attractions { get; set; }
     }
 }

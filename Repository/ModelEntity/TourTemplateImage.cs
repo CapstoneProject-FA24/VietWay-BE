@@ -6,17 +6,17 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Repository.ModelEntity
+namespace VietWay.Repository.ModelEntity
 {
-    [PrimaryKey("TourTemplateId", "LocationId")]
-    public class TourTemplateLocation
+    [PrimaryKey(nameof(TourTemplateId), nameof(ImageId))]
+    public class TourTemplateImage
     {
         [ForeignKey(nameof(TourTemplate))]
-        public int TourTemplateId { get; set; }
-        [ForeignKey(nameof(Province))]
-        public int ProvinceId { get; set; }
+        public long TourTemplateId { get; set; }
+        [ForeignKey(nameof(Image))]
+        public long ImageId { get; set; }
 
         public virtual TourTemplate? TourTemplate { get; set; }
-        public virtual Province? Province { get; set; }
+        public virtual Image? Image { get; set; }
     }
 }

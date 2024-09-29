@@ -8,17 +8,15 @@ using System.Threading.Tasks;
 
 namespace VietWay.Repository.ModelEntity
 {
-    public class CustomerInfo
+    public class ManagerInfo
     {
         [Key, ForeignKey(nameof(Account))]
-        public long CustomerId { get; set; }
+        public long ManagerId { get; set; }
         public required string FullName { get; set; }
-        public required DateOnly DateOfBirth { get; set; }
-        [Required, ForeignKey(nameof(Province))]
-        public long ProvinceId { get; set; }
-        public Gender Gender { get; set; }
-
+        public DateTime CreatedDate { get; set; }
+        [ForeignKey(nameof(Creator))]
+        public long CreatedBy { get; set; }
         public virtual Account? Account { get; set; }
-        public virtual Province? Province { get; set; }
+        public virtual AdminInfo? Creator { get; set; }
     }
 }

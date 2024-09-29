@@ -8,13 +8,11 @@ using System.Threading.Tasks;
 
 namespace VietWay.Repository.ModelEntity
 {
-    public class Image
+    public class TourCategory
     {
         [Key]
-        public long ImageId { get; set; }
-        public required string PublicId { get; set; }
-        public required string Url { get; set; }
-        public required string ContentType { get; set; }
-        public DateTime CreatedAt { get; set; }
+        public long TourCategoryId { get; set; }
+        [Required]
+        public required string Name { get; set; }
     }
 }
