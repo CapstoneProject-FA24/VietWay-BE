@@ -12,17 +12,13 @@ namespace VietWay.Repository.UnitOfWork
 {
     public class UnitOfWork : IUnitOfWork
     {
-        private VietWayDbContext _dbContext = new();
+        private readonly VietWayDbContext _dbContext = new();
         private IGenericRepository<Account> accountRepository;
         private IGenericRepository<CustomerInfo> customerInfoRepository;
         private IGenericRepository<Image> imageRepository;
         private IGenericRepository<ManagerInfo> managerInfoRepository;
         private IGenericRepository<Province> provinceRepository;
         private IGenericRepository<TourTemplate> tourTemplateRepository;
-        public UnitOfWork(VietWayDbContext dbContext)
-        {
-            _dbContext = dbContext;
-        }
 
         public IGenericRepository<Account> AccountRepository
         {
