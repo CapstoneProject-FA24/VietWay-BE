@@ -12,8 +12,8 @@ using VietWay.Repository.DataAccessObject;
 namespace VietWay.Repository.Migrations
 {
     [DbContext(typeof(VietWayDbContext))]
-    [Migration("20240929083129_Init")]
-    partial class Init
+    [Migration("20240929093528_1")]
+    partial class _1
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -28,10 +28,7 @@ namespace VietWay.Repository.Migrations
             modelBuilder.Entity("VietWay.Repository.ModelEntity.Account", b =>
                 {
                     b.Property<long>("AccountId")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("bigint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("AccountId"));
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
@@ -76,10 +73,7 @@ namespace VietWay.Repository.Migrations
             modelBuilder.Entity("VietWay.Repository.ModelEntity.Attraction", b =>
                 {
                     b.Property<long>("AttractionId")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("bigint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("AttractionId"));
 
                     b.Property<string>("Address")
                         .IsRequired()
@@ -165,10 +159,7 @@ namespace VietWay.Repository.Migrations
             modelBuilder.Entity("VietWay.Repository.ModelEntity.AttractionType", b =>
                 {
                     b.Property<long>("AttractionTypeId")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("bigint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("AttractionTypeId"));
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
@@ -197,10 +188,7 @@ namespace VietWay.Repository.Migrations
             modelBuilder.Entity("VietWay.Repository.ModelEntity.BookingPayment", b =>
                 {
                     b.Property<long>("PaymentId")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("bigint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("PaymentId"));
 
                     b.Property<decimal>("Amount")
                         .HasColumnType("decimal(18,2)");
@@ -229,10 +217,7 @@ namespace VietWay.Repository.Migrations
             modelBuilder.Entity("VietWay.Repository.ModelEntity.CustomerFeedback", b =>
                 {
                     b.Property<long>("FeedbackId")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("bigint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("FeedbackId"));
 
                     b.Property<long>("BookingId")
                         .HasColumnType("bigint");
@@ -280,10 +265,7 @@ namespace VietWay.Repository.Migrations
             modelBuilder.Entity("VietWay.Repository.ModelEntity.Image", b =>
                 {
                     b.Property<long>("ImageId")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("bigint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("ImageId"));
 
                     b.Property<string>("ContentType")
                         .IsRequired()
@@ -330,10 +312,7 @@ namespace VietWay.Repository.Migrations
             modelBuilder.Entity("VietWay.Repository.ModelEntity.Province", b =>
                 {
                     b.Property<long>("ProvinceId")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("bigint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("ProvinceId"));
 
                     b.Property<long>("ImageId")
                         .HasColumnType("bigint");
@@ -360,16 +339,13 @@ namespace VietWay.Repository.Migrations
 
                     b.HasKey("StaffId");
 
-                    b.ToTable("CompanyStaffInfo");
+                    b.ToTable("StaffInfo");
                 });
 
             modelBuilder.Entity("VietWay.Repository.ModelEntity.Tour", b =>
                 {
                     b.Property<long>("TourId")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("bigint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("TourId"));
 
                     b.Property<long>("CreatedBy")
                         .HasColumnType("bigint");
@@ -416,10 +392,7 @@ namespace VietWay.Repository.Migrations
             modelBuilder.Entity("VietWay.Repository.ModelEntity.TourBooking", b =>
                 {
                     b.Property<long>("BookingId")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("bigint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("BookingId"));
 
                     b.Property<long>("CustomerId")
                         .HasColumnType("bigint");
@@ -442,10 +415,7 @@ namespace VietWay.Repository.Migrations
             modelBuilder.Entity("VietWay.Repository.ModelEntity.TourCategory", b =>
                 {
                     b.Property<long>("TourCategoryId")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("bigint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("TourCategoryId"));
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -459,10 +429,7 @@ namespace VietWay.Repository.Migrations
             modelBuilder.Entity("VietWay.Repository.ModelEntity.TourTemplate", b =>
                 {
                     b.Property<long>("TourTemplateId")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("bigint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("TourTemplateId"));
 
                     b.Property<string>("Code")
                         .IsRequired()
@@ -473,9 +440,6 @@ namespace VietWay.Repository.Migrations
 
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime2");
-
-                    b.Property<long?>("CreatorStaffId")
-                        .HasColumnType("bigint");
 
                     b.Property<string>("Description")
                         .IsRequired()
@@ -505,7 +469,7 @@ namespace VietWay.Repository.Migrations
 
                     b.HasKey("TourTemplateId");
 
-                    b.HasIndex("CreatorStaffId");
+                    b.HasIndex("CreatedBy");
 
                     b.HasIndex("TourCategoryId");
 
@@ -560,16 +524,13 @@ namespace VietWay.Repository.Migrations
 
                     b.HasKey("TourTemplateId", "DayNumber");
 
-                    b.ToTable("TourTemplateAttraction");
+                    b.ToTable("TourTemplateSchedule");
                 });
 
             modelBuilder.Entity("VietWay.Repository.ModelEntity.Transaction", b =>
                 {
                     b.Property<long>("TransactionId")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("bigint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("TransactionId"));
 
                     b.Property<decimal>("Amount")
                         .HasColumnType("decimal(18,2)");
@@ -811,8 +772,9 @@ namespace VietWay.Repository.Migrations
                 {
                     b.HasOne("VietWay.Repository.ModelEntity.StaffInfo", "Creator")
                         .WithMany()
-                        .HasForeignKey("CreatorStaffId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .HasForeignKey("CreatedBy")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
                     b.HasOne("VietWay.Repository.ModelEntity.TourCategory", "TourCategory")
                         .WithMany()

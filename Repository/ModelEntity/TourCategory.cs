@@ -11,6 +11,7 @@ namespace VietWay.Repository.ModelEntity
     public class TourCategory
     {
         [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.None)]
         public long TourCategoryId { get; set; }
         [Required]
         public required string Name { get; set; }

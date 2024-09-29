@@ -11,6 +11,7 @@ namespace VietWay.Repository.ModelEntity
     public class Province
     {
         [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.None)]
         public long ProvinceId { get; set; }
         public required string ProvinceName { get; set; }
         [ForeignKey(nameof(Image))]

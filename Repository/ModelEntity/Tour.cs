@@ -11,6 +11,7 @@ namespace VietWay.Repository.ModelEntity
     public class Tour
     {
         [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.None)]
         public long TourId { get; set; }
         [ForeignKey(nameof(TourTemplate))]
         public long TourTemplateId { get; set; }

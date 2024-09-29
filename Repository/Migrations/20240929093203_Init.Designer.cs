@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using VietWay.Repository.DataAccessObject;
 
@@ -11,9 +12,11 @@ using VietWay.Repository.DataAccessObject;
 namespace VietWay.Repository.Migrations
 {
     [DbContext(typeof(VietWayDbContext))]
-    partial class VietWayDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240929093203_Init")]
+    partial class Init
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -438,6 +441,9 @@ namespace VietWay.Repository.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<long?>("CreatorStaffId")
+                        .HasColumnType("bigint");
+
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -466,7 +472,7 @@ namespace VietWay.Repository.Migrations
 
                     b.HasKey("TourTemplateId");
 
-                    b.HasIndex("CreatedBy");
+                    b.HasIndex("CreatorStaffId");
 
                     b.HasIndex("TourCategoryId");
 
@@ -769,9 +775,8 @@ namespace VietWay.Repository.Migrations
                 {
                     b.HasOne("VietWay.Repository.ModelEntity.StaffInfo", "Creator")
                         .WithMany()
-                        .HasForeignKey("CreatedBy")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .HasForeignKey("CreatorStaffId")
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("VietWay.Repository.ModelEntity.TourCategory", "TourCategory")
                         .WithMany()

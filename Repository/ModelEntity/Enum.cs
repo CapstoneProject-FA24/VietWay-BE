@@ -16,7 +16,7 @@ namespace VietWay.Repository.ModelEntity
     {
         Customer,
         TourGuide,
-        CompanyStaff,
+        Staff,
         Manager,
         Admin
     }

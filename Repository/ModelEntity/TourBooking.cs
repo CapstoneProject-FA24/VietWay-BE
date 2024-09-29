@@ -7,6 +7,7 @@ namespace VietWay.Repository.ModelEntity
     public class TourBooking
     {
         [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.None)]
         public long BookingId { get; set; }
         [ForeignKey(nameof(Tour))]
         public long TourId { get; set; }
