@@ -51,7 +51,7 @@ namespace VietWay.Repository.DataAccessObject
                 .Build();
             string? connectionString = environment == "Development" ?
                 configuration.GetConnectionString("SQLDatabase") :
-                configuration.GetConnectionString("ProdSQLDatabase");
+                Environment.GetEnvironmentVariable("VietWayDB_ConnectionString");
             return connectionString ?? throw new Exception("Cannot get connection string");
         }
         protected override void OnModelCreating(ModelBuilder modelBuilder)

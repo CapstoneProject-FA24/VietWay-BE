@@ -43,7 +43,7 @@ namespace VietWay.API.Management
                 }
                 else
                 {
-                    secretKey = builder.Configuration["Jwt:ProdKey"]
+                    secretKey = Environment.GetEnvironmentVariable("PROD_JWT_KEY")
                         ?? throw new Exception("Can not get JWT Key");
                 }
                 o.UseSecurityTokenValidators = true;
@@ -106,7 +106,6 @@ namespace VietWay.API.Management
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
             builder.Services.AddScoped<ITourTemplateService, TourTemplateService>();
             #endregion
-
             var app = builder.Build();
             app.UseStaticFiles();
             #region app.UseSwagger(...);
