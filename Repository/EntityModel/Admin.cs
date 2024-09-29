@@ -6,12 +6,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace VietWay.Repository.ModelEntity
+namespace VietWay.Repository.EntityModel
 {
-    public class AdminInfo
+    public class Admin
     {
         [Key, ForeignKey(nameof(Account))]
         public long AdminId { get; set; }
+        [Required]
         public required string FullName { get; set; }
 
         public virtual Account? Account { get; set; }

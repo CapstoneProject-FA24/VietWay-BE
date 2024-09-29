@@ -5,10 +5,11 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using VietWay.Repository.EntityModel.Base;
 
-namespace VietWay.Repository.ModelEntity
+namespace VietWay.Repository.EntityModel
 {
-    public class Tour
+    public class Tour : CreatedByEntity<Staff>
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.None)]
@@ -23,11 +24,7 @@ namespace VietWay.Repository.ModelEntity
         public int MinParticipant { get; set; }
         public int CurrentParticipant { get; set; }
         public TourStatus Status { get; set; }
-        public DateTime CreatedDate { get; set; }
-        [ForeignKey(nameof(StaffInfo))]
-        public long CreatedBy { get; set; }
 
-        public virtual StaffInfo? Creator { get; set; }
         public virtual TourTemplate? TourTemplate { get; set; }
         public virtual ICollection<TourBooking>? Bookings { get; set; }
 

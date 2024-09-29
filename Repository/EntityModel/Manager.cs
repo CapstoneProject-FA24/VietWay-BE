@@ -5,20 +5,16 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using VietWay.Repository.EntityModel.Base;
 
-namespace VietWay.Repository.ModelEntity
+namespace VietWay.Repository.EntityModel
 {
-    public class CustomerInfo
+    public class Manager : CreatedByEntity<Admin>
     {
         [Key, ForeignKey(nameof(Account))]
-        public long CustomerId { get; set; }
+        public long ManagerId { get; set; }
+        [Required]
         public required string FullName { get; set; }
-        public required DateOnly DateOfBirth { get; set; }
-        [Required, ForeignKey(nameof(Province))]
-        public long ProvinceId { get; set; }
-        public Gender Gender { get; set; }
-
         public virtual Account? Account { get; set; }
-        public virtual Province? Province { get; set; }
     }
 }

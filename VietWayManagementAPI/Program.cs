@@ -105,8 +105,11 @@ namespace VietWay.API.Management
             #region builder.Services.AddScoped(...);
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
             builder.Services.AddScoped<ITourTemplateService, TourTemplateService>();
+            builder.Services.AddScoped<IProvinceService, ProvinceService>();
             #endregion
+
             var app = builder.Build();
+
             app.UseStaticFiles();
             #region app.UseSwagger(...);
             if (app.Environment.IsDevelopment())

@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 using VietWay.API.Management.ResponseModel;
-using VietWay.Repository.ModelEntity;
+using VietWay.Repository.EntityModel;
 
 namespace VietWay.API.Management.Mappers
 {
@@ -23,7 +23,7 @@ namespace VietWay.API.Management.Mappers
                 .ForMember(dest => dest.CreatorName, opt => opt.MapFrom(src => src.Creator.FullName))
                 .ForMember(dest => dest.Provinces, opt => opt.MapFrom(src => src.TourTemplateProvinces.Select(x => x.ProvinceId).ToList()))
                 .ForMember(dest => dest.ImageUrl, opt => opt.MapFrom(src => src.TourTemplateImages.Select(x => x.Image.Url).FirstOrDefault()));
-
+            CreateMap<Province, ProvincePreview>();
 
         }
     }

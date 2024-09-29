@@ -5,10 +5,11 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using VietWay.Repository.EntityModel.Base;
 
-namespace VietWay.Repository.ModelEntity
+namespace VietWay.Repository.EntityModel
 {
-    public class CustomerFeedback
+    public class CustomerFeedback : SoftDeleteEntity
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.None)]
@@ -16,6 +17,7 @@ namespace VietWay.Repository.ModelEntity
         [ForeignKey(nameof(Booking))]
         public long BookingId { get; set; }
         public int Rating { get; set; }
+        [Required]
         public required string Feedback { get; set; }
 
         public virtual TourBooking? Booking { get; set; }

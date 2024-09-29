@@ -5,10 +5,11 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using VietWay.Repository.EntityModel.Base;
 
-namespace VietWay.Repository.ModelEntity
+namespace VietWay.Repository.EntityModel
 {
-    public class TourCategory
+    public class TourCategory : CreatedByEntity<Manager>
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.None)]

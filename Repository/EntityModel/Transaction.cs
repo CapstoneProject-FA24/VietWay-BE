@@ -7,7 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Transactions;
 
-namespace VietWay.Repository.ModelEntity
+namespace VietWay.Repository.EntityModel
 {
     public class Transaction
     {

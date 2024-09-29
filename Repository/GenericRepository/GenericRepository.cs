@@ -6,6 +6,7 @@ using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 using VietWay.Repository.DataAccessObject;
+using VietWay.Repository.EntityModel.Base;
 
 namespace VietWay.Repository.GenericRepository
 {
@@ -39,6 +40,16 @@ namespace VietWay.Repository.GenericRepository
         public IQueryable<T> Query()
         {
             return _dbSet.AsQueryable();
+        }
+
+        public async Task SoftDelete(T entity)
+        {
+            if (entity is SoftDeleteEntity softDeleteEntity)
+            {
+                softDeleteEntity.IsDeleted = true;
+                _dbSet.Update(entity).State = EntityState.Modified;
+                await _dbContext.SaveChangesAsync();
+            }
         }
     }
 }

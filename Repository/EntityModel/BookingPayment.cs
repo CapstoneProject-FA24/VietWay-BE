@@ -5,8 +5,9 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using VietWay.Repository.EntityModel.Base;
 
-namespace VietWay.Repository.ModelEntity
+namespace VietWay.Repository.EntityModel
 {
     public class BookingPayment
     {
@@ -18,6 +19,7 @@ namespace VietWay.Repository.ModelEntity
         public DateTime PaymentDate { get; set; }
         [Column(TypeName = "decimal(18,2)")]
         public decimal Amount { get; set; }
+        [Required]
         public required string PaymentMethod { get; set; }
         public PaymentStatus PaymentStatus { get; set; }
 
