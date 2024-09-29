@@ -47,6 +47,7 @@ namespace VietWay.Repository.DataAccessObject
             IConfiguration configuration = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
                 .AddJsonFile("appsettings.json", false, true)
+                .AddEnvironmentVariables()
                 .Build();
             string? connectionString = environment == "Development" ?
                 configuration.GetConnectionString("SQLDatabase") :
