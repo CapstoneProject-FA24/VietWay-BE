@@ -9,6 +9,7 @@ using VietWay.API.Management.Mappers;
 using VietWay.Repository.UnitOfWork;
 using VietWay.Service.Interface;
 using VietWay.Service.Implement;
+using VietWay.API.Management.Middleware;
 
 namespace VietWay.API.Management
 {
@@ -134,6 +135,7 @@ namespace VietWay.API.Management
             app.UseCors("AllowAll");
             app.UseAuthentication();
             app.UseAuthorization();
+            app.UseMiddleware<ErrorHandlingMiddleware>();
             app.MapControllers();
             app.Run();
         }
