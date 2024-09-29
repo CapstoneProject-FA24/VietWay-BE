@@ -4,7 +4,7 @@ using VietWay.Repository.ModelEntity;
 
 namespace VietWay.API.Management.ResponseModel
 {
-    public class TourTemplateDetailResponse
+    public class TourTemplateDetail
     {
         public long TourTemplateId { get; set; }
         public required string Code { get; set; }

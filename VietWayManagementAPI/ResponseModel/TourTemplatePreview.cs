@@ -2,7 +2,7 @@
 
 namespace VietWay.API.Management.ResponseModel
 {
-    public class TourTemplatePreviewResponse
+    public class TourTemplatePreview
     {
         public long TourTemplateId { get; set; }
         public required string Code { get; set; }
