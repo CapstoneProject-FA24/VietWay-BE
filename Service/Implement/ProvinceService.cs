@@ -12,7 +12,7 @@ namespace VietWay.Service.Implement
 {
     public class ProvinceService(IUnitOfWork unitOfWork) : IProvinceService
     {
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly IUnitOfWork _unitOfWork = unitOfWork;
         public async Task<List<Province>> GetAllProvince()
         {
             return await _unitOfWork
