@@ -32,7 +32,7 @@ namespace VietWay.Util.TokenHelper
                     ?? throw new Exception("Can not find jwt secret key");
             } else
             {
-                _secret = configuration["Jwt:ProdKey"]
+                _secret = Environment.GetEnvironmentVariable("PROD_JWT_KEY")
                     ?? throw new Exception("Can not find jwt secret key");
             }
         }
