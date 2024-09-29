@@ -43,6 +43,7 @@ namespace VietWay.Service.Implement
                 .ThenInclude(x => x.Image)
                 .Include(x => x.TourTemplateProvinces)
                 .ThenInclude(x => x.Province)
+                .Include(x=>x.Creator)
                 .SingleOrDefaultAsync(x => x.TourTemplateId == id);
         }
     }

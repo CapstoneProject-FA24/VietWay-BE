@@ -8,7 +8,7 @@ namespace VietWay.API.Management.Mappers
     {
         public MappingProfile()
         {
-            CreateMap<TourTemplate, TourTemplateDetailResponse>()
+            CreateMap<TourTemplate, TourTemplateDetail>()
                 .ForMember(dest => dest.CreatorName, opt => opt.MapFrom(src => src.Creator.FullName))
                 .ForMember(dest => dest.Provinces, opt => opt.MapFrom(src => src.TourTemplateProvinces.Select(x => x.ProvinceId).ToList()))
                 .ForMember(dest => dest.Schedule, opt => opt.MapFrom(src => src.TourTemplateSchedules.Select(x => new ScheduleDetail
@@ -19,7 +19,7 @@ namespace VietWay.API.Management.Mappers
                     Attractions = x.AttractionSchedules.Select(y => y.AttractionId).ToList()
                 }).ToList()))
                 .ForMember(dest=>dest.ImageUrls, opt => opt.MapFrom(src=>src.TourTemplateImages.Select(x=>x.Image.Url).ToList()));
-            CreateMap<TourTemplate, TourTemplatePreviewResponse>()
+            CreateMap<TourTemplate, TourTemplatePreview>()
                 .ForMember(dest => dest.CreatorName, opt => opt.MapFrom(src => src.Creator.FullName))
                 .ForMember(dest => dest.Provinces, opt => opt.MapFrom(src => src.TourTemplateProvinces.Select(x => x.ProvinceId).ToList()))
                 .ForMember(dest => dest.ImageUrl, opt => opt.MapFrom(src => src.TourTemplateImages.Select(x => x.Image.Url).FirstOrDefault()));

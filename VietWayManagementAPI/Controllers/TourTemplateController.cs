@@ -15,25 +15,50 @@ namespace VietWay.API.Management.Controllers
         private readonly IMapper _mapper = mapper;
         [HttpGet]
         [Produces("application/json")]
-        [ProducesResponseType<DefaultResponseModel<DefaultPageResponse<TourTemplatePreviewResponse>>>(StatusCodes.Status200OK)]
+        [ProducesResponseType<DefaultResponseModel<DefaultPageResponse<TourTemplatePreview>>>(StatusCodes.Status200OK)]
         public async Task<IActionResult> GetAllTemplatesAsync(int pageSize, int pageIndex)
         {
             var result = await _tourTemplateService.GetAllTemplatesAsync(pageSize, pageIndex);
-            List<TourTemplatePreviewResponse> tourTemplatePreviews = _mapper.Map<List<TourTemplatePreviewResponse>>(result.items);
-            DefaultPageResponse<TourTemplatePreviewResponse> pagedResponse = new()
+            List<TourTemplatePreview> tourTemplatePreviews = _mapper.Map<List<TourTemplatePreview>>(result.items);
+            DefaultPageResponse<TourTemplatePreview> pagedResponse = new()
             {
                 Total = result.totalCount,
                 PageSize = pageSize,
                 PageIndex = pageIndex,
                 Items = tourTemplatePreviews
             };
-            DefaultResponseModel<DefaultPageResponse<TourTemplatePreviewResponse>> response = new()
+            DefaultResponseModel<DefaultPageResponse<TourTemplatePreview>> response = new()
             {
                 Data = pagedResponse,
                 Message = "Get all tour templates successfully",
                 StatusCode = StatusCodes.Status200OK
             };
             return Ok(response);
+        }
+        [HttpGet("{tourTemplateId}")]
+        public async Task<IActionResult> GetTourTemplateById(long tourTemplateId)
+        {
+            TourTemplate? tourTemplate = await _tourTemplateService
+                .GetTemplateByIdAsync(tourTemplateId);
+            if (tourTemplate == null)
+            {
+                DefaultResponseModel<object> response = new()
+                {
+                    StatusCode = StatusCodes.Status404NotFound,
+                    Message = $"Can not find Tour template with id {tourTemplateId}"
+                };
+                return NotFound(response);
+            } 
+            else
+            {
+                DefaultResponseModel<TourTemplateDetail> response = new()
+                {
+                    StatusCode = StatusCodes.Status200OK,
+                    Message = "Get tour template successfully",
+                    Data = _mapper.Map<TourTemplateDetail>(tourTemplate)
+                };
+                return Ok(response);
+            }
         }
     }
 }
