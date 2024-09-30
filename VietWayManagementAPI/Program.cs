@@ -10,6 +10,7 @@ using VietWay.Repository.UnitOfWork;
 using VietWay.Service.Interface;
 using VietWay.Service.Implement;
 using VietWay.API.Management.Middleware;
+using VietWay.Service.ThirdParty;
 
 namespace VietWay.API.Management
 {
@@ -106,6 +107,7 @@ namespace VietWay.API.Management
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
             builder.Services.AddScoped<ITourTemplateService, TourTemplateService>();
             builder.Services.AddScoped<IProvinceService, ProvinceService>();
+            builder.Services.AddScoped<ICloudinaryService,CloudinaryService>();
             #endregion
 
             var app = builder.Build();
