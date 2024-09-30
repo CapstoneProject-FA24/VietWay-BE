@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
+using VietWay.API.Management.RequestModel;
 using VietWay.API.Management.ResponseModel;
 using VietWay.Repository.EntityModel;
 using VietWay.Service.Interface;
@@ -59,6 +61,17 @@ namespace VietWay.API.Management.Controllers
                 };
                 return Ok(response);
             }
+        }
+        [HttpPost]
+        [Produces("application/json")]
+        [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status200OK)]
+        public async Task<IActionResult> CreateTourTemplate([FromForm]CreateTourTemplateRequest request)
+        {
+            return Ok(new DefaultResponseModel<object>()
+            {
+                Message = "Tour created successfully",
+                StatusCode = StatusCodes.Status200OK
+            });
         }
     }
 }
