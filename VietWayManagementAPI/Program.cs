@@ -11,6 +11,8 @@ using VietWay.Service.Interface;
 using VietWay.Service.Implement;
 using VietWay.API.Management.Middleware;
 using VietWay.Service.ThirdParty;
+using Service.Interface;
+using Service.Implement;
 
 namespace VietWay.API.Management
 {
@@ -108,6 +110,9 @@ namespace VietWay.API.Management
             builder.Services.AddScoped<ITourTemplateService, TourTemplateService>();
             builder.Services.AddScoped<IProvinceService, ProvinceService>();
             builder.Services.AddScoped<ICloudinaryService,CloudinaryService>();
+            builder.Services.AddScoped<ITourService, TourService>();
+            builder.Services.AddScoped<IManagerService, ManagerService>();
+            builder.Services.AddScoped<IAccountService, AccountService>();
             #endregion
 
             var app = builder.Build();

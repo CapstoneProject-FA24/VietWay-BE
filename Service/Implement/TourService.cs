@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Repository.ModelEntity;
-using Repository.UnitOfWork;
+using VietWay.Repository.EntityModel;
+using VietWay.Repository.UnitOfWork;
 using Service.Interface;
 using System;
 using System.Collections.Generic;

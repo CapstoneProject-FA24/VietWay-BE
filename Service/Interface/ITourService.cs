@@ -1,4 +1,4 @@
-﻿using Repository.ModelEntity;
+﻿using VietWay.Repository.EntityModel;
 using System;
 using System.Collections.Generic;
 using System.Linq;

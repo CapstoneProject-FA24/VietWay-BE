@@ -20,7 +20,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Repository\VietWay.Repository.csproj" />
-    <ProjectReference Include="..\Service\Service.csproj" />
     <ProjectReference Include="..\Service\VietWay.Service.csproj" />
   </ItemGroup>
 

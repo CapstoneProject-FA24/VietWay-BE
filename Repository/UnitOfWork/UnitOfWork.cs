@@ -20,12 +20,8 @@ namespace VietWay.Repository.UnitOfWork
         private IGenericRepository<Province> provinceRepository;
         private IGenericRepository<Tour> tourRepository;
         private IGenericRepository<TourTemplate> tourTemplateRepository;
+        private IGenericRepository<Staff> staffRepository;
 
-        public UnitOfWork(VietWayDbContext dbContext)
-        {
-            _dbContext = dbContext;
-        }
-        private IGenericRepository<TourTemplate> tourTemplateRepository;
 
         public IGenericRepository<Account> AccountRepository
         {
@@ -86,6 +82,14 @@ namespace VietWay.Repository.UnitOfWork
             }
         }
 
+        public IGenericRepository<Staff> StafRepository
+        {
+            get
+            {
+                this.staffRepository ??= new GenericRepository<Staff>(_dbContext);
+                return this.staffRepository;
+            }
+        }
         public void Save()
         {
             _dbContext.SaveChanges();
