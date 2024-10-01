@@ -10,7 +10,7 @@ namespace VietWay.Service.Interface
     public interface ITourTemplateService
     {
         public Task<(int totalCount, List<TourTemplate> items)> GetAllTemplatesAsync(int pageSize, int pageIndex);
-        public Task<TourTemplate?> GetTemplateByIdAsync(long id);
+        public Task<TourTemplate?> GetTemplateByIdAsync(string id);
         public Task CreateTemplateAsync(TourTemplate tourTemplate); 
     }
 }

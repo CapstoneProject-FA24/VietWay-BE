@@ -21,12 +21,12 @@ namespace VietWay.Service.Implement
                 .ToListAsync();
         }
 
-        public Task<Province?> GetProvinceById(long id)
+        public Task<Province?> GetProvinceById(string id)
         {
             return _unitOfWork
                 .ProvinceRepository
                 .Query()
-                .SingleOrDefaultAsync(x => x.ProvinceId == id);
+                .SingleOrDefaultAsync(x => x.ProvinceId.Equals(id));
         }
     }
 }

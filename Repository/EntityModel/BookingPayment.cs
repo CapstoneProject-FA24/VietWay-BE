@@ -12,16 +12,17 @@ namespace VietWay.Repository.EntityModel
     public class BookingPayment
     {
         [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.None)]
-        public long PaymentId { get; set; }
+        [StringLength(20)]
+        public required string PaymentId { get; set; }
         [ForeignKey(nameof(TourBooking))]
-        public long BookingId { get; set; }
-        public DateTime PaymentDate { get; set; }
+        [StringLength(20)]
+        public required string BookingId { get; set; }
+        public required DateTime PaymentDate { get; set; }
         [Column(TypeName = "decimal(18,2)")]
-        public decimal Amount { get; set; }
-        [Required]
+        public required decimal Amount { get; set; }
+        [StringLength(50)]
         public required string PaymentMethod { get; set; }
-        public PaymentStatus PaymentStatus { get; set; }
+        public required PaymentStatus PaymentStatus { get; set; }
 
         public virtual TourBooking? TourBooking { get; set; }
         public virtual ICollection<Transaction>? Transaction { get; set; }

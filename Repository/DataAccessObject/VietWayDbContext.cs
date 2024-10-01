@@ -29,6 +29,7 @@ namespace VietWay.Repository.DataAccessObject
         public DbSet<Tour> Tour { get; set; }
         public DbSet<TourBooking> TourBooking { get; set; }
         public DbSet<TourCategory> TourCategory { get; set; }
+        public DbSet<TourDuration> TourDuration { get; set; }
         public DbSet<TourTemplate> TourTemplate { get; set; }
         public DbSet<TourTemplateImage> TourTemplateImage { get; set; }
         public DbSet<TourTemplateProvince> TourTemplateProvince { get; set; }
@@ -38,9 +39,12 @@ namespace VietWay.Repository.DataAccessObject
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlServer(GetConnectionString());
+            optionsBuilder.UseSqlServer(GetConnectionString(),option =>
+            {
+                option.EnableRetryOnFailure();
+            });
         }
-        private string GetConnectionString()
+        private static string GetConnectionString()
         {
             string? environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
 
@@ -61,14 +65,6 @@ namespace VietWay.Repository.DataAccessObject
             {
                 relationship.DeleteBehavior = DeleteBehavior.Restrict;
             }
-            modelBuilder.Entity<AttractionSchedule>()
-                .HasKey(kas => new { kas.AttractionId, kas.DayNumber });
-            modelBuilder.Entity<TourTemplateSchedule>()
-                .HasKey(kts => new { kts.TourTemplateId, kts.DayNumber });
-            modelBuilder.Entity<AttractionSchedule>()
-            .HasOne<TourTemplateSchedule>()
-            .WithMany()
-            .HasForeignKey(fk => new { fk.TourTemplateId, fk.DayNumber });
         }
     }
 }

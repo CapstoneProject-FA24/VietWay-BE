@@ -12,9 +12,9 @@ namespace VietWay.Repository.EntityModel
     public class TourTemplateImage
     {
         [ForeignKey(nameof(TourTemplate))]
-        public long TourTemplateId { get; set; }
+        public string TourTemplateId { get; set; }
         [ForeignKey(nameof(Image))]
-        public long ImageId { get; set; }
+        public string ImageId { get; set; }
 
         public virtual TourTemplate? TourTemplate { get; set; }
         public virtual Image? Image { get; set; }

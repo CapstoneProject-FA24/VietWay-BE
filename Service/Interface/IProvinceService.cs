@@ -10,6 +10,6 @@ namespace VietWay.Service.Interface
     public interface IProvinceService
     {
         public Task<List<Province>> GetAllProvince();
-        public Task<Province?> GetProvinceById(long id);
+        public Task<Province?> GetProvinceById(string id);
     }
 }

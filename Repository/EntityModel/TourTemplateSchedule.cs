@@ -9,10 +9,11 @@ using System.Threading.Tasks;
 
 namespace VietWay.Repository.EntityModel
 {
+    [PrimaryKey(nameof(TourTemplateId), nameof(DayNumber))]
     public class TourTemplateSchedule
     {
         [ForeignKey(nameof(TourTemplate))]
-        public long TourTemplateId { get; set; }
+        public required string TourTemplateId { get; set; }
         public int DayNumber { get; set; }
         public required string Title { get; set; }
         public required string Description { get; set; }

@@ -13,9 +13,9 @@ namespace VietWay.Repository.EntityModel
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.None)]
-        public long TransactionId { get; set; }
+        public string TransactionId { get; set; }
         [ForeignKey(nameof(BookingPayment))]
-        public long PaymentId { get; set; }
+        public string PaymentId { get; set; }
         [Required, Range(0.00, 999999999999.99), Column(TypeName = "decimal(18,2)")]
         public decimal Amount { get; set; }
         [Required]

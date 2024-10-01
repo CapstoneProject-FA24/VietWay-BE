@@ -8,13 +8,15 @@ namespace VietWay.Repository.EntityModel
     public class TourBooking
     {
         [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.None)]
-        public long BookingId { get; set; }
+        [StringLength(20)]
+        public required string BookingId { get; set; }
         [ForeignKey(nameof(Tour))]
-        public long TourId { get; set; }
+        [StringLength(20)]
+        public required string TourId { get; set; }
         [ForeignKey(nameof(CustomerInfo))]
-        public long CustomerId { get; set; }
-        public BookingStatus Status { get; set; }
+        [StringLength(20)]
+        public required string CustomerId { get; set; }
+        public required BookingStatus Status { get; set; }
 
         public virtual Tour? Tour { get; set; }
         public virtual Customer? CustomerInfo { get; set; }

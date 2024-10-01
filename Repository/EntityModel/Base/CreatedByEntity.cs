@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
@@ -10,7 +11,10 @@ namespace VietWay.Repository.EntityModel.Base
     public class CreatedByEntity<T> : SoftDeleteEntity where T : class
     {
         [ForeignKey(nameof(Creator))]
-        public long CreatedBy { get; set; }
+        [Required]
+        [StringLength(20)]
+        public required string CreatedBy { get; set; }
+        [Required]
         public DateTime CreatedDate { get; set; }
 
         public virtual T? Creator { get; set; }

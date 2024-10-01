@@ -9,14 +9,17 @@ using System.Threading.Tasks;
 
 namespace VietWay.Repository.EntityModel
 {
+    [PrimaryKey(nameof(TourTemplateId),nameof(DayNumber),nameof(AttractionId))]
     public class AttractionSchedule
     {
-        public long TourTemplateId { get; set; }
-        public int DayNumber { get; set; }
+        [StringLength(20)]
+        public required string TourTemplateId { get; set; }
+        public required int DayNumber { get; set; }
         [ForeignKey(nameof(Attraction))]
-        [Required]
-        public long AttractionId { get; set; }
+        [StringLength(20)]
+        public required string AttractionId { get; set; }
 
         public virtual Attraction? Attraction { get; set; }
+        public virtual TourTemplateSchedule? TourTemplateSchedule { get; set; }
     }
 }

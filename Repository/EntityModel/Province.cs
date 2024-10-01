@@ -12,12 +12,13 @@ namespace VietWay.Repository.EntityModel
     public class Province
     {
         [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.None)]
-        public long ProvinceId { get; set; }
-        [Required]
+        [StringLength(20)]
+        public required string ProvinceId { get; set; }
+        [StringLength(50)]
         public required string ProvinceName { get; set; }
         [ForeignKey(nameof(Image))]
-        public long ImageId { get; set; }
+        [StringLength(20)]
+        public required string ImageId { get; set; }
 
         public virtual Image? Image { get; set; }
     }

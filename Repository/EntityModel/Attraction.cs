@@ -12,21 +12,27 @@ namespace VietWay.Repository.EntityModel
     public class Attraction : CreatedByEntity<Staff>
     {
         [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.None)]
-        public long AttractionId { get; set; }
-        [Required]
+        [StringLength(20)]
+        public required string AttractionId { get; set; }
+        [StringLength(255)]
         public required string Name { get; set; }
-        [Required]
+        [StringLength(255)]
         public required string Address { get; set; }
-        [Required]
+        [StringLength(500)]
         public required string ContactInfo { get; set; }
+        [StringLength(2048)]
         public string? Website { get; set; }
-        [Required]
         public required string Description { get; set; }
+        [StringLength(20)]
+        [ForeignKey(nameof(ProvinceId))]
+        public required string ProvinceId { get; set; }
+        [StringLength(20)]
         [ForeignKey(nameof(AttractionType))]
-        public long AttractionTypeId { get; set; }
-        public string? GoogleMapUrl { get; set; }
+        public required string AttractionTypeId { get; set; }
+        [StringLength(50)]
+        public string? GooglePlaceId { get; set; }
 
+        public virtual Province? Province { get; set; }
         public virtual AttractionType? AttractionType { get; set; }
         public virtual ICollection<AttractionImage>? AttractionImages { get; set; }
     }

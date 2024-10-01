@@ -45,7 +45,7 @@ namespace VietWay.Service.Implement
             return (count, items);
         }
 
-        public async Task<TourTemplate?> GetTemplateByIdAsync(long id)
+        public async Task<TourTemplate?> GetTemplateByIdAsync(string id)
         {
             return await _unitOfWork
                 .TourTemplateRepository
@@ -57,7 +57,7 @@ namespace VietWay.Service.Implement
                 .Include(x => x.TourTemplateProvinces)
                 .ThenInclude(x => x.Province)
                 .Include(x=>x.Creator)
-                .SingleOrDefaultAsync(x => x.TourTemplateId == id);
+                .SingleOrDefaultAsync(x => x.TourTemplateId.Equals(id));
         }
     }
 }

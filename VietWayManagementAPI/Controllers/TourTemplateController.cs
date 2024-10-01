@@ -38,7 +38,7 @@ namespace VietWay.API.Management.Controllers
             return Ok(response);
         }
         [HttpGet("{tourTemplateId}")]
-        public async Task<IActionResult> GetTourTemplateById(long tourTemplateId)
+        public async Task<IActionResult> GetTourTemplateById(string tourTemplateId)
         {
             TourTemplate? tourTemplate = await _tourTemplateService
                 .GetTemplateByIdAsync(tourTemplateId);
