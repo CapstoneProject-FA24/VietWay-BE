@@ -1,11 +1,18 @@
-using Repository.UnitOfWork;
 using IdGen.DependencyInjection;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
-using VietWayManagementAPI.Mappers;
+using Microsoft.OpenApi.Models;
+using Swashbuckle.AspNetCore.SwaggerGen;
+using Microsoft.Extensions.Options;
+using VietWay.API.Management.Mappers;
+using VietWay.Repository.UnitOfWork;
+using VietWay.Service.Interface;
+using VietWay.Service.Implement;
+using VietWay.API.Management.Middleware;
+using VietWay.Service.ThirdParty;
 
-namespace VietWayManagementAPI
+namespace VietWay.API.Management
 {
     public class Program
     {
@@ -13,15 +20,11 @@ namespace VietWayManagementAPI
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            // Add services to the container.
-
             builder.Services.AddControllers();
-            // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
-            builder.Services.AddSwaggerGen();
             builder.Services.AddIdGen(0);
             builder.Services.AddAutoMapper(typeof(MappingProfile));
-            
+            #region builder.Services.AddAuthentication(...);
             builder.Services.AddAuthentication(option =>
             {
                 option.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -29,19 +32,20 @@ namespace VietWayManagementAPI
                 option.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
             }).AddJwtBearer(o =>
             {
-                string issuer;
-                string audience;
+                string? issuer = builder.Configuration["Jwt:Issuer"]
+                        ?? throw new Exception("Can not get JWT Issuer");
+                string? audience = builder.Configuration["Jwt:Audience"]
+                    ?? throw new Exception("Can not get JWT Audience");
                 string secretKey;
                 if (builder.Environment.IsDevelopment())
                 {
-                    issuer = builder.Configuration["Jwt:Issuer"];
-                    audience = builder.Configuration["Jwt:Audience"];
-                    secretKey = builder.Configuration["Jwt:SecretKey"];
-                } else
+                    secretKey = builder.Configuration["Jwt:Key"]
+                        ?? throw new Exception("Can not get JWT Key");
+                }
+                else
                 {
-                    issuer = Environment.GetEnvironmentVariable("Jwt:Issuer");
-                    audience = Environment.GetEnvironmentVariable("Jwt:Audience");
-                    secretKey = Environment.GetEnvironmentVariable("Jwt:SecretKey");
+                    secretKey = Environment.GetEnvironmentVariable("PROD_JWT_KEY")
+                        ?? throw new Exception("Can not get JWT Key");
                 }
                 o.UseSecurityTokenValidators = true;
                 o.TokenValidationParameters = new()
@@ -52,28 +56,91 @@ namespace VietWayManagementAPI
                     ValidAudience = audience,
                     ValidateIssuerSigningKey = true,
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey)),
-                    ValidateLifetime = true,
-                    ClockSkew = TimeSpan.Zero
+                    ValidateLifetime = true
                 };
             });
-          
+            #endregion
+            #region builder.Services.AddCors(...);
+            builder.Services.AddCors(option =>
+            {
+                option.AddPolicy("AllowAll", builder =>
+                {
+                    builder.AllowAnyOrigin()
+                        .AllowAnyMethod()
+                        .AllowAnyHeader();
+                });
+            });
+            #endregion
+            #region builder.Services.AddSwaggerGen(...);
+            builder.Services.AddSwaggerGen(options =>
+            {
+                options.SwaggerDoc("v1",
+                new OpenApiInfo
+                { Title = "VietWay API", Description = "API for VietWay", Version = "1.0.0" });
+                options.AddSecurityDefinition("Bearer",
+                    new OpenApiSecurityScheme
+                    {
+                        In = ParameterLocation.Header,
+                        Description = "Please enter token",
+                        Name = "Authorization",
+                        Type = SecuritySchemeType.Http,
+                        BearerFormat = "JWT",
+                        Scheme = "bearer"
+                    });
+                options.AddSecurityRequirement(new OpenApiSecurityRequirement
+                {
+                    {
+                        new OpenApiSecurityScheme
+                        {
+                            Reference = new OpenApiReference
+                            {
+                                Type = ReferenceType.SecurityScheme,
+                                Id = "Bearer"
+                            }
+                        },
+                        Array.Empty<string>()
+                    }
+                });
+            });
+            #endregion
+            #region builder.Services.AddScoped(...);
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+            builder.Services.AddScoped<ITourTemplateService, TourTemplateService>();
+            builder.Services.AddScoped<IProvinceService, ProvinceService>();
+            builder.Services.AddScoped<ICloudinaryService,CloudinaryService>();
+            #endregion
+
             var app = builder.Build();
 
-            // Configure the HTTP request pipeline.
+            app.UseStaticFiles();
+            #region app.UseSwagger(...);
             if (app.Environment.IsDevelopment())
             {
                 app.UseSwagger();
-                app.UseSwaggerUI();
+                app.UseSwaggerUI(c =>
+                {
+                    c.InjectStylesheet("/SwaggerDark.css");
+                    c.EnableTryItOutByDefault();
+                });
             }
-
+            else
+            {
+                app.UseSwagger();
+                app.UseSwaggerUI(c =>
+                {
+                    c.SwaggerEndpoint("/swagger/v1/swagger.json", "VietWay Api");
+                    c.InjectStylesheet("/SwaggerDark.css");
+                    c.RoutePrefix = "";
+                    c.EnableTryItOutByDefault();
+                });
+            }
+            #endregion
             app.UseHttpsRedirection();
-
+            app.UseCors("AllowAll");
+            app.UseAuthentication();
             app.UseAuthorization();
-
-
+            app.UseMiddleware<ErrorHandlingMiddleware>();
             app.MapControllers();
-
             app.Run();
         }
     }

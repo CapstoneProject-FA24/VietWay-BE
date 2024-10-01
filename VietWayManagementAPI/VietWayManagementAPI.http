@@ -1,6 +1,6 @@
-@VietWayManagementAPI_HostAddress = http://localhost:5269
+#@VietWayManagementAPI_HostAddress = http://localhost:5269
 
-GET {{VietWayManagementAPI_HostAddress}}/weatherforecast/
-Accept: application/json
+#GET {{VietWayManagementAPI_HostAddress}}/weatherforecast/
+#Accept: application/json
 
 ###

@@ -1,13 +1,14 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Repository.DataAccessObject;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
+using VietWay.Repository.DataAccessObject;
+using VietWay.Repository.EntityModel.Base;
 
-namespace Repository.Repository
+namespace VietWay.Repository.GenericRepository
 {
     public class GenericRepository<T> : IGenericRepository<T> where T : class
     {
@@ -39,6 +40,16 @@ namespace Repository.Repository
         public IQueryable<T> Query()
         {
             return _dbSet.AsQueryable();
+        }
+
+        public async Task SoftDelete(T entity)
+        {
+            if (entity is SoftDeleteEntity softDeleteEntity)
+            {
+                softDeleteEntity.IsDeleted = true;
+                _dbSet.Update(entity).State = EntityState.Modified;
+                await _dbContext.SaveChangesAsync();
+            }
         }
     }
 }

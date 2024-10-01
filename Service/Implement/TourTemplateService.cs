@@ -1,53 +1,63 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Repository.ModelEntity;
-using Repository.UnitOfWork;
-using Service.Interface;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using VietWay.Repository.EntityModel;
+using VietWay.Repository.UnitOfWork;
+using VietWay.Service.Interface;
 
-namespace Service.Implement
+namespace VietWay.Service.Implement
 {
-    public class TourTemplateService : ITourTemplateService
+    public class TourTemplateService(IUnitOfWork unitOfWork) : ITourTemplateService
     {
-        private readonly IUnitOfWork _unitOfWork;
-        public TourTemplateService(IUnitOfWork unitOfWork)
-        {
-            _unitOfWork = unitOfWork;
-        }
-        public async Task<TourTemplate> CreateTourTemplate(TourTemplate template)
-        {
-            await _unitOfWork.TourTemplateRepository
-                .Create(template);
-            return template;
-        }
+        private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
-        public async Task<TourTemplate> EditTourTemplate(TourTemplate updatedTemplate)
+        public async Task CreateTemplateAsync(TourTemplate template)
         {
-            await _unitOfWork.TourTemplateRepository
-                .Update(updatedTemplate);
-            return updatedTemplate;
+            await _unitOfWork.TourTemplateRepository.Create(template);
         }
-
-        public async Task<List<TourTemplate>> GetAllTourTemplate(int pageSize, int pageIndex)
+        public async Task UpdateTemplateAsync(TourTemplate template)
         {
-            return await _unitOfWork.TourTemplateRepository
-                .Query()
+            await _unitOfWork.TourTemplateRepository.Update(template);
+        }
+        public async Task SoftDeleteTemplateAsync(TourTemplate template)
+        {
+            await _unitOfWork.TourTemplateRepository.SoftDelete(template);
+        }
+        public async Task<(int totalCount, List<TourTemplate> items)> GetAllTemplatesAsync(int pageSize, int pageIndex)
+        {
+            var query = _unitOfWork
+                .TourTemplateRepository
+                .Query();
+            int count = await query.CountAsync();
+            List<TourTemplate> items = await query
+                .OrderByDescending(x => x.CreatedDate)
                 .Skip((pageIndex - 1) * pageSize)
                 .Take(pageSize)
-                .Include(x => x.TourCategory)
+                .Include(x => x.TourTemplateImages)
+                .ThenInclude(x => x.Image)
+                .Include(x => x.TourTemplateProvinces)
+                .ThenInclude(x => x.Province)
+                .Include(x => x.Creator)
                 .ToListAsync();
+            return (count, items);
         }
 
-        public async Task<TourTemplate?> GetTourTemplateById(int id)
+        public async Task<TourTemplate?> GetTemplateByIdAsync(string id)
         {
-            return await _unitOfWork.TourTemplateRepository
+            return await _unitOfWork
+                .TourTemplateRepository
                 .Query()
-                .Where(x => x.TourTemplateId.Equals(id))
-                .Include(x => x.TourCategory)
-                .FirstOrDefaultAsync();
+                .Include(x => x.TourTemplateSchedules)
+                .ThenInclude(x => x.AttractionSchedules)
+                .Include(x => x.TourTemplateImages)
+                .ThenInclude(x => x.Image)
+                .Include(x => x.TourTemplateProvinces)
+                .ThenInclude(x => x.Province)
+                .Include(x=>x.Creator)
+                .SingleOrDefaultAsync(x => x.TourTemplateId.Equals(id));
         }
     }
 }

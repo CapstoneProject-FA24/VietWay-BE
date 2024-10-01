@@ -1,23 +1,22 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Repository.DataAccessObject;
-using Repository.ModelEntity;
-using Repository.Repository;
-using Repository.UnitOfWork;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using VietWay.Repository.DataAccessObject;
+using VietWay.Repository.EntityModel;
+using VietWay.Repository.GenericRepository;
 
-namespace Repository.UnitOfWork
+namespace VietWay.Repository.UnitOfWork
 {
     public class UnitOfWork : IUnitOfWork
     {
-        private VietWayDbContext _dbContext = new();
+        private readonly VietWayDbContext _dbContext = new();
         private IGenericRepository<Account> accountRepository;
-        private IGenericRepository<CustomerInfo> customerInfoRepository;
+        private IGenericRepository<Customer> customerInfoRepository;
         private IGenericRepository<Image> imageRepository;
-        private IGenericRepository<ManagerInfo> managerInfoRepository;
+        private IGenericRepository<Manager> managerInfoRepository;
         private IGenericRepository<Province> provinceRepository;
         private IGenericRepository<Tour> tourRepository;
         private IGenericRepository<TourTemplate> tourTemplateRepository;
@@ -26,45 +25,46 @@ namespace Repository.UnitOfWork
         {
             _dbContext = dbContext;
         }
+        private IGenericRepository<TourTemplate> tourTemplateRepository;
 
         public IGenericRepository<Account> AccountRepository
         {
             get
             {
-                this.accountRepository ??= new  GenericRepository<Account>(_dbContext);
-                return this.accountRepository;
+                accountRepository ??= new GenericRepository<Account>(_dbContext);
+                return accountRepository;
             }
         }
-        public IGenericRepository<CustomerInfo> CustomerInfoRepository
+        public IGenericRepository<Customer> CustomerInfoRepository
         {
             get
             {
-                this.customerInfoRepository ??= new GenericRepository<CustomerInfo>(_dbContext);
-                return this.customerInfoRepository;
+                customerInfoRepository ??= new GenericRepository<Customer>(_dbContext);
+                return customerInfoRepository;
             }
         }
         public IGenericRepository<Image> ImageRepository
         {
             get
             {
-                this.imageRepository ??= new GenericRepository<Image>(_dbContext);
-                return this.imageRepository;
+                imageRepository ??= new GenericRepository<Image>(_dbContext);
+                return imageRepository;
             }
         }
-        public IGenericRepository<ManagerInfo> ManagerInfoRepository
+        public IGenericRepository<Manager> ManagerInfoRepository
         {
             get
             {
-                this.managerInfoRepository ??= new GenericRepository<ManagerInfo>(_dbContext);
-                return this.managerInfoRepository;
+                managerInfoRepository ??= new GenericRepository<Manager>(_dbContext);
+                return managerInfoRepository;
             }
         }
         public IGenericRepository<Province> ProvinceRepository
         {
             get
             {
-                this.provinceRepository ??= new GenericRepository<Province>(_dbContext);
-                return this.provinceRepository;
+                provinceRepository ??= new GenericRepository<Province>(_dbContext);
+                return provinceRepository;
             }
         }
 
@@ -95,14 +95,14 @@ namespace Repository.UnitOfWork
 
         protected virtual void Dispose(bool disposing)
         {
-            if (!this.disposed)
+            if (!disposed)
             {
                 if (disposing)
                 {
                     _dbContext.Dispose();
                 }
             }
-            this.disposed = true;
+            disposed = true;
         }
 
         public void Dispose()

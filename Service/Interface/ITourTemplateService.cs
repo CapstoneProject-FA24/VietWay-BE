@@ -1,17 +1,16 @@
-﻿using Repository.ModelEntity;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using VietWay.Repository.EntityModel;
 
-namespace Service.Interface
+namespace VietWay.Service.Interface
 {
     public interface ITourTemplateService
     {
-        public Task<TourTemplate> CreateTourTemplate(TourTemplate template);
-        public Task<TourTemplate> EditTourTemplate(TourTemplate updatedTemplate);
-        public Task<List<TourTemplate>> GetAllTourTemplate(int pageSize, int pageIndex);
-        public Task<TourTemplate?> GetTourTemplateById(int id);
+        public Task<(int totalCount, List<TourTemplate> items)> GetAllTemplatesAsync(int pageSize, int pageIndex);
+        public Task<TourTemplate?> GetTemplateByIdAsync(string id);
+        public Task CreateTemplateAsync(TourTemplate tourTemplate); 
     }
 }
