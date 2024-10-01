@@ -15,7 +15,6 @@ namespace VietWay.Repository.EntityModel.Base
     public enum UserRole
     {
         Customer,
-        TourGuide,
         Staff,
         Manager,
         Admin

@@ -12,12 +12,12 @@ namespace VietWay.Repository.EntityModel
     public class CustomerFeedback : SoftDeleteEntity
     {
         [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.None)]
-        public long FeedbackId { get; set; }
+        [StringLength(20)]
+        public required string FeedbackId { get; set; }
         [ForeignKey(nameof(Booking))]
-        public long BookingId { get; set; }
-        public int Rating { get; set; }
-        [Required]
+        [StringLength(20)]
+        public required string BookingId { get; set; }
+        public required int Rating { get; set; }
         public required string Feedback { get; set; }
 
         public virtual TourBooking? Booking { get; set; }

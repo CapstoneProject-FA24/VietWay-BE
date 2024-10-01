@@ -12,16 +12,15 @@ namespace VietWay.Repository.EntityModel
     public class Account : SoftDeleteEntity
     {
         [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.None)]
-        public long AccountId { get; set; }
-        [Required]
-        [RegularExpression(@"^0\d{9}$")]
+        [StringLength(20)]
+        public required string AccountId { get; set; }
+        [StringLength(10)]
         public required string PhoneNumber { get; set; }
-        [EmailAddress]
+        [StringLength(320)]
         public string? Email { get; set; }
-        [Required]
+        [StringLength(60)]
         public required string Password { get; set; }
         public required DateTime CreatedAt { get; set; }
-        public UserRole Role { get; set; }
+        public required UserRole Role { get; set; }
     }
 }

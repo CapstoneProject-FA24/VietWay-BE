@@ -11,10 +11,13 @@ namespace VietWay.Repository.EntityModel
 {
     public class Manager : CreatedByEntity<Admin>
     {
-        [Key, ForeignKey(nameof(Account))]
-        public long ManagerId { get; set; }
-        [Required]
+        [Key]
+        [ForeignKey(nameof(Account))]
+        [StringLength(20)]
+        public required string ManagerId { get; set; }
+        [StringLength(100)]
         public required string FullName { get; set; }
+
         public virtual Account? Account { get; set; }
     }
 }

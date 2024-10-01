@@ -31,7 +31,7 @@ namespace VietWay.API.Management.Controllers
         [HttpGet("{provinceId}")]
         [Produces("application/json")]
         [ProducesResponseType<DefaultResponseModel<ProvincePreview>>(StatusCodes.Status200OK)]
-        public async Task<IActionResult> GetProvinceById(long provinceId)
+        public async Task<IActionResult> GetProvinceById(string provinceId)
         {
             Province? province = await _provinceService
                 .GetProvinceById(provinceId);

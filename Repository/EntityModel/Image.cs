@@ -12,15 +12,17 @@ namespace VietWay.Repository.EntityModel
     public class Image
     {
         [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.None)]
-        public long ImageId { get; set; }
-        [Required]
+        [StringLength(20)]
+        public required string ImageId { get; set; }
+        [StringLength(64)]
         public required string SHA256 { get; set; }
-        [Required]
+        [StringLength(255)]
         public required string PublicId { get; set; }
-        [Required]
+        [StringLength(255)]
+        public required string FileName { get; set; }
+        [StringLength(2048)]
         public required string Url { get; set; }
-        [Required]
+        [StringLength(100)]
         public required string ContentType { get; set; }
     }
 }
