@@ -82,7 +82,7 @@ namespace VietWay.Repository.UnitOfWork
             }
         }
 
-        public IGenericRepository<Staff> StafRepository
+        public IGenericRepository<Staff> StaffRepository
         {
             get
             {
