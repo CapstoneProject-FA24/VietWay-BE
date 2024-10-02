@@ -49,6 +49,8 @@ namespace VietWay.API.Management.Controllers
             return Ok(response);
         }
         [HttpGet("{tourTemplateId}")]
+        [Produces("application/json")]
+        [ProducesResponseType<DefaultResponseModel<DefaultResponseModel<TourTemplateDetail>>>(StatusCodes.Status200OK)]
         public async Task<IActionResult> GetTourTemplateById(string tourTemplateId)
         {
             TourTemplate? tourTemplate = await _tourTemplateService
