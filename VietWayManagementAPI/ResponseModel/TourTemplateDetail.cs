@@ -26,6 +26,6 @@ namespace VietWay.API.Management.ResponseModel
         public int DayNumber { get; set; }
         public required string Title { get; set; }
         public required string Description { get; set; }
-        public required List<string> Attractions { get; set; }
+        public required List<AttractionPreview> Attractions { get; set; }
     }
 }

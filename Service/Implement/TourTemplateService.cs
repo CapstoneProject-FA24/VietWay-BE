@@ -83,6 +83,7 @@ namespace VietWay.Service.Implement
                 .Query()
                 .Include(x => x.TourTemplateSchedules)
                 .ThenInclude(x => x.AttractionSchedules)
+                .ThenInclude(x => x.Attraction)
                 .Include(x => x.TourTemplateImages)
                 .ThenInclude(x => x.Image)
                 .Include(x => x.TourTemplateProvinces)
