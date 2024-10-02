@@ -20,7 +20,7 @@ namespace VietWay.Repository.EntityModel
         public required string TourName { get; set; }
         public required string Description { get; set; }
         [ForeignKey(nameof(TourDuration))]
-        public required string Duration { get; set; }
+        public required string DurationId { get; set; }
         [ForeignKey(nameof(TourCategory))]
         public required string TourCategoryId { get; set; }
         public required string Policy { get; set; }

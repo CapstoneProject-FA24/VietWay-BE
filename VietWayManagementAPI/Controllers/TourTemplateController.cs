@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using VietWay.API.Management.RequestModel;
 using VietWay.API.Management.ResponseModel;
 using VietWay.Repository.EntityModel;
+using VietWay.Repository.EntityModel.Base;
 using VietWay.Service.Interface;
 
 namespace VietWay.API.Management.Controllers
@@ -18,15 +19,25 @@ namespace VietWay.API.Management.Controllers
         [HttpGet]
         [Produces("application/json")]
         [ProducesResponseType<DefaultResponseModel<DefaultPageResponse<TourTemplatePreview>>>(StatusCodes.Status200OK)]
-        public async Task<IActionResult> GetAllTemplatesAsync(int pageSize, int pageIndex)
+        public async Task<IActionResult> GetAllTemplatesAsync(
+            string? nameSearch,
+            [FromQuery]List<string>? templateCategoryIds,
+            [FromQuery]List<string>? provinceIds,
+            [FromQuery]List<string>? durationIds,
+            TourTemplateStatus? status,
+            int? pageSize, 
+            int? pageIndex)
         {
-            var result = await _tourTemplateService.GetAllTemplatesAsync(pageSize, pageIndex);
+            int checkedPageSize = (pageSize == null || pageSize < 1) ? 10 : (int)pageSize;
+            int checkedPageIndex = (pageIndex == null || pageIndex < 1)? 1 : (int)pageIndex;
+
+            var result = await _tourTemplateService.GetAllTemplatesAsync(nameSearch,templateCategoryIds,provinceIds,durationIds,status,checkedPageSize,checkedPageIndex);
             List<TourTemplatePreview> tourTemplatePreviews = _mapper.Map<List<TourTemplatePreview>>(result.items);
             DefaultPageResponse<TourTemplatePreview> pagedResponse = new()
             {
                 Total = result.totalCount,
-                PageSize = pageSize,
-                PageIndex = pageIndex,
+                PageSize = checkedPageSize,
+                PageIndex = checkedPageIndex,
                 Items = tourTemplatePreviews
             };
             DefaultResponseModel<DefaultPageResponse<TourTemplatePreview>> response = new()

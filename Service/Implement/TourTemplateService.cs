@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using VietWay.Repository.EntityModel;
+using VietWay.Repository.EntityModel.Base;
 using VietWay.Repository.UnitOfWork;
 using VietWay.Service.Interface;
 
@@ -26,11 +27,39 @@ namespace VietWay.Service.Implement
         {
             await _unitOfWork.TourTemplateRepository.SoftDelete(template);
         }
-        public async Task<(int totalCount, List<TourTemplate> items)> GetAllTemplatesAsync(int pageSize, int pageIndex)
+        public async Task<(int totalCount, List<TourTemplate> items)> GetAllTemplatesAsync(
+            string? nameSearch,
+            List<string>? templateCategoryIds,
+            List<string>? provinceIds,
+            List<string>? durationIds,
+            TourTemplateStatus? status,
+            int pageSize,
+            int pageIndex)
         {
             var query = _unitOfWork
                 .TourTemplateRepository
-                .Query();
+                .Query()
+                .Where(x=>x.IsDeleted == false);
+            if (!string.IsNullOrEmpty(nameSearch))
+            {
+                query = query.Where(x => x.TourName.Contains(nameSearch));
+            }
+            if (templateCategoryIds != null && templateCategoryIds.Count > 0)
+            {
+                query = query.Where(x => templateCategoryIds.Contains(x.TourCategoryId));
+            }
+            if (provinceIds != null && provinceIds.Count > 0)
+            {
+                query = query.Where(x=>x.TourTemplateProvinces.Select(x=>x.ProvinceId).Any(p=>provinceIds.Contains(p)));
+            }
+            if (durationIds != null && durationIds.Count > 0)
+            {
+                query = query.Where(x => durationIds.Contains(x.DurationId));
+            }
+            if (status != null)
+            {
+                query = query.Where(x => x.Status.Equals(status));
+            }
             int count = await query.CountAsync();
             List<TourTemplate> items = await query
                 .OrderByDescending(x => x.CreatedDate)
@@ -40,6 +69,8 @@ namespace VietWay.Service.Implement
                 .ThenInclude(x => x.Image)
                 .Include(x => x.TourTemplateProvinces)
                 .ThenInclude(x => x.Province)
+                .Include(x=>x.TourCategory)
+                .Include(x=>x.TourDuration)
                 .Include(x => x.Creator)
                 .ToListAsync();
             return (count, items);
@@ -56,6 +87,8 @@ namespace VietWay.Service.Implement
                 .ThenInclude(x => x.Image)
                 .Include(x => x.TourTemplateProvinces)
                 .ThenInclude(x => x.Province)
+                .Include(x=>x.TourDuration)
+                .Include(x=>x.TourCategory)
                 .Include(x=>x.Creator)
                 .SingleOrDefaultAsync(x => x.TourTemplateId.Equals(id));
         }

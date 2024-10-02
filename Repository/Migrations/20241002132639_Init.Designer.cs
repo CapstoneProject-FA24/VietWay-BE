@@ -12,7 +12,7 @@ using VietWay.Repository.DataAccessObject;
 namespace VietWay.Repository.Migrations
 {
     [DbContext(typeof(VietWayDbContext))]
-    [Migration("20241001141829_Init")]
+    [Migration("20241002132639_Init")]
     partial class Init
     {
         /// <inheritdoc />
@@ -549,7 +549,7 @@ namespace VietWay.Repository.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
-                    b.Property<int>("NumberOfDate")
+                    b.Property<int>("NumberOfDay")
                         .HasColumnType("int");
 
                     b.HasKey("DurationId");
@@ -580,7 +580,7 @@ namespace VietWay.Repository.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Duration")
+                    b.Property<string>("DurationId")
                         .IsRequired()
                         .HasColumnType("nvarchar(20)");
 
@@ -611,7 +611,7 @@ namespace VietWay.Repository.Migrations
 
                     b.HasIndex("CreatedBy");
 
-                    b.HasIndex("Duration");
+                    b.HasIndex("DurationId");
 
                     b.HasIndex("TourCategoryId");
 
@@ -946,7 +946,7 @@ namespace VietWay.Repository.Migrations
 
                     b.HasOne("VietWay.Repository.EntityModel.TourDuration", "TourDuration")
                         .WithMany()
-                        .HasForeignKey("Duration")
+                        .HasForeignKey("DurationId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 

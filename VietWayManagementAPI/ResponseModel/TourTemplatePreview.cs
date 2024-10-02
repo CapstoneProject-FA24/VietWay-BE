@@ -8,7 +8,7 @@ namespace VietWay.API.Management.ResponseModel
         public required string Code { get; set; }
         public required string TourName { get; set; }
         public required string Duration { get; set; }
-        public required int TourCategoryId { get; set; }
+        public required string TourCategory { get; set; }
         public TourTemplateStatus Status { get; set; }
         public required DateTime CreatedDate { get; set; }
         public required string CreatorName { get; set; }
