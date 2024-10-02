@@ -31,7 +31,11 @@ namespace VietWay.API.Management.Mappers
                     DayNumber = x.DayNumber,
                     Title = x.Title,
                     Description = x.Description,
-                    Attractions = x.AttractionSchedules.Select(y => y.AttractionId).ToList()
+                    Attractions = x.AttractionSchedules.Select(y => new AttractionPreview()
+                    {
+                        AttractionId = y.AttractionId,
+                        Name = y.Attraction.Name
+                    }).ToList()
                 }).ToList()))
                 .ForMember(dest=>dest.Images, opt => opt.MapFrom(src=>src.TourTemplateImages.Select(x=> new ImageDetail() 
                 { 

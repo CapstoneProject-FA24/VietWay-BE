@@ -15,6 +15,8 @@ namespace VietWay.Service.ThirdParty
         private readonly Cloudinary _cloudinary;
         public CloudinaryService()
         {
+            string cloudinaryConnectionString = Environment.GetEnvironmentVariable("Cloudinary_ConnectionString") ??
+                throw new Exception("Can not get Cloudinary connection string");
             _cloudinary = new("cloudinary://733166211479731:-JO2RA4VVnLtYOFCDdbNEHx-etI@djfopoob1");
             _cloudinary.Api.Secure = true;
         }
@@ -37,6 +39,5 @@ namespace VietWay.Service.ThirdParty
             var deleteResult = await _cloudinary.DestroyAsync(deleteParams);
             return JsonSerializer.Serialize(deleteResult);
         }
-
     }
 }
