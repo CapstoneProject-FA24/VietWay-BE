@@ -14,8 +14,6 @@ namespace VietWay.Repository.EntityModel
         [Key]
         [StringLength(20)]
         public required string ImageId { get; set; }
-        [StringLength(64)]
-        public required string SHA256 { get; set; }
         [StringLength(255)]
         public required string PublicId { get; set; }
         [StringLength(255)]
