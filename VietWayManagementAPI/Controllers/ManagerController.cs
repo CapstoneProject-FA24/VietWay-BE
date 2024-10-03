@@ -9,7 +9,7 @@ namespace VietWay.API.Management.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class ManagerInfoController (IManagerService managerService, IMapper mapper) : ControllerBase
+    public class ManagerController (IManagerService managerService, IMapper mapper) : ControllerBase
     {
         private readonly IManagerService _managerService = managerService;
         private readonly IMapper _mapper = mapper;

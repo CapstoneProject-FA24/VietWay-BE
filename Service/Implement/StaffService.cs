@@ -33,17 +33,21 @@ namespace VietWay.Service.Implement
             return staffInfo;
         }
 
-        public async Task<List<Staff>> GetAllStaffInfos(int pageSize, int pageIndex)
+        public async Task<(int totalCount, List<Staff> items)> GetAllStaffInfos(int pageSize, int pageIndex)
         {
-            return await _unitOfWork.StaffRepository
-                .Query()
+            var query = _unitOfWork
+                .StaffRepository
+                .Query();
+            int count = await query.CountAsync();
+            List<Staff> items = await query
                 .Skip((pageIndex - 1) * pageSize)
                 .Take(pageSize)
                 .Include(x => x.Account)
                 .ToListAsync();
+            return (count, items);
         }
 
-        public async Task<Staff?> GetStaffInfoById(int id)
+        public async Task<Staff?> GetStaffInfoById(string id)
         {
             return await _unitOfWork.StaffRepository
                 .Query()
