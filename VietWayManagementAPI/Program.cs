@@ -114,6 +114,8 @@ namespace VietWay.API.Management
             builder.Services.AddScoped<IManagerService, ManagerService>();
             builder.Services.AddScoped<IAccountService, AccountService>();
             builder.Services.AddScoped<IStaffService, StaffService>();
+            builder.Services.AddScoped<ITourCategoryService, TourCategoryService>();
+            builder.Services.AddScoped<IAttractionTypeService, AttractionTypeService>();
             #endregion
 
             var app = builder.Build();

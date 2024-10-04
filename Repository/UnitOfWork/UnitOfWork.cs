@@ -21,6 +21,8 @@ namespace VietWay.Repository.UnitOfWork
         private IGenericRepository<Tour> tourRepository;
         private IGenericRepository<TourTemplate> tourTemplateRepository;
         private IGenericRepository<Staff> staffRepository;
+        private IGenericRepository<TourCategory> categoryRepository;
+        private IGenericRepository<AttractionType> attractionTypeRepository;
 
 
         public IGenericRepository<Account> AccountRepository
@@ -90,6 +92,25 @@ namespace VietWay.Repository.UnitOfWork
                 return this.staffRepository;
             }
         }
+
+        public IGenericRepository<TourCategory> TourCategoryRepository
+        {
+            get
+            {
+                this.categoryRepository ??= new GenericRepository<TourCategory>(_dbContext);
+                return this.categoryRepository;
+            }
+        }
+
+        public IGenericRepository<AttractionType> AttractionTypeRepository
+        {
+            get
+            {
+                this.attractionTypeRepository ??= new GenericRepository<AttractionType>(_dbContext);
+                return this.attractionTypeRepository;
+            }
+        }
+
         public void Save()
         {
             _dbContext.SaveChanges();
