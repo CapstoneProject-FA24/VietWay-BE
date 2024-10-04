@@ -77,7 +77,7 @@ namespace VietWay.API.Management.Controllers
         [HttpPost]
         [Produces("application/json")]
         [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status200OK)]
-        public async Task<IActionResult> CreateDraftAttractionAsync([FromForm] CreateAttractionRequest request)
+        public async Task<IActionResult> CreateAttractionAsync([FromForm] CreateAttractionRequest request)
         {
             Attraction attraction = _mapper.Map<Attraction>(request);
             if (false == request.IsDraft &&
@@ -92,14 +92,59 @@ namespace VietWay.API.Management.Controllers
                     StatusCode = StatusCodes.Status400BadRequest
                 };
                 return BadRequest(errorResponse);
-            }
-#warning Need to be replaced by staffid from jwt
-            attraction.CreatedBy = "1"; 
+            } 
+            attraction.CreatedBy = "1"; // #warning Need to be replaced by staffid from jwt
             attraction.CreatedDate = DateTime.UtcNow;
             await _attractionService.CreateAttraction(attraction, request.Images, request.IsDraft);
             DefaultResponseModel<object> response = new()
             {
                 Message = "Create attraction successfully",
+                StatusCode = StatusCodes.Status200OK
+            };
+            return Ok(response);
+        }
+        [HttpPut("{attractionId}")]
+        [Produces("application/json")]
+        [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status200OK)]
+        public async Task<IActionResult> UpdateAttractionAsync(string attractionId, [FromForm] UpdateAttractionRequest request)
+        {
+            Attraction? attraction = await _attractionService.GetAttractionById(attractionId);
+            if (null == attraction)
+            {
+                DefaultResponseModel<object> errorResponse = new()
+                {
+                    Message = "Attraction not found",
+                    StatusCode = StatusCodes.Status404NotFound
+                };
+                return NotFound(errorResponse);
+            }
+            if (false == request.IsDraft &&
+                (string.IsNullOrWhiteSpace(request.Name) ||
+                string.IsNullOrWhiteSpace(request.Address) ||
+                string.IsNullOrWhiteSpace(request.ContactInfo) ||
+                string.IsNullOrWhiteSpace(request.Description)))
+            {
+                DefaultResponseModel<object> errorResponse = new()
+                {
+                    Message = "Incomplete attraction information",
+                    StatusCode = StatusCodes.Status400BadRequest
+                };
+                return BadRequest(errorResponse);
+            }
+
+            attraction.Address = request.Address ??"";
+            attraction.ContactInfo = request.ContactInfo ?? "";
+            attraction.Description = request.Description ?? "";
+            attraction.GooglePlaceId = request.GooglePlaceId;
+            attraction.Name = request.Name ?? "";
+            attraction.ProvinceId = request.ProvinceId;
+            attraction.Website = request.Website;
+            attraction.AttractionTypeId = request.AttractionTypeId;
+
+            await _attractionService.UpdateAttraction(attraction, request.NewImages, request.RemovedImageIds, request.IsDraft);
+            DefaultResponseModel<object> response = new()
+            {
+                Message = "Update successfully",
                 StatusCode = StatusCodes.Status200OK
             };
             return Ok(response);

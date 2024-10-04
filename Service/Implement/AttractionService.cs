@@ -1,16 +1,12 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using VietWay.Repository.EntityModel;
 using VietWay.Repository.EntityModel.Base;
 using VietWay.Repository.UnitOfWork;
 using VietWay.Service.Interface;
 using VietWay.Service.ThirdParty;
 using VietWay.Util.IdHelper;
+using static System.Net.Mime.MediaTypeNames;
 using Image = VietWay.Repository.EntityModel.Image;
 
 namespace VietWay.Service.Implement
@@ -106,9 +102,53 @@ namespace VietWay.Service.Implement
                 .SingleOrDefaultAsync();
         }
 
-        public Task UpdateAttraction(Attraction attraction, List<IFormFile> images)
+        public async Task UpdateAttraction(Attraction newAttraction, List<IFormFile>? imageFiles, List<string>? removedImageIds, bool isDraft)
         {
-            throw new NotImplementedException();
+            if (imageFiles != null && imageFiles.Count > 0)
+            {
+                var newImages = new List<AttractionImage>();
+                foreach (IFormFile imageFile in imageFiles)
+                {
+                    using Stream imageStream = imageFile.OpenReadStream();
+                    (string publicId, string secureUrl) = await _cloudinaryService.UploadImageAsync(imageStream, imageFile.FileName);
+                    Image image = new()
+                    {
+                        PublicId = publicId,
+                        Url = secureUrl,
+                        ContentType = imageFile.ContentType,
+                        FileName = imageFile.FileName,
+                        ImageId = _idGenerator.GenerateId()
+                    };
+
+                    newImages.Add(new AttractionImage
+                    {
+                        Image = image,
+                        AttractionId = newAttraction.AttractionId,
+                        ImageId = image.ImageId
+                    });
+                }
+                foreach (var newImage in newImages)
+                {
+                    newAttraction.AttractionImages?.Add(newImage);
+                }
+            }
+            newAttraction.Status = isDraft ? AttractionStatus.Draft : AttractionStatus.Pending;
+            await _unitOfWork.AttractionRepository.Update(newAttraction);
+            if (removedImageIds?.Count > 0)
+            {
+                var removedAttractionImages = newAttraction.AttractionImages?.Where(x => removedImageIds.Contains(x.ImageId)).ToList() ?? [] ;
+
+                foreach (AttractionImage attractionImage in removedAttractionImages)
+                {
+                    await _unitOfWork.AttractionImageRepository.Delete(attractionImage);
+                    if (attractionImage.Image != null)
+                    {
+                        await _cloudinaryService.DeleteImage(attractionImage.Image.PublicId);
+                        await _unitOfWork.ImageRepository.Delete(attractionImage.Image);
+                    }
+                }
+            }
         }
+
     }
 }
