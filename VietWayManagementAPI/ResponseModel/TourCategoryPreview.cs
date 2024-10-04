@@ -1,4 +1,4 @@
-﻿namespace VietWay.API.Management.ResponseModel
+namespace VietWay.API.Management.ResponseModel
 {
     public class TourCategoryPreview
     {
