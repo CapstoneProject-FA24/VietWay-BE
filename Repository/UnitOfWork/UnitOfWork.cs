@@ -25,6 +25,7 @@ namespace VietWay.Repository.UnitOfWork
         private IGenericRepository<AttractionType> attractionTypeRepository;
         private IGenericRepository<Attraction>? attractionRepository;
         private IGenericRepository<AttractionImage>? attractionImageRepository;
+        private IGenericRepository<TourDuration>? durationRepository;
 
         public IGenericRepository<AttractionImage> AttractionImageRepository
         {
@@ -126,6 +127,15 @@ namespace VietWay.Repository.UnitOfWork
             {
                 this.attractionTypeRepository ??= new GenericRepository<AttractionType>(_dbContext);
                 return this.attractionTypeRepository;
+            }
+        }
+
+        public IGenericRepository<TourDuration> TourDurationRepository
+        {
+            get
+            {
+                this.durationRepository ??= new GenericRepository<TourDuration>(_dbContext);
+                return this.durationRepository;
             }
         }
 
