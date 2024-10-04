@@ -15,29 +15,34 @@ namespace VietWay.Service.ThirdParty
         private readonly Cloudinary _cloudinary;
         public CloudinaryService()
         {
-            string cloudinaryConnectionString = Environment.GetEnvironmentVariable("Cloudinary_ConnectionString") ??
-                throw new Exception("Can not get Cloudinary connection string");
+            //string cloudinaryConnectionString = Environment.GetEnvironmentVariable("Cloudinary_ConnectionString") ??
+            //throw new Exception("Can not get Cloudinary connection string");
             _cloudinary = new("cloudinary://733166211479731:-JO2RA4VVnLtYOFCDdbNEHx-etI@djfopoob1");
             _cloudinary.Api.Secure = true;
         }
         public string GetImage(string publicId)
         {
-            return _cloudinary.Api.UrlImgUp.BuildUrl();
+            return _cloudinary.Api.UrlImgUp
+                .Transform(new Transformation()
+                    .Width(1000).Crop("scale").Chain()
+                    .Quality("auto").Chain()
+                    .FetchFormat("auto"))
+                .BuildUrl(publicId);
         }
-        public async Task<string> UploadImageAsync(Stream stream, string fileName)
+        public async Task<(string publicId, string secureUrl)> UploadImageAsync(Stream stream, string fileName)
         {
             var uploadParams = new ImageUploadParams()
             {
                 File = new FileDescription(fileName, stream),
             };
             var uploadResult = await _cloudinary.UploadAsync(uploadParams);
-            return JsonSerializer.Serialize(uploadResult);
+            return (uploadResult.PublicId, uploadResult.SecureUrl.ToString());
         }
-        public async Task<string> DeleteImage(string publicId)
+        public async Task<bool> DeleteImage(string publicId)
         {
             var deleteParams = new DeletionParams(publicId);
             var deleteResult = await _cloudinary.DestroyAsync(deleteParams);
-            return JsonSerializer.Serialize(deleteResult);
+            return deleteResult.Result == "ok";
         }
     }
 }

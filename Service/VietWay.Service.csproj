@@ -8,10 +8,12 @@
 
   <ItemGroup>
     <PackageReference Include="CloudinaryDotNet" Version="1.26.2" />
+    <PackageReference Include="Microsoft.AspNetCore.Http.Features" Version="2.2.0" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Repository\VietWay.Repository.csproj" />
+    <ProjectReference Include="..\VietWay.Util\VietWay.Util.csproj" />
   </ItemGroup>
 
 </Project>
