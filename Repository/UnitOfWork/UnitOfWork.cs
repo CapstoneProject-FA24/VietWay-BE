@@ -13,14 +13,16 @@ namespace VietWay.Repository.UnitOfWork
     public class UnitOfWork : IUnitOfWork
     {
         private readonly VietWayDbContext _dbContext = new();
-        private IGenericRepository<Account>? accountRepository;
-        private IGenericRepository<Customer>? customerInfoRepository;
-        private IGenericRepository<Image>? imageRepository;
-        private IGenericRepository<Manager>? managerInfoRepository;
-        private IGenericRepository<Province>? provinceRepository;
-        private IGenericRepository<Tour>? tourRepository;
-        private IGenericRepository<TourTemplate>? tourTemplateRepository;
-        private IGenericRepository<Staff>? staffRepository;
+        private IGenericRepository<Account> accountRepository;
+        private IGenericRepository<Customer> customerInfoRepository;
+        private IGenericRepository<Image> imageRepository;
+        private IGenericRepository<Manager> managerInfoRepository;
+        private IGenericRepository<Province> provinceRepository;
+        private IGenericRepository<Tour> tourRepository;
+        private IGenericRepository<TourTemplate> tourTemplateRepository;
+        private IGenericRepository<Staff> staffRepository;
+        private IGenericRepository<TourCategory> categoryRepository;
+        private IGenericRepository<AttractionType> attractionTypeRepository;
         private IGenericRepository<Attraction>? attractionRepository;
         private IGenericRepository<AttractionImage>? attractionImageRepository;
 
@@ -108,6 +110,25 @@ namespace VietWay.Repository.UnitOfWork
                 return this.staffRepository;
             }
         }
+
+        public IGenericRepository<TourCategory> TourCategoryRepository
+        {
+            get
+            {
+                this.categoryRepository ??= new GenericRepository<TourCategory>(_dbContext);
+                return this.categoryRepository;
+            }
+        }
+
+        public IGenericRepository<AttractionType> AttractionTypeRepository
+        {
+            get
+            {
+                this.attractionTypeRepository ??= new GenericRepository<AttractionType>(_dbContext);
+                return this.attractionTypeRepository;
+            }
+        }
+
         public void Save()
         {
             _dbContext.SaveChanges();

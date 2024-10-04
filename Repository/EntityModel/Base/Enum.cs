@@ -14,10 +14,10 @@ namespace VietWay.Repository.EntityModel.Base
     }
     public enum UserRole
     {
-        Customer,
-        Staff,
-        Manager,
-        Admin
+        Customer, //0
+        Staff, //1
+        Manager, //2
+        Admin //3
     }
     public enum TourTemplateStatus
     {
