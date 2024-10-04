@@ -13,16 +13,25 @@ namespace VietWay.Repository.UnitOfWork
     public class UnitOfWork : IUnitOfWork
     {
         private readonly VietWayDbContext _dbContext = new();
-        private IGenericRepository<Account> accountRepository;
-        private IGenericRepository<Customer> customerInfoRepository;
-        private IGenericRepository<Image> imageRepository;
-        private IGenericRepository<Manager> managerInfoRepository;
-        private IGenericRepository<Province> provinceRepository;
-        private IGenericRepository<Tour> tourRepository;
-        private IGenericRepository<TourTemplate> tourTemplateRepository;
-        private IGenericRepository<Staff> staffRepository;
-        private IGenericRepository<Attraction> attractionRepository;
+        private IGenericRepository<Account>? accountRepository;
+        private IGenericRepository<Customer>? customerInfoRepository;
+        private IGenericRepository<Image>? imageRepository;
+        private IGenericRepository<Manager>? managerInfoRepository;
+        private IGenericRepository<Province>? provinceRepository;
+        private IGenericRepository<Tour>? tourRepository;
+        private IGenericRepository<TourTemplate>? tourTemplateRepository;
+        private IGenericRepository<Staff>? staffRepository;
+        private IGenericRepository<Attraction>? attractionRepository;
+        private IGenericRepository<AttractionImage>? attractionImageRepository;
 
+        public IGenericRepository<AttractionImage> AttractionImageRepository
+        {
+            get
+            {
+                attractionImageRepository ??= new GenericRepository<AttractionImage>(_dbContext);
+                return attractionImageRepository;
+            }
+        }
         public IGenericRepository<Attraction> AttractionRepository
         {
             get
