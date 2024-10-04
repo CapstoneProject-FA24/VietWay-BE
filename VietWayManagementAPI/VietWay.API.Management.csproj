@@ -8,7 +8,6 @@
 
   <ItemGroup>
     <PackageReference Include="AutoMapper" Version="13.0.1" />
-    <PackageReference Include="IdGen.DependencyInjection" Version="3.0.7" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.8" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.8">
       <PrivateAssets>all</PrivateAssets>
@@ -20,8 +19,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Repository\VietWay.Repository.csproj" />
-    <ProjectReference Include="..\Service\Service.csproj" />
     <ProjectReference Include="..\Service\VietWay.Service.csproj" />
+    <ProjectReference Include="..\VietWay.Util\VietWay.Util.csproj" />
   </ItemGroup>
 
 </Project>

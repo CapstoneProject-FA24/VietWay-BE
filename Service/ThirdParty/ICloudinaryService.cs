@@ -9,7 +9,7 @@ namespace VietWay.Service.ThirdParty
     public interface ICloudinaryService
     {
         public string GetImage(string publicId);
-        public Task<string> UploadImageAsync(Stream stream, string fileName);
-        public Task<string> DeleteImage(string publicId);
+        public Task<(string publicId, string secureUrl)> UploadImageAsync(Stream stream, string fileName);
+        public Task<bool> DeleteImage(string publicId);
     }
 }

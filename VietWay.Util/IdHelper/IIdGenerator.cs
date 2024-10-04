@@ -4,9 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace VietWay.Service.Interface
+namespace VietWay.Util.IdHelper
 {
-    internal class AttractionService
+    public interface IIdGenerator
     {
+        public string GenerateId();
     }
 }
