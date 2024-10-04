@@ -50,7 +50,7 @@ namespace VietWay.Repository.Migrations
                 {
                     DurationId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
                     DurationName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    NumberOfDate = table.Column<int>(type: "int", nullable: false)
+                    NumberOfDay = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -267,7 +267,7 @@ namespace VietWay.Repository.Migrations
                     Code = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
                     TourName = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Duration = table.Column<string>(type: "nvarchar(20)", nullable: false),
+                    DurationId = table.Column<string>(type: "nvarchar(20)", nullable: false),
                     TourCategoryId = table.Column<string>(type: "nvarchar(20)", nullable: false),
                     Policy = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Note = table.Column<string>(type: "nvarchar(max)", nullable: false),
@@ -292,8 +292,8 @@ namespace VietWay.Repository.Migrations
                         principalColumn: "TourCategoryId",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_TourTemplate_TourDuration_Duration",
-                        column: x => x.Duration,
+                        name: "FK_TourTemplate_TourDuration_DurationId",
+                        column: x => x.DurationId,
                         principalTable: "TourDuration",
                         principalColumn: "DurationId",
                         onDelete: ReferentialAction.Restrict);
@@ -640,9 +640,9 @@ namespace VietWay.Repository.Migrations
                 column: "CreatedBy");
 
             migrationBuilder.CreateIndex(
-                name: "IX_TourTemplate_Duration",
+                name: "IX_TourTemplate_DurationId",
                 table: "TourTemplate",
-                column: "Duration");
+                column: "DurationId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_TourTemplate_TourCategoryId",

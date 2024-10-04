@@ -11,6 +11,7 @@ namespace VietWay.Repository.UnitOfWork
     public interface IUnitOfWork : IDisposable
     {
         public IGenericRepository<Account> AccountRepository { get; }
+        public IGenericRepository<Attraction> AttractionRepository { get; }
         public IGenericRepository<Customer> CustomerInfoRepository { get; }
         public IGenericRepository<Image> ImageRepository { get; }
         public IGenericRepository<Manager> ManagerInfoRepository { get; }
@@ -20,6 +21,7 @@ namespace VietWay.Repository.UnitOfWork
         public IGenericRepository<Staff> StaffRepository { get; }
         public IGenericRepository<TourCategory> TourCategoryRepository { get; }
         public IGenericRepository<AttractionType> AttractionTypeRepository { get; }
+        public IGenericRepository<AttractionImage> AttractionImageRepository { get; }
         void Save();
     }
 }

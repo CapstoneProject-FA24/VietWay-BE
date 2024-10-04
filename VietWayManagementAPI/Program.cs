@@ -1,4 +1,3 @@
-using IdGen.DependencyInjection;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
@@ -11,8 +10,7 @@ using VietWay.Service.Interface;
 using VietWay.Service.Implement;
 using VietWay.API.Management.Middleware;
 using VietWay.Service.ThirdParty;
-using Service.Interface;
-using Service.Implement;
+using VietWay.Util.IdHelper;
 
 namespace VietWay.API.Management
 {
@@ -24,7 +22,6 @@ namespace VietWay.API.Management
 
             builder.Services.AddControllers();
             builder.Services.AddEndpointsApiExplorer();
-            builder.Services.AddIdGen(0);
             builder.Services.AddAutoMapper(typeof(MappingProfile));
             #region builder.Services.AddAuthentication(...);
             builder.Services.AddAuthentication(option =>
@@ -116,8 +113,9 @@ namespace VietWay.API.Management
             builder.Services.AddScoped<IStaffService, StaffService>();
             builder.Services.AddScoped<ITourCategoryService, TourCategoryService>();
             builder.Services.AddScoped<IAttractionTypeService, AttractionTypeService>();
+            builder.Services.AddScoped<IAttractionService, AttractionService>();
             #endregion
-
+            builder.Services.AddSingleton<IIdGenerator, SnowflakeIdGenerator>();
             var app = builder.Build();
 
             app.UseStaticFiles();

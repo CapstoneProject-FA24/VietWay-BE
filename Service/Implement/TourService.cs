@@ -1,14 +1,14 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using VietWay.Repository.EntityModel;
 using VietWay.Repository.UnitOfWork;
-using Service.Interface;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using VietWay.Service.Interface;
 
-namespace Service.Implement
+namespace VietWay.Service.Implement
 {
     public class TourService : ITourService
     {
@@ -42,13 +42,12 @@ namespace Service.Implement
                 .ToListAsync();
         }
 
-        public async Task<Tour?> GetTourById(int id)
+        public async Task<Tour?> GetTourById(string id)
         {
             return await _unitOfWork.TourRepository
                 .Query()
                 .Where(x => x.TourId.Equals(id))
-                .Include(x => x.TourTemplate)
-                .FirstOrDefaultAsync();
+                .SingleOrDefaultAsync();
         }
     }
 }

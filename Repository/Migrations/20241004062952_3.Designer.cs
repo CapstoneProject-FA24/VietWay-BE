@@ -12,8 +12,8 @@ using VietWay.Repository.DataAccessObject;
 namespace VietWay.Repository.Migrations
 {
     [DbContext(typeof(VietWayDbContext))]
-    [Migration("20241001141829_Init")]
-    partial class Init
+    [Migration("20241004062952_3")]
+    partial class _3
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -124,6 +124,9 @@ namespace VietWay.Repository.Migrations
                         .IsRequired()
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
 
                     b.Property<string>("Website")
                         .HasMaxLength(2048)
@@ -324,11 +327,6 @@ namespace VietWay.Repository.Migrations
                         .IsRequired()
                         .HasMaxLength(255)
                         .HasColumnType("nvarchar(255)");
-
-                    b.Property<string>("SHA256")
-                        .IsRequired()
-                        .HasMaxLength(64)
-                        .HasColumnType("nvarchar(64)");
 
                     b.Property<string>("Url")
                         .IsRequired()
@@ -549,7 +547,7 @@ namespace VietWay.Repository.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
-                    b.Property<int>("NumberOfDate")
+                    b.Property<int>("NumberOfDay")
                         .HasColumnType("int");
 
                     b.HasKey("DurationId");
@@ -580,7 +578,7 @@ namespace VietWay.Repository.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Duration")
+                    b.Property<string>("DurationId")
                         .IsRequired()
                         .HasColumnType("nvarchar(20)");
 
@@ -611,7 +609,7 @@ namespace VietWay.Repository.Migrations
 
                     b.HasIndex("CreatedBy");
 
-                    b.HasIndex("Duration");
+                    b.HasIndex("DurationId");
 
                     b.HasIndex("TourCategoryId");
 
@@ -946,7 +944,7 @@ namespace VietWay.Repository.Migrations
 
                     b.HasOne("VietWay.Repository.EntityModel.TourDuration", "TourDuration")
                         .WithMany()
-                        .HasForeignKey("Duration")
+                        .HasForeignKey("DurationId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 

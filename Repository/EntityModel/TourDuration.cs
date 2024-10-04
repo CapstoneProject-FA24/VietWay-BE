@@ -14,6 +14,6 @@ namespace VietWay.Repository.EntityModel
         public required string DurationId { get; set; }
         [StringLength(100)]
         public required string DurationName { get; set; }
-        public required int NumberOfDate { get; set; }
+        public required int NumberOfDay { get; set; }
     }
 }
