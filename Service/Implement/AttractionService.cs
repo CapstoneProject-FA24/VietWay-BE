@@ -20,29 +20,32 @@ namespace VietWay.Service.Implement
         private readonly IUnitOfWork _unitOfWork = unitOfWork;
         private readonly ICloudinaryService _cloudinaryService = cloudinaryService;
         private readonly IIdGenerator _idGenerator = idGenerator;
-        public async Task CreateAttraction(Attraction attraction, List<IFormFile> imageFiles, bool isDraft)
+        public async Task CreateAttraction(Attraction attraction, List<IFormFile>? imageFiles, bool isDraft)
         {
             attraction.AttractionId ??= _idGenerator.GenerateId();
             attraction.Status = isDraft ? AttractionStatus.Draft : AttractionStatus.Pending;
             attraction.AttractionImages = [];
-            foreach (IFormFile imageFile in imageFiles)
+            if (null != imageFiles)
             {
-                using Stream imageStream = imageFile.OpenReadStream();
-                (string publicId, string secureUrl) = await _cloudinaryService.UploadImageAsync(imageStream, imageFile.FileName);
-                Image image = new()
+                foreach (IFormFile imageFile in imageFiles)
                 {
-                    PublicId = publicId,
-                    Url = secureUrl,
-                    ContentType = imageFile.ContentType,
-                    FileName = imageFile.FileName,
-                    ImageId = _idGenerator.GenerateId()
-                };
-                attraction.AttractionImages.Add(new AttractionImage
-                {
-                    Image = image,
-                    AttractionId = attraction.AttractionId,
-                    ImageId = image.ImageId
-                });
+                    using Stream imageStream = imageFile.OpenReadStream();
+                    (string publicId, string secureUrl) = await _cloudinaryService.UploadImageAsync(imageStream, imageFile.FileName);
+                    Image image = new()
+                    {
+                        PublicId = publicId,
+                        Url = secureUrl,
+                        ContentType = imageFile.ContentType,
+                        FileName = imageFile.FileName,
+                        ImageId = _idGenerator.GenerateId()
+                    };
+                    attraction.AttractionImages.Add(new AttractionImage
+                    {
+                        Image = image,
+                        AttractionId = attraction.AttractionId,
+                        ImageId = image.ImageId
+                    });
+                }
             }
             await _unitOfWork.AttractionRepository.Create(attraction);
         }

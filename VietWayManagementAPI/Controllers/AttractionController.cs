@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using VietWay.API.Management.RequestModel;
 using VietWay.API.Management.ResponseModel;
 using VietWay.Repository.EntityModel;
 using VietWay.Repository.EntityModel.Base;
@@ -72,6 +73,36 @@ namespace VietWay.API.Management.Controllers
                 };
                 return Ok(response);
             }
+        }
+        [HttpPost]
+        [Produces("application/json")]
+        [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status200OK)]
+        public async Task<IActionResult> CreateDraftAttractionAsync([FromForm] CreateAttractionRequest request)
+        {
+            Attraction attraction = _mapper.Map<Attraction>(request);
+            if (false == request.IsDraft &&
+                (string.IsNullOrWhiteSpace(request.Name)||
+                string.IsNullOrWhiteSpace(request.Address)||
+                string.IsNullOrWhiteSpace(request.ContactInfo)||
+                string.IsNullOrWhiteSpace(request.Description)))
+            {
+                DefaultResponseModel<object> errorResponse = new()
+                {
+                    Message = "Incomplete attraction information",
+                    StatusCode = StatusCodes.Status400BadRequest
+                };
+                return BadRequest(errorResponse);
+            }
+#warning Need to be replaced by staffid from jwt
+            attraction.CreatedBy = "1"; 
+            attraction.CreatedDate = DateTime.UtcNow;
+            await _attractionService.CreateAttraction(attraction, request.Images, request.IsDraft);
+            DefaultResponseModel<object> response = new()
+            {
+                Message = "Create attraction successfully",
+                StatusCode = StatusCodes.Status200OK
+            };
+            return Ok(response);
         }
     }
 }

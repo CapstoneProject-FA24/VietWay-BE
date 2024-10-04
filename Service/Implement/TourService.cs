@@ -42,13 +42,12 @@ namespace VietWay.Service.Implement
                 .ToListAsync();
         }
 
-        public async Task<Tour?> GetTourById(int id)
+        public async Task<Tour?> GetTourById(string id)
         {
             return await _unitOfWork.TourRepository
                 .Query()
                 .Where(x => x.TourId.Equals(id))
-                .Include(x => x.TourTemplate)
-                .FirstOrDefaultAsync();
+                .SingleOrDefaultAsync();
         }
     }
 }
