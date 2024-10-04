@@ -83,6 +83,7 @@ namespace VietWay.Service.Implement
                 .ThenInclude(x => x.Image)
                 .Include(x => x.Province)
                 .Include(x => x.AttractionType)
+                .Include(x=>x.Creator)
                 .Skip(pageSize * (pageIndex-1))
                 .Take(pageSize)
                 .ToListAsync();
@@ -98,6 +99,7 @@ namespace VietWay.Service.Implement
                 .ThenInclude(x => x.Image)
                 .Include(x => x.Province)
                 .Include(x => x.AttractionType)
+                .Include(x=>x.Creator)
                 .SingleOrDefaultAsync();
         }
 

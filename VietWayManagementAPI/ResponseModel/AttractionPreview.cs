@@ -10,6 +10,8 @@ namespace VietWay.API.Management.ResponseModel
         public required string Province { get; set; }
         public required string AttractionType { get; set; }
         public required AttractionStatus Status { get; set; }
+        public required DateTime CreatedDate { get; set; }
+        public required string CreatorName { get; set; }
         public required string ImageUrl { get; set; }
     }
 }
