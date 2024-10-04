@@ -70,7 +70,7 @@ namespace VietWay.API.Management.Mappers
                 .ForMember(dest => dest.AttractionType, opt => opt.MapFrom(src => new AttractionTypePreview()
                 {
                     AttractionTypeId = src.AttractionTypeId,
-                    Name = src.AttractionType.Name
+                    AttractionTypeName = src.AttractionType.Name
                 }))
                 .ForMember(dest => dest.Images, opt => opt.MapFrom(src => src.AttractionImages.Select(x => new ImageDetail()
                 {
@@ -78,6 +78,12 @@ namespace VietWay.API.Management.Mappers
                     Url = x.Image.Url
                 }).ToList()))
                 .ForMember(dest=>dest.CreatorName,opt=>opt.MapFrom(src=>src.Creator.FullName));
+            CreateMap<TourCategory,TourCategoryPreview>()
+                .ForMember(dest => dest.TourCategoryName, opt => opt.MapFrom(src => src.Name));
+            CreateMap<TourDuration, DurationDetail>()
+                .ForMember(dest => dest.DayNumber, opt => opt.MapFrom(src => src.NumberOfDay));
+            CreateMap<AttractionType, AttractionTypePreview>()
+                .ForMember(dest => dest.AttractionTypeName, opt => opt.MapFrom(src => src.Name));
         }
     }
 }
