@@ -15,6 +15,8 @@ namespace VietWay.API.Management.ResponseModel
         public required string Description { get; set; }
         public string? GooglePlaceId { get; set; }
         public required AttractionStatus Status { get; set; }
+        public required DateTime CreatedDate { get; set; }
+        public required string CreatorName { get; set; }
 
         public required ProvincePreview Province { get; set; }
         public required AttractionTypePreview AttractionType { get; set; }

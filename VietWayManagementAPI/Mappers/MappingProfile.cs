@@ -59,7 +59,8 @@ namespace VietWay.API.Management.Mappers
             CreateMap<Attraction, AttractionPreview>()
                 .ForMember(dest=>dest.Province, opt=>opt.MapFrom(src=>src.Province.ProvinceName))
                 .ForMember(dest=>dest.AttractionType, opt=>opt.MapFrom(src=>src.AttractionType.Name))
-                .ForMember(dest=>dest.ImageUrl, src=>src.MapFrom(x => x.AttractionImages.FirstOrDefault().Image.Url));
+                .ForMember(dest=>dest.ImageUrl, src=>src.MapFrom(x => x.AttractionImages.FirstOrDefault().Image.Url))
+                .ForMember(dest => dest.CreatorName, opt => opt.MapFrom(src => src.Creator.FullName));
             CreateMap<Attraction,AttractionDetail>()
                 .ForMember(dest => dest.Province, opt => opt.MapFrom(src => new ProvincePreview()
                 {
@@ -75,7 +76,8 @@ namespace VietWay.API.Management.Mappers
                 {
                     ImageId = x.ImageId,
                     Url = x.Image.Url
-                }).ToList()));
+                }).ToList()))
+                .ForMember(dest=>dest.CreatorName,opt=>opt.MapFrom(src=>src.Creator.FullName));
         }
     }
 }
