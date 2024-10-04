@@ -31,6 +31,7 @@ namespace VietWay.Repository.EntityModel
         public required string AttractionTypeId { get; set; }
         [StringLength(50)]
         public string? GooglePlaceId { get; set; }
+        public required AttractionStatus Status { get; set; }
 
         public virtual Province? Province { get; set; }
         public virtual AttractionType? AttractionType { get; set; }

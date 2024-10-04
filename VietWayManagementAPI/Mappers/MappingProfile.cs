@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using VietWay.API.Management.RequestModel;
 using VietWay.API.Management.ResponseModel;
 using VietWay.Repository.EntityModel;
 
@@ -31,7 +32,7 @@ namespace VietWay.API.Management.Mappers
                     DayNumber = x.DayNumber,
                     Title = x.Title,
                     Description = x.Description,
-                    Attractions = x.AttractionSchedules.Select(y => new AttractionPreview()
+                    Attractions = x.AttractionSchedules.Select(y => new AttractionBriefPreview()
                     {
                         AttractionId = y.AttractionId,
                         Name = y.Attraction.Name
@@ -50,7 +51,31 @@ namespace VietWay.API.Management.Mappers
                 .ForMember(dest => dest.Duration, opt => opt.MapFrom(src => src.TourDuration.DurationName))
                 .ForMember(dest => dest.TourCategory, opt => opt.MapFrom(src => src.TourCategory.Name));
             CreateMap<Province, ProvincePreview>();
-
+            CreateMap<CreateAttractionRequest, Attraction>()
+                .ForMember(x => x.Name, opt => opt.MapFrom(src => src.Name ?? ""))
+                .ForMember(x => x.Address, opt => opt.MapFrom(src => src.Address ?? ""))
+                .ForMember(x => x.Description, opt => opt.MapFrom(src => src.Description ?? ""))
+                .ForMember(x => x.ContactInfo, opt => opt.MapFrom(src => src.ContactInfo ?? ""));
+            CreateMap<Attraction, AttractionPreview>()
+                .ForMember(dest=>dest.Province, opt=>opt.MapFrom(src=>src.Province.ProvinceName))
+                .ForMember(dest=>dest.AttractionType, opt=>opt.MapFrom(src=>src.AttractionType.Name))
+                .ForMember(dest=>dest.ImageUrl, src=>src.MapFrom(x => x.AttractionImages.FirstOrDefault().Image.Url));
+            CreateMap<Attraction,AttractionDetail>()
+                .ForMember(dest => dest.Province, opt => opt.MapFrom(src => new ProvincePreview()
+                {
+                    ProvinceId = src.ProvinceId,
+                    ProvinceName = src.Province.ProvinceName
+                }))
+                .ForMember(dest => dest.AttractionType, opt => opt.MapFrom(src => new AttractionTypePreview()
+                {
+                    AttractionTypeId = src.AttractionTypeId,
+                    Name = src.AttractionType.Name
+                }))
+                .ForMember(dest => dest.Images, opt => opt.MapFrom(src => src.AttractionImages.Select(x => new ImageDetail()
+                {
+                    ImageId = x.ImageId,
+                    Url = x.Image.Url
+                }).ToList()));
         }
     }
 }

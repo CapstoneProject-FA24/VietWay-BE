@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Service.Interface
+namespace VietWay.Service.Interface
 {
     public interface ITourService
     {

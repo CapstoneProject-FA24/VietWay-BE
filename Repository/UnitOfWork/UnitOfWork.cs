@@ -21,7 +21,16 @@ namespace VietWay.Repository.UnitOfWork
         private IGenericRepository<Tour> tourRepository;
         private IGenericRepository<TourTemplate> tourTemplateRepository;
         private IGenericRepository<Staff> staffRepository;
+        private IGenericRepository<Attraction> attractionRepository;
 
+        public IGenericRepository<Attraction> AttractionRepository
+        {
+            get
+            {
+                attractionRepository ??= new GenericRepository<Attraction>(_dbContext);
+                return attractionRepository;
+            }
+        }
 
         public IGenericRepository<Account> AccountRepository
         {

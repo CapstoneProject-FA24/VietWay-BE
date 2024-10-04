@@ -51,6 +51,7 @@ namespace VietWay.API.Management.Controllers
         [HttpGet("{tourTemplateId}")]
         [Produces("application/json")]
         [ProducesResponseType<DefaultResponseModel<DefaultResponseModel<TourTemplateDetail>>>(StatusCodes.Status200OK)]
+        [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetTourTemplateById(string tourTemplateId)
         {
             TourTemplate? tourTemplate = await _tourTemplateService
