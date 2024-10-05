@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using VietWay.Repository.EntityModel.Base;
 
 namespace VietWay.Service.Interface
 {
@@ -14,5 +15,9 @@ namespace VietWay.Service.Interface
         public Task<(int totalCount, List<Tour> items)> GetAllTour(int pageSize, int pageIndex);
         public Task<Tour?> GetTourById(string id);
         public Task<(int totalCount, List<Tour> items)> GetAllScheduledTour(int pageSize, int pageIndex);
+        public Task<(int totalCount, List<Tour> items)> GetAllToursByTemplateIdsAsync(
+            string tourTemplateIds,
+            int pageSize,
+            int pageIndex);
     }
 }
