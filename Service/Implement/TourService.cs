@@ -52,8 +52,10 @@ namespace VietWay.Service.Implement
         {
             return await _unitOfWork.TourRepository
                 .Query()
-                .Where(x => x.TourId.Equals(id))
-                .SingleOrDefaultAsync();
+                .Include(x => x.TourTemplate)
+                .ThenInclude(x => x.TourTemplateImages)
+                .ThenInclude(x => x.Image)
+                .SingleOrDefaultAsync(x => x.TourId.Equals(id));
         }
     }
 }
