@@ -4,6 +4,10 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
+using VietWay.API.Customer.Mappers;
+using VietWay.Repository.UnitOfWork;
+using VietWay.Service.Implement;
+using VietWay.Service.Interface;
 using VietWay.Service.ThirdParty;
 using VietWay.Util.IdHelper;
 
@@ -17,6 +21,7 @@ namespace VietWay.API.Customer
 
             builder.Services.AddControllers();
             builder.Services.AddEndpointsApiExplorer();
+            builder.Services.AddAutoMapper(typeof(MappingProfile));
             #region builder.Services.AddAuthentication(...);
             builder.Services.AddAuthentication(option =>
             {
@@ -97,7 +102,9 @@ namespace VietWay.API.Customer
             });
             #endregion
             #region builder.Services.AddScoped(...);
+            builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
             builder.Services.AddScoped<IVnPayService, VnPayService>();
+            builder.Services.AddScoped<ITourService, TourService>();
 
             #endregion
             builder.Services.AddSingleton<IIdGenerator, SnowflakeIdGenerator>();
