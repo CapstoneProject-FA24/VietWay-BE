@@ -1,17 +1,10 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
-
-  <ItemGroup>
-    <Compile Remove="RequestModel\**" />
-    <Content Remove="RequestModel\**" />
-    <EmbeddedResource Remove="RequestModel\**" />
-    <None Remove="RequestModel\**" />
-  </ItemGroup>
 
   <ItemGroup>
     <!-- Merged packages from both branches -->
@@ -24,6 +17,10 @@
     <ProjectReference Include="..\Repository\VietWay.Repository.csproj" />
     <ProjectReference Include="..\Service\VietWay.Service.csproj" />
     <ProjectReference Include="..\VietWay.Util\VietWay.Util.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="RequestModel\" />
   </ItemGroup>
 
 </Project>
