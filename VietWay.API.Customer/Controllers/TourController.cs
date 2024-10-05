@@ -20,7 +20,7 @@ namespace VietWay.API.Customer.Controllers
         [ProducesResponseType<DefaultResponseModel<DefaultPageResponse<TourPreview>>>(StatusCodes.Status200OK)]
         public async Task<IActionResult> GetAllTourAsync(int pageSize, int pageIndex)
         {
-            var result = await _tourService.GetAllTour(pageSize, pageIndex);
+            var result = await _tourService.GetAllScheduledTour(pageSize, pageIndex);
             List<TourPreview> tourPreviews = _mapper.Map<List<TourPreview>>(result.items);
             DefaultPageResponse<TourPreview> pagedResponse = new()
             {
