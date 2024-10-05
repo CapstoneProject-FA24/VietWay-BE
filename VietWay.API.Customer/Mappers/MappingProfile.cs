@@ -10,7 +10,7 @@ namespace VietWay.API.Customer.Mappers
         {
             CreateMap<Tour, TourPreview>();
             CreateMap<Tour, TourDetail>();
-            CreateMap<Repository.EntityModel.Customer, CustomerBookingInfo>()
+            CreateMap<Repository.EntityModel.Customer, CustomerProfile>()
                 .ForMember(dest => dest.PhoneNumber, opt => opt.MapFrom(src => src.Account.PhoneNumber))
                 .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.Account.Email));
             CreateMap<TourTemplate, TourTemplatePreview>()
