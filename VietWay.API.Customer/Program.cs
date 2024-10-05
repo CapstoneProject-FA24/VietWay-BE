@@ -23,6 +23,8 @@ namespace VietWay.API.Customer
             // Customer/GetCustomerInfo-specific services
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
             builder.Services.AddScoped<ICustomerService, CustomerService>();
+            builder.Services.AddScoped<ITourService, TourService>();
+
             builder.Services.AddAutoMapper(typeof(MappingProfile));
 
             // Shared services
@@ -115,6 +117,7 @@ namespace VietWay.API.Customer
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
             builder.Services.AddScoped<IVnPayService, VnPayService>();
             builder.Services.AddScoped<ITourService, TourService>();
+            builder.Services.AddScoped<ICustomerService, CustomerService>();
 
             #region builder.Services.AddScoped(...);
             // Add third-party services
