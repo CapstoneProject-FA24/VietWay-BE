@@ -86,6 +86,7 @@ namespace VietWay.API.Management.Mappers
                 .ForMember(dest => dest.DayNumber, opt => opt.MapFrom(src => src.NumberOfDay));
             CreateMap<AttractionType, AttractionTypePreview>()
                 .ForMember(dest => dest.AttractionTypeName, opt => opt.MapFrom(src => src.Name));
+            CreateMap<Tour, TourPreview>();
             CreateMap<CreateTourTemplateRequest, TourTemplate>()
                 .ForMember(dest => dest.TourName, opt => opt.MapFrom(src => src.TourName ?? ""))
                 .ForMember(dest => dest.Code, opt => opt.MapFrom(src => src.Code ?? ""))
