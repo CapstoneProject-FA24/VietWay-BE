@@ -116,6 +116,8 @@ namespace VietWay.API.Management.Mappers
                     }).ToList()))
                 .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.IsDraft ? TourTemplateStatus.Draft : TourTemplateStatus.Pending));
             CreateMap<Tour, TourDetail>();
+            CreateMap<AttractionSchedule, AttractionSchedulePreview>();
+            CreateMap<CustomerFeedback, CustomerFeedbackPreview>();
         }
     }
 }
