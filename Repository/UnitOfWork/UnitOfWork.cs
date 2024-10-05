@@ -13,20 +13,38 @@ namespace VietWay.Repository.UnitOfWork
     public class UnitOfWork : IUnitOfWork
     {
         private readonly VietWayDbContext _dbContext = new();
-        private IGenericRepository<Account> accountRepository;
-        private IGenericRepository<Customer> customerInfoRepository;
-        private IGenericRepository<Image> imageRepository;
-        private IGenericRepository<Manager> managerInfoRepository;
-        private IGenericRepository<Province> provinceRepository;
-        private IGenericRepository<Tour> tourRepository;
-        private IGenericRepository<TourTemplate> tourTemplateRepository;
-        private IGenericRepository<Staff> staffRepository;
-        private IGenericRepository<TourCategory> categoryRepository;
-        private IGenericRepository<AttractionType> attractionTypeRepository;
+        private IGenericRepository<Account>? accountRepository;
+        private IGenericRepository<Customer>? customerInfoRepository;
+        private IGenericRepository<Image>? imageRepository;
+        private IGenericRepository<Manager>? managerInfoRepository;
+        private IGenericRepository<Province>? provinceRepository;
+        private IGenericRepository<Tour>? tourRepository;
+        private IGenericRepository<TourTemplate>? tourTemplateRepository;
+        private IGenericRepository<Staff>? staffRepository;
+        private IGenericRepository<TourCategory>? categoryRepository;
+        private IGenericRepository<AttractionType>? attractionTypeRepository;
         private IGenericRepository<Attraction>? attractionRepository;
         private IGenericRepository<AttractionImage>? attractionImageRepository;
         private IGenericRepository<TourDuration>? durationRepository;
+        private IGenericRepository<TourTemplateSchedule>? tourTemplateScheduleRepository;
+        private IGenericRepository<AttractionSchedule>? attractionScheduleRepository;
 
+        public IGenericRepository<TourTemplateSchedule> TourTemplateScheduleRepository
+        {
+            get
+            {
+                tourTemplateScheduleRepository ??= new GenericRepository<TourTemplateSchedule>(_dbContext);
+                return tourTemplateScheduleRepository;
+            }
+        }
+        public IGenericRepository<AttractionSchedule> AttractionScheduleRepository
+        {
+            get
+            {
+                attractionScheduleRepository ??= new GenericRepository<AttractionSchedule>(_dbContext);
+                return attractionScheduleRepository;
+            }
+        }
         public IGenericRepository<AttractionImage> AttractionImageRepository
         {
             get

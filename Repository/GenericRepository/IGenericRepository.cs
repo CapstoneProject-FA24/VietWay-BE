@@ -12,6 +12,7 @@ namespace VietWay.Repository.GenericRepository
         public Task Create(T entity);
 
         public Task Delete(T entity);
+        public Task DeleteRange(IEnumerable<T> entities);
         public Task SoftDelete(T entity);
         public Task Update(T entity);
         public IQueryable<T> Query();

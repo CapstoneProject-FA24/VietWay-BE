@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Http;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -19,6 +20,10 @@ namespace VietWay.Service.Interface
             int pageSize,
             int pageIndex);
         public Task<TourTemplate?> GetTemplateByIdAsync(string id);
-        public Task CreateTemplateAsync(TourTemplate tourTemplate); 
+        public Task<string> CreateTemplateAsync(TourTemplate tourTemplate);
+        public Task UpdateTemplateImageAsync(TourTemplate tourTemplate, List<IFormFile> ImageFiles, List<string> removedImageId);
+        public Task UpdateTemplateAsync(TourTemplate tourTemplate, List<TourTemplateSchedule> newSchedule);
+        public Task DeleteTemplateAsync(TourTemplate tourTemplate);
+        
     }
 }

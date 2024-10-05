@@ -10,15 +10,11 @@ using VietWay.Repository.EntityModel.Base;
 
 namespace VietWay.Repository.GenericRepository
 {
-    public class GenericRepository<T> : IGenericRepository<T> where T : class
+    public class GenericRepository<T>(VietWayDbContext dbContext) : IGenericRepository<T> where T : class
     {
-        private VietWayDbContext _dbContext;
-        private DbSet<T> _dbSet = null;
-        public GenericRepository(VietWayDbContext dbContext)
-        {
-            _dbContext = dbContext;
-            _dbSet = dbContext.Set<T>();
-        }
+        private readonly VietWayDbContext _dbContext = dbContext;
+        private readonly DbSet<T> _dbSet = dbContext.Set<T>();
+
         public async Task Create(T entity)
         {
             _dbSet.Add(entity);
@@ -50,6 +46,11 @@ namespace VietWay.Repository.GenericRepository
                 _dbSet.Update(entity).State = EntityState.Modified;
                 await _dbContext.SaveChangesAsync();
             }
+        }
+        public Task DeleteRange(IEnumerable<T> entities)
+        {
+            _dbSet.RemoveRange(entities);
+            return _dbContext.SaveChangesAsync();
         }
     }
 }
