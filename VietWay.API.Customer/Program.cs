@@ -1,4 +1,3 @@
-
 using IdGen;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
@@ -19,9 +18,19 @@ namespace VietWay.API.Customer
         {
             var builder = WebApplication.CreateBuilder(args);
 
+            // Add services to the container.
+
+            // Customer/GetCustomerInfo-specific services
+            builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+            builder.Services.AddScoped<ICustomerService, CustomerService>();
+            builder.Services.AddScoped<ITourService, TourService>();
+
+            builder.Services.AddAutoMapper(typeof(MappingProfile));
+
+            // Shared services
             builder.Services.AddControllers();
             builder.Services.AddEndpointsApiExplorer();
-            builder.Services.AddAutoMapper(typeof(MappingProfile));
+
             #region builder.Services.AddAuthentication(...);
             builder.Services.AddAuthentication(option =>
             {
@@ -58,6 +67,7 @@ namespace VietWay.API.Customer
                 };
             });
             #endregion
+
             #region builder.Services.AddCors(...);
             builder.Services.AddCors(option =>
             {
@@ -69,6 +79,7 @@ namespace VietWay.API.Customer
                 });
             });
             #endregion
+
             #region builder.Services.AddSwaggerGen(...);
             builder.Services.AddSwaggerGen(options =>
             {
@@ -101,16 +112,18 @@ namespace VietWay.API.Customer
                 });
             });
             #endregion
-            #region builder.Services.AddScoped(...);
-            builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
-            builder.Services.AddScoped<IVnPayService, VnPayService>();
-            builder.Services.AddScoped<ITourService, TourService>();
 
+            #region builder.Services.AddScoped(...);
+            // Add third-party services
+            builder.Services.AddScoped<IVnPayService, VnPayService>();
             #endregion
+
             builder.Services.AddSingleton<IIdGenerator, SnowflakeIdGenerator>();
+
             var app = builder.Build();
 
             app.UseStaticFiles();
+
             #region app.UseSwagger(...);
             if (app.Environment.IsDevelopment())
             {
@@ -133,6 +146,7 @@ namespace VietWay.API.Customer
                 });
             }
             #endregion
+
             app.UseHttpsRedirection();
             app.UseCors("AllowAll");
             app.UseAuthentication();

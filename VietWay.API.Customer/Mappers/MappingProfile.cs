@@ -1,5 +1,5 @@
-﻿using VietWay.Repository.EntityModel;
 using AutoMapper;
+using VietWay.Repository.EntityModel;
 using VietWay.API.Customer.ResponseModel;
 
 namespace VietWay.API.Customer.Mappers
@@ -10,6 +10,9 @@ namespace VietWay.API.Customer.Mappers
         {
             CreateMap<Tour, TourPreview>();
             CreateMap<Tour, TourDetail>();
+            CreateMap<Repository.EntityModel.Customer, CustomerBookingInfo>()
+                .ForMember(dest => dest.PhoneNumber, opt => opt.MapFrom(src => src.Account.PhoneNumber))
+                .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.Account.Email));
         }
     }
 }
