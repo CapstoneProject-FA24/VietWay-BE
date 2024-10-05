@@ -23,6 +23,8 @@ namespace VietWay.Repository.UnitOfWork
         public IGenericRepository<AttractionType> AttractionTypeRepository { get; }
         public IGenericRepository<AttractionImage> AttractionImageRepository { get; }
         public IGenericRepository <TourDuration> TourDurationRepository { get; }
+        public IGenericRepository<TourTemplateSchedule> TourTemplateScheduleRepository { get; }
+        public IGenericRepository<AttractionSchedule> AttractionScheduleRepository { get; }
         void Save();
     }
 }

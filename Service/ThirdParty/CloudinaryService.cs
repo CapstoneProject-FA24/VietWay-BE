@@ -38,11 +38,15 @@ namespace VietWay.Service.ThirdParty
             var uploadResult = await _cloudinary.UploadAsync(uploadParams);
             return (uploadResult.PublicId, uploadResult.SecureUrl.ToString());
         }
-        public async Task<bool> DeleteImage(string publicId)
+
+        public async Task<bool> DeleteImages(IEnumerable<string> images)
         {
-            var deleteParams = new DeletionParams(publicId);
-            var deleteResult = await _cloudinary.DestroyAsync(deleteParams);
-            return deleteResult.Result == "ok";
+            DelResParams deleteParams = new()
+            {
+                PublicIds = images.ToList()
+            };
+            DelResResult result = await _cloudinary.DeleteResourcesAsync(deleteParams);
+            return result.Deleted.Count == images.Count();
         }
     }
 }

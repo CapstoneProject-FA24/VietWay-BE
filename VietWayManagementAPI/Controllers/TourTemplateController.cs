@@ -79,11 +79,109 @@ namespace VietWay.API.Management.Controllers
         [HttpPost]
         [Produces("application/json")]
         [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status200OK)]
-        public async Task<IActionResult> CreateTourTemplate([FromForm]CreateTourTemplateRequest request)
+        public async Task<IActionResult> CreateTourTemplate([FromBody]CreateTourTemplateRequest request)
         {
+            TourTemplate tourTemplate = _mapper.Map<TourTemplate>(request);
+            tourTemplate.CreatedBy = "1";
+#warning replace createdby with current user id in token
+            await _tourTemplateService.CreateTemplateAsync(tourTemplate);
             return Ok(new DefaultResponseModel<object>()
             {
                 Message = "Tour created successfully",
+                StatusCode = StatusCodes.Status200OK
+            });
+        }
+        [HttpPut("{tourTemplateId}")]
+        [Produces("application/json")]
+        [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status200OK)]
+        public async Task<IActionResult> UpdateTourTemplate(string tourTemplateId,CreateTourTemplateRequest request)
+        {
+            TourTemplate? tourTemplate = await _tourTemplateService.GetTemplateByIdAsync(tourTemplateId);
+            if (tourTemplate == null)
+            {
+                return NotFound(new DefaultResponseModel<object>()
+                {
+                    Message = $"Can not find Tour template with id {tourTemplateId}",
+                    StatusCode = StatusCodes.Status404NotFound
+                });
+            }
+            bool isInfoMissing = string.IsNullOrWhiteSpace(request.Code) ||
+                                string.IsNullOrWhiteSpace(request.TourName) ||
+                                string.IsNullOrWhiteSpace(request.Description) ||
+                                string.IsNullOrWhiteSpace(request.Policy) ||
+                                string.IsNullOrWhiteSpace(request.Note) ||
+                                request.ProvinceIds?.Count == 0 ||
+                                request.Schedules?.Count == 0 ||
+                                request.Schedules.Any(s => string.IsNullOrWhiteSpace(s.Title) || string.IsNullOrWhiteSpace(s.Description));
+            if (false == request.IsDraft && isInfoMissing)
+            {
+                DefaultResponseModel<object> errorResponse = new()
+                {
+                    Message = "Incomplete attraction information",
+                    StatusCode = StatusCodes.Status400BadRequest
+                };
+                return BadRequest(errorResponse);
+            }
+            tourTemplate.Code = request.Code?? "";
+            tourTemplate.TourName = request.TourName ?? "";
+            tourTemplate.Description = request.Description ?? "";
+            tourTemplate.DurationId = request.DurationId;
+            tourTemplate.TourCategoryId = request.TourCategoryId;
+            tourTemplate.Policy = request.Policy ?? "";
+            tourTemplate.Note = request.Note ?? "";
+            tourTemplate.TourTemplateProvinces?.Clear();
+            foreach (string provinceId in request.ProvinceIds)
+            {
+                tourTemplate.TourTemplateProvinces?
+                    .Add(new TourTemplateProvince()
+                    {
+                        ProvinceId = provinceId,
+                        TourTemplateId = tourTemplateId
+                    });
+            }
+            List<TourTemplateSchedule> newSchedule = [];
+            foreach(var schedule in request.Schedules)
+            {
+                newSchedule.Add(new()
+                {
+                    TourTemplateId = tourTemplateId,
+                    DayNumber = schedule.DayNumber,
+                    Description = schedule.Description ?? "",
+                    Title = schedule.Title ?? "",
+                    AttractionSchedules = schedule.AttractionIds.Select(x => new AttractionSchedule()
+                    {
+                        AttractionId = x,
+                        DayNumber = schedule.DayNumber,
+                        TourTemplateId = tourTemplateId
+                    }).ToList()
+                });
+            }
+
+            await _tourTemplateService.UpdateTemplateAsync(tourTemplate, newSchedule);
+            return Ok(new DefaultResponseModel<object>()
+            {
+                Message = "Tour template updated successfully",
+                StatusCode = StatusCodes.Status200OK
+            });
+        }
+        [HttpDelete("{tourTemplateId}")]
+        [Produces("application/json")]
+        [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status200OK)]
+        public async Task<IActionResult> DeleteTourTemplate(string tourTemplateId)
+        {
+            TourTemplate? tourTemplate = await _tourTemplateService.GetTemplateByIdAsync(tourTemplateId);
+            if (tourTemplate == null)
+            {
+                return NotFound(new DefaultResponseModel<object>()
+                {
+                    Message = $"Can not find Tour template with id {tourTemplateId}",
+                    StatusCode = StatusCodes.Status404NotFound
+                });
+            }
+            await _tourTemplateService.DeleteTemplateAsync(tourTemplate);
+            return Ok(new DefaultResponseModel<object>()
+            {
+                Message = "Tour template deleted successfully",
                 StatusCode = StatusCodes.Status200OK
             });
         }

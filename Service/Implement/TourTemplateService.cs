@@ -1,4 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using CloudinaryDotNet;
+using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,25 +10,40 @@ using VietWay.Repository.EntityModel;
 using VietWay.Repository.EntityModel.Base;
 using VietWay.Repository.UnitOfWork;
 using VietWay.Service.Interface;
+using VietWay.Service.ThirdParty;
+using VietWay.Util.IdHelper;
 
 namespace VietWay.Service.Implement
 {
-    public class TourTemplateService(IUnitOfWork unitOfWork) : ITourTemplateService
+    public class TourTemplateService(IUnitOfWork unitOfWork, IIdGenerator idGenerator, ICloudinaryService cloudinaryService) : ITourTemplateService
     {
         private readonly IUnitOfWork _unitOfWork = unitOfWork;
+        private readonly IIdGenerator _idGenerator = idGenerator;
+        private readonly ICloudinaryService _cloudinaryService = cloudinaryService;
+        public async Task<string> CreateTemplateAsync(TourTemplate tourTemplate)
+        {
+            tourTemplate.TourTemplateId = _idGenerator.GenerateId();
+            tourTemplate.CreatedDate = DateTime.UtcNow;
+            foreach(var province in tourTemplate.TourTemplateProvinces ?? [])
+            {
+                province.TourTemplateId = tourTemplate.TourTemplateId;
+            }
+            foreach (var schedule in tourTemplate.TourTemplateSchedules ?? [])
+            {
+                schedule.TourTemplateId = tourTemplate.TourTemplateId;
+                foreach (var attractionSchedule in schedule.AttractionSchedules ?? [])
+                {
+                    attractionSchedule.TourTemplateId = tourTemplate.TourTemplateId;
+                }
+            }
+            await _unitOfWork.TourTemplateRepository.Create(tourTemplate);
+            return tourTemplate.TourTemplateId;
+        }
+        public async Task DeleteTemplateAsync(TourTemplate tourTemplate)
+        {
+            await _unitOfWork.TourTemplateRepository.SoftDelete(tourTemplate);
+        }
 
-        public async Task CreateTemplateAsync(TourTemplate template)
-        {
-            await _unitOfWork.TourTemplateRepository.Create(template);
-        }
-        public async Task UpdateTemplateAsync(TourTemplate template)
-        {
-            await _unitOfWork.TourTemplateRepository.Update(template);
-        }
-        public async Task SoftDeleteTemplateAsync(TourTemplate template)
-        {
-            await _unitOfWork.TourTemplateRepository.SoftDelete(template);
-        }
         public async Task<(int totalCount, List<TourTemplate> items)> GetAllTemplatesAsync(
             string? nameSearch,
             List<string>? templateCategoryIds,
@@ -92,6 +109,54 @@ namespace VietWay.Service.Implement
                 .Include(x=>x.TourCategory)
                 .Include(x=>x.Creator)
                 .SingleOrDefaultAsync(x => x.TourTemplateId.Equals(id));
+        }
+
+        public async Task UpdateTemplateAsync(TourTemplate tourTemplate, List<TourTemplateSchedule> newSchedule)
+        {
+            IEnumerable<AttractionSchedule> deleteAttractionSchedule = tourTemplate.TourTemplateSchedules.SelectMany(x => x.AttractionSchedules);
+            await _unitOfWork.AttractionScheduleRepository.DeleteRange(deleteAttractionSchedule);
+            tourTemplate.TourTemplateSchedules = newSchedule;
+            await _unitOfWork.TourTemplateRepository.Update(tourTemplate);
+        }
+
+        public async Task UpdateTemplateImageAsync(TourTemplate tourTemplate, List<IFormFile>? imageFiles, List<string>? removedImageIds)
+        {
+            if (imageFiles != null)
+            {
+                foreach (var imageFile in imageFiles)
+                {
+                    using Stream stream = imageFile.OpenReadStream();
+                    var (publicId, secureUrl) = await _cloudinaryService.UploadImageAsync(stream, imageFile.FileName);
+                    Image image = new()
+                    {
+                        ImageId = _idGenerator.GenerateId(),
+                        PublicId = publicId,
+                        Url = secureUrl,
+                        ContentType = imageFile.ContentType,
+                        FileName = imageFile.FileName
+                    };
+                    TourTemplateImage attractionImage = new()
+                    {
+                        TourTemplateId = tourTemplate.TourTemplateId,
+                        ImageId = image.ImageId,
+                        Image = image
+                    };
+                    tourTemplate.TourTemplateImages.Add(attractionImage);
+                }
+            }
+            if (removedImageIds?.Count > 0)
+            {
+                var removedImages = tourTemplate.TourTemplateImages
+                    .Where(x => removedImageIds.Contains(x.ImageId))
+                    .ToList();
+                foreach (var image in removedImages)
+                {
+                    tourTemplate.TourTemplateImages.Remove(image);
+                }
+                _ = await _cloudinaryService.DeleteImages(removedImages.Select(x => x.Image.PublicId));
+                await _unitOfWork.TourTemplateRepository.Update(tourTemplate);
+                await _unitOfWork.ImageRepository.DeleteRange(removedImages.Select(x => x.Image));
+            }
         }
     }
 }

@@ -16,39 +16,16 @@ namespace VietWay.Service.Implement
         private readonly IUnitOfWork _unitOfWork = unitOfWork;
         private readonly ICloudinaryService _cloudinaryService = cloudinaryService;
         private readonly IIdGenerator _idGenerator = idGenerator;
-        public async Task CreateAttraction(Attraction attraction, List<IFormFile>? imageFiles, bool isDraft)
+        public async Task<string> CreateAttraction(Attraction attraction)
         {
             attraction.AttractionId ??= _idGenerator.GenerateId();
-            attraction.Status = isDraft ? AttractionStatus.Draft : AttractionStatus.Pending;
-            attraction.AttractionImages = [];
-            if (null != imageFiles)
-            {
-                foreach (IFormFile imageFile in imageFiles)
-                {
-                    using Stream imageStream = imageFile.OpenReadStream();
-                    (string publicId, string secureUrl) = await _cloudinaryService.UploadImageAsync(imageStream, imageFile.FileName);
-                    Image image = new()
-                    {
-                        PublicId = publicId,
-                        Url = secureUrl,
-                        ContentType = imageFile.ContentType,
-                        FileName = imageFile.FileName,
-                        ImageId = _idGenerator.GenerateId()
-                    };
-                    attraction.AttractionImages.Add(new AttractionImage
-                    {
-                        Image = image,
-                        AttractionId = attraction.AttractionId,
-                        ImageId = image.ImageId
-                    });
-                }
-            }
             await _unitOfWork.AttractionRepository.Create(attraction);
+            return attraction.AttractionId;
         }
 
-        public Task DeleteAttraction(string attractionId)
+        public async Task DeleteAttraction(Attraction attraction)
         {
-            throw new NotImplementedException();
+            await _unitOfWork.AttractionRepository.SoftDelete(attraction);
         }
 
         public async Task<(int totalCount, List<Attraction> items)> GetAllAttractions(
@@ -102,53 +79,48 @@ namespace VietWay.Service.Implement
                 .SingleOrDefaultAsync();
         }
 
-        public async Task UpdateAttraction(Attraction newAttraction, List<IFormFile>? imageFiles, List<string>? removedImageIds, bool isDraft)
+        public async Task UpdateAttraction(Attraction newAttraction)
         {
-            if (imageFiles != null && imageFiles.Count > 0)
+            await _unitOfWork.AttractionRepository.Update(newAttraction);
+        }
+        public async Task UpdateAttractionImage(Attraction attraction, List<IFormFile>? imageFiles, List<string>? removedImageIds)
+        {
+            if (imageFiles != null)
             {
-                var newImages = new List<AttractionImage>();
-                foreach (IFormFile imageFile in imageFiles)
+                foreach (var imageFile in imageFiles)
                 {
-                    using Stream imageStream = imageFile.OpenReadStream();
-                    (string publicId, string secureUrl) = await _cloudinaryService.UploadImageAsync(imageStream, imageFile.FileName);
+                    using Stream stream = imageFile.OpenReadStream();
+                    var (publicId, secureUrl) = await _cloudinaryService.UploadImageAsync(stream, imageFile.FileName);
                     Image image = new()
                     {
+                        ImageId = _idGenerator.GenerateId(),
                         PublicId = publicId,
                         Url = secureUrl,
                         ContentType = imageFile.ContentType,
-                        FileName = imageFile.FileName,
-                        ImageId = _idGenerator.GenerateId()
+                        FileName = imageFile.FileName
                     };
-
-                    newImages.Add(new AttractionImage
+                    AttractionImage attractionImage = new()
                     {
-                        Image = image,
-                        AttractionId = newAttraction.AttractionId,
-                        ImageId = image.ImageId
-                    });
-                }
-                foreach (var newImage in newImages)
-                {
-                    newAttraction.AttractionImages?.Add(newImage);
+                        AttractionId = attraction.AttractionId,
+                        ImageId = image.ImageId,
+                        Image = image
+                    };
+                    attraction.AttractionImages.Add(attractionImage);
                 }
             }
-            newAttraction.Status = isDraft ? AttractionStatus.Draft : AttractionStatus.Pending;
-            await _unitOfWork.AttractionRepository.Update(newAttraction);
             if (removedImageIds?.Count > 0)
             {
-                var removedAttractionImages = newAttraction.AttractionImages?.Where(x => removedImageIds.Contains(x.ImageId)).ToList() ?? [] ;
-
-                foreach (AttractionImage attractionImage in removedAttractionImages)
+                var removedImages = attraction.AttractionImages
+                    .Where(x => removedImageIds.Contains(x.ImageId))
+                    .ToList();
+                foreach (var image in removedImages)
                 {
-                    await _unitOfWork.AttractionImageRepository.Delete(attractionImage);
-                    if (attractionImage.Image != null)
-                    {
-                        await _cloudinaryService.DeleteImage(attractionImage.Image.PublicId);
-                        await _unitOfWork.ImageRepository.Delete(attractionImage.Image);
-                    }
+                    attraction.AttractionImages.Remove(image);
                 }
+                _ = await _cloudinaryService.DeleteImages(removedImages.Select(x => x.Image.PublicId));
+                await _unitOfWork.AttractionRepository.Update(attraction);
+                await _unitOfWork.ImageRepository.DeleteRange(removedImages.Select(x => x.Image));
             }
         }
-
     }
 }
