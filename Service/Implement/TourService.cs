@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using VietWay.Service.Interface;
 using Microsoft.AspNetCore.Http;
+using VietWay.Repository.EntityModel.Base;
 
 namespace VietWay.Service.Implement
 {
@@ -71,7 +72,7 @@ namespace VietWay.Service.Implement
                 .Include(x => x.TourTemplate)
                 .ThenInclude(x => x.TourTemplateImages)
                 .ThenInclude(x => x.Image)
-                .Where(x => x.Status == Repository.EntityModel.Base.TourStatus.Scheduled)
+                .Where(x => x.Status == TourStatus.Scheduled)
                 .ToListAsync();
             return (count, items);
         }

@@ -118,6 +118,9 @@ namespace VietWay.API.Customer
             builder.Services.AddScoped<IVnPayService, VnPayService>();
             builder.Services.AddScoped<ITourService, TourService>();
             builder.Services.AddScoped<ICustomerService, CustomerService>();
+            builder.Services.AddScoped<ITourTemplateService, TourTemplateService>();
+            builder.Services.AddScoped<IProvinceService, ProvinceService>();
+            builder.Services.AddScoped<ICloudinaryService, CloudinaryService>();
             #endregion
 
             builder.Services.AddSingleton<IIdGenerator, SnowflakeIdGenerator>();
