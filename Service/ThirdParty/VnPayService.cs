@@ -12,9 +12,9 @@ namespace VietWay.Service.ThirdParty
     public class VnPayService(IConfiguration configuration) : IVnPayService
     {
         private readonly string _vnpHashSecret =
-            configuration["VNPay:HashSecret"] ?? throw new Exception("Can not get vnp_HashSecret");
+            configuration["VnPay:HashSecret"] ?? throw new Exception("Can not get vnp_HashSecret");
         private readonly string _vnpTmnCode =
-            configuration["VNPay:TmnCode"] ?? throw new Exception("Can not get vnp_TmnCode");
+            configuration["VnPay:TmnCode"] ?? throw new Exception("Can not get vnp_TmnCode");
         public string GetPaymentUrl(Transaction transaction, string userIpAddress)
         {
             const string vnpVersion = "2.1.0";
@@ -24,12 +24,12 @@ namespace VietWay.Service.ThirdParty
                 .ConvertTime(DateTime.Now, TimeZoneInfo.FindSystemTimeZoneById("Asia/Ho_Chi_Minh")).ToString("yyyyMMddHHmmss");
             const string vnpCurrCode = "VND";
             const string vnpLocale = "vn";
-            string vnpOrderInfo = Uri.EscapeDataString($"Thanh toan tour gia {transaction.Amount} VNĐ");
+            string vnpOrderInfo = Uri.EscapeDataString($"Thanh+toan+tour+gia+{transaction.Amount}+VND");
             const string vnpOrderType = "130005";
-            string vnpReturnUrl = Uri.EscapeDataString("https://precareapi.azurewebsites.net/api/Transaction/VNPayIPN");
+            string vnpReturnUrl = Uri.EscapeDataString("https://www.google.com");
             string vnpExpireDate = TimeZoneInfo
                 .ConvertTime(DateTime.Now.AddHours(1), TimeZoneInfo.FindSystemTimeZoneById("Asia/Ho_Chi_Minh")).ToString("yyyyMMddHHmmss");
-            string vnpTxnRef = transaction.TransactionId.ToString();
+            string vnpTxnRef = transaction.TransactionId;
 
             string hashSource = $"vnp_Amount={vnpAmount}&" +
                                 $"vnp_Command={vnpCommand}&" +
