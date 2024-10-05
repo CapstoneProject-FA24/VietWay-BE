@@ -1,7 +1,7 @@
 # Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
 # More GitHub Actions for Azure: https://github.com/Azure/actions
 
-name: Deploy VietWay Management API to Azure Web App
+name: Build and deploy ASP.Net Core app to Azure Web App - customer-vietwayapi
 
 on:
   push:
@@ -22,16 +22,16 @@ jobs:
           dotnet-version: '8.x'
 
       - name: Build with dotnet
-        run: dotnet build VietWayManagementAPI/VietWay.API.Management.csproj --configuration Release
+        run: dotnet build VietWay.API.Customer/VietWay.API.Customer.csproj --configuration Release
 
       - name: dotnet publish
-        run: dotnet publish VietWayManagementAPI/VietWay.API.Management.csproj -c Release -o ${{env.DOTNET_ROOT}}/mymanagementapp
+        run: dotnet publish VietWay.API.Customer/VietWay.API.Customer.csproj -c Release -o ${{env.DOTNET_ROOT}}/mycustomerapp
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
         with:
           name: .net-app
-          path: ${{env.DOTNET_ROOT}}/mymanagementapp
+          path: ${{env.DOTNET_ROOT}}/mycustomerapp
 
   deploy:
     runs-on: ubuntu-latest
@@ -50,7 +50,7 @@ jobs:
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v3
         with:
-          app-name: 'vietwayapi'
+          app-name: 'customer-vietwayapi'
           slot-name: 'Production'
           package: .
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_1B4CC09769D2454F865783DF8D2C0B16 }}
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_DBBA605128094FDD926AC39D2C9B6878 }}

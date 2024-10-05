@@ -1,12 +1,12 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using VietWay.API.Management.ResponseModel;
+using VietWay.API.Customer.ResponseModel;
 using VietWay.Repository.EntityModel;
 using VietWay.Service.Implement;
 using VietWay.Service.Interface;
 
-namespace VietWay.API.Management.Controllers
+namespace VietWay.API.Customer.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
