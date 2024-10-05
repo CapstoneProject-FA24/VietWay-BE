@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using VietWay.Repository.EntityModel.Base;
 using VietWay.Service.Interface;
 using VietWay.API.Customer.ResponseModel;
+using VietWay.Repository.EntityModel;
 
 namespace VietWay.API.Customer.Controllers
 {
@@ -44,6 +45,35 @@ namespace VietWay.API.Customer.Controllers
                 StatusCode = StatusCodes.Status200OK
             };
             return Ok(response);
+        }
+
+        [HttpGet("{tourTemplateId}")]
+        [Produces("application/json")]
+        [ProducesResponseType<DefaultResponseModel<DefaultResponseModel<TourTemplateDetail>>>(StatusCodes.Status200OK)]
+        [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> GetTourTemplateById(string tourTemplateId)
+        {
+            TourTemplate? tourTemplate = await _tourTemplateService
+                .GetTemplateByIdAsync(tourTemplateId);
+            if (tourTemplate == null)
+            {
+                DefaultResponseModel<object> response = new()
+                {
+                    StatusCode = StatusCodes.Status404NotFound,
+                    Message = $"Can not find Tour template with id {tourTemplateId}"
+                };
+                return NotFound(response);
+            }
+            else
+            {
+                DefaultResponseModel<TourTemplateDetail> response = new()
+                {
+                    StatusCode = StatusCodes.Status200OK,
+                    Message = "Get tour template successfully",
+                    Data = _mapper.Map<TourTemplateDetail>(tourTemplate)
+                };
+                return Ok(response);
+            }
         }
     }
 }
