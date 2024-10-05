@@ -30,6 +30,7 @@ namespace VietWay.API.Customer
             // Shared services
             builder.Services.AddControllers();
             builder.Services.AddEndpointsApiExplorer();
+            builder.Services.AddAutoMapper(typeof(MappingProfile));
 
             #region builder.Services.AddAuthentication(...);
             builder.Services.AddAuthentication(option =>
@@ -112,10 +113,11 @@ namespace VietWay.API.Customer
                 });
             });
             #endregion
-
             #region builder.Services.AddScoped(...);
-            // Add third-party services
+            builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
             builder.Services.AddScoped<IVnPayService, VnPayService>();
+            builder.Services.AddScoped<ITourService, TourService>();
+            builder.Services.AddScoped<ICustomerService, CustomerService>();
             #endregion
 
             builder.Services.AddSingleton<IIdGenerator, SnowflakeIdGenerator>();
