@@ -24,12 +24,12 @@ namespace VietWay.Service.ThirdParty
                 .ConvertTime(DateTime.Now, TimeZoneInfo.FindSystemTimeZoneById("Asia/Ho_Chi_Minh")).ToString("yyyyMMddHHmmss");
             const string vnpCurrCode = "VND";
             const string vnpLocale = "vn";
-            string vnpOrderInfo = Uri.EscapeDataString($"Thanh toan tour gia {transaction.Amount} VND");
+            string vnpOrderInfo = Uri.EscapeDataString($"Thanh+toan+tour+gia+{transaction.Amount}+VND");
             const string vnpOrderType = "130005";
             string vnpReturnUrl = Uri.EscapeDataString("https://www.google.com");
             string vnpExpireDate = TimeZoneInfo
                 .ConvertTime(DateTime.Now.AddHours(1), TimeZoneInfo.FindSystemTimeZoneById("Asia/Ho_Chi_Minh")).ToString("yyyyMMddHHmmss");
-            string vnpTxnRef = transaction.TransactionId.ToString();
+            string vnpTxnRef = transaction.TransactionId;
 
             string hashSource = $"vnp_Amount={vnpAmount}&" +
                                 $"vnp_Command={vnpCommand}&" +
