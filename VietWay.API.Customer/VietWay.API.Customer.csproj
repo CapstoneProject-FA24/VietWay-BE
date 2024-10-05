@@ -7,6 +7,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="RequestModel\**" />
+    <Content Remove="RequestModel\**" />
+    <EmbeddedResource Remove="RequestModel\**" />
+    <None Remove="RequestModel\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <!-- Merged packages from both branches -->
     <PackageReference Include="AutoMapper" Version="13.0.1" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.8" />
@@ -17,10 +24,6 @@
     <ProjectReference Include="..\Repository\VietWay.Repository.csproj" />
     <ProjectReference Include="..\Service\VietWay.Service.csproj" />
     <ProjectReference Include="..\VietWay.Util\VietWay.Util.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="RequestModel\" />
   </ItemGroup>
 
 </Project>

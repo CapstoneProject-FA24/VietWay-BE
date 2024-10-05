@@ -15,10 +15,10 @@ namespace VietWay.API.Customer.Controllers
 
         [HttpGet]
         [Produces("application/json")]
-        [ProducesResponseType<DefaultResponseModel<CustomerBookingInfo>>(StatusCodes.Status200OK)]
+        [ProducesResponseType<DefaultResponseModel<CustomerProfile>>(StatusCodes.Status200OK)]
         public async Task<IActionResult> GetCurrentCustomerProfile()
         {
-            var result = await _customerService.GetCurrentCustomerProfile("4");
+            var result = await _customerService.GetCustomerById("4");
             if (result == null)
             {
                 DefaultResponseModel<object> response = new()
@@ -30,11 +30,11 @@ namespace VietWay.API.Customer.Controllers
             }
             else
             {
-                DefaultResponseModel<CustomerBookingInfo> response = new()
+                DefaultResponseModel<CustomerProfile> response = new()
                 {
                     Message = "Get customer successfully",
                     StatusCode = StatusCodes.Status200OK,
-                    Data = _mapper.Map<CustomerBookingInfo>(result)
+                    Data = _mapper.Map<CustomerProfile>(result)
                 };
                 return Ok(response);
             }
