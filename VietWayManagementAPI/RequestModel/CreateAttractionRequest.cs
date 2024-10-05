@@ -26,6 +26,5 @@ namespace VietWay.API.Management.RequestModel
         public string? GooglePlaceId { get; set; }
         [Required]
         public bool IsDraft { get; set; }
-        public List<IFormFile>? Images { get; set; }
     }
 }

@@ -11,9 +11,9 @@ namespace VietWay.Service.Interface
 {
     public interface IAttractionService
     {
-        public Task CreateAttraction(Attraction attraction, List<IFormFile> images, bool isDraft);
-        public Task DeleteAttraction(string attractionId);
-        public Task UpdateAttraction(Attraction newAttraction, List<IFormFile>? imageFiles, List<string>? removedImageIds, bool isDraft);
+        public Task<string> CreateAttraction(Attraction attraction);
+        public Task DeleteAttraction(Attraction attraction);
+        public Task UpdateAttraction(Attraction newAttraction);
         public Task<(int totalCount, List<Attraction> items)> GetAllAttractions(
             string? nameSearch,
             List<string>? provinceIds,
@@ -22,5 +22,7 @@ namespace VietWay.Service.Interface
             int pageSize,
             int pageIndex);
         public Task<Attraction?> GetAttractionById(string attractionId);
+
+        public Task UpdateAttractionImage(Attraction attraction, List<IFormFile>? imageFiles, List<string>? removedImageIds);
     }
 }

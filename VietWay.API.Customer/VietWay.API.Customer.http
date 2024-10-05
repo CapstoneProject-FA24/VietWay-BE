@@ -1,0 +1,6 @@
+@VietWay.API.Customer_HostAddress = http://localhost:5104
+
+GET {{VietWay.API.Customer_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

@@ -7,9 +7,9 @@ namespace VietWay.Repository.EntityModel
     public class TourTemplateProvince
     {
         [ForeignKey(nameof(TourTemplate))]
-        public string TourTemplateId { get; set; }
+        public required string TourTemplateId { get; set; }
         [ForeignKey(nameof(Province))]
-        public string ProvinceId { get; set; }
+        public required string ProvinceId { get; set; }
         public virtual TourTemplate? TourTemplate { get; set; }
         public virtual Province? Province { get; set; }
     }

@@ -77,7 +77,7 @@ namespace VietWay.API.Management.Controllers
         [HttpPost]
         [Produces("application/json")]
         [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status200OK)]
-        public async Task<IActionResult> CreateAttractionAsync([FromForm] CreateAttractionRequest request)
+        public async Task<IActionResult> CreateAttractionAsync(CreateAttractionRequest request)
         {
             Attraction attraction = _mapper.Map<Attraction>(request);
             if (false == request.IsDraft &&
@@ -93,9 +93,10 @@ namespace VietWay.API.Management.Controllers
                 };
                 return BadRequest(errorResponse);
             } 
-            attraction.CreatedBy = "1"; // #warning Need to be replaced by staffid from jwt
+            attraction.CreatedBy = "1"; 
+            #warning Need to be replaced by staffid from jwt
             attraction.CreatedDate = DateTime.UtcNow;
-            await _attractionService.CreateAttraction(attraction, request.Images, request.IsDraft);
+            await _attractionService.CreateAttraction(attraction);
             DefaultResponseModel<object> response = new()
             {
                 Message = "Create attraction successfully",
@@ -103,10 +104,11 @@ namespace VietWay.API.Management.Controllers
             };
             return Ok(response);
         }
+
         [HttpPut("{attractionId}")]
         [Produces("application/json")]
         [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status200OK)]
-        public async Task<IActionResult> UpdateAttractionAsync(string attractionId, [FromForm] UpdateAttractionRequest request)
+        public async Task<IActionResult> UpdateAttractionAsync(string attractionId,CreateAttractionRequest request)
         {
             Attraction? attraction = await _attractionService.GetAttractionById(attractionId);
             if (null == attraction)
@@ -140,11 +142,67 @@ namespace VietWay.API.Management.Controllers
             attraction.ProvinceId = request.ProvinceId;
             attraction.Website = request.Website;
             attraction.AttractionTypeId = request.AttractionTypeId;
-
-            await _attractionService.UpdateAttraction(attraction, request.NewImages, request.RemovedImageIds, request.IsDraft);
+            attraction.Status = request.IsDraft ? AttractionStatus.Draft : AttractionStatus.Pending;
+            await _attractionService.UpdateAttraction(attraction);
             DefaultResponseModel<object> response = new()
             {
                 Message = "Update successfully",
+                StatusCode = StatusCodes.Status200OK
+            };
+            return Ok(response);
+        }
+
+        [HttpDelete("{attractionId}")]
+        [Produces("application/json")]
+        [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status200OK)]
+        public async Task<IActionResult> DeleteAttractionAsync(string attractionId)
+        {
+            Attraction? attraction = await _attractionService.GetAttractionById(attractionId);
+            if (null == attraction)
+            {
+                DefaultResponseModel<object> errorResponse = new()
+                {
+                    Message = "Attraction not found",
+                    StatusCode = StatusCodes.Status404NotFound
+                };
+                return NotFound(errorResponse);
+            }
+            await _attractionService.DeleteAttraction(attraction);
+            DefaultResponseModel<object> response = new()
+            {
+                Message = "Delete successfully",
+                StatusCode = StatusCodes.Status200OK
+            };
+            return Ok(response);
+        }
+        [HttpPatch("{attractionId}/images")]
+        [Produces("application/json")]
+        [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status200OK)]
+        public async Task<IActionResult> UpdateAttractionImageAsync(string attractionId, [FromForm] UpdateImageRequest request)
+        {
+            if (0 == request.NewImages?.Count && 0 == request.DeletedImageIds?.Count)
+            {
+                DefaultResponseModel<object> errorResponse = new()
+                {
+                    Message = "Nothing to update",
+                    StatusCode = StatusCodes.Status400BadRequest
+                };
+                return BadRequest(errorResponse);
+            }
+            Attraction? attraction = await _attractionService.GetAttractionById(attractionId);
+            if (null == attraction)
+            {
+                DefaultResponseModel<object> errorResponse = new()
+                {
+                    Message = "Attraction not found",
+                    StatusCode = StatusCodes.Status404NotFound
+                };
+                return NotFound(errorResponse);
+            }
+            await _attractionService.UpdateAttractionImage(attraction, request.NewImages, request.DeletedImageIds);
+            DefaultResponseModel<object> response = new()
+            {
+                Message = "Update image successfully",
                 StatusCode = StatusCodes.Status200OK
             };
             return Ok(response);

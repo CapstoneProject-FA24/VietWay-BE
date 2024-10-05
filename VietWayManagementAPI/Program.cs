@@ -146,7 +146,7 @@ namespace VietWay.API.Management
             app.UseCors("AllowAll");
             app.UseAuthentication();
             app.UseAuthorization();
-            app.UseMiddleware<ErrorHandlingMiddleware>();
+            //app.UseMiddleware<ErrorHandlingMiddleware>();
             app.MapControllers();
             app.Run();
         }

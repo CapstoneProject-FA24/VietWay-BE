@@ -10,6 +10,6 @@ namespace VietWay.Service.ThirdParty
     {
         public string GetImage(string publicId);
         public Task<(string publicId, string secureUrl)> UploadImageAsync(Stream stream, string fileName);
-        public Task<bool> DeleteImage(string publicId);
+        public Task<bool> DeleteImages(IEnumerable<string> images);
     }
 }
