@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using VietWay.Service.Interface;
+using Microsoft.AspNetCore.Http;
 
 namespace VietWay.Service.Implement
 {
@@ -56,6 +57,23 @@ namespace VietWay.Service.Implement
                 .ThenInclude(x => x.TourTemplateImages)
                 .ThenInclude(x => x.Image)
                 .SingleOrDefaultAsync(x => x.TourId.Equals(id));
+        }
+
+        public async Task<(int totalCount, List<Tour> items)> GetAllScheduledTour(int pageSize, int pageIndex)
+        {
+            var query = _unitOfWork
+                .TourRepository
+                .Query();
+            int count = await query.CountAsync();
+            List<Tour> items = await query
+                .Skip((pageIndex - 1) * pageSize)
+                .Take(pageSize)
+                .Include(x => x.TourTemplate)
+                .ThenInclude(x => x.TourTemplateImages)
+                .ThenInclude(x => x.Image)
+                .Where(x => x.Status == Repository.EntityModel.Base.TourStatus.Scheduled)
+                .ToListAsync();
+            return (count, items);
         }
     }
 }
