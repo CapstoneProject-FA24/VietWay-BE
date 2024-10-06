@@ -63,18 +63,18 @@ namespace VietWay.API.Customer.Controllers
                 DefaultResponseModel<TourDetail> response = new()
                 {
                     StatusCode = StatusCodes.Status200OK,
-                    Message = "Get tour template successfully",
+                    Message = "Get tour successfully",
                     Data = _mapper.Map<TourDetail>(tour)
                 };
                 return Ok(response);
             }
         }
 
-        [HttpGet("by-template-ids")]
+        [HttpGet("by-template-ids/{tourTemplateIds}")]
         [Produces("application/json")]
         [ProducesResponseType<DefaultResponseModel<DefaultPageResponse<TourPreview>>>(StatusCodes.Status200OK)]
         public async Task<IActionResult> GetAllToursByTemplateIdsAsync(
-            [FromQuery] string tourTemplateIds,
+            string tourTemplateIds,
             int pageSize,
             int pageIndex)
         {

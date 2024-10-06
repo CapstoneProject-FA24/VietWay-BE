@@ -202,5 +202,24 @@ namespace VietWay.Service.Implement
                 .ToListAsync();
             return (count, items);
         }
+        public async Task<List<TourTemplate>> GetAllTemplateWithToursAsync()
+        {
+            var query = _unitOfWork
+                .TourTemplateRepository
+                .Query()
+                .Where(x => x.IsDeleted == false);
+            List<TourTemplate> items = await query
+                .OrderByDescending(x => x.CreatedDate)
+                .Where(x => x.Status == TourTemplateStatus.Approved)
+                .Include(x => x.TourTemplateImages)
+                .ThenInclude(x => x.Image)
+                .Include(x => x.TourTemplateProvinces)
+                .ThenInclude(x => x.Province)
+                .Include(x => x.TourCategory)
+                .Include(x => x.TourDuration)
+                .Include(x => x.Tours)
+                .ToListAsync();
+            return items;
+        }
     }
 }
