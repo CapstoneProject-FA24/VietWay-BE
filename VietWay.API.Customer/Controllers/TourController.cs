@@ -20,7 +20,10 @@ namespace VietWay.API.Customer.Controllers
         [ProducesResponseType<DefaultResponseModel<DefaultPageResponse<TourPreview>>>(StatusCodes.Status200OK)]
         public async Task<IActionResult> GetAllTourAsync(int pageSize, int pageIndex)
         {
-            var result = await _tourService.GetAllTour(pageSize, pageIndex);
+            int checkedPageSize = (pageSize == null || pageSize < 1) ? 10 : (int)pageSize;
+            int checkedPageIndex = (pageIndex == null || pageIndex < 1) ? 1 : (int)pageIndex;
+
+            var result = await _tourService.GetAllScheduledTour(checkedPageSize, checkedPageIndex);
             List<TourPreview> tourPreviews = _mapper.Map<List<TourPreview>>(result.items);
             DefaultPageResponse<TourPreview> pagedResponse = new()
             {
@@ -38,7 +41,7 @@ namespace VietWay.API.Customer.Controllers
             return Ok(response);
         }
 
-        [HttpGet("{tourId}")]
+        [HttpGet("by-id/{tourId}")]
         [Produces("application/json")]
         [ProducesResponseType<DefaultResponseModel<DefaultResponseModel<TourDetail>>>(StatusCodes.Status200OK)]
         [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status404NotFound)]
@@ -65,6 +68,35 @@ namespace VietWay.API.Customer.Controllers
                 };
                 return Ok(response);
             }
+        }
+
+        [HttpGet("by-template-ids")]
+        [Produces("application/json")]
+        [ProducesResponseType<DefaultResponseModel<DefaultPageResponse<TourPreview>>>(StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetAllToursByTemplateIdsAsync(
+            [FromQuery] string tourTemplateIds,
+            int pageSize,
+            int pageIndex)
+        {
+            int checkedPageSize = (pageSize == null || pageSize < 1) ? 10 : (int)pageSize;
+            int checkedPageIndex = (pageIndex == null || pageIndex < 1) ? 1 : (int)pageIndex;
+
+            var result = await _tourService.GetAllToursByTemplateIdsAsync(tourTemplateIds, checkedPageSize, checkedPageIndex);
+            List<TourPreview> tourPreviews = _mapper.Map<List<TourPreview>>(result.items);
+            DefaultPageResponse<TourPreview> pagedResponse = new()
+            {
+                Total = result.totalCount,
+                PageSize = pageSize,
+                PageIndex = pageIndex,
+                Items = tourPreviews
+            };
+            DefaultResponseModel<DefaultPageResponse<TourPreview>> response = new()
+            {
+                Data = pagedResponse,
+                Message = "Get all tour successfully",
+                StatusCode = StatusCodes.Status200OK
+            };
+            return Ok(response);
         }
     }
 }
