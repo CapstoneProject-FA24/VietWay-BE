@@ -35,6 +35,8 @@ namespace VietWay.Repository.EntityModel.Base
     }
     public enum TourStatus
     {
+        Pending,
+        Rejected,
         Scheduled,
         Closed,
         OnGoing,
