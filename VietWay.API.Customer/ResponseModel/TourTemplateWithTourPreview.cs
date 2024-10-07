@@ -13,9 +13,8 @@ namespace VietWay.API.Customer.ResponseModel
         public TourTemplateStatus Status { get; set; }
         public required List<string> Provinces { get; set; }
         public required string ImageUrl { get; set; }
-        public required List<string> Price { get; set; }
-        public required List<string> StartTime { get; set; }
-        public required List<string> StartDate { get; set; }
-        public required List<string> EndDate { get; set; }
+        public required List<decimal> Price { get; set; }
+        public required List<DateTime> StartDate { get; set; }
+        public required List<DateTime> EndDate { get; set; }
     }
 }

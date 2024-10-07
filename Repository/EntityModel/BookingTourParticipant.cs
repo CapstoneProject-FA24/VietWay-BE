@@ -21,7 +21,7 @@ namespace VietWay.Repository.EntityModel
         [StringLength(10)]
         public required string PhoneNumber { get; set; }
         public required Gender Gender { get; set; }
-        public required DateOnly DateOfBirth { get; set; }
+        public required DateTime DateOfBirth { get; set; }
         public bool? HasAttended { get; set; }
         public string? Note { get; set; }
 
