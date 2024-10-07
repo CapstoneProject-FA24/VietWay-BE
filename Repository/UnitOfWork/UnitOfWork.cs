@@ -1,10 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using VietWay.Repository.DataAccessObject;
+﻿using VietWay.Repository.DataAccessObject;
 using VietWay.Repository.EntityModel;
 using VietWay.Repository.GenericRepository;
 
@@ -29,7 +23,17 @@ namespace VietWay.Repository.UnitOfWork
         private IGenericRepository<TourTemplateSchedule>? tourTemplateScheduleRepository;
         private IGenericRepository<AttractionSchedule>? attractionScheduleRepository;
         private IGenericRepository<CustomerFeedback>? customerFeedbackRepository;
+        private IGenericRepository<TourBooking>? tourBookingRepository;
+        private IGenericRepository<BookingPayment>? bookingPaymentRepository;
 
+        public IGenericRepository<BookingPayment> BookingPaymentRepository
+        {
+            get
+            {
+                bookingPaymentRepository ??= new GenericRepository<BookingPayment>(_dbContext);
+                return bookingPaymentRepository;
+            }
+        }
         public IGenericRepository<TourTemplateSchedule> TourTemplateScheduleRepository
         {
             get
@@ -164,6 +168,15 @@ namespace VietWay.Repository.UnitOfWork
             {
                 this.customerFeedbackRepository ??= new GenericRepository<CustomerFeedback>(_dbContext); 
                 return this.customerFeedbackRepository;
+            }
+        }
+
+        public IGenericRepository<TourBooking> TourBookingRepository 
+        { 
+            get 
+            {
+                tourBookingRepository ??= new GenericRepository<TourBooking>(_dbContext);
+                return tourBookingRepository;
             }
         }
 

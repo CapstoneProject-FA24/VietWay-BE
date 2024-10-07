@@ -16,11 +16,26 @@ namespace VietWay.Repository.EntityModel
         [ForeignKey(nameof(CustomerInfo))]
         [StringLength(20)]
         public required string CustomerId { get; set; }
+        [Range(1, int.MaxValue)]
+        public required int NumberOfParticipants { get; set; }
+        [StringLength(100)]
+        public required string ContactFullName { get; set; }
+        [StringLength(320)]
+        public required string ContactEmail { get; set; }
+        [StringLength(10)]
+        public required string ContactPhoneNumber { get; set; }
+        [StringLength(255)]
+        public string? ContactAddress { get; set; }
+        [Range(0.01, 999999999999.99)]
+        [Column(TypeName = "decimal(18,2)")]
+        public required decimal TotalPrice { get; set; }
         public required BookingStatus Status { get; set; }
 
         public virtual Tour? Tour { get; set; }
         public virtual Customer? CustomerInfo { get; set; }
-        public virtual BookingPayment? BookingPayment { get; set; }
         public virtual CustomerFeedback? CustomerFeedback { get; set; }
+
+        public virtual ICollection<BookingPayment>? BookingPayments { get; set; }
+        public virtual ICollection<BookingTourParticipant>? BookingTourParticipants { get; set; }
     }
 }

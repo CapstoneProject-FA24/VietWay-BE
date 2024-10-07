@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace VietWay.Repository.EntityModel.Base
+﻿namespace VietWay.Repository.EntityModel.Base
 {
     public enum Gender
     {
@@ -46,13 +40,12 @@ namespace VietWay.Repository.EntityModel.Base
         Pending,
         Confirmed,
         Cancelled,
-        Completed,
-        NoShow
+        Completed
     }
     public enum PaymentStatus
     {
         Pending,
         Paid,
-        Cancelled
+        Failed
     }
 }
