@@ -13,7 +13,7 @@ using VietWay.Service.ThirdParty;
 
 namespace VietWay.Service.Implement
 {
-    internal class BookingPaymentService(IUnitOfWork unitOfWork, IVnPayService vnPayService) : IBookingPaymentService
+    public class BookingPaymentService(IUnitOfWork unitOfWork, IVnPayService vnPayService) : IBookingPaymentService
     {
         private readonly IUnitOfWork _unitOfWork = unitOfWork;
         private readonly IVnPayService _vnPayService = vnPayService;
