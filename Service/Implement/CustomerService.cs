@@ -1,6 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using VietWay.Repository.EntityModel;
-using VietWay.Repository.EntityModel.Base;
 using VietWay.Repository.UnitOfWork;
 using VietWay.Service.Interface;
 
