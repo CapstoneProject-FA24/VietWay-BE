@@ -115,6 +115,8 @@ namespace VietWay.API.Management
             builder.Services.AddScoped<ITourDurationService, TourDurationService>();
             builder.Services.AddScoped<IAttractionScheduleService, AttractionScheduleService>();
             builder.Services.AddScoped<ICustomerFeedbackService, CustomerFeedbackService>();
+            builder.Services.AddScoped<IBookingPaymentService, BookingPaymentService>();
+            builder.Services.AddScoped<IVnPayService, VnPayService>();
             #endregion
             builder.Services.AddSingleton<IIdGenerator, SnowflakeIdGenerator>();
             var app = builder.Build();

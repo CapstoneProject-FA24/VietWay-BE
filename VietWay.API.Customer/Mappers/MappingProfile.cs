@@ -60,7 +60,7 @@ namespace VietWay.API.Customer.Mappers
                 .ForMember(dest => dest.ProvinceName, opt => opt.MapFrom(src => src.Province.ProvinceName));
             CreateMap<BookTourRequest, TourBooking>();
             CreateMap<TourParticipant, BookingTourParticipant>()
-                .ForMember(dest => dest.DateOfBirth, opt => opt.MapFrom(src => DateOnly.FromDateTime(srcDateOfBirth)));
+                .ForMember(dest => dest.DateOfBirth, opt => opt.MapFrom(src => DateOnly.FromDateTime(src.DateOfBirth)));
             CreateMap<TourTemplate, TourTemplateWithTourPreview>()
                 .ForMember(dest => dest.Provinces, opt => opt.MapFrom(src => src.TourTemplateProvinces.Select(x => x.Province.ProvinceName).ToList()))
                 .ForMember(dest => dest.ImageUrl, opt => opt.MapFrom(src => src.TourTemplateImages.Select(x => x.Image.Url).FirstOrDefault()))
