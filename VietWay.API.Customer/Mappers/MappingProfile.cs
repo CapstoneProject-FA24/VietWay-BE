@@ -1,6 +1,7 @@
 using VietWay.Repository.EntityModel;
 using AutoMapper;
 using VietWay.API.Customer.ResponseModel;
+using VietWay.API.Customer.RequestModel;
 
 namespace VietWay.API.Customer.Mappers
 {
@@ -52,12 +53,13 @@ namespace VietWay.API.Customer.Mappers
                     ImageId = x.ImageId,
                     Url = x.Image.Url
                 }).ToList()));
-
-            // Mappings from main branch
             CreateMap<Repository.EntityModel.Customer, CustomerProfile>()
                 .ForMember(dest => dest.PhoneNumber, opt => opt.MapFrom(src => src.Account.PhoneNumber))
                 .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.Account.Email))
                 .ForMember(dest => dest.ProvinceName, opt => opt.MapFrom(src => src.Province.ProvinceName));
+            CreateMap<BookTourRequest, TourBooking>();
+            CreateMap<TourParticipant, BookingTourParticipant>()
+                .ForMember(dest => dest.DateOfBirth, opt => opt.MapFrom(src => DateOnly.FromDateTime(src.DateOfBirth)));
         }
     }
 }

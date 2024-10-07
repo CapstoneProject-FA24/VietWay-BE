@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using AutoMapper;
-using VietWay.Repository.EntityModel;
 using VietWay.Service.Interface;
 using VietWay.API.Customer.ResponseModel;
 

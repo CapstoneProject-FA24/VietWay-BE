@@ -1,9 +1,9 @@
-using IdGen;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
 using VietWay.API.Customer.Mappers;
+using VietWay.Middleware;
 using VietWay.Repository.UnitOfWork;
 using VietWay.Service.Implement;
 using VietWay.Service.Interface;
@@ -121,6 +121,7 @@ namespace VietWay.API.Customer
             builder.Services.AddScoped<ITourTemplateService, TourTemplateService>();
             builder.Services.AddScoped<IProvinceService, ProvinceService>();
             builder.Services.AddScoped<ICloudinaryService, CloudinaryService>();
+            builder.Services.AddScoped<ITourBookingService,TourBookingService>();
             #endregion
 
             builder.Services.AddSingleton<IIdGenerator, SnowflakeIdGenerator>();
@@ -156,7 +157,7 @@ namespace VietWay.API.Customer
             app.UseCors("AllowAll");
             app.UseAuthentication();
             app.UseAuthorization();
-            //app.UseMiddleware<ErrorHandlingMiddleware>();
+            app.UseMiddleware<ErrorHandlingMiddleware>();
             app.MapControllers();
             app.Run();
         }
