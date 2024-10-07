@@ -12,7 +12,7 @@ namespace VietWay.Repository.EntityModel
         public required string CustomerId { get; set; }
         [StringLength(100)]
         public required string FullName { get; set; }
-        public required DateOnly DateOfBirth { get; set; }
+        public required DateTime DateOfBirth { get; set; }
         [ForeignKey(nameof(Province))]
         [StringLength(20)]
         public required string ProvinceId { get; set; }
