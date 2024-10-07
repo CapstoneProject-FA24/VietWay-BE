@@ -26,5 +26,7 @@ namespace VietWay.Service.Interface
             List<string>? durationIds,
             int pageSize,
             int pageIndex);
+
+        public Task<List<TourTemplate>> GetAllTemplateWithToursAsync();
     }
 }

@@ -29,6 +29,8 @@
     }
     public enum TourStatus
     {
+        Pending,
+        Rejected,
         Scheduled,
         Closed,
         OnGoing,

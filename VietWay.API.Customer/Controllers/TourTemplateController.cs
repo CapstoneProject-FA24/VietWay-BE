@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using VietWay.Service.Interface;
 using VietWay.API.Customer.ResponseModel;
 using VietWay.Repository.EntityModel;
+using VietWay.Service.Implement;
 
 namespace VietWay.API.Customer.Controllers
 {
@@ -72,6 +73,22 @@ namespace VietWay.API.Customer.Controllers
                 };
                 return Ok(response);
             }
+        }
+
+        [HttpGet("tours")]
+        [Produces("application/json")]
+        [ProducesResponseType<DefaultResponseModel<TourTemplateWithTourPreview>>(StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetAllTourDurationAsync()
+        {
+            var result = await _tourTemplateService.GetAllTemplateWithToursAsync();
+            List<TourTemplateWithTourPreview> tourTemplateWithTourPreviews = _mapper.Map<List<TourTemplateWithTourPreview>>(result);
+            DefaultResponseModel<List<TourTemplateWithTourPreview>> response = new()
+            {
+                Data = tourTemplateWithTourPreviews,
+                Message = "Get all tour successfully",
+                StatusCode = StatusCodes.Status200OK
+            };
+            return Ok(response);
         }
     }
 }
