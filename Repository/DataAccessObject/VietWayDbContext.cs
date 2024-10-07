@@ -1,11 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Cryptography;
-using System.Text;
-using System.Threading.Tasks;
 using VietWay.Repository.EntityModel;
 
 namespace VietWay.Repository.DataAccessObject
@@ -34,7 +28,6 @@ namespace VietWay.Repository.DataAccessObject
         public DbSet<TourTemplateImage> TourTemplateImage { get; set; }
         public DbSet<TourTemplateProvince> TourTemplateProvince { get; set; }
         public DbSet<TourTemplateSchedule> TourTemplateSchedule { get; set; }
-        public DbSet<Transaction> Transaction { get; set; }
         #endregion
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

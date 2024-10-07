@@ -6,7 +6,6 @@ using VietWay.Repository.UnitOfWork;
 using VietWay.Service.Interface;
 using VietWay.Service.ThirdParty;
 using VietWay.Util.IdHelper;
-using static System.Net.Mime.MediaTypeNames;
 using Image = VietWay.Repository.EntityModel.Image;
 
 namespace VietWay.Service.Implement

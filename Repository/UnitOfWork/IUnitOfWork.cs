@@ -1,8 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using VietWay.Repository.EntityModel;
 using VietWay.Repository.GenericRepository;
 
@@ -22,10 +17,12 @@ namespace VietWay.Repository.UnitOfWork
         public IGenericRepository<TourCategory> TourCategoryRepository { get; }
         public IGenericRepository<AttractionType> AttractionTypeRepository { get; }
         public IGenericRepository<AttractionImage> AttractionImageRepository { get; }
-        public IGenericRepository <TourDuration> TourDurationRepository { get; }
+        public IGenericRepository<TourDuration> TourDurationRepository { get; }
         public IGenericRepository<TourTemplateSchedule> TourTemplateScheduleRepository { get; }
         public IGenericRepository<AttractionSchedule> AttractionScheduleRepository { get; }
         public IGenericRepository<CustomerFeedback> CustomerFeedbackRepository { get; }
+        public IGenericRepository<TourBooking> TourBookingRepository { get; }
+        public IGenericRepository<BookingPayment> BookingPaymentRepository { get; }
         void Save();
     }
 }

@@ -1,7 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
-using System.ComponentModel.DataAnnotations;
-
-namespace VietWay.API.Management.ResponseModel
+﻿namespace VietWay.API.Management.ResponseModel
 {
     public class CustomerFeedbackPreview
     {

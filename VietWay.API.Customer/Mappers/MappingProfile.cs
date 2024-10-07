@@ -1,6 +1,7 @@
 using VietWay.Repository.EntityModel;
 using AutoMapper;
 using VietWay.API.Customer.ResponseModel;
+using VietWay.API.Customer.RequestModel;
 
 namespace VietWay.API.Customer.Mappers
 {
@@ -53,12 +54,13 @@ namespace VietWay.API.Customer.Mappers
                     ImageId = x.ImageId,
                     Url = x.Image.Url
                 }).ToList()));
-
-            // Mappings from main branch
             CreateMap<Repository.EntityModel.Customer, CustomerProfile>()
                 .ForMember(dest => dest.PhoneNumber, opt => opt.MapFrom(src => src.Account.PhoneNumber))
                 .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.Account.Email))
                 .ForMember(dest => dest.ProvinceName, opt => opt.MapFrom(src => src.Province.ProvinceName));
+            CreateMap<BookTourRequest, TourBooking>();
+            CreateMap<TourParticipant, BookingTourParticipant>()
+                .ForMember(dest => dest.DateOfBirth, opt => opt.MapFrom(src => DateOnly.FromDateTime(srcDateOfBirth)));
             CreateMap<TourTemplate, TourTemplateWithTourPreview>()
                 .ForMember(dest => dest.Provinces, opt => opt.MapFrom(src => src.TourTemplateProvinces.Select(x => x.Province.ProvinceName).ToList()))
                 .ForMember(dest => dest.ImageUrl, opt => opt.MapFrom(src => src.TourTemplateImages.Select(x => x.Image.Url).FirstOrDefault()))
@@ -68,8 +70,7 @@ namespace VietWay.API.Customer.Mappers
                 .ForMember(dest => dest.Price, opt => opt.MapFrom(src => src.Tours.Select(x => x.Price)))
                 .ForMember(dest => dest.StartDate, opt => opt.MapFrom(src => src.Tours.Select(x => x.StartDate)))
                 .ForMember(dest => dest.StartTime, opt => opt.MapFrom(src => src.Tours.Select(x => x.StartTime)))
-                .ForMember(dest => dest.EndDate, opt => opt.MapFrom(src => src.Tours.Select(x => x.EndDate)))
-                ;
+                .ForMember(dest => dest.EndDate, opt => opt.MapFrom(src => src.Tours.Select(x => x.EndDate)));
         }
     }
 }

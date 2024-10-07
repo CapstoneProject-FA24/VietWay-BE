@@ -1,9 +1,10 @@
-﻿using IdGen;
-using Microsoft.Extensions.Primitives;
+﻿using System.Diagnostics;
 using System.Net;
 using System.Text.Json;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Primitives;
 
-namespace VietWay.API.Customer.Middleware
+namespace VietWay.Middleware
 {
     public class ErrorHandlingMiddleware(RequestDelegate next)
     {
@@ -25,7 +26,9 @@ namespace VietWay.API.Customer.Middleware
             var code = HttpStatusCode.InternalServerError;
             var result = JsonSerializer.Serialize(new
             {
-                error = ex.Message
+                error = ex.Message.Split(["\r\n", "\n"], StringSplitOptions.RemoveEmptyEntries),
+                inner = ex.InnerException?.Message.Split(["\r\n", "\n"], StringSplitOptions.RemoveEmptyEntries),
+                detail = ex.StackTrace?.Split(["\r\n","\n"], StringSplitOptions.RemoveEmptyEntries)
             });
             context.Response.ContentType = "application/json";
             var header = new KeyValuePair<string, StringValues>("Access-Control-Allow-Origin", "*");

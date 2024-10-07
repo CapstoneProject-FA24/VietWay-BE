@@ -33,7 +33,6 @@ namespace VietWay.Repository.Migrations
                 columns: table => new
                 {
                     ImageId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
-                    SHA256 = table.Column<string>(type: "nvarchar(64)", maxLength: 64, nullable: false),
                     PublicId = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
                     FileName = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
                     Url = table.Column<string>(type: "nvarchar(2048)", maxLength: 2048, nullable: false),
@@ -232,6 +231,7 @@ namespace VietWay.Repository.Migrations
                     ProvinceId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
                     AttractionTypeId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
                     GooglePlaceId = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
+                    Status = table.Column<int>(type: "int", nullable: false),
                     IsDeleted = table.Column<bool>(type: "bit", nullable: false),
                     CreatedBy = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
                     CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false)
@@ -434,6 +434,12 @@ namespace VietWay.Repository.Migrations
                     BookingId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
                     TourId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
                     CustomerId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
+                    NumberOfParticipants = table.Column<int>(type: "int", nullable: false),
+                    ContactFullName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    ContactEmail = table.Column<string>(type: "nvarchar(320)", maxLength: 320, nullable: false),
+                    ContactPhoneNumber = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: false),
+                    ContactAddress = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),
+                    TotalPrice = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     Status = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
@@ -484,10 +490,14 @@ namespace VietWay.Repository.Migrations
                 {
                     PaymentId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
                     BookingId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
-                    PaymentDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     Amount = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    PaymentMethod = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
-                    PaymentStatus = table.Column<int>(type: "int", nullable: false)
+                    Note = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    CreateOn = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    BankCode = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    BankTransactionNumber = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    PayTime = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    ThirdPartyTransactionNumber = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Status = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -495,6 +505,30 @@ namespace VietWay.Repository.Migrations
                     table.ForeignKey(
                         name: "FK_BookingPayment_TourBooking_BookingId",
                         column: x => x.BookingId,
+                        principalTable: "TourBooking",
+                        principalColumn: "BookingId",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "BookingTourParticipant",
+                columns: table => new
+                {
+                    ParticipantId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
+                    TourBookingId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
+                    FullName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    PhoneNumber = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: false),
+                    Gender = table.Column<int>(type: "int", nullable: false),
+                    DateOfBirth = table.Column<DateOnly>(type: "date", nullable: false),
+                    HasAttended = table.Column<bool>(type: "bit", nullable: true),
+                    Note = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_BookingTourParticipant", x => x.ParticipantId);
+                    table.ForeignKey(
+                        name: "FK_BookingTourParticipant_TourBooking_TourBookingId",
+                        column: x => x.TourBookingId,
                         principalTable: "TourBooking",
                         principalColumn: "BookingId",
                         onDelete: ReferentialAction.Restrict);
@@ -518,32 +552,6 @@ namespace VietWay.Repository.Migrations
                         column: x => x.BookingId,
                         principalTable: "TourBooking",
                         principalColumn: "BookingId",
-                        onDelete: ReferentialAction.Restrict);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Transaction",
-                columns: table => new
-                {
-                    TransactionId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    PaymentId = table.Column<string>(type: "nvarchar(20)", nullable: false),
-                    Amount = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    Note = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    CreateOn = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    BankCode = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    BankTransactionNumber = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    PayTime = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    ThirdPartyTransactionNumber = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Status = table.Column<int>(type: "int", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Transaction", x => x.TransactionId);
-                    table.ForeignKey(
-                        name: "FK_Transaction_BookingPayment_PaymentId",
-                        column: x => x.PaymentId,
-                        principalTable: "BookingPayment",
-                        principalColumn: "PaymentId",
                         onDelete: ReferentialAction.Restrict);
                 });
 
@@ -580,8 +588,12 @@ namespace VietWay.Repository.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_BookingPayment_BookingId",
                 table: "BookingPayment",
-                column: "BookingId",
-                unique: true);
+                column: "BookingId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_BookingTourParticipant_TourBookingId",
+                table: "BookingTourParticipant",
+                column: "TourBookingId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Customer_ProvinceId",
@@ -658,11 +670,6 @@ namespace VietWay.Repository.Migrations
                 name: "IX_TourTemplateProvince_ProvinceId",
                 table: "TourTemplateProvince",
                 column: "ProvinceId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Transaction_PaymentId",
-                table: "Transaction",
-                column: "PaymentId");
         }
 
         /// <inheritdoc />
@@ -675,6 +682,12 @@ namespace VietWay.Repository.Migrations
                 name: "AttractionSchedule");
 
             migrationBuilder.DropTable(
+                name: "BookingPayment");
+
+            migrationBuilder.DropTable(
+                name: "BookingTourParticipant");
+
+            migrationBuilder.DropTable(
                 name: "CustomerFeedback");
 
             migrationBuilder.DropTable(
@@ -684,22 +697,16 @@ namespace VietWay.Repository.Migrations
                 name: "TourTemplateProvince");
 
             migrationBuilder.DropTable(
-                name: "Transaction");
-
-            migrationBuilder.DropTable(
                 name: "Attraction");
 
             migrationBuilder.DropTable(
                 name: "TourTemplateSchedule");
 
             migrationBuilder.DropTable(
-                name: "BookingPayment");
+                name: "TourBooking");
 
             migrationBuilder.DropTable(
                 name: "AttractionType");
-
-            migrationBuilder.DropTable(
-                name: "TourBooking");
 
             migrationBuilder.DropTable(
                 name: "Customer");

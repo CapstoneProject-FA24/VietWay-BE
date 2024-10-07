@@ -3,6 +3,7 @@ using VietWay.API.Management.RequestModel;
 using VietWay.API.Management.ResponseModel;
 using VietWay.Repository.EntityModel;
 using VietWay.Repository.EntityModel.Base;
+using VietWay.Service.DataTransferObject;
 
 namespace VietWay.API.Management.Mappers
 {
@@ -118,6 +119,7 @@ namespace VietWay.API.Management.Mappers
             CreateMap<Tour, TourDetail>();
             CreateMap<AttractionSchedule, AttractionSchedulePreview>();
             CreateMap<CustomerFeedback, CustomerFeedbackPreview>();
+            CreateMap<VnPayIPNRequest, VnPayIPN>();
         }
     }
 }

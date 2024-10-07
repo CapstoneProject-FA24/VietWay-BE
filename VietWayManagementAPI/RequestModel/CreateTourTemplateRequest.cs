@@ -1,6 +1,4 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-using VietWay.Repository.EntityModel;
 
 namespace VietWay.API.Management.RequestModel
 {
