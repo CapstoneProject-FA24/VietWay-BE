@@ -2,15 +2,13 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Microsoft.OpenApi.Models;
-using Swashbuckle.AspNetCore.SwaggerGen;
-using Microsoft.Extensions.Options;
 using VietWay.API.Management.Mappers;
 using VietWay.Repository.UnitOfWork;
 using VietWay.Service.Interface;
 using VietWay.Service.Implement;
-using VietWay.API.Management.Middleware;
 using VietWay.Service.ThirdParty;
 using VietWay.Util.IdHelper;
+using VietWay.Middleware;
 
 namespace VietWay.API.Management
 {
@@ -148,7 +146,7 @@ namespace VietWay.API.Management
             app.UseCors("AllowAll");
             app.UseAuthentication();
             app.UseAuthorization();
-            //app.UseMiddleware<ErrorHandlingMiddleware>();
+            app.UseMiddleware<ErrorHandlingMiddleware>();
             app.MapControllers();
             app.Run();
         }

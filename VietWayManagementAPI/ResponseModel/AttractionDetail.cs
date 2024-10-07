@@ -1,7 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
-using System.ComponentModel.DataAnnotations;
-using VietWay.Repository.EntityModel.Base;
-using VietWay.Repository.EntityModel;
+﻿using VietWay.Repository.EntityModel.Base;
 
 namespace VietWay.API.Management.ResponseModel
 {

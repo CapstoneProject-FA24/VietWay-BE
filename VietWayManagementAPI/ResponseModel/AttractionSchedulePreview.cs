@@ -1,8 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
-using System.ComponentModel.DataAnnotations;
-using VietWay.Repository.EntityModel;
-
-namespace VietWay.API.Management.ResponseModel
+﻿namespace VietWay.API.Management.ResponseModel
 {
     public class AttractionSchedulePreview
     {

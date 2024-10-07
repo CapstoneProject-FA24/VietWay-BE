@@ -11,7 +11,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VietWay.Service", "Service\
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VietWay.Util", "VietWay.Util\VietWay.Util.csproj", "{098F1730-E83B-4193-A460-075E484EBE4F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VietWay.API.Customer", "VietWay.API.Customer\VietWay.API.Customer.csproj", "{C60FA13B-9392-41F5-B24D-6F672F762C39}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VietWay.API.Customer", "VietWay.API.Customer\VietWay.API.Customer.csproj", "{C60FA13B-9392-41F5-B24D-6F672F762C39}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VietWay.Middleware", "VietWay.Middleware\VietWay.Middleware.csproj", "{99ED2C8A-470D-4669-AB76-23DAE3A5424E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -39,6 +41,10 @@ Global
 		{C60FA13B-9392-41F5-B24D-6F672F762C39}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C60FA13B-9392-41F5-B24D-6F672F762C39}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C60FA13B-9392-41F5-B24D-6F672F762C39}.Release|Any CPU.Build.0 = Release|Any CPU
+		{99ED2C8A-470D-4669-AB76-23DAE3A5424E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{99ED2C8A-470D-4669-AB76-23DAE3A5424E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{99ED2C8A-470D-4669-AB76-23DAE3A5424E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{99ED2C8A-470D-4669-AB76-23DAE3A5424E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
