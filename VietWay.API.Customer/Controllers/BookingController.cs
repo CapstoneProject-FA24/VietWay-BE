@@ -49,6 +49,7 @@ namespace VietWay.API.Customer.Controllers
             tourBooking.BookingId = _idGenerator.GenerateId();
             tourBooking.Status = BookingStatus.Pending;
             tourBooking.TotalPrice = tour.Price * request.NumberOfParticipants;
+            tourBooking.CreatedOn = DateTime.UtcNow;
             tourBooking.BookingPayments = [];
             tourBooking.BookingTourParticipants = [];
             foreach (TourParticipant tourParticipant in request.TourParticipants)

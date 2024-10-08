@@ -40,6 +40,8 @@ namespace VietWay.Service.Implement
                     TotalPrice = x.TotalPrice,
                     TourId = x.TourId,
                     TourName = x.Tour.TourTemplate.TourName,
+                    CreatedOn = x.CreatedOn,
+                    Note = x.Note,
                     Participants = x.BookingTourParticipants.Select(y => new TourParticipantDTO()
                     {
                         DateOfBirth = y.DateOfBirth,
