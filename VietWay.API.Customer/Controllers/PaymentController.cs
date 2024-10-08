@@ -16,13 +16,8 @@ namespace VietWay.API.Customer.Controllers
         [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status200OK)]
         public async Task<IActionResult> GetVnPayUrl(string bookingId)
         {
-            IPAddress? ipAddress = HttpContext.Connection.RemoteIpAddress;
-            if (ipAddress?.IsIPv4MappedToIPv6 ?? false)
-            {
-                ipAddress = ipAddress.MapToIPv4();
-            }
             string url = await _bookingPaymentService
-                .GetVnPayBookingPaymentUrl(bookingId, ipAddress?.ToString()??"");
+                .GetVnPayBookingPaymentUrl(bookingId, HttpContext.Connection.RemoteIpAddress?.ToString()??"");
             return Ok(new DefaultResponseModel<string>()
             {
                 Message = "Success",
