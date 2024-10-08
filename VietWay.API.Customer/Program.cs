@@ -30,6 +30,7 @@ namespace VietWay.API.Customer
 
             // Shared services
             builder.Services.AddControllers();
+            builder.Services.AddLogging();
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddAutoMapper(typeof(MappingProfile));
 
@@ -123,8 +124,9 @@ namespace VietWay.API.Customer
             builder.Services.AddScoped<IProvinceService, ProvinceService>();
             builder.Services.AddScoped<ICloudinaryService, CloudinaryService>();
             builder.Services.AddScoped<ITourBookingService,TourBookingService>();
-            builder.Services.AddScoped<IBookingPaymentService, BookingPaymentService>();
-            builder.Services.AddScoped<ITimeZoneHelper,TimeZoneHelper>();
+builder.Services.AddScoped<IAccountService, AccountService>();
+builder.Services.AddScoped<IBookingPaymentService, BookingPaymentService>();
+builder.Services.AddScoped<ITimeZoneHelper, TimeZoneHelper>();
             #endregion
 
             builder.Services.AddSingleton<IIdGenerator, SnowflakeIdGenerator>();
