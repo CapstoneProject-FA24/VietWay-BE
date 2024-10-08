@@ -70,26 +70,17 @@ namespace VietWay.Service.Implement
                 .ToListAsync();
             return (count, items);
         }
-        public async Task<(int totalCount, List<Tour> items)> GetAllToursByTemplateIdsAsync(
-            string tourTemplateIds,
-            int pageSize,
-            int pageIndex)
+        public async Task<List<Tour>> GetAllToursByTemplateIdsAsync(
+            string tourTemplateId)
         {
-            var query = _unitOfWork
+            return await _unitOfWork
                 .TourRepository
                 .Query()
-                .Where(x => x.IsDeleted == false);
-            int count = await query.CountAsync();
-            List<Tour> items = await query
-                .OrderByDescending(x => x.CreatedDate)
-                .Skip((pageIndex - 1) * pageSize)
-                .Take(pageSize)
+                .Where(x => x.IsDeleted == false && x.TourTemplateId.Equals(tourTemplateId) &&x.Status == TourStatus.Scheduled)
                 .Include(x => x.TourTemplate)
                 .ThenInclude(x => x.TourTemplateImages)
                 .ThenInclude(x => x.Image)
-                .Where(x => x.TourTemplateId == tourTemplateIds)
                 .ToListAsync();
-            return (count, items);
         }
     }
 }
