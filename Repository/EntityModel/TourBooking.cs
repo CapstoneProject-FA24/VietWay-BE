@@ -31,6 +31,7 @@ namespace VietWay.Repository.EntityModel
         public required decimal TotalPrice { get; set; }
         public required BookingStatus Status { get; set; }
         public required DateTime CreatedOn { get; set; }
+        public string? Note { get; set; }
 
         public virtual Tour? Tour { get; set; }
         public virtual Customer? CustomerInfo { get; set; }
