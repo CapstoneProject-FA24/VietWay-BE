@@ -48,7 +48,8 @@ namespace VietWay.Service.Implement
                         FullName = y.FullName,
                         Gender = y.Gender,
                         PhoneNumber = y.PhoneNumber,
-                    }).ToList()
+                    }).ToList(),
+                    Code = x.Tour.TourTemplate.Code
                 }).SingleOrDefaultAsync();
         }
     }
