@@ -21,7 +21,6 @@ namespace VietWay.API.Customer.Controllers
         private readonly ITourService _tourService = tourService;
         private readonly IIdGenerator _idGenerator = idGenerator;
         private readonly IMapper _mapper = mapper;
-        private readonly IVnPayService _vnPayService = vnPayService;
         [HttpPost("BookTour")]
         [Produces("application/json")]
         [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status200OK)]
@@ -45,7 +44,22 @@ namespace VietWay.API.Customer.Controllers
                 };
                 return NotFound(response);
             }
+            if (tour.CurrentParticipant + request.NumberOfParticipants > tour.MaxParticipant)
+            {
+                DefaultResponseModel<object> response = new()
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = $"Tour is full"
+                };
+                return BadRequest(response);
+            }
+            tour.CurrentParticipant = tour.CurrentParticipant + request.NumberOfParticipants;
+            if (tour.CurrentParticipant == tour.MaxParticipant)
+            {
+                tour.Status = TourStatus.Closed;
+            }
             TourBooking tourBooking = _mapper.Map<TourBooking>(request);
+            tourBooking.Tour = tour;
             tourBooking.BookingId = _idGenerator.GenerateId();
             tourBooking.Status = BookingStatus.Pending;
             tourBooking.TotalPrice = tour.Price * request.NumberOfParticipants;

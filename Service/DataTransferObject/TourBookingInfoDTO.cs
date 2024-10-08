@@ -31,6 +31,7 @@ namespace VietWay.Service.DataTransferObject
 
         public required string TourName { get; set; }
         public required string ImageUrl { get; set; }
+        public required string Code { get; set; }
 
         public required ICollection<TourParticipantDTO> Participants { get; set; }
     }
