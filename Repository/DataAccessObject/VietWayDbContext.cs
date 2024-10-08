@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using VietWay.Repository.EntityModel;
 
 namespace VietWay.Repository.DataAccessObject
@@ -32,10 +33,13 @@ namespace VietWay.Repository.DataAccessObject
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlServer(GetConnectionString(),option =>
-            {
-                option.EnableRetryOnFailure();
-            });
+            optionsBuilder
+                .UseSqlServer(GetConnectionString(),option =>
+                {
+                    option.EnableRetryOnFailure();
+                })
+                .EnableSensitiveDataLogging()
+                .LogTo(Console.WriteLine, LogLevel.Information);
         }
         private static string GetConnectionString()
         {

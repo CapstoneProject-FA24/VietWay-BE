@@ -14,9 +14,8 @@ namespace VietWay.Repository.EntityModel
         public required string TourTemplateId { get; set; }
         [StringLength(255)]
         public required string StartLocation { get; set; }
-        public required TimeOnly StartTime { get; set; }
-        public required DateOnly StartDate { get; set; }
-        public required DateOnly EndDate { get; set; }
+        public required DateTime StartDate { get; set; }
+        public required DateTime EndDate { get; set; }
         [Column(TypeName = "decimal(18,2)")]
         public required decimal Price { get; set; }
         public required int MaxParticipant { get; set; }

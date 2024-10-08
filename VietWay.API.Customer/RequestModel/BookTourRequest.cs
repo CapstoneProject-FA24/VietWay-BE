@@ -9,7 +9,6 @@ namespace VietWay.API.Customer.RequestModel
         public required string CustomerId { get; set; }
 #warning Remove customerId here and get customerId from jwt instead
         public required int NumberOfParticipants { get; set; }
-        public required bool IsPayLater { get; set; }
         public List<TourParticipant>? TourParticipants { get; set; }
         [StringLength(100)]
         public required string ContactFullName { get; set; }
@@ -19,6 +18,7 @@ namespace VietWay.API.Customer.RequestModel
         public required string ContactPhoneNumber { get; set; }
         [StringLength(255)]
         public string? ContactAddress { get; set; }
+        public string? Note { get; set; }
     }
     public class TourParticipant
     {

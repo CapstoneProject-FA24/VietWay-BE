@@ -27,13 +27,13 @@ namespace VietWay.Service.ThirdParty
             string vnpExpireDate = TimeZoneInfo
                 .ConvertTime(DateTime.Now.AddHours(1), TimeZoneInfo.FindSystemTimeZoneById("Asia/Ho_Chi_Minh")).ToString("yyyyMMddHHmmss");
             string vnpTxnRef = payment.PaymentId;
-
+            string ipAddress = Uri.EscapeDataString(userIpAddress);
             string hashSource = $"vnp_Amount={vnpAmount}&" +
                                 $"vnp_Command={vnpCommand}&" +
                                 $"vnp_CreateDate={vnpCreateDate}&" +
                                 $"vnp_CurrCode={vnpCurrCode}&" +
                                 $"vnp_ExpireDate={vnpExpireDate}&" +
-                                $"vnp_IpAddr={userIpAddress}&" +
+                                $"vnp_IpAddr={ipAddress}&" +
                                 $"vnp_Locale={vnpLocale}&" +
                                 $"vnp_OrderInfo={vnpOrderInfo}&" +
                                 $"vnp_OrderType={vnpOrderType}&" +

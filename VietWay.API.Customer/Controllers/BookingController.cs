@@ -5,6 +5,7 @@ using VietWay.API.Customer.RequestModel;
 using VietWay.API.Customer.ResponseModel;
 using VietWay.Repository.EntityModel;
 using VietWay.Repository.EntityModel.Base;
+using VietWay.Service.DataTransferObject;
 using VietWay.Service.Implement;
 using VietWay.Service.Interface;
 using VietWay.Service.ThirdParty;
@@ -48,6 +49,7 @@ namespace VietWay.API.Customer.Controllers
             tourBooking.BookingId = _idGenerator.GenerateId();
             tourBooking.Status = BookingStatus.Pending;
             tourBooking.TotalPrice = tour.Price * request.NumberOfParticipants;
+            tourBooking.CreatedOn = DateTime.UtcNow;
             tourBooking.BookingPayments = [];
             tourBooking.BookingTourParticipants = [];
             foreach (TourParticipant tourParticipant in request.TourParticipants)
@@ -57,29 +59,27 @@ namespace VietWay.API.Customer.Controllers
                 bookingTourParticipant.ParticipantId = _idGenerator.GenerateId();
                 tourBooking.BookingTourParticipants.Add(bookingTourParticipant);
             }
-            string? url = null;
-            if (false == request.IsPayLater)
-            {
-                BookingPayment bookingPayment = new()
-                {
-                    BookingId = tourBooking.BookingId,
-                    Amount = tourBooking.TotalPrice,
-                    CreateOn = DateTime.UtcNow,
-                    PaymentId = _idGenerator.GenerateId(),
-                    Status = PaymentStatus.Pending
-                };
-                tourBooking.BookingPayments.Add(bookingPayment);
-                url = _vnPayService.GetPaymentUrl(bookingPayment, HttpContext.Connection.RemoteIpAddress?.ToString() ?? "0.0.0.0");
-            }
             await _tourBookingService.CreateBookingAsync(tourBooking);
             //call service
             DefaultResponseModel<string> responseModel = new()
             {
                 Message = "Booking created successfully",
-                Data = url,
+                Data = tourBooking.BookingId,
                 StatusCode = StatusCodes.Status200OK
             };
             return Ok(responseModel);
+        }
+        [HttpGet("{bookingId}")]
+        [Produces("application/json")]
+        [ProducesResponseType<DefaultResponseModel<TourBookingInfoDTO>>(StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetTourBookingByIdAsync(string bookingId)
+        {
+            return Ok(new DefaultResponseModel<TourBookingInfoDTO>()
+            {
+                Message = "Success",
+                StatusCode = StatusCodes.Status200OK,
+                Data = await _tourBookingService.GetTourBookingInfoAsync(bookingId)
+            });
         }
     }
 }

@@ -4,6 +4,7 @@ using VietWay.Service.Interface;
 using VietWay.API.Customer.ResponseModel;
 using VietWay.Repository.EntityModel;
 using VietWay.Service.Implement;
+using VietWay.Service.DataTransferObject;
 
 namespace VietWay.API.Customer.Controllers
 {
@@ -13,38 +14,6 @@ namespace VietWay.API.Customer.Controllers
     {
         private readonly IMapper _mapper = mapper;
         private readonly ITourTemplateService _tourTemplateService = tourTemplateService;
-
-        [HttpGet]
-        [Produces("application/json")]
-        [ProducesResponseType<DefaultResponseModel<DefaultPageResponse<TourTemplatePreview>>>(StatusCodes.Status200OK)]
-        public async Task<IActionResult> GetAllTemplatesAsync(
-            string? nameSearch,
-            [FromQuery] List<string>? templateCategoryIds,
-            [FromQuery] List<string>? provinceIds,
-            [FromQuery] List<string>? durationIds,
-            int? pageSize,
-            int? pageIndex)
-        {
-            int checkedPageSize = (pageSize == null || pageSize < 1) ? 10 : (int)pageSize;
-            int checkedPageIndex = (pageIndex == null || pageIndex < 1) ? 1 : (int)pageIndex;
-
-            var result = await _tourTemplateService.GetAllApprovedTemplatesAsync(nameSearch, templateCategoryIds, provinceIds, durationIds, checkedPageSize, checkedPageIndex);
-            List<TourTemplatePreview> tourTemplatePreviews = _mapper.Map<List<TourTemplatePreview>>(result.items);
-            DefaultPageResponse<TourTemplatePreview> pagedResponse = new()
-            {
-                Total = result.totalCount,
-                PageSize = checkedPageSize,
-                PageIndex = checkedPageIndex,
-                Items = tourTemplatePreviews
-            };
-            DefaultResponseModel<DefaultPageResponse<TourTemplatePreview>> response = new()
-            {
-                Data = pagedResponse,
-                Message = "Get all tour templates successfully",
-                StatusCode = StatusCodes.Status200OK
-            };
-            return Ok(response);
-        }
 
         [HttpGet("{tourTemplateId}")]
         [Produces("application/json")]
@@ -75,20 +44,40 @@ namespace VietWay.API.Customer.Controllers
             }
         }
 
-        [HttpGet("tours")]
+        [HttpGet]
         [Produces("application/json")]
-        [ProducesResponseType<DefaultResponseModel<TourTemplateWithTourPreview>>(StatusCodes.Status200OK)]
-        public async Task<IActionResult> GetAllTourDurationAsync()
+        [ProducesResponseType<DefaultResponseModel<TourTemplateWithTourInfoDTO>>(StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetTourTemplateWithTourInfoAsync(
+            string? nameSearch,
+            [FromQuery] List<string>? templateCategoryIds,
+            [FromQuery] List<string>? provinceIds,
+            [FromQuery] List<int>? numberOfDay,
+            DateTime? startDateFrom,
+            DateTime? startDateTo,
+            decimal? minPrice,
+            decimal? maxPrice,
+            int? pageSize,
+            int? pageIndex)
         {
-            var result = await _tourTemplateService.GetAllTemplateWithToursAsync();
-            List<TourTemplateWithTourPreview> tourTemplateWithTourPreviews = _mapper.Map<List<TourTemplateWithTourPreview>>(result);
-            DefaultResponseModel<List<TourTemplateWithTourPreview>> response = new()
+            int checkedPageSize = (null == pageSize || pageSize < 1) ? 10 : (int)pageSize;
+            int checkedPageIndex = (null == pageIndex || pageIndex <1)? 1 : (int)pageIndex;
+
+            var (count,items) = await _tourTemplateService.GetAllTemplateWithActiveToursAsync(
+                nameSearch,templateCategoryIds,provinceIds,numberOfDay,startDateFrom,
+                startDateTo,minPrice,maxPrice,checkedPageSize,checkedPageIndex);
+
+            return Ok(new DefaultResponseModel<DefaultPageResponse<TourTemplateWithTourInfoDTO>>()
             {
-                Data = tourTemplateWithTourPreviews,
-                Message = "Get all tour successfully",
-                StatusCode = StatusCodes.Status200OK
-            };
-            return Ok(response);
+                Message = "Get tour template successfully",
+                StatusCode = StatusCodes.Status200OK,
+                Data = new()
+                {
+                    Items = items,
+                    PageIndex = checkedPageIndex,
+                    PageSize = checkedPageSize,
+                    Total = count
+                }
+            });
         }
     }
 }

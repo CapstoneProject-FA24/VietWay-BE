@@ -3,17 +3,24 @@ using Microsoft.EntityFrameworkCore;
 using VietWay.Repository.EntityModel;
 using VietWay.Repository.EntityModel.Base;
 using VietWay.Repository.UnitOfWork;
+using VietWay.Service.DataTransferObject;
 using VietWay.Service.Interface;
 using VietWay.Service.ThirdParty;
+using VietWay.Util.DateTimeHelper;
 using VietWay.Util.IdHelper;
 
 namespace VietWay.Service.Implement
 {
-    public class TourTemplateService(IUnitOfWork unitOfWork, IIdGenerator idGenerator, ICloudinaryService cloudinaryService) : ITourTemplateService
+    public class TourTemplateService(
+        IUnitOfWork unitOfWork, 
+        IIdGenerator idGenerator, 
+        ICloudinaryService cloudinaryService,
+        ITimeZoneHelper timeZoneHelper) : ITourTemplateService
     {
         private readonly IUnitOfWork _unitOfWork = unitOfWork;
         private readonly IIdGenerator _idGenerator = idGenerator;
         private readonly ICloudinaryService _cloudinaryService = cloudinaryService;
+        private readonly ITimeZoneHelper _timeZoneHelper = timeZoneHelper;
         public async Task<string> CreateTemplateAsync(TourTemplate tourTemplate)
         {
             tourTemplate.TourTemplateId = _idGenerator.GenerateId();
@@ -196,24 +203,85 @@ namespace VietWay.Service.Implement
                 .ToListAsync();
             return (count, items);
         }
-        public async Task<List<TourTemplate>> GetAllTemplateWithToursAsync()
+        public async Task<(int count, List<TourTemplateWithTourInfoDTO> items)> GetAllTemplateWithActiveToursAsync(
+            string? nameSearch,
+            List<string>? templateCategoryIds,
+            List<string>? provinceIds,
+            List<int>? numberOfDay,
+            DateTime? startDateFrom,
+            DateTime? startDateTo,
+            decimal? minPrice,
+            decimal? maxPrice,
+            int pageSize,
+            int pageIndex)
         {
             var query = _unitOfWork
                 .TourTemplateRepository
                 .Query()
-                .Where(x => x.IsDeleted == false);
-            List<TourTemplate> items = await query
-                .OrderByDescending(x => x.CreatedDate)
-                .Where(x => x.Status == TourTemplateStatus.Approved)
+                .Where(x => x.IsDeleted == false && 
+                            x.Tours.Any(y => y.StartDate >= _timeZoneHelper.GetUTC7Now() && 
+                                             y.Status == TourStatus.Scheduled));
+            if (false == string.IsNullOrWhiteSpace(nameSearch))
+            {
+                query = query.Where(x => x.TourName.Contains(nameSearch));
+            }
+            if (templateCategoryIds?.Count > 0) 
+            {
+                query = query.Where(x => templateCategoryIds.Contains(x.TourCategoryId));
+            }
+            if (provinceIds?.Count > 0)
+            {
+                query = query.Where(x=>x.TourTemplateProvinces.Any(y=>provinceIds.Contains(y.ProvinceId)));
+            }
+            if (numberOfDay?.Count > 0)
+            {
+                query = query.Where(x => numberOfDay.Contains(x.TourDuration.NumberOfDay));
+            }
+            if (startDateFrom != null)
+            {
+                query = query.Where(x=>x.Tours.Any(x=>x.StartDate >= startDateFrom));
+            }
+            if (startDateTo != null)
+            {
+                query = query.Where(x=>x.Tours.Any(x=>x.StartDate <= startDateTo));
+            }
+            if (minPrice != null)
+            {
+                query = query.Where(x => x.Tours.Any(x => x.Price >= minPrice));
+            }
+            if (maxPrice != null)
+            {
+                query = query.Where(x=>x.Tours.Any(x=>x.Price <= maxPrice));
+            }
+
+            int count = await query.CountAsync();
+
+            List<TourTemplateWithTourInfoDTO> items = await query
                 .Include(x => x.TourTemplateImages)
-                .ThenInclude(x => x.Image)
+                    .ThenInclude(x => x.Image)
                 .Include(x => x.TourTemplateProvinces)
-                .ThenInclude(x => x.Province)
+                    .ThenInclude(x => x.Province)
                 .Include(x => x.TourCategory)
                 .Include(x => x.TourDuration)
                 .Include(x => x.Tours)
+                .OrderBy(x=>x.TourCategoryId)
+                .Skip((pageIndex - 1) * pageSize)
+                .Take(pageSize)
+                .Select(x => new TourTemplateWithTourInfoDTO
+                {
+                    TourTemplateId = x.TourTemplateId,
+                    Code = x.Code,
+                    Duration = x.TourDuration.DurationName,
+                    TourCategory = x.TourCategory.Name,
+                    ImageUrl = x.TourTemplateImages.FirstOrDefault().Image.Url,
+                    MinPrice = x.Tours.Where(x => x.Status == TourStatus.Scheduled).Select(y => y.Price).Min(),
+                    Provinces = x.TourTemplateProvinces.Select(y => y.Province.ProvinceName).ToList(),
+                    StartDate = x.Tours.Where(x=>x.Status == TourStatus.Scheduled).Select(y => y.StartDate).ToList(),
+                    TourName = x.TourName,
+                    Status = x.Status
+                })
                 .ToListAsync();
-            return items;
+            return (count,items);
         }
     }
 }

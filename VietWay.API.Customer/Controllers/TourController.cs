@@ -13,33 +13,7 @@ namespace VietWay.API.Customer.Controllers
         private readonly ITourService _tourService = tourService;
         private readonly IMapper _mapper = mapper;
 
-        [HttpGet]
-        [Produces("application/json")]
-        [ProducesResponseType<DefaultResponseModel<DefaultPageResponse<TourPreview>>>(StatusCodes.Status200OK)]
-        public async Task<IActionResult> GetAllTourAsync(int pageSize, int pageIndex)
-        {
-            int checkedPageSize = (pageSize == null || pageSize < 1) ? 10 : (int)pageSize;
-            int checkedPageIndex = (pageIndex == null || pageIndex < 1) ? 1 : (int)pageIndex;
-
-            var result = await _tourService.GetAllScheduledTour(checkedPageSize, checkedPageIndex);
-            List<TourPreview> tourPreviews = _mapper.Map<List<TourPreview>>(result.items);
-            DefaultPageResponse<TourPreview> pagedResponse = new()
-            {
-                Total = result.totalCount,
-                PageSize = pageSize,
-                PageIndex = pageIndex,
-                Items = tourPreviews
-            };
-            DefaultResponseModel<DefaultPageResponse<TourPreview>> response = new()
-            {
-                Data = pagedResponse,
-                Message = "Get all tour successfully",
-                StatusCode = StatusCodes.Status200OK
-            };
-            return Ok(response);
-        }
-
-        [HttpGet("by-id/{tourId}")]
+        [HttpGet("{tourId}")]
         [Produces("application/json")]
         [ProducesResponseType<DefaultResponseModel<DefaultResponseModel<TourDetail>>>(StatusCodes.Status200OK)]
         [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status404NotFound)]
@@ -68,29 +42,19 @@ namespace VietWay.API.Customer.Controllers
             }
         }
 
-        [HttpGet("by-template-ids/{tourTemplateIds}")]
+        [HttpGet]
         [Produces("application/json")]
         [ProducesResponseType<DefaultResponseModel<DefaultPageResponse<TourPreview>>>(StatusCodes.Status200OK)]
         public async Task<IActionResult> GetAllToursByTemplateIdsAsync(
-            string tourTemplateIds,
-            int pageSize,
-            int pageIndex)
+            string tourTemplateId)
         {
-            int checkedPageSize = (pageSize == null || pageSize < 1) ? 10 : (int)pageSize;
-            int checkedPageIndex = (pageIndex == null || pageIndex < 1) ? 1 : (int)pageIndex;
 
-            var result = await _tourService.GetAllToursByTemplateIdsAsync(tourTemplateIds, checkedPageSize, checkedPageIndex);
-            List<TourPreview> tourPreviews = _mapper.Map<List<TourPreview>>(result.items);
-            DefaultPageResponse<TourPreview> pagedResponse = new()
+            var result = await _tourService.GetAllToursByTemplateIdsAsync(tourTemplateId);
+            List<TourPreview> tourPreviews = _mapper.Map<List<TourPreview>>(result);
+            
+            DefaultResponseModel<List<TourPreview>> response = new()
             {
-                Total = result.totalCount,
-                PageSize = pageSize,
-                PageIndex = pageIndex,
-                Items = tourPreviews
-            };
-            DefaultResponseModel<DefaultPageResponse<TourPreview>> response = new()
-            {
-                Data = pagedResponse,
+                Data = tourPreviews,
                 Message = "Get all tour successfully",
                 StatusCode = StatusCodes.Status200OK
             };

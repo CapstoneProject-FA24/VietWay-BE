@@ -10,18 +10,41 @@ using VietWay.Repository.UnitOfWork;
 using VietWay.Service.DataTransferObject;
 using VietWay.Service.Interface;
 using VietWay.Service.ThirdParty;
+using VietWay.Util.IdHelper;
 
 namespace VietWay.Service.Implement
 {
-    public class BookingPaymentService(IUnitOfWork unitOfWork, IVnPayService vnPayService) : IBookingPaymentService
+    public class BookingPaymentService(IUnitOfWork unitOfWork, IVnPayService vnPayService, IIdGenerator idGenerator) : IBookingPaymentService
     {
         private readonly IUnitOfWork _unitOfWork = unitOfWork;
         private readonly IVnPayService _vnPayService = vnPayService;
+        private readonly IIdGenerator _idGenerator = idGenerator;
         public async Task<BookingPayment?> GetBookingPaymentAsync(string id)
         {
             return await _unitOfWork.BookingPaymentRepository.Query()
                 .Include(x => x.TourBooking)
                 .SingleOrDefaultAsync(x=>x.PaymentId.Equals(id));
+        }
+
+        public async Task<string> GetVnPayBookingPaymentUrl(string bookingId, string ipAddress)
+        {
+            TourBooking? tourBooking = await _unitOfWork.TourBookingRepository
+                .Query()
+                .SingleOrDefaultAsync(x => x.BookingId.Equals(bookingId));
+            if (tourBooking == null || tourBooking.Status != BookingStatus.Pending)
+            {
+                throw new Exception();
+            }
+            BookingPayment bookingPayment = new()
+            {
+                PaymentId = _idGenerator.GenerateId(),
+                Amount = tourBooking.TotalPrice,
+                Status = PaymentStatus.Pending,
+                BookingId = bookingId,
+                CreateOn = DateTime.UtcNow,
+            };
+            await _unitOfWork.BookingPaymentRepository.Create(bookingPayment);
+            return _vnPayService.GetPaymentUrl(bookingPayment, ipAddress);
         }
 
         public async Task HandleVnPayIPN(VnPayIPN vnPayIPN)
