@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using System.Security.Cryptography;
 using System.Text;
 using VietWay.Repository.EntityModel;
@@ -6,12 +7,13 @@ using VietWay.Service.DataTransferObject;
 
 namespace VietWay.Service.ThirdParty
 {
-    public class VnPayService(IConfiguration configuration) : IVnPayService
+    public class VnPayService(IConfiguration configuration, ILogger<VnPayService> logger) : IVnPayService
     {
         private readonly string _vnpHashSecret =
             configuration["VnPay:HashSecret"] ?? throw new Exception("Can not get vnp_HashSecret");
         private readonly string _vnpTmnCode =
             configuration["VnPay:TmnCode"] ?? throw new Exception("Can not get vnp_TmnCode");
+        private readonly ILogger _logger = logger;
         public string GetPaymentUrl(BookingPayment payment, string userIpAddress)
         {
             const string vnpVersion = "2.1.0";
@@ -61,9 +63,13 @@ namespace VietWay.Service.ThirdParty
                                 $"vnp_TransactionNo={vnPayIPN.TransactionNo}&" +
                                 $"vnp_TransactionStatus={vnPayIPN.TransactionStatus}&" +
                                 $"vnp_TxnRef={vnPayIPN.TxnRef}";
+            _logger.LogInformation(hashSource);
             byte[] hashBytes =
                 HMACSHA512.HashData(Encoding.UTF8.GetBytes(_vnpHashSecret), Encoding.UTF8.GetBytes(hashSource));
             string hashedSource = BitConverter.ToString(hashBytes).Replace("-", "").ToLower();
+            _logger.LogInformation(hashedSource);
+            _logger.LogInformation(vnPayIPN.SecureHash);
+            _logger.LogInformation(_vnpHashSecret);
             return hashedSource == vnPayIPN.SecureHash;
         }
     }
