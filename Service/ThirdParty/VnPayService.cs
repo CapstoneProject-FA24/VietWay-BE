@@ -23,7 +23,7 @@ namespace VietWay.Service.ThirdParty
             const string vnpLocale = "vn";
             string vnpOrderInfo = Uri.EscapeDataString($"Thanh+toan+tour+gia+{payment.Amount}+VND");
             const string vnpOrderType = "130005";
-            string vnpReturnUrl = Uri.EscapeDataString("https://www.google.com");
+            string vnpReturnUrl = Uri.EscapeDataString("http://localhost:5173/dat-tour/thanh-toan/hoan-thanh/"+payment.BookingId);
             string vnpExpireDate = TimeZoneInfo
                 .ConvertTime(DateTime.Now.AddHours(1), TimeZoneInfo.FindSystemTimeZoneById("Asia/Ho_Chi_Minh")).ToString("yyyyMMddHHmmss");
             string vnpTxnRef = payment.PaymentId;
