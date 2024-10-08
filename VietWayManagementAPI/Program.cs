@@ -9,6 +9,7 @@ using VietWay.Service.Implement;
 using VietWay.Service.ThirdParty;
 using VietWay.Util.IdHelper;
 using VietWay.Middleware;
+using VietWay.Util.DateTimeHelper;
 
 namespace VietWay.API.Management
 {
@@ -117,6 +118,7 @@ namespace VietWay.API.Management
             builder.Services.AddScoped<ICustomerFeedbackService, CustomerFeedbackService>();
             builder.Services.AddScoped<IBookingPaymentService, BookingPaymentService>();
             builder.Services.AddScoped<IVnPayService, VnPayService>();
+            builder.Services.AddScoped<ITimeZoneHelper, TimeZoneHelper>();
             #endregion
             builder.Services.AddSingleton<IIdGenerator, SnowflakeIdGenerator>();
             var app = builder.Build();

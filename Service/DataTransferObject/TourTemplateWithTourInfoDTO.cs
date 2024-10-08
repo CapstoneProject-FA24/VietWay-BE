@@ -1,9 +1,13 @@
-﻿using VietWay.Repository.EntityModel;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 using VietWay.Repository.EntityModel.Base;
 
-namespace VietWay.API.Customer.ResponseModel
+namespace VietWay.Service.DataTransferObject
 {
-    public class TourTemplateWithTourPreview
+    public class TourTemplateWithTourInfoDTO
     {
         public required string TourTemplateId { get; set; }
         public required string Code { get; set; }
@@ -13,8 +17,7 @@ namespace VietWay.API.Customer.ResponseModel
         public TourTemplateStatus Status { get; set; }
         public required List<string> Provinces { get; set; }
         public required string ImageUrl { get; set; }
-        public required List<decimal> Price { get; set; }
+        public required decimal MinPrice { get; set; }
         public required List<DateTime> StartDate { get; set; }
-        public required List<DateTime> EndDate { get; set; }
     }
 }
