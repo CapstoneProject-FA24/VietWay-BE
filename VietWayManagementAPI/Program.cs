@@ -151,6 +151,7 @@ namespace VietWay.API.Management
             app.UseAuthentication();
             app.UseAuthorization();
             app.UseMiddleware<ErrorHandlingMiddleware>();
+            app.UseMiddleware<RequestLoggingMiddleware>();
             app.MapControllers();
             app.Run();
         }
