@@ -71,6 +71,7 @@ namespace VietWay.API.Customer.Mappers
                 .ForMember(dest => dest.StartDate, opt => opt.MapFrom(src => src.Tours.Select(x => x.StartDate)))
                 .ForMember(dest => dest.StartTime, opt => opt.MapFrom(src => src.Tours.Select(x => x.StartTime)))
                 .ForMember(dest => dest.EndDate, opt => opt.MapFrom(src => src.Tours.Select(x => x.EndDate)));
+            CreateMap<CreateAccountRequest, Account>();
         }
     }
 }
