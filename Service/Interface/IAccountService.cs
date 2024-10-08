@@ -7,6 +7,6 @@ namespace VietWay.Service.Interface
     {
         public Task<Account?> LoginByPhone(string phone, string password);
         public Task<Account?> LoginByEmailAsync(string email, string password);
-        public Task<string> CreateAccountAsync(Account account);
+        public Task<string> CreateCustomerAccountAsync(Account account, Customer customer);
     }
 }

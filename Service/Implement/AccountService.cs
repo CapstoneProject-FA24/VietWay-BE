@@ -44,7 +44,7 @@ namespace VietWay.Service.Implement
             return BCrypt.Net.BCrypt.Verify(password, storedHash);
         }
 
-        public async Task<string> CreateAccountAsync(Account account)
+        public async Task<string> CreateCustomerAccountAsync(Account account, Customer customer)
         {
             if (account == null)
             {
@@ -61,14 +61,22 @@ namespace VietWay.Service.Implement
                 Role = UserRole.Customer
             };
 
+            Customer newCustomer = new Customer
+            {
+                CustomerId = newAccount.AccountId,
+                FullName = customer.FullName,
+                DateOfBirth = customer.DateOfBirth,
+                ProvinceId = customer.ProvinceId,
+                Gender = customer.Gender,
+            };
+
             await _unitOfWork.AccountRepository.Create(newAccount);
+            await _unitOfWork.CustomerInfoRepository.Create(newCustomer);
             return account.AccountId;
         }
 
-        // Helper method to hash the password using BCrypt
         private string HashPassword(string password)
         {
-            // BCrypt will generate a salt and create a hash from the password
             return BCrypt.Net.BCrypt.HashPassword(password);
         }
     }
