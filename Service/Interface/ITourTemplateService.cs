@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using VietWay.Repository.EntityModel;
 using VietWay.Repository.EntityModel.Base;
+using VietWay.Service.DataTransferObject;
 
 namespace VietWay.Service.Interface
 {
@@ -27,6 +28,15 @@ namespace VietWay.Service.Interface
             int pageSize,
             int pageIndex);
 
-        public Task<List<TourTemplate>> GetAllTemplateWithToursAsync();
+        public Task<(int count, List<TourTemplateWithTourInfoDTO> items)> GetAllTemplateWithActiveToursAsync(string? nameSearch,
+            List<string>? templateCategoryIds,
+            List<string>? provinceIds,
+            List<int>? numberOfDay,
+            DateTime? startDateFrom,
+            DateTime? startDateTo,
+            decimal? minPrice,
+            decimal? maxPrice,
+            int pageSize,
+            int pageIndex);
     }
 }
