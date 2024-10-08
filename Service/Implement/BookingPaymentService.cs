@@ -56,7 +56,8 @@ namespace VietWay.Service.Implement
             BookingPayment? bookingPayment = await _unitOfWork
                 .BookingPaymentRepository
                 .Query()
-                .SingleOrDefaultAsync(x => x.PaymentId.Equals(vnPayIPN.TxnRef) && x.Status != PaymentStatus.Pending );
+                .Include(x => x.TourBooking)
+                .SingleOrDefaultAsync(x => x.PaymentId.Equals(vnPayIPN.TxnRef) && x.Status == PaymentStatus.Pending );
             if (bookingPayment == null)
             {
                 return;
