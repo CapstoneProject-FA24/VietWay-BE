@@ -27,7 +27,7 @@ namespace VietWay.Service.Implement
         {
             Account? account = await _unitOfWork.AccountRepository
                 .Query()
-                .SingleOrDefaultAsync(x => x.Email.Equals(email));
+                .SingleOrDefaultAsync(x => x.Email.Equals(email) || x.PhoneNumber.Equals(email));
 
             if (account == null)
             {
@@ -68,6 +68,7 @@ namespace VietWay.Service.Implement
                 DateOfBirth = customer.DateOfBirth,
                 ProvinceId = customer.ProvinceId,
                 Gender = customer.Gender,
+                IsDeleted = false,
             };
 
             await _unitOfWork.AccountRepository.Create(newAccount);
