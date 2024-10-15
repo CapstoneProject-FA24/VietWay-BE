@@ -59,12 +59,9 @@ namespace VietWay.API.Customer.Mappers
                 .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.Account.Email))
                 .ForMember(dest => dest.ProvinceName, opt => opt.MapFrom(src => src.Province.ProvinceName));
             CreateMap<BookTourRequest, TourBooking>();
-            CreateMap<TourParticipant, BookingTourParticipant>()
-                .ForMember(dest => dest.DateOfBirth, opt => opt.MapFrom(src => DateOnly.FromDateTime(src.DateOfBirth)));
             CreateMap<CreateAccountRequest, Account>();
-
-            CreateMap<CreateAccountRequest, Repository.EntityModel.Customer>()
-                .ForMember(dest => dest.DateOfBirth, opt => opt.MapFrom(src => DateOnly.FromDateTime(src.DateOfBirth)));
+            CreateMap<TourParticipant, BookingTourParticipant>();
+            CreateMap<CreateAccountRequest, Repository.EntityModel.Customer>();
         }
     }
 }
