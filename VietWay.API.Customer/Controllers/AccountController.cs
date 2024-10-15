@@ -53,7 +53,7 @@ namespace VietWay.API.Customer.Controllers
             }
 
             var tokenString = GenerateJSONWebToken(user);
-            return Ok(new { token = tokenString });
+            return Ok(new { token = tokenString, accountId = user.AccountId});
         }
 
         private string GenerateJSONWebToken(Account user)
@@ -93,7 +93,7 @@ namespace VietWay.API.Customer.Controllers
 
             return Ok(new DefaultResponseModel<object>()
             {
-                Message = "Tour created successfully",
+                Message = "Account created successfully",
                 StatusCode = StatusCodes.Status200OK
             });
         }
