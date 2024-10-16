@@ -13,7 +13,10 @@ using VietWay.Util.IdHelper;
 
 namespace VietWay.API.Customer.Controllers
 {
-    [Route("api/[controller]")]
+    /// <summary>
+    /// Booking API endpoints
+    /// </summary>
+    [Route("api/bookings")]
     [ApiController]
     public class BookingController(ITourBookingService tourBookingService, ITourService tourService, IIdGenerator idGenerator, IMapper mapper, IVnPayService vnPayService) : ControllerBase
     {
@@ -21,7 +24,15 @@ namespace VietWay.API.Customer.Controllers
         private readonly ITourService _tourService = tourService;
         private readonly IIdGenerator _idGenerator = idGenerator;
         private readonly IMapper _mapper = mapper;
-        [HttpPost("BookTour")]
+
+        /// <summary>
+        /// [Customer] Book a tour
+        /// </summary>
+        /// <returns>Status message</returns>
+        /// <response code="200">Booking created successfully</response>
+        /// <response code="400"> Missng info or tour is full </response>
+        /// <response code="404">Can not find Tour with id</response>
+        [HttpPost]
         [Produces("application/json")]
         [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status200OK)]
         public async Task<IActionResult> BookTour(BookTourRequest request)
@@ -83,6 +94,13 @@ namespace VietWay.API.Customer.Controllers
             };
             return Ok(responseModel);
         }
+
+        /// <summary>
+        /// [Customer] Get booking info by booking ID
+        /// </summary>
+        /// <returns> Booking detail</returns>
+        /// <response code="200">Get booking successfully</response>
+        /// <response code="404">Can not find booking with id</response>
         [HttpGet("{bookingId}")]
         [Produces("application/json")]
         [ProducesResponseType<DefaultResponseModel<TourBookingInfoDTO>>(StatusCodes.Status200OK)]
@@ -94,6 +112,34 @@ namespace VietWay.API.Customer.Controllers
                 StatusCode = StatusCodes.Status200OK,
                 Data = await _tourBookingService.GetTourBookingInfoAsync(bookingId)
             });
+        }
+
+        /// <summary>
+        /// [Customer] {WIP} Get customer bookings
+        /// </summary>
+        /// <returns> List of customer bookings </returns>
+        /// <response code="200">Get customer bookings successfully</response>
+        [HttpGet]
+        [Produces("application/json")]
+        [ProducesResponseType<DefaultResponseModel<DefaultPageResponse<object>>>(StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetCustomerBookings(int? pageCount, int? pageIndex)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// [Customer] {WIP} Cancel booking
+        /// </summary>
+        /// <returns> Booking cancellation message </returns>
+        /// <response code="200">Booking cancelled successfully</response>
+        /// <response code="404">Can not find booking with id</response>
+        /// <response code="400">Booking is not cancellable</response>
+        [HttpPatch("{bookingId}")]
+        [Produces("application/json")]
+        [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status200OK)]
+        public async Task<IActionResult> CancelBooking(string bookingId, CancelBookingRequest cancelBookingRequest)
+        {
+            throw new NotImplementedException();
         }
     }
 }

@@ -70,7 +70,6 @@ namespace VietWay.Service.Implement
                 Gender = customer.Gender,
                 IsDeleted = false,
             };
-
             await _unitOfWork.AccountRepository.Create(newAccount);
             await _unitOfWork.CustomerInfoRepository.Create(newCustomer);
             return account.AccountId;

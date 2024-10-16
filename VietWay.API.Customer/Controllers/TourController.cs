@@ -6,13 +6,22 @@ using VietWay.Service.Interface;
 
 namespace VietWay.API.Customer.Controllers
 {
-    [Route("api/[controller]")]
+    /// <summary>
+    /// Tour API Endpoints
+    /// </summary>
+    [Route("api/tours")]
     [ApiController]
     public class TourController(ITourService tourService, IMapper mapper) : ControllerBase
     {
         private readonly ITourService _tourService = tourService;
         private readonly IMapper _mapper = mapper;
 
+        /// <summary>
+        /// [All] Get tour by tour ID
+        /// </summary>
+        /// <returns> Tour details </returns>
+        /// <response code="200">Get tour successfully</response>
+        /// <response code="404">Tour ID not found</response>
         [HttpGet("{tourId}")]
         [Produces("application/json")]
         [ProducesResponseType<DefaultResponseModel<DefaultResponseModel<TourDetail>>>(StatusCodes.Status200OK)]
@@ -42,6 +51,11 @@ namespace VietWay.API.Customer.Controllers
             }
         }
 
+        /// <summary>
+        /// [All] Get tour by tour template ID
+        /// </summary>
+        /// <returns> List of tours </returns>
+        /// <response code="200">Get tour list successfully</response>
         [HttpGet]
         [Produces("application/json")]
         [ProducesResponseType<DefaultResponseModel<DefaultPageResponse<TourPreview>>>(StatusCodes.Status200OK)]

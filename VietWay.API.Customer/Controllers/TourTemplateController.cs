@@ -8,13 +8,23 @@ using VietWay.Service.DataTransferObject;
 
 namespace VietWay.API.Customer.Controllers
 {
-    [Route("api/[controller]")]
+    /// <summary>
+    /// Tour template API endpoints
+    /// </summary>
+    [Route("api/tour-templates")]
     [ApiController]
     public class TourTemplateController(ITourTemplateService tourTemplateService, IMapper mapper) : ControllerBase
     {
         private readonly IMapper _mapper = mapper;
         private readonly ITourTemplateService _tourTemplateService = tourTemplateService;
 
+        /// <summary>
+        /// [All] Get tour template by ID
+        /// </summary>
+        /// <param name="tourTemplateId"></param>
+        /// <returns> Tour template details </returns>
+        /// <response code="200"> Tour template details</response>
+        /// <response code="404"> Tour template not found</response>
         [HttpGet("{tourTemplateId}")]
         [Produces("application/json")]
         [ProducesResponseType<DefaultResponseModel<DefaultResponseModel<TourTemplateDetail>>>(StatusCodes.Status200OK)]
@@ -44,6 +54,21 @@ namespace VietWay.API.Customer.Controllers
             }
         }
 
+        /// <summary>
+        /// [All] Get all tour templates
+        /// </summary>
+        /// <param name="nameSearch"></param>
+        /// <param name="templateCategoryIds"></param>
+        /// <param name="provinceIds"></param>
+        /// <param name="numberOfDay"></param>
+        /// <param name="startDateFrom"></param>
+        /// <param name="startDateTo"></param>
+        /// <param name="minPrice"></param>
+        /// <param name="maxPrice"></param>
+        /// <param name="pageSize"></param>
+        /// <param name="pageIndex"></param>
+        /// <returns>List of tour templates</returns>
+        /// <response code="200">Return list of tour templates</response>
         [HttpGet]
         [Produces("application/json")]
         [ProducesResponseType<DefaultResponseModel<TourTemplateWithTourInfoDTO>>(StatusCodes.Status200OK)]
@@ -79,5 +104,6 @@ namespace VietWay.API.Customer.Controllers
                 }
             });
         }
+
     }
 }

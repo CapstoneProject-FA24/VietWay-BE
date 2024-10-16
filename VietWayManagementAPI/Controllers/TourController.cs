@@ -1,11 +1,15 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
+using VietWay.API.Management.RequestModel;
 using VietWay.API.Management.ResponseModel;
 using VietWay.Repository.EntityModel;
 using VietWay.Service.Interface;
 
 namespace VietWay.API.Management.Controllers
 {
+    /// <summary>
+    /// Tour API endpoints
+    /// </summary>
     [Route("api/[controller]")]
     [ApiController]
     public class TourController(ITourService tourService, IMapper mapper) : ControllerBase
@@ -13,6 +17,10 @@ namespace VietWay.API.Management.Controllers
         private readonly ITourService _tourService = tourService;
         private readonly IMapper _mapper = mapper;
 
+        /// <summary>
+        /// [Manager][Staff] Get all tours
+        /// </summary>
+        /// <response code="200">Success</response>
         [HttpGet]
         [Produces("application/json")]
         [ProducesResponseType<DefaultResponseModel<DefaultPageResponse<TourPreview>>>(StatusCodes.Status200OK)]
@@ -36,6 +44,11 @@ namespace VietWay.API.Management.Controllers
             return Ok(response);
         }
 
+        /// <summary>
+        /// [Manager][Staff] Get tour by id
+        /// </summary>
+        /// <response code="200">Success</response>
+        /// <response code="404">Not found</response>
         [HttpGet("{tourId}")]
         [Produces("application/json")]
         [ProducesResponseType<DefaultResponseModel<DefaultResponseModel<TourDetail>>>(StatusCodes.Status200OK)]
@@ -63,6 +76,19 @@ namespace VietWay.API.Management.Controllers
                 };
                 return Ok(response);
             }
+        }
+
+        /// <summary>
+        /// [Staff] {WIP} Create a new tour
+        /// </summary>
+        /// <response code="201">Created</response>
+        /// <response code="400">Bad request</response>
+        [HttpPost]
+        [Produces("application/json")]
+        [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status201Created)]
+        public async Task<IActionResult> CreateTourAsync([FromBody] CreateTourRequest request)
+        {
+            throw new NotImplementedException();
         }
     }
 }

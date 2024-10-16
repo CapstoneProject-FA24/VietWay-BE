@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using System.Reflection;
 using System.Text;
 using VietWay.API.Customer.Mappers;
 using VietWay.Middleware;
@@ -86,6 +87,9 @@ namespace VietWay.API.Customer
             #region builder.Services.AddSwaggerGen(...);
             builder.Services.AddSwaggerGen(options =>
             {
+                string xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+                string xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+                options.IncludeXmlComments(xmlPath);
                 options.SwaggerDoc("v1",
                 new OpenApiInfo
                 { Title = "VietWay API", Description = "API for VietWay", Version = "1.0.0" });

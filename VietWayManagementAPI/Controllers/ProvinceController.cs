@@ -6,6 +6,9 @@ using VietWay.Service.Interface;
 
 namespace VietWay.API.Management.Controllers
 {
+    /// <summary>
+    /// Province API endpoints
+    /// </summary>
     [Route("api/[controller]")]
     [ApiController]
     public class ProvinceController(IMapper mapper, IProvinceService provinceService) : ControllerBase
@@ -13,6 +16,11 @@ namespace VietWay.API.Management.Controllers
         private readonly IMapper _mapper = mapper;
         private readonly IProvinceService _provinceService = provinceService;
 
+        /// <summary>
+        /// [Manager][Staff] Get all provinces
+        /// </summary>
+        /// <returns>List of provinces</returns>
+        /// <response code="200">Return list of provinces</response>
         [HttpGet]
         [Produces("application/json")]
         [ProducesResponseType<DefaultResponseModel<List<ProvincePreview>>>(StatusCodes.Status200OK)]
@@ -27,6 +35,13 @@ namespace VietWay.API.Management.Controllers
                 StatusCode = StatusCodes.Status200OK
             });
         }
+
+        /// <summary>
+        /// [Manager][Staff] Get province by ID
+        /// </summary>
+        /// <returns>Province details</returns>
+        /// <response code="200">Return province details</response>
+        /// <response code="404">Province not found</response>
         [HttpGet("{provinceId}")]
         [Produces("application/json")]
         [ProducesResponseType<DefaultResponseModel<ProvincePreview>>(StatusCodes.Status200OK)]
@@ -52,6 +67,49 @@ namespace VietWay.API.Management.Controllers
                 };
                 return Ok(response);
             }
+        }
+
+        /// <summary>
+        /// [Manager] {WIP} Create new province
+        /// </summary>
+        /// <returns>Created province ID</returns>
+        /// <response code="200">Return created province ID</response>
+        /// <response code="400">Bad request</response>
+        [HttpPost]
+        [Produces("application/json")]
+        [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status200OK)]
+        public async Task<IActionResult> CreateProvince()
+        {
+            throw new NotImplementedException();
+        }
+        /// <summary>
+        /// [Manager] {WIP} Update current province
+        /// </summary>
+        /// <param name="provinceId"></param>
+        /// <returns> Province update message</returns>
+        /// <response code="200">Return province update message</response>
+        /// <response code="400">Bad request</response>
+        /// <response code="404">Province not found</response>
+        [HttpPut("{provinceId}")]
+        [Produces("application/json")]
+        [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status200OK)]
+        public async Task<IActionResult> UpdateProvince(string provinceId)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// [Manager] {WIP} Delete province
+        /// </summary>
+        /// <returns> Province delete message </returns>
+        /// <response code="200">Return province delete message</response>
+        /// <response code="404">Province not found</response>
+        [HttpDelete("{provinceId}")]
+        [Produces("application/json")]
+        [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status200OK)]
+        public async Task<IActionResult> DeleteProvince(string provinceId)
+        {
+            throw new NotImplementedException();
         }
     }
 }
