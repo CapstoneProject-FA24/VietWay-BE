@@ -8,13 +8,21 @@ using VietWay.Service.Interface;
 
 namespace VietWay.API.Management.Controllers
 {
-    [Route("api/[controller]")]
+    /// <summary>
+    /// Attraction API Endpoints
+    /// </summary>
+    [Route("api/attractions")]
     [ApiController]
     public class AttractionController(IAttractionService attractionService, IMapper mapper) : ControllerBase
     {
         private readonly IAttractionService _attractionService = attractionService;
         private readonly IMapper _mapper = mapper;
 
+        /// <summary>
+        /// [Manager][Staff] Get all attractions
+        /// </summary>
+        /// <returns>List of attraction</returns>
+        /// <response code="200">Return list of attractions</response>
         [HttpGet]
         [Produces("application/json")]
         [ProducesResponseType<DefaultResponseModel<DefaultPageResponse<AttractionPreview>>>(StatusCodes.Status200OK)]
@@ -46,6 +54,13 @@ namespace VietWay.API.Management.Controllers
             };
             return Ok(response);
         }
+
+        /// <summary>
+        /// [Manager][Staff] Get attraction by ID
+        /// </summary>
+        /// <returns>Attraction detail</returns>
+        /// <response code="200">Return attraction details</response>
+        /// <response code="404">Attraction not found</response>
         [HttpGet("{attractionId}")]
         [Produces("application/json")]
         [ProducesResponseType<DefaultResponseModel<AttractionDetail>>(StatusCodes.Status200OK)]
@@ -73,6 +88,12 @@ namespace VietWay.API.Management.Controllers
                 return Ok(response);
             }
         }
+
+        /// <summary>
+        /// [Staff] Create new attraction
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
         [HttpPost]
         [Produces("application/json")]
         [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status200OK)]
@@ -104,6 +125,12 @@ namespace VietWay.API.Management.Controllers
             return Ok(response);
         }
 
+        /// <summary>
+        /// [Staff] Update attraction
+        /// </summary>
+        /// <returns>Update attraction message</returns>
+        /// <response code="200">Return update attraction message</response>
+        /// <response code="400">Bad request</response>
         [HttpPut("{attractionId}")]
         [Produces("application/json")]
         [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status200OK)]
@@ -151,6 +178,12 @@ namespace VietWay.API.Management.Controllers
             return Ok(response);
         }
 
+        /// <summary>
+        /// [Staff] Delete draft attraction
+        /// </summary>
+        /// <returns>Delete attraction message</returns>
+        /// <response code="200">Return delete attraction message</response>
+        /// <response code="404">Attraction not found</response>
         [HttpDelete("{attractionId}")]
         [Produces("application/json")]
         [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status200OK)]
@@ -174,6 +207,13 @@ namespace VietWay.API.Management.Controllers
             };
             return Ok(response);
         }
+
+        /// <summary>
+        /// [Staff] Update attraction image
+        /// </summary>
+        /// <returns>Attraction image update message</returns>
+        /// <response code="200">Return attraction image update message</response>
+        /// 
         [HttpPatch("{attractionId}/images")]
         [Produces("application/json")]
         [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status200OK)]
@@ -205,6 +245,24 @@ namespace VietWay.API.Management.Controllers
                 StatusCode = StatusCodes.Status200OK
             };
             return Ok(response);
+        }
+
+        /// <summary>
+        /// [Manager][Staff] {WIP} Change attraction status
+        /// </summary>
+        /// <remarks>
+        /// Change attraction status. 
+        /// Staff can only change status of draft attraction to pending.
+        /// Manager can change status of pending attraction to approved or rejected.
+        /// </remarks>
+        /// <response code="200">Status changed successfully</response>
+        /// <response code="400">Bad request</response>
+        /// <response code="404">Attraction not found</response>
+        /// <response code="403">Unauthorized status change request</response>
+        [HttpPatch("{attractionId}/status")]
+        public async Task<IActionResult> UpdateAttractionStatusAsync(string attractionId, UpdateAttractionStatusRequest request)
+        {
+            throw new NotImplementedException();
         }
     }
 }

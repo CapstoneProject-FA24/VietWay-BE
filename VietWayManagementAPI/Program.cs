@@ -10,6 +10,7 @@ using VietWay.Service.ThirdParty;
 using VietWay.Util.IdHelper;
 using VietWay.Middleware;
 using VietWay.Util.DateTimeHelper;
+using System.Reflection;
 
 namespace VietWay.API.Management
 {
@@ -72,9 +73,12 @@ namespace VietWay.API.Management
             #region builder.Services.AddSwaggerGen(...);
             builder.Services.AddSwaggerGen(options =>
             {
+                string xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+                string xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+                options.IncludeXmlComments(xmlPath);
                 options.SwaggerDoc("v1",
                 new OpenApiInfo
-                { Title = "VietWay API", Description = "API for VietWay", Version = "1.0.0" });
+                { Title = "VietWay Management API", Description = "Management API for VietWay", Version = "1.0.0" });
                 options.AddSecurityDefinition("Bearer",
                     new OpenApiSecurityScheme
                     {

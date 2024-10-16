@@ -17,7 +17,7 @@ using VietWay.Util.IdHelper;
 
 namespace VietWay.API.Customer.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/accounts")]
     [ApiController]
     public class AccountController(IAccountService accountService, 
         IMapper mapper,
@@ -32,7 +32,7 @@ namespace VietWay.API.Customer.Controllers
         private readonly IIdGenerator _idGenerator = idGenerator;
 
         [AllowAnonymous]
-        [HttpPost("Login")]
+        [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginByEmailRequest login)
         {
             if (login == null || string.IsNullOrEmpty(login.Email) || string.IsNullOrEmpty(login.Password))
@@ -64,10 +64,8 @@ namespace VietWay.API.Customer.Controllers
 
             var claims = new List<Claim>
         {
-            new Claim(JwtRegisteredClaimNames.Sub, user.Email ?? string.Empty),
-            new Claim("role", user.Role.ToString()),
+            new Claim(ClaimTypes.Role, user.Role.ToString()),
             new Claim("accountId", user.AccountId),
-            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
         };
 
             var token = new JwtSecurityToken(
@@ -81,7 +79,7 @@ namespace VietWay.API.Customer.Controllers
         }
 
         [AllowAnonymous]
-        [HttpPost("CreateCustomerAccount")]
+        [HttpPost("create-account")]
         [Produces("application/json")]
         [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status200OK)]
         public async Task<IActionResult> CreateAccount([FromBody] CreateAccountRequest request)
