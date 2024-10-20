@@ -9,7 +9,7 @@ using VietWay.Service.DataTransferObject;
 using VietWay.Service.Implement;
 using VietWay.Service.Interface;
 using VietWay.Service.ThirdParty;
-using VietWay.Util.IdHelper;
+using VietWay.Util.IdUtil;
 
 namespace VietWay.API.Customer.Controllers
 {
@@ -20,10 +20,10 @@ namespace VietWay.API.Customer.Controllers
     [ApiController]
     public class BookingController(ITourBookingService tourBookingService, ITourService tourService, IIdGenerator idGenerator, IMapper mapper, IVnPayService vnPayService) : ControllerBase
     {
-        private readonly ITourBookingService _tourBookingService = tourBookingService;
-        private readonly ITourService _tourService = tourService;
-        private readonly IIdGenerator _idGenerator = idGenerator;
-        private readonly IMapper _mapper = mapper;
+        public readonly ITourBookingService _tourBookingService = tourBookingService;
+        public readonly ITourService _tourService = tourService;
+        public readonly IIdGenerator _idGenerator = idGenerator;
+        public readonly IMapper _mapper = mapper;
 
         /// <summary>
         /// [Customer] Book a tour
@@ -69,12 +69,13 @@ namespace VietWay.API.Customer.Controllers
             {
                 tour.Status = TourStatus.Closed;
             }
-            TourBooking tourBooking = _mapper.Map<TourBooking>(request);
+            Booking tourBooking = _mapper.Map<Booking>(request);
             tourBooking.Tour = tour;
             tourBooking.BookingId = _idGenerator.GenerateId();
             tourBooking.Status = BookingStatus.Pending;
-            tourBooking.TotalPrice = tour.Price * request.NumberOfParticipants;
-            tourBooking.CreatedOn = DateTime.UtcNow;
+            tourBooking.TotalPrice = (decimal)tour.Price * request.NumberOfParticipants;
+            tourBooking.CreatedAt = DateTime.UtcNow;
+#warning use utc+7 now
             tourBooking.BookingPayments = [];
             tourBooking.BookingTourParticipants = [];
             foreach (TourParticipant tourParticipant in request.TourParticipants)

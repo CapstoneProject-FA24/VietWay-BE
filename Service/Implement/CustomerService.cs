@@ -1,22 +1,23 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using VietWay.Repository.EntityModel;
 using VietWay.Repository.UnitOfWork;
+using VietWay.Service.DataTransferObject;
 using VietWay.Service.Interface;
+using VietWay.Util.DateTimeUtil;
+using VietWay.Util.HashUtil;
+using VietWay.Util.IdUtil;
 
 namespace VietWay.Service.Implement
 {
-    public class CustomerService : ICustomerService
+    public class CustomerService(IUnitOfWork unitOfWork, IHashHelper hashHelper, IIdGenerator idGenerator, ITimeZoneHelper timeZoneHelper) : ICustomerService
     {
-        private readonly IUnitOfWork _unitOfWork;
-
-        public CustomerService(IUnitOfWork unitOfWork)
-        {
-            _unitOfWork = unitOfWork;
-        }
-
+        private readonly IUnitOfWork _unitOfWork = unitOfWork;
+        private readonly IHashHelper _hashHelper = hashHelper;
+        private readonly IIdGenerator _idGenerator = idGenerator;
+        private readonly ITimeZoneHelper _timeZoneHelper = timeZoneHelper;
         public async Task<Customer?> GetCustomerById(string id)
         {
-            return await _unitOfWork.CustomerInfoRepository
+            return await _unitOfWork.CustomerRepository
                 .Query()
                 .Where(x => x.CustomerId.Equals(id))
                 .Include(x => x.Account)
@@ -29,7 +30,7 @@ namespace VietWay.Service.Implement
             int pageSize,
             int pageIndex)
         {
-            IQueryable<Customer> query = _unitOfWork.CustomerInfoRepository.Query();
+            IQueryable<Customer> query = _unitOfWork.CustomerRepository.Query();
             if (false == string.IsNullOrEmpty(nameSearch))
             {
                 query = query.Where(x => x.FullName.Contains(nameSearch));
@@ -42,6 +43,49 @@ namespace VietWay.Service.Implement
                 .Take(pageSize)
                 .ToListAsync();
             return (count, customers);
+        }
+
+        public async Task<CustomerInfoDTO?> GetCustomerProfileInfo(string customerId)
+        {
+            return await _unitOfWork
+                .CustomerRepository
+                .Query()
+                .Where(x => x.CustomerId.Equals(customerId))
+                .Include(x => x.Account)
+                .Include(x => x.Province)
+                .Select(x => new CustomerInfoDTO
+                {
+                    PhoneNumber = x.Account.PhoneNumber,
+                    Email = x.Account.Email,
+                    FullName = x.FullName,
+                    DateOfBirth = x.DateOfBirth,
+                    ProvinceId = x.ProvinceId,
+                    ProvinceName = x.Province.ProvinceName,
+                    Gender = x.Gender
+                })
+                .SingleOrDefaultAsync();
+        }
+
+        public async Task RegisterAccountAsync(Customer customer)
+        {
+            Province? province = await _unitOfWork.ProvinceRepository.Query()
+                .Where(x => x.ProvinceId.Equals(customer.ProvinceId) && false == x.IsDeleted)
+                .SingleOrDefaultAsync();
+            try
+            {
+                await _unitOfWork.BeginTransactionAsync();
+                string accountId = _idGenerator.GenerateId();
+                customer.CustomerId = accountId;
+                customer.Account.AccountId = accountId;
+                customer.Account.Password = _hashHelper.Hash(customer.Account.Password);
+                customer.Account.CreatedAt = _timeZoneHelper.GetUTC7Now();
+                await _unitOfWork.CustomerRepository.CreateAsync(customer);
+                await _unitOfWork.CommitTransactionAsync();
+            } 
+            catch
+            {
+                await _unitOfWork.RollbackTransactionAsync();
+            }
         }
     }
 }

@@ -1,0 +1,807 @@
+﻿using System;
+using Microsoft.EntityFrameworkCore.Migrations;
+
+#nullable disable
+
+namespace VietWay.Repository.Migrations
+{
+    /// <inheritdoc />
+    public partial class Init : Migration
+    {
+        /// <inheritdoc />
+        protected override void Up(MigrationBuilder migrationBuilder)
+        {
+            migrationBuilder.CreateTable(
+                name: "Account",
+                columns: table => new
+                {
+                    AccountId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
+                    PhoneNumber = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: false),
+                    Email = table.Column<string>(type: "nvarchar(320)", maxLength: 320, nullable: true),
+                    Password = table.Column<string>(type: "nvarchar(60)", maxLength: 60, nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    Role = table.Column<int>(type: "int", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Account", x => x.AccountId);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "AttractionCategory",
+                columns: table => new
+                {
+                    AttractionCategoryId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_AttractionCategory", x => x.AttractionCategoryId);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "EntityHistory",
+                columns: table => new
+                {
+                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    EntityType = table.Column<int>(type: "int", nullable: false),
+                    EntityId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
+                    ModifiedBy = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
+                    ModifierRole = table.Column<int>(type: "int", nullable: false),
+                    Reason = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Action = table.Column<int>(type: "int", nullable: false),
+                    Timestamp = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_EntityHistory", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "EventCategory",
+                columns: table => new
+                {
+                    EventCategoryId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_EventCategory", x => x.EventCategoryId);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "PostCategory",
+                columns: table => new
+                {
+                    PostCategoryId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_PostCategory", x => x.PostCategoryId);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Province",
+                columns: table => new
+                {
+                    ProvinceId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
+                    ProvinceName = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    ImageUrl = table.Column<string>(type: "nvarchar(2048)", maxLength: 2048, nullable: false),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Province", x => x.ProvinceId);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "TourCategory",
+                columns: table => new
+                {
+                    TourCategoryId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_TourCategory", x => x.TourCategoryId);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "TourDuration",
+                columns: table => new
+                {
+                    DurationId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
+                    DurationName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    NumberOfDay = table.Column<int>(type: "int", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_TourDuration", x => x.DurationId);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Admin",
+                columns: table => new
+                {
+                    AdminId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
+                    FullName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Admin", x => x.AdminId);
+                    table.ForeignKey(
+                        name: "FK_Admin_Account_AdminId",
+                        column: x => x.AdminId,
+                        principalTable: "Account",
+                        principalColumn: "AccountId",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Manager",
+                columns: table => new
+                {
+                    ManagerId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
+                    FullName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Manager", x => x.ManagerId);
+                    table.ForeignKey(
+                        name: "FK_Manager_Account_ManagerId",
+                        column: x => x.ManagerId,
+                        principalTable: "Account",
+                        principalColumn: "AccountId",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Staff",
+                columns: table => new
+                {
+                    StaffId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
+                    FullName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Staff", x => x.StaffId);
+                    table.ForeignKey(
+                        name: "FK_Staff_Account_StaffId",
+                        column: x => x.StaffId,
+                        principalTable: "Account",
+                        principalColumn: "AccountId",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "EntityStatusHistory",
+                columns: table => new
+                {
+                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    OldStatus = table.Column<int>(type: "int", nullable: false),
+                    NewStatus = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_EntityStatusHistory", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_EntityStatusHistory_EntityHistory_Id",
+                        column: x => x.Id,
+                        principalTable: "EntityHistory",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Attraction",
+                columns: table => new
+                {
+                    AttractionId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),
+                    Address = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),
+                    ContactInfo = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
+                    Website = table.Column<string>(type: "nvarchar(2048)", maxLength: 2048, nullable: true),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ProvinceId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true),
+                    AttractionCategoryId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true),
+                    GooglePlaceId = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
+                    Status = table.Column<int>(type: "int", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Attraction", x => x.AttractionId);
+                    table.ForeignKey(
+                        name: "FK_Attraction_AttractionCategory_AttractionCategoryId",
+                        column: x => x.AttractionCategoryId,
+                        principalTable: "AttractionCategory",
+                        principalColumn: "AttractionCategoryId");
+                    table.ForeignKey(
+                        name: "FK_Attraction_Province_ProvinceId",
+                        column: x => x.ProvinceId,
+                        principalTable: "Province",
+                        principalColumn: "ProvinceId");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Customer",
+                columns: table => new
+                {
+                    CustomerId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
+                    FullName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    DateOfBirth = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    ProvinceId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
+                    Gender = table.Column<int>(type: "int", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Customer", x => x.CustomerId);
+                    table.ForeignKey(
+                        name: "FK_Customer_Account_CustomerId",
+                        column: x => x.CustomerId,
+                        principalTable: "Account",
+                        principalColumn: "AccountId",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Customer_Province_ProvinceId",
+                        column: x => x.ProvinceId,
+                        principalTable: "Province",
+                        principalColumn: "ProvinceId",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Event",
+                columns: table => new
+                {
+                    EventId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    Title = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ImageUrl = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Content = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    EventCategoryId = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    StartDate = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    EndDate = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    ProvinceId = table.Column<string>(type: "nvarchar(20)", nullable: true),
+                    Address = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Event", x => x.EventId);
+                    table.ForeignKey(
+                        name: "FK_Event_EventCategory_EventCategoryId",
+                        column: x => x.EventCategoryId,
+                        principalTable: "EventCategory",
+                        principalColumn: "EventCategoryId");
+                    table.ForeignKey(
+                        name: "FK_Event_Province_ProvinceId",
+                        column: x => x.ProvinceId,
+                        principalTable: "Province",
+                        principalColumn: "ProvinceId");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Post",
+                columns: table => new
+                {
+                    PostId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    Title = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ImageUrl = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Content = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    EventCategoryId = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    StartDate = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    EndDate = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    ProvinceId = table.Column<string>(type: "nvarchar(20)", nullable: true),
+                    Address = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Post", x => x.PostId);
+                    table.ForeignKey(
+                        name: "FK_Post_PostCategory_EventCategoryId",
+                        column: x => x.EventCategoryId,
+                        principalTable: "PostCategory",
+                        principalColumn: "PostCategoryId");
+                    table.ForeignKey(
+                        name: "FK_Post_Province_ProvinceId",
+                        column: x => x.ProvinceId,
+                        principalTable: "Province",
+                        principalColumn: "ProvinceId");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "TourTemplate",
+                columns: table => new
+                {
+                    TourTemplateId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
+                    Code = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
+                    TourName = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    DurationId = table.Column<string>(type: "nvarchar(20)", nullable: false),
+                    TourCategoryId = table.Column<string>(type: "nvarchar(20)", nullable: false),
+                    Policy = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Note = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Status = table.Column<int>(type: "int", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_TourTemplate", x => x.TourTemplateId);
+                    table.ForeignKey(
+                        name: "FK_TourTemplate_TourCategory_TourCategoryId",
+                        column: x => x.TourCategoryId,
+                        principalTable: "TourCategory",
+                        principalColumn: "TourCategoryId",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_TourTemplate_TourDuration_DurationId",
+                        column: x => x.DurationId,
+                        principalTable: "TourDuration",
+                        principalColumn: "DurationId",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "AttractionImage",
+                columns: table => new
+                {
+                    ImageId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
+                    AttractionId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
+                    ImageUrl = table.Column<string>(type: "nvarchar(2048)", maxLength: 2048, nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_AttractionImage", x => x.ImageId);
+                    table.ForeignKey(
+                        name: "FK_AttractionImage_Attraction_AttractionId",
+                        column: x => x.AttractionId,
+                        principalTable: "Attraction",
+                        principalColumn: "AttractionId",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Tour",
+                columns: table => new
+                {
+                    TourId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
+                    TourTemplateId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
+                    StartLocation = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),
+                    StartDate = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    EndDate = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    Price = table.Column<decimal>(type: "decimal(18,2)", nullable: true),
+                    MaxParticipant = table.Column<int>(type: "int", nullable: true),
+                    MinParticipant = table.Column<int>(type: "int", nullable: true),
+                    CurrentParticipant = table.Column<int>(type: "int", nullable: true),
+                    Status = table.Column<int>(type: "int", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Tour", x => x.TourId);
+                    table.ForeignKey(
+                        name: "FK_Tour_TourTemplate_TourTemplateId",
+                        column: x => x.TourTemplateId,
+                        principalTable: "TourTemplate",
+                        principalColumn: "TourTemplateId",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "TourTemplateImage",
+                columns: table => new
+                {
+                    ImageId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    TourTemplateId = table.Column<string>(type: "nvarchar(20)", nullable: false),
+                    ImageUrl = table.Column<string>(type: "nvarchar(2048)", maxLength: 2048, nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_TourTemplateImage", x => x.ImageId);
+                    table.ForeignKey(
+                        name: "FK_TourTemplateImage_TourTemplate_TourTemplateId",
+                        column: x => x.TourTemplateId,
+                        principalTable: "TourTemplate",
+                        principalColumn: "TourTemplateId",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "TourTemplateProvince",
+                columns: table => new
+                {
+                    TourTemplateId = table.Column<string>(type: "nvarchar(20)", nullable: false),
+                    ProvinceId = table.Column<string>(type: "nvarchar(20)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_TourTemplateProvince", x => new { x.TourTemplateId, x.ProvinceId });
+                    table.ForeignKey(
+                        name: "FK_TourTemplateProvince_Province_ProvinceId",
+                        column: x => x.ProvinceId,
+                        principalTable: "Province",
+                        principalColumn: "ProvinceId",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_TourTemplateProvince_TourTemplate_TourTemplateId",
+                        column: x => x.TourTemplateId,
+                        principalTable: "TourTemplate",
+                        principalColumn: "TourTemplateId",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "TourTemplateSchedule",
+                columns: table => new
+                {
+                    TourTemplateId = table.Column<string>(type: "nvarchar(20)", nullable: false),
+                    DayNumber = table.Column<int>(type: "int", nullable: false),
+                    Title = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_TourTemplateSchedule", x => new { x.TourTemplateId, x.DayNumber });
+                    table.ForeignKey(
+                        name: "FK_TourTemplateSchedule_TourTemplate_TourTemplateId",
+                        column: x => x.TourTemplateId,
+                        principalTable: "TourTemplate",
+                        principalColumn: "TourTemplateId",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Booking",
+                columns: table => new
+                {
+                    BookingId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
+                    TourId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
+                    CustomerId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
+                    NumberOfParticipants = table.Column<int>(type: "int", nullable: false),
+                    ContactFullName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    ContactEmail = table.Column<string>(type: "nvarchar(320)", maxLength: 320, nullable: false),
+                    ContactPhoneNumber = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: false),
+                    ContactAddress = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),
+                    TotalPrice = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    Status = table.Column<int>(type: "int", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    Note = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Booking", x => x.BookingId);
+                    table.ForeignKey(
+                        name: "FK_Booking_Customer_CustomerId",
+                        column: x => x.CustomerId,
+                        principalTable: "Customer",
+                        principalColumn: "CustomerId",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Booking_Tour_TourId",
+                        column: x => x.TourId,
+                        principalTable: "Tour",
+                        principalColumn: "TourId",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "AttractionSchedule",
+                columns: table => new
+                {
+                    TourTemplateId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
+                    DayNumber = table.Column<int>(type: "int", nullable: false),
+                    AttractionId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_AttractionSchedule", x => new { x.TourTemplateId, x.DayNumber, x.AttractionId });
+                    table.ForeignKey(
+                        name: "FK_AttractionSchedule_Attraction_AttractionId",
+                        column: x => x.AttractionId,
+                        principalTable: "Attraction",
+                        principalColumn: "AttractionId",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_AttractionSchedule_TourTemplateSchedule_TourTemplateId_DayNumber",
+                        columns: x => new { x.TourTemplateId, x.DayNumber },
+                        principalTable: "TourTemplateSchedule",
+                        principalColumns: new[] { "TourTemplateId", "DayNumber" },
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "BookingPayment",
+                columns: table => new
+                {
+                    PaymentId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
+                    BookingId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
+                    Amount = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    Note = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    CreateAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    BankCode = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    BankTransactionNumber = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    PayTime = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    ThirdPartyTransactionNumber = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Status = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_BookingPayment", x => x.PaymentId);
+                    table.ForeignKey(
+                        name: "FK_BookingPayment_Booking_BookingId",
+                        column: x => x.BookingId,
+                        principalTable: "Booking",
+                        principalColumn: "BookingId",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "BookingTourParticipant",
+                columns: table => new
+                {
+                    ParticipantId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
+                    TourBookingId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
+                    FullName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    PhoneNumber = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: false),
+                    Gender = table.Column<int>(type: "int", nullable: false),
+                    DateOfBirth = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    HasAttended = table.Column<bool>(type: "bit", nullable: true),
+                    Note = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_BookingTourParticipant", x => x.ParticipantId);
+                    table.ForeignKey(
+                        name: "FK_BookingTourParticipant_Booking_TourBookingId",
+                        column: x => x.TourBookingId,
+                        principalTable: "Booking",
+                        principalColumn: "BookingId",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Feedback",
+                columns: table => new
+                {
+                    FeedbackId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
+                    BookingId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
+                    Rating = table.Column<int>(type: "int", nullable: false),
+                    Content = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Feedback", x => x.FeedbackId);
+                    table.ForeignKey(
+                        name: "FK_Feedback_Booking_BookingId",
+                        column: x => x.BookingId,
+                        principalTable: "Booking",
+                        principalColumn: "BookingId",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Account_Email",
+                table: "Account",
+                column: "Email",
+                unique: true,
+                filter: "[Email] IS NOT NULL");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Account_PhoneNumber",
+                table: "Account",
+                column: "PhoneNumber",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Attraction_AttractionCategoryId",
+                table: "Attraction",
+                column: "AttractionCategoryId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Attraction_ProvinceId",
+                table: "Attraction",
+                column: "ProvinceId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AttractionImage_AttractionId",
+                table: "AttractionImage",
+                column: "AttractionId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AttractionSchedule_AttractionId",
+                table: "AttractionSchedule",
+                column: "AttractionId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Booking_CustomerId",
+                table: "Booking",
+                column: "CustomerId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Booking_TourId",
+                table: "Booking",
+                column: "TourId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_BookingPayment_BookingId",
+                table: "BookingPayment",
+                column: "BookingId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_BookingTourParticipant_TourBookingId",
+                table: "BookingTourParticipant",
+                column: "TourBookingId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Customer_ProvinceId",
+                table: "Customer",
+                column: "ProvinceId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Event_EventCategoryId",
+                table: "Event",
+                column: "EventCategoryId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Event_ProvinceId",
+                table: "Event",
+                column: "ProvinceId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Feedback_BookingId",
+                table: "Feedback",
+                column: "BookingId",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Post_EventCategoryId",
+                table: "Post",
+                column: "EventCategoryId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Post_ProvinceId",
+                table: "Post",
+                column: "ProvinceId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Tour_TourTemplateId",
+                table: "Tour",
+                column: "TourTemplateId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_TourTemplate_DurationId",
+                table: "TourTemplate",
+                column: "DurationId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_TourTemplate_TourCategoryId",
+                table: "TourTemplate",
+                column: "TourCategoryId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_TourTemplateImage_TourTemplateId",
+                table: "TourTemplateImage",
+                column: "TourTemplateId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_TourTemplateProvince_ProvinceId",
+                table: "TourTemplateProvince",
+                column: "ProvinceId");
+        }
+
+        /// <inheritdoc />
+        protected override void Down(MigrationBuilder migrationBuilder)
+        {
+            migrationBuilder.DropTable(
+                name: "Admin");
+
+            migrationBuilder.DropTable(
+                name: "AttractionImage");
+
+            migrationBuilder.DropTable(
+                name: "AttractionSchedule");
+
+            migrationBuilder.DropTable(
+                name: "BookingPayment");
+
+            migrationBuilder.DropTable(
+                name: "BookingTourParticipant");
+
+            migrationBuilder.DropTable(
+                name: "EntityStatusHistory");
+
+            migrationBuilder.DropTable(
+                name: "Event");
+
+            migrationBuilder.DropTable(
+                name: "Feedback");
+
+            migrationBuilder.DropTable(
+                name: "Manager");
+
+            migrationBuilder.DropTable(
+                name: "Post");
+
+            migrationBuilder.DropTable(
+                name: "Staff");
+
+            migrationBuilder.DropTable(
+                name: "TourTemplateImage");
+
+            migrationBuilder.DropTable(
+                name: "TourTemplateProvince");
+
+            migrationBuilder.DropTable(
+                name: "Attraction");
+
+            migrationBuilder.DropTable(
+                name: "TourTemplateSchedule");
+
+            migrationBuilder.DropTable(
+                name: "EntityHistory");
+
+            migrationBuilder.DropTable(
+                name: "EventCategory");
+
+            migrationBuilder.DropTable(
+                name: "Booking");
+
+            migrationBuilder.DropTable(
+                name: "PostCategory");
+
+            migrationBuilder.DropTable(
+                name: "AttractionCategory");
+
+            migrationBuilder.DropTable(
+                name: "Customer");
+
+            migrationBuilder.DropTable(
+                name: "Tour");
+
+            migrationBuilder.DropTable(
+                name: "Account");
+
+            migrationBuilder.DropTable(
+                name: "Province");
+
+            migrationBuilder.DropTable(
+                name: "TourTemplate");
+
+            migrationBuilder.DropTable(
+                name: "TourCategory");
+
+            migrationBuilder.DropTable(
+                name: "TourDuration");
+        }
+    }
+}

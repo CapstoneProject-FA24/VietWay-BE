@@ -7,11 +7,11 @@ namespace VietWay.Service.Implement
 {
     public class AttractionTypeService(IUnitOfWork unitOfWork): IAttractionTypeService
     {
-        private readonly IUnitOfWork _unitOfWork = unitOfWork;
+        public readonly IUnitOfWork _unitOfWork = unitOfWork;
 
-        public async Task<List<AttractionType>> GetAllAttractionType()
+        public async Task<List<AttractionCategory>> GetAllAttractionType()
         {
-            return await _unitOfWork.AttractionTypeRepository
+            return await _unitOfWork.AttractionCategoryRepository
                 .Query()
                 .ToListAsync();
         }

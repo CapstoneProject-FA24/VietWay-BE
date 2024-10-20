@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using VietWay.API.Management.RequestModel;
 using VietWay.API.Management.ResponseModel;
+using VietWay.Service.DataTransferObject;
 using VietWay.Service.Interface;
 
 namespace VietWay.API.Management.Controllers
@@ -13,8 +14,8 @@ namespace VietWay.API.Management.Controllers
     [ApiController]
     public class AttractionTypeController(IAttractionTypeService attractionTypeService, IMapper mapper) : ControllerBase
     {
-        private readonly IAttractionTypeService _attractionTypeService = attractionTypeService;
-        private readonly IMapper _mapper = mapper;
+        public readonly IAttractionTypeService _attractionTypeService = attractionTypeService;
+        public readonly IMapper _mapper = mapper;
 
         /// <summary>
         /// [Manager][Staff] Get all attraction types
@@ -22,12 +23,12 @@ namespace VietWay.API.Management.Controllers
         /// <response code="200">Success</response>
         [HttpGet]
         [Produces("application/json")]
-        [ProducesResponseType<DefaultResponseModel<AttractionTypePreview>>(StatusCodes.Status200OK)]
+        [ProducesResponseType<DefaultResponseModel<AttractionTypePreviewDTO>>(StatusCodes.Status200OK)]
         public async Task<IActionResult> GetAllAttractionTypeAsync()
         {
             var result = await _attractionTypeService.GetAllAttractionType();
-            List<AttractionTypePreview> attractionTypePreviews = _mapper.Map<List<AttractionTypePreview>>(result);
-            DefaultResponseModel<List<AttractionTypePreview>> response = new()
+            List<AttractionTypePreviewDTO> attractionTypePreviews = _mapper.Map<List<AttractionTypePreviewDTO>>(result);
+            DefaultResponseModel<List<AttractionTypePreviewDTO>> response = new()
             {
                 Data = attractionTypePreviews,
                 Message = "Get all attraction type successfully",
@@ -43,7 +44,7 @@ namespace VietWay.API.Management.Controllers
         /// <response code="404">Not found</response>
         [HttpGet("{attractionTypeId}")]
         [Produces("application/json")]
-        [ProducesResponseType<DefaultResponseModel<AttractionTypePreview>>(StatusCodes.Status200OK)]
+        [ProducesResponseType<DefaultResponseModel<AttractionTypePreviewDTO>>(StatusCodes.Status200OK)]
         public async Task<IActionResult> GetAttractionTypeByIdAsync(string attractionTypeId)
         {
             throw new NotImplementedException();

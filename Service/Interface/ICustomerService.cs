@@ -9,5 +9,6 @@ namespace VietWay.Service.Interface
             string? nameSearch,
             int pageSize,
             int pageIndex);
+        public Task RegisterAccountAsync(Customer customer);
     }
 }

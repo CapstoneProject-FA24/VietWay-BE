@@ -2,41 +2,38 @@
 using AutoMapper;
 using VietWay.Service.Interface;
 using VietWay.API.Customer.ResponseModel;
+using Microsoft.AspNetCore.Authorization;
+using CloudinaryDotNet.Actions;
+using VietWay.Repository.EntityModel.Base;
+using VietWay.Util.TokenUtil;
 
 namespace VietWay.API.Customer.Controllers
 {
+    /// <summary>
+    /// Customer API endpoints
+    /// </summary>
     [Route("api/[controller]")]
     [ApiController]
-    public class CustomerController(ICustomerService customerService, IMapper mapper) : ControllerBase
+    public class CustomerController(ICustomerService customerService, ITokenHelper tokenHelper) : ControllerBase
     {
-        private readonly ICustomerService _customerService = customerService;
-        private readonly IMapper _mapper = mapper;
+        public readonly ICustomerService _customerService = customerService;
+        public readonly ITokenHelper _tokenHelper = tokenHelper;
 
+        /// <summary>
+        /// ✅[Customer] Get current customer profile
+        /// </summary>
         [HttpGet]
         [Produces("application/json")]
-        [ProducesResponseType<DefaultResponseModel<CustomerProfile>>(StatusCodes.Status200OK)]
+        [Authorize(Roles = nameof(UserRole.Customer))]
+        [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status200OK)]
         public async Task<IActionResult> GetCurrentCustomerProfile()
         {
-            var result = await _customerService.GetCustomerById("4");
-            if (result == null)
+            string? customerId = _tokenHelper.GetAccountIdFromToken(HttpContext);
+            if (customerId == null)
             {
-                DefaultResponseModel<object> response = new()
-                {
-                    Message = "Customer not found",
-                    StatusCode = StatusCodes.Status404NotFound
-                };
-                return NotFound(response);
+                return Unauthorized();
             }
-            else
-            {
-                DefaultResponseModel<CustomerProfile> response = new()
-                {
-                    Message = "Get customer successfully",
-                    StatusCode = StatusCodes.Status200OK,
-                    Data = _mapper.Map<CustomerProfile>(result)
-                };
-                return Ok(response);
-            }
+            return Ok();
         }
     }
 }

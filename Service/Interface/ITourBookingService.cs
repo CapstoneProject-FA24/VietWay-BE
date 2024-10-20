@@ -10,7 +10,7 @@ namespace VietWay.Service.Interface
 {
     public interface ITourBookingService
     {
-        public Task CreateBookingAsync(TourBooking tourBooking);
+        public Task CreateBookingAsync(Booking tourBooking);
         public Task<TourBookingInfoDTO?> GetTourBookingInfoAsync(string bookingId);
     }
 }

@@ -9,24 +9,24 @@ namespace VietWay.API.Management.Controllers
     [ApiController]
     public class StaffController(IStaffService staffService, IMapper mapper) : ControllerBase
     {
-        private readonly IStaffService _staffService = staffService;
-        private readonly IMapper _mapper = mapper;
+        public readonly IStaffService _staffService = staffService;
+        public readonly IMapper _mapper = mapper;
 
         [HttpGet]
         [Produces("application/json")]
-        [ProducesResponseType<DefaultResponseModel<DefaultPageResponse<StaffInfoPreview>>>(StatusCodes.Status200OK)]
+        [ProducesResponseType<DefaultResponseModel<PaginatedList<StaffInfoPreview>>>(StatusCodes.Status200OK)]
         public async Task<IActionResult> GetAllStaffInfosAsync(int pageSize, int pageIndex)
         {
             var result = await _staffService.GetAllStaffInfos(pageSize, pageIndex);
             List<StaffInfoPreview> staffInfoPreviews = _mapper.Map<List<StaffInfoPreview>>(result.items);
-            DefaultPageResponse<StaffInfoPreview> pagedResponse = new()
+            PaginatedList<StaffInfoPreview> pagedResponse = new()
             {
                 Total = result.totalCount,
                 PageSize = pageSize,
                 PageIndex = pageIndex,
                 Items = staffInfoPreviews
             };
-            DefaultResponseModel<DefaultPageResponse<StaffInfoPreview>> response = new()
+            DefaultResponseModel<PaginatedList<StaffInfoPreview>> response = new()
             {
                 Data = pagedResponse,
                 Message = "Get all staff info successfully",

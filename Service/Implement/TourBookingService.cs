@@ -8,20 +8,19 @@ namespace VietWay.Service.Implement
 {
     public class TourBookingService(IUnitOfWork unitOfWork) : ITourBookingService
     {
-        private readonly IUnitOfWork _unitOfWork = unitOfWork;
-        public async Task CreateBookingAsync(TourBooking tourBooking)
+        public readonly IUnitOfWork _unitOfWork = unitOfWork;
+        public async Task CreateBookingAsync(Booking tourBooking)
         {
-            await _unitOfWork.TourBookingRepository.Create(tourBooking);
+            await _unitOfWork.BookingRepository.CreateAsync(tourBooking);
         }
 
         public async Task<TourBookingInfoDTO?> GetTourBookingInfoAsync(string bookingId)
         {
             return await _unitOfWork
-                .TourBookingRepository
+                .BookingRepository
                 .Query()
                 .Where(x => x.BookingId == bookingId)
                 .Include(x => x.Tour.TourTemplate.TourTemplateImages)
-                .ThenInclude(x => x.Image)
                 .Include(x => x.BookingTourParticipants)
                 .Select(x => new TourBookingInfoDTO()
                 {
@@ -31,16 +30,16 @@ namespace VietWay.Service.Implement
                     ContactFullName = x.ContactFullName,
                     ContactPhoneNumber = x.ContactPhoneNumber,
                     CustomerId = x.CustomerId,
-                    EndDate = x.Tour.EndDate,
-                    ImageUrl = x.Tour.TourTemplate.TourTemplateImages.First().Image.Url,
+                    EndDate = (DateTime)x.Tour.EndDate,
+                    ImageUrl = x.Tour.TourTemplate.TourTemplateImages.First().ImageUrl,
                     NumberOfParticipants = x.NumberOfParticipants,
-                    StartDate = x.Tour.StartDate,
+                    StartDate = (DateTime)x.Tour.StartDate,
                     StartLocation = x.Tour.StartLocation,
                     Status = x.Status,
                     TotalPrice = x.TotalPrice,
                     TourId = x.TourId,
                     TourName = x.Tour.TourTemplate.TourName,
-                    CreatedOn = x.CreatedOn,
+                    CreatedOn = x.CreatedAt,
                     Note = x.Note,
                     Participants = x.BookingTourParticipants.Select(y => new TourParticipantDTO()
                     {

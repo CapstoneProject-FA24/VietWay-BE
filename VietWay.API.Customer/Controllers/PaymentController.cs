@@ -20,7 +20,7 @@ namespace VietWay.API.Customer.Controllers
         /// <response code="200">Get VNPay URL successfully</response>
         /// <response code="404">Booking ID not found</response>
 #warning TODO: check if booking ID exists
-        private readonly IBookingPaymentService _bookingPaymentService = bookingPaymentService;
+        public readonly IBookingPaymentService _bookingPaymentService = bookingPaymentService;
         [HttpGet("{bookingId}/vnpay")]
         [Produces("application/json")]
         [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status200OK)]

@@ -4,7 +4,7 @@ using VietWay.Repository.EntityModel.Base;
 
 namespace VietWay.Repository.EntityModel
 {
-    public class TourTemplate : CreatedByEntity<Staff>
+    public class TourTemplate : SoftDeleteEntity
     {
         [Key]
         [StringLength(20)]
@@ -21,6 +21,7 @@ namespace VietWay.Repository.EntityModel
         public required string Policy { get; set; }
         public required string Note { get; set; }
         public TourTemplateStatus Status { get; set; }
+        public required DateTime CreatedAt { get; set; }
 
         public virtual TourDuration? TourDuration { get; set; }
         public virtual TourCategory? TourCategory { get; set; }

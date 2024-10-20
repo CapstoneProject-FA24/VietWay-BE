@@ -45,7 +45,7 @@ namespace VietWay.API.Customer.Controllers
             throw new NotImplementedException();
         }
         /// <summary>
-        /// [All] Get tour templates related to attraction
+        /// [All] {WIP} Get tour templates related to attraction
         /// </summary>
         /// <returns> List of tour templates related to this attraction </returns>
         /// <response code="200">Return list of tour templates</response>

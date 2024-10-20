@@ -7,15 +7,15 @@ namespace VietWay.Service.Implement
 {
     public class CustomerFeedbackService(IUnitOfWork unitOfWork): ICustomerFeedbackService
     {
-        private readonly IUnitOfWork _unitOfWork = unitOfWork;
+        public readonly IUnitOfWork _unitOfWork = unitOfWork;
 
-        public async Task<(int totalCount, List<CustomerFeedback> items)> GetAllCustomerFeedback(int pageSize, int pageIndex)
+        public async Task<(int totalCount, List<Feedback> items)> GetAllCustomerFeedback(int pageSize, int pageIndex)
         {
             var query = _unitOfWork
-                .CustomerFeedbackRepository
+                .FeedbackRepository
                 .Query();
             int count = await query.CountAsync();
-            List<CustomerFeedback> items = await query
+            List<Feedback> items = await query
                 .Skip((pageIndex - 1) * pageSize)
                 .Take(pageSize)
                 .Include(x => x.Booking)

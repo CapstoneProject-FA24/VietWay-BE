@@ -15,7 +15,7 @@ namespace VietWay.Repository.EntityModel
         [StringLength(20)]
         public required string ParticipantId { get; set; }
         [StringLength(20)]
-        [ForeignKey(nameof(TourBooking))]
+        [ForeignKey(nameof(Booking))]
         public required string TourBookingId { get; set; }
         public required string FullName { get; set; }
         [StringLength(10)]
@@ -25,6 +25,6 @@ namespace VietWay.Repository.EntityModel
         public bool? HasAttended { get; set; }
         public string? Note { get; set; }
 
-        public virtual TourBooking? TourBooking { get; set; }
+        public virtual Booking? Booking { get; set; }
     }
 }

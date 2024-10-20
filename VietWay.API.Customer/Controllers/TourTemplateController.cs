@@ -15,8 +15,8 @@ namespace VietWay.API.Customer.Controllers
     [ApiController]
     public class TourTemplateController(ITourTemplateService tourTemplateService, IMapper mapper) : ControllerBase
     {
-        private readonly IMapper _mapper = mapper;
-        private readonly ITourTemplateService _tourTemplateService = tourTemplateService;
+        public readonly IMapper _mapper = mapper;
+        public readonly ITourTemplateService _tourTemplateService = tourTemplateService;
 
         /// <summary>
         /// [All] Get tour template by ID
@@ -90,7 +90,6 @@ namespace VietWay.API.Customer.Controllers
             var (count,items) = await _tourTemplateService.GetAllTemplateWithActiveToursAsync(
                 nameSearch,templateCategoryIds,provinceIds,numberOfDay,startDateFrom,
                 startDateTo,minPrice,maxPrice,checkedPageSize,checkedPageIndex);
-
             return Ok(new DefaultResponseModel<DefaultPageResponse<TourTemplateWithTourInfoDTO>>()
             {
                 Message = "Get tour template successfully",
@@ -104,6 +103,5 @@ namespace VietWay.API.Customer.Controllers
                 }
             });
         }
-
     }
 }

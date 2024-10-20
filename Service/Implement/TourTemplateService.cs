@@ -6,8 +6,8 @@ using VietWay.Repository.UnitOfWork;
 using VietWay.Service.DataTransferObject;
 using VietWay.Service.Interface;
 using VietWay.Service.ThirdParty;
-using VietWay.Util.DateTimeHelper;
-using VietWay.Util.IdHelper;
+using VietWay.Util.DateTimeUtil;
+using VietWay.Util.IdUtil;
 
 namespace VietWay.Service.Implement
 {
@@ -17,15 +17,16 @@ namespace VietWay.Service.Implement
         ICloudinaryService cloudinaryService,
         ITimeZoneHelper timeZoneHelper) : ITourTemplateService
     {
-        private readonly IUnitOfWork _unitOfWork = unitOfWork;
-        private readonly IIdGenerator _idGenerator = idGenerator;
-        private readonly ICloudinaryService _cloudinaryService = cloudinaryService;
-        private readonly ITimeZoneHelper _timeZoneHelper = timeZoneHelper;
+        public readonly IUnitOfWork _unitOfWork = unitOfWork;
+        public readonly IIdGenerator _idGenerator = idGenerator;
+        public readonly ICloudinaryService _cloudinaryService = cloudinaryService;
+        public readonly ITimeZoneHelper _timeZoneHelper = timeZoneHelper;
         public async Task<string> CreateTemplateAsync(TourTemplate tourTemplate)
         {
             tourTemplate.TourTemplateId = _idGenerator.GenerateId();
-            tourTemplate.CreatedDate = DateTime.UtcNow;
-            foreach(var province in tourTemplate.TourTemplateProvinces ?? [])
+            tourTemplate.CreatedAt = DateTime.UtcNow;
+#warning use utc+7 now
+            foreach (var province in tourTemplate.TourTemplateProvinces ?? [])
             {
                 province.TourTemplateId = tourTemplate.TourTemplateId;
             }
@@ -37,12 +38,12 @@ namespace VietWay.Service.Implement
                     attractionSchedule.TourTemplateId = tourTemplate.TourTemplateId;
                 }
             }
-            await _unitOfWork.TourTemplateRepository.Create(tourTemplate);
+            await _unitOfWork.TourTemplateRepository.CreateAsync(tourTemplate);
             return tourTemplate.TourTemplateId;
         }
         public async Task DeleteTemplateAsync(TourTemplate tourTemplate)
         {
-            await _unitOfWork.TourTemplateRepository.SoftDelete(tourTemplate);
+            await _unitOfWork.TourTemplateRepository.SoftDeleteAsync(tourTemplate);
         }
 
         public async Task<(int totalCount, List<TourTemplate> items)> GetAllTemplatesAsync(
@@ -80,16 +81,14 @@ namespace VietWay.Service.Implement
             }
             int count = await query.CountAsync();
             List<TourTemplate> items = await query
-                .OrderByDescending(x => x.CreatedDate)
+                .OrderByDescending(x => x.CreatedAt)
                 .Skip((pageIndex - 1) * pageSize)
                 .Take(pageSize)
                 .Include(x => x.TourTemplateImages)
-                .ThenInclude(x => x.Image)
                 .Include(x => x.TourTemplateProvinces)
                 .ThenInclude(x => x.Province)
                 .Include(x=>x.TourCategory)
                 .Include(x=>x.TourDuration)
-                .Include(x => x.Creator)
                 .ToListAsync();
             return (count, items);
         }
@@ -103,21 +102,17 @@ namespace VietWay.Service.Implement
                 .ThenInclude(x => x.AttractionSchedules)
                 .ThenInclude(x => x.Attraction)
                 .Include(x => x.TourTemplateImages)
-                .ThenInclude(x => x.Image)
                 .Include(x => x.TourTemplateProvinces)
                 .ThenInclude(x => x.Province)
                 .Include(x=>x.TourDuration)
                 .Include(x=>x.TourCategory)
-                .Include(x=>x.Creator)
                 .SingleOrDefaultAsync(x => x.TourTemplateId.Equals(id));
         }
 
         public async Task UpdateTemplateAsync(TourTemplate tourTemplate, List<TourTemplateSchedule> newSchedule)
         {
-            IEnumerable<AttractionSchedule> deleteAttractionSchedule = tourTemplate.TourTemplateSchedules.SelectMany(x => x.AttractionSchedules);
-            await _unitOfWork.AttractionScheduleRepository.DeleteRange(deleteAttractionSchedule);
             tourTemplate.TourTemplateSchedules = newSchedule;
-            await _unitOfWork.TourTemplateRepository.Update(tourTemplate);
+            await _unitOfWork.TourTemplateRepository.UpdateAsync(tourTemplate);
         }
 
         public async Task UpdateTemplateImageAsync(TourTemplate tourTemplate, List<IFormFile>? imageFiles, List<string>? removedImageIds)
@@ -127,20 +122,12 @@ namespace VietWay.Service.Implement
                 foreach (var imageFile in imageFiles)
                 {
                     using Stream stream = imageFile.OpenReadStream();
-                    var (publicId, secureUrl) = await _cloudinaryService.UploadImageAsync(stream, imageFile.FileName);
-                    Image image = new()
-                    {
-                        ImageId = _idGenerator.GenerateId(),
-                        PublicId = publicId,
-                        Url = secureUrl,
-                        ContentType = imageFile.ContentType,
-                        FileName = imageFile.FileName
-                    };
+                    string imageId = _idGenerator.GenerateId();
                     TourTemplateImage attractionImage = new()
                     {
                         TourTemplateId = tourTemplate.TourTemplateId,
-                        ImageId = image.ImageId,
-                        Image = image
+                        ImageId = imageId,
+                        ImageUrl = _cloudinaryService.GetImage(imageId)
                     };
                     tourTemplate.TourTemplateImages.Add(attractionImage);
                 }
@@ -154,9 +141,8 @@ namespace VietWay.Service.Implement
                 {
                     tourTemplate.TourTemplateImages.Remove(image);
                 }
-                _ = await _cloudinaryService.DeleteImages(removedImages.Select(x => x.Image.PublicId));
-                await _unitOfWork.TourTemplateRepository.Update(tourTemplate);
-                await _unitOfWork.ImageRepository.DeleteRange(removedImages.Select(x => x.Image));
+                //_ = await _cloudinaryService.DeleteImages(removedImages.Select(x => x.Image.PublicId));
+                await _unitOfWork.TourTemplateRepository.UpdateAsync(tourTemplate);
             }
         }
 
@@ -190,12 +176,11 @@ namespace VietWay.Service.Implement
             }
             int count = await query.CountAsync();
             List<TourTemplate> items = await query
-                .OrderByDescending(x => x.CreatedDate)
+                .OrderByDescending(x => x.CreatedAt)
                 .Where(x => x.Status == TourTemplateStatus.Approved)
                 .Skip((pageIndex - 1) * pageSize)
                 .Take(pageSize)
                 .Include(x => x.TourTemplateImages)
-                .ThenInclude(x => x.Image)
                 .Include(x => x.TourTemplateProvinces)
                 .ThenInclude(x => x.Province)
                 .Include(x => x.TourCategory)
@@ -258,7 +243,6 @@ namespace VietWay.Service.Implement
 
             List<TourTemplateWithTourInfoDTO> items = await query
                 .Include(x => x.TourTemplateImages)
-                    .ThenInclude(x => x.Image)
                 .Include(x => x.TourTemplateProvinces)
                     .ThenInclude(x => x.Province)
                 .Include(x => x.TourCategory)
@@ -273,10 +257,10 @@ namespace VietWay.Service.Implement
                     Code = x.Code,
                     Duration = x.TourDuration.DurationName,
                     TourCategory = x.TourCategory.Name,
-                    ImageUrl = x.TourTemplateImages.FirstOrDefault().Image.Url,
-                    MinPrice = x.Tours.Where(x => x.Status == TourStatus.Scheduled).Select(y => y.Price).Min(),
+                    ImageUrl = x.TourTemplateImages.FirstOrDefault().ImageUrl,
+                    MinPrice = x.Tours.Where(x => x.Status == TourStatus.Scheduled).Select(y => (decimal)y.Price).Min(),
                     Provinces = x.TourTemplateProvinces.Select(y => y.Province.ProvinceName).ToList(),
-                    StartDate = x.Tours.Where(x=>x.Status == TourStatus.Scheduled).Select(y => y.StartDate).ToList(),
+                    StartDate = x.Tours.Where(x=>x.Status == TourStatus.Scheduled).Select(y => (DateTime)y.StartDate).ToList(),
                     TourName = x.TourName,
                     Status = x.Status
                 })

@@ -7,7 +7,7 @@ namespace VietWay.Service.Implement
 {
     public class StaffService: IStaffService
     {
-        private readonly IUnitOfWork _unitOfWork;
+        public readonly IUnitOfWork _unitOfWork;
 
         public StaffService(IUnitOfWork unitOfWork)
         {
@@ -17,14 +17,14 @@ namespace VietWay.Service.Implement
         public async Task<Staff> AddStaff(Staff staffInfo)
         {
             await _unitOfWork.StaffRepository
-                .Create(staffInfo);
+                .CreateAsync(staffInfo);
             return staffInfo;
         }
 
         public async Task<Staff> EditStaffInfo(Staff staffInfo)
         {
             await _unitOfWork.StaffRepository
-                .Update(staffInfo);
+                .UpdateAsync(staffInfo);
             return staffInfo;
         }
 

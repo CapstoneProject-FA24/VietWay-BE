@@ -6,22 +6,22 @@ namespace VietWay.Repository.GenericRepository
 {
     public class GenericRepository<T>(VietWayDbContext dbContext) : IGenericRepository<T> where T : class
     {
-        private readonly VietWayDbContext _dbContext = dbContext;
-        private readonly DbSet<T> _dbSet = dbContext.Set<T>();
+        public readonly VietWayDbContext _dbContext = dbContext;
+        public readonly DbSet<T> _dbSet = dbContext.Set<T>();
 
-        public async Task Create(T entity)
+        public async Task CreateAsync(T entity)
         {
             _dbSet.Add(entity);
             await _dbContext.SaveChangesAsync();
         }
 
-        public async Task Delete(T entity)
+        public async Task DeleteAsync(T entity)
         {
             _dbSet?.Remove(entity);
             await _dbContext.SaveChangesAsync();
         }
 
-        public async Task Update(T entity)
+        public async Task UpdateAsync(T entity)
         {
             _dbSet.Update(entity).State = EntityState.Modified;
             await _dbContext.SaveChangesAsync();
@@ -31,8 +31,7 @@ namespace VietWay.Repository.GenericRepository
         {
             return _dbSet.AsQueryable();
         }
-
-        public async Task SoftDelete(T entity)
+        public async Task SoftDeleteAsync(T entity)
         {
             if (entity is SoftDeleteEntity softDeleteEntity)
             {
@@ -41,7 +40,7 @@ namespace VietWay.Repository.GenericRepository
                 await _dbContext.SaveChangesAsync();
             }
         }
-        public Task DeleteRange(IEnumerable<T> entities)
+        public Task DeleteRangeAsync(IEnumerable<T> entities)
         {
             _dbSet.RemoveRange(entities);
             return _dbContext.SaveChangesAsync();

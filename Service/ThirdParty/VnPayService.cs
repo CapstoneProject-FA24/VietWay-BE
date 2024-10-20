@@ -1,32 +1,31 @@
-﻿using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
-using System.Security.Cryptography;
+﻿using System.Security.Cryptography;
 using System.Text;
 using VietWay.Repository.EntityModel;
 using VietWay.Service.DataTransferObject;
+using VietWay.Util.DateTimeUtil;
 
 namespace VietWay.Service.ThirdParty
 {
-    public class VnPayService(IConfiguration configuration) : IVnPayService
+    public class VnPayService(ITimeZoneHelper timeZoneHelper) : IVnPayService
     {
-        private readonly string _vnpHashSecret =
-            configuration["VnPay:HashSecret"] ?? throw new Exception("Can not get vnp_HashSecret");
-        private readonly string _vnpTmnCode =
-            configuration["VnPay:TmnCode"] ?? throw new Exception("Can not get vnp_TmnCode");
+        public readonly ITimeZoneHelper _timeZoneHelper = timeZoneHelper;
+        public readonly string _vnpHashSecret = Environment.GetEnvironmentVariable("VNPAY_TMN_CODE") 
+            ?? throw new Exception("VNPAY_TMN_CODE is not set in environment variables");
+        public readonly string _vnpTmnCode = Environment.GetEnvironmentVariable("VNPAY_HASH_SECRET")
+            ?? throw new Exception("VNPAY_HASH_SECRET is not set in environment variables");
+
         public string GetPaymentUrl(BookingPayment payment, string userIpAddress)
         {
             const string vnpVersion = "2.1.0";
             const string vnpCommand = "pay";
             string vnpAmount = ((int)(payment.Amount * 100)).ToString();
-            string vnpCreateDate = TimeZoneInfo
-                .ConvertTime(DateTime.Now, TimeZoneInfo.FindSystemTimeZoneById("Asia/Ho_Chi_Minh")).ToString("yyyyMMddHHmmss");
+            string vnpCreateDate = _timeZoneHelper.GetUTC7Now().ToString("yyyyMMddHHmmss");
             const string vnpCurrCode = "VND";
             const string vnpLocale = "vn";
             string vnpOrderInfo = Uri.EscapeDataString($"Thanh+toan+tour+gia+{payment.Amount}+VND");
             const string vnpOrderType = "130005";
             string vnpReturnUrl = Uri.EscapeDataString("http://localhost:5173/dat-tour/thanh-toan/hoan-thanh/"+payment.BookingId);
-            string vnpExpireDate = TimeZoneInfo
-                .ConvertTime(DateTime.Now.AddHours(1), TimeZoneInfo.FindSystemTimeZoneById("Asia/Ho_Chi_Minh")).ToString("yyyyMMddHHmmss");
+            string vnpExpireDate = _timeZoneHelper.GetUTC7Now().ToString("yyyyMMddHHmmss");
             string vnpTxnRef = payment.PaymentId;
             string ipAddress = Uri.EscapeDataString(userIpAddress);
             string hashSource = $"vnp_Amount={vnpAmount}&" +

@@ -4,7 +4,7 @@ using VietWay.Repository.EntityModel.Base;
 
 namespace VietWay.Repository.EntityModel
 {
-    public class Tour : CreatedByEntity<Staff>
+    public class Tour : SoftDeleteEntity
     {
         [Key]
         [StringLength(20)]
@@ -13,18 +13,19 @@ namespace VietWay.Repository.EntityModel
         [StringLength(20)]
         public required string TourTemplateId { get; set; }
         [StringLength(255)]
-        public required string StartLocation { get; set; }
-        public required DateTime StartDate { get; set; }
-        public required DateTime EndDate { get; set; }
+        public string? StartLocation { get; set; }
+        public DateTime? StartDate { get; set; }
+        public DateTime? EndDate { get; set; }
         [Column(TypeName = "decimal(18,2)")]
-        public required decimal Price { get; set; }
-        public required int MaxParticipant { get; set; }
-        public required int MinParticipant { get; set; }
-        public required int CurrentParticipant { get; set; }
+        public decimal? Price { get; set; }
+        public int? MaxParticipant { get; set; }
+        public int? MinParticipant { get; set; }
+        public int? CurrentParticipant { get; set; }
         public required TourStatus Status { get; set; }
+        public required DateTime CreatedAt { get; set; }
 
         public virtual TourTemplate? TourTemplate { get; set; }
-        public virtual ICollection<TourBooking>? Bookings { get; set; }
+        public virtual ICollection<Booking>? TourBookings { get; set; }
 
     }
 }

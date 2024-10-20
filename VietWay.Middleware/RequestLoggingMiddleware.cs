@@ -11,8 +11,8 @@ namespace VietWay.Middleware
 {
     public class RequestLoggingMiddleware
     {
-        private readonly RequestDelegate _next;
-        private readonly ILogger<RequestLoggingMiddleware> _logger;
+        public readonly RequestDelegate _next;
+        public readonly ILogger<RequestLoggingMiddleware> _logger;
 
         public RequestLoggingMiddleware(RequestDelegate next, ILogger<RequestLoggingMiddleware> logger)
         {

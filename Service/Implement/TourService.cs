@@ -8,7 +8,7 @@ namespace VietWay.Service.Implement
 {
     public class TourService : ITourService
     {
-        private readonly IUnitOfWork _unitOfWork;
+        public readonly IUnitOfWork _unitOfWork;
         public TourService(IUnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
@@ -17,14 +17,14 @@ namespace VietWay.Service.Implement
         public async Task<Tour> CreateTour(Tour tour)
         {
             await _unitOfWork.TourRepository
-                .Create(tour);
+                .CreateAsync(tour);
             return tour;
         }
 
         public async Task<Tour> EditTour(Tour updatedTour)
         {
             await _unitOfWork.TourRepository
-                .Update(updatedTour);
+                .UpdateAsync(updatedTour);
             return updatedTour;
         }
 
@@ -39,7 +39,6 @@ namespace VietWay.Service.Implement
                 .Take(pageSize)
                 .Include(x => x.TourTemplate)
                 .ThenInclude(x => x.TourTemplateImages)
-                .ThenInclude(x => x.Image)
                 .ToListAsync();
             return (count, items);
         }
@@ -50,7 +49,6 @@ namespace VietWay.Service.Implement
                 .Query()
                 .Include(x => x.TourTemplate)
                 .ThenInclude(x => x.TourTemplateImages)
-                .ThenInclude(x => x.Image)
                 .SingleOrDefaultAsync(x => x.TourId.Equals(id));
         }
 
@@ -65,7 +63,6 @@ namespace VietWay.Service.Implement
                 .Take(pageSize)
                 .Include(x => x.TourTemplate)
                 .ThenInclude(x => x.TourTemplateImages)
-                .ThenInclude(x => x.Image)
                 .Where(x => x.Status == TourStatus.Scheduled)
                 .ToListAsync();
             return (count, items);
@@ -79,7 +76,6 @@ namespace VietWay.Service.Implement
                 .Where(x => x.IsDeleted == false && x.TourTemplateId.Equals(tourTemplateId) &&x.Status == TourStatus.Scheduled)
                 .Include(x => x.TourTemplate)
                 .ThenInclude(x => x.TourTemplateImages)
-                .ThenInclude(x => x.Image)
                 .ToListAsync();
         }
     }

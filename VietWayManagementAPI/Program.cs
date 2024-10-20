@@ -7,10 +7,13 @@ using VietWay.Repository.UnitOfWork;
 using VietWay.Service.Interface;
 using VietWay.Service.Implement;
 using VietWay.Service.ThirdParty;
-using VietWay.Util.IdHelper;
 using VietWay.Middleware;
-using VietWay.Util.DateTimeHelper;
 using System.Reflection;
+using VietWay.Util.IdUtil;
+using VietWay.Util.DateTimeUtil;
+using VietWay.Util.TokenUtil;
+using Hangfire;
+using VietWay.Util;
 
 namespace VietWay.API.Management
 {
@@ -19,7 +22,19 @@ namespace VietWay.API.Management
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
-
+            if (builder.Environment.IsDevelopment())
+            {
+                DotEnv.Load(".env");
+            }
+            #region builder.Services.AddHangfire(...);
+            builder.Services.AddHangfire(option =>
+            {
+                string connectionString = Environment.GetEnvironmentVariable("SQL_CONNECTION_STRING") 
+                    ?? throw new Exception("SQL_CONNECTION_STRING is not set in environment variables");
+                option.UseSqlServerStorage(connectionString);
+            });
+            #endregion
+            builder.Services.AddHangfireServer();
             builder.Services.AddControllers();
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddAutoMapper(typeof(MappingProfile));
@@ -31,21 +46,12 @@ namespace VietWay.API.Management
                 option.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
             }).AddJwtBearer(o =>
             {
-                string? issuer = builder.Configuration["Jwt:Issuer"]
-                        ?? throw new Exception("Can not get JWT Issuer");
-                string? audience = builder.Configuration["Jwt:Audience"]
-                    ?? throw new Exception("Can not get JWT Audience");
-                string secretKey;
-                if (builder.Environment.IsDevelopment())
-                {
-                    secretKey = builder.Configuration["Jwt:Key"]
-                        ?? throw new Exception("Can not get JWT Key");
-                }
-                else
-                {
-                    secretKey = Environment.GetEnvironmentVariable("PROD_JWT_KEY")
-                        ?? throw new Exception("Can not get JWT Key");
-                }
+                string issuer = Environment.GetEnvironmentVariable("JWT_ISSUER")
+                    ?? throw new Exception("JWT_ISSUER is not set in environment variables");
+                string audience = Environment.GetEnvironmentVariable("JWT_ISSUER")
+                    ?? throw new Exception("JWT_ISSUER is not set in environment variables");
+                string secretKey = Environment.GetEnvironmentVariable("JWT_KEY")
+                    ?? throw new Exception("JWT_KEY is not set in environment variables");
                 o.UseSecurityTokenValidators = true;
                 o.TokenValidationParameters = new()
                 {
@@ -112,17 +118,16 @@ namespace VietWay.API.Management
             builder.Services.AddScoped<ICloudinaryService,CloudinaryService>();
             builder.Services.AddScoped<ITourService, TourService>();
             builder.Services.AddScoped<IManagerService, ManagerService>();
-            builder.Services.AddScoped<IAccountService, AccountService>();
             builder.Services.AddScoped<IStaffService, StaffService>();
             builder.Services.AddScoped<ITourCategoryService, TourCategoryService>();
             builder.Services.AddScoped<IAttractionTypeService, AttractionTypeService>();
             builder.Services.AddScoped<IAttractionService, AttractionService>();
             builder.Services.AddScoped<ITourDurationService, TourDurationService>();
-            builder.Services.AddScoped<IAttractionScheduleService, AttractionScheduleService>();
             builder.Services.AddScoped<ICustomerFeedbackService, CustomerFeedbackService>();
             builder.Services.AddScoped<IBookingPaymentService, BookingPaymentService>();
             builder.Services.AddScoped<IVnPayService, VnPayService>();
             builder.Services.AddScoped<ITimeZoneHelper, TimeZoneHelper>();
+            builder.Services.AddScoped<ITokenHelper,TokenHelper>();
             #endregion
             builder.Services.AddSingleton<IIdGenerator, SnowflakeIdGenerator>();
             var app = builder.Build();
@@ -156,6 +161,7 @@ namespace VietWay.API.Management
             app.UseAuthorization();
             app.UseMiddleware<ErrorHandlingMiddleware>();
             app.UseMiddleware<RequestLoggingMiddleware>();
+            app.UseHangfireDashboard("/hangfire");
             app.MapControllers();
             app.Run();
         }
