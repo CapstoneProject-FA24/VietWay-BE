@@ -18,11 +18,8 @@ namespace VietWay.Repository.EntityModel
         public string? Content { get; set; }
         [ForeignKey(nameof(PostCategory))]
         public string? PostCategoryId { get; set; }
-        public DateTime? StartDate { get; set; }
-        public DateTime? EndDate { get; set; }
         [ForeignKey(nameof(Province))]
         public string? ProvinceId { get; set; }
-        public string? Address { get; set; }
         public string? Description { get; set; }
         public required DateTime CreatedAt { get; set; }
 
