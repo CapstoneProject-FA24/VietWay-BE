@@ -17,7 +17,7 @@ namespace VietWay.Repository.EntityModel
         public string? ImageUrl { get; set; }
         public string? Content { get; set; }
         [ForeignKey(nameof(PostCategory))]
-        public string? EventCategoryId { get; set; }
+        public string? PostCategoryId { get; set; }
         public DateTime? StartDate { get; set; }
         public DateTime? EndDate { get; set; }
         [ForeignKey(nameof(Province))]
