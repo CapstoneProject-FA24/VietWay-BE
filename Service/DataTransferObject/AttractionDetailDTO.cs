@@ -18,7 +18,7 @@ namespace VietWay.Service.DataTransferObject
         public string? GooglePlaceId { get; set; }
 
         public required ProvincePreviewDTO Province { get; set; }
-        public required AttractionTypePreviewDTO AttractionType { get; set; }
+        public required AttractionCategoryPreviewDTO AttractionType { get; set; }
         public virtual ICollection<ImageDTO>? Images { get; set; }
     }
 }
