@@ -58,7 +58,7 @@ namespace VietWay.API.Customer.Controllers
         /// <response code="200">Get tour list successfully</response>
         [HttpGet]
         [Produces("application/json")]
-        [ProducesResponseType<DefaultResponseModel<DefaultPageResponse<TourPreview>>>(StatusCodes.Status200OK)]
+        [ProducesResponseType<DefaultResponseModel<PaginatedList<TourPreview>>>(StatusCodes.Status200OK)]
         public async Task<IActionResult> GetAllToursByTemplateIdsAsync(
             string tourTemplateId)
         {

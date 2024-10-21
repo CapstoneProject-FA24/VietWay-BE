@@ -11,11 +11,8 @@ using VietWay.Util.IdUtil;
 
 namespace VietWay.Service.Implement
 {
-    public class TourTemplateService(
-        IUnitOfWork unitOfWork, 
-        IIdGenerator idGenerator, 
-        ICloudinaryService cloudinaryService,
-        ITimeZoneHelper timeZoneHelper) : ITourTemplateService
+    public class TourTemplateService(IUnitOfWork unitOfWork, IIdGenerator idGenerator, 
+        ICloudinaryService cloudinaryService, ITimeZoneHelper timeZoneHelper) : ITourTemplateService
     {
         public readonly IUnitOfWork _unitOfWork = unitOfWork;
         public readonly IIdGenerator _idGenerator = idGenerator;
@@ -266,6 +263,29 @@ namespace VietWay.Service.Implement
                 })
                 .ToListAsync();
             return (count,items);
+        }
+
+        public async Task<List<TourTemplatePreviewDTO>> GetTourTemplatesPreviewRelatedToAttractionAsync(string attractionId, int previewCount)
+        {
+            return await _unitOfWork.TourTemplateRepository.Query()
+                .Where(x => x.Tours.Any(t => t.StartDate >= _timeZoneHelper.GetUTC7Now() && t.Status == TourStatus.Scheduled))
+                .Where(x => x.TourTemplateSchedules.Any(ts => ts.AttractionSchedules.Any(a => a.AttractionId.Equals(attractionId))))
+                .Take(previewCount)
+                .Include(x=>x.TourDuration)
+                .Include(x=>x.TourTemplateImages)
+                .Include(x => x.TourTemplateProvinces)
+                    .ThenInclude(x => x.Province)
+                .Include(x=>x.TourCategory)
+                .Select(x => new TourTemplatePreviewDTO
+                {
+                    Code = x.Code,
+                    Duration = x.TourDuration.DurationName,
+                    ImageUrl = x.TourTemplateImages.FirstOrDefault().ImageUrl,
+                    Provinces = x.TourTemplateProvinces.Select(y => y.Province.ProvinceName).ToList(),
+                    TourCategory = x.TourCategory.Name,
+                    TourName = x.TourName,
+                    TourTemplateId = x.TourTemplateId
+                }).ToListAsync();
         }
     }
 }

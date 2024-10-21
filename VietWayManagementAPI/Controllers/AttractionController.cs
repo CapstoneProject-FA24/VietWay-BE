@@ -60,11 +60,11 @@ namespace VietWay.API.Management.Controllers
         /// <response code="404">Not found</response>
         [HttpGet("{attractionId}")]
         [Produces("application/json")]
-        [ProducesResponseType<DefaultResponseModel<AttractionDetailWithCreatorDTO>>(StatusCodes.Status200OK)]
+        [ProducesResponseType<DefaultResponseModel<AttractionDetailWithCreatorDTO_NEEDFIX>>(StatusCodes.Status200OK)]
         [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetAttractionById(string attractionId)
         {
-            AttractionDetailWithCreatorDTO? attraction = await _attractionService.GetAttractionWithCreatorByIdAsync(attractionId);
+            AttractionDetailWithCreatorDTO_NEEDFIX? attraction = await _attractionService.GetAttractionWithCreateDateByIdAsync(attractionId);
             if (null == attraction)
             {
                 return NotFound(new DefaultResponseModel<object>
@@ -74,7 +74,7 @@ namespace VietWay.API.Management.Controllers
                 });
             }
 
-            return Ok(new DefaultResponseModel<AttractionDetailWithCreatorDTO>
+            return Ok(new DefaultResponseModel<AttractionDetailWithCreatorDTO_NEEDFIX>
             {
                 Message = "Get attraction successfully",
                 StatusCode = StatusCodes.Status200OK,

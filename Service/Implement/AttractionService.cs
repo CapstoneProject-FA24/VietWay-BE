@@ -54,6 +54,43 @@ namespace VietWay.Service.Implement
                 throw;
             }
         }
+
+        public async Task<(int totalCount, List<AttractionPreviewDTO> items)> GetAllApprovedAttractionsAsync(string? nameSearch, List<string>? provinceIds, List<string>? attractionTypeIds, int pageSize, int pageIndex)
+        {
+            IQueryable<Attraction> query = _unitOfWork.AttractionRepository.Query()
+                .Where(x=>x.Status==AttractionStatus.Approved && x.IsDeleted == false);
+            if (false == string.IsNullOrWhiteSpace(nameSearch))
+            {
+                query = query.Where(x => x.Name.Contains(nameSearch));
+            }
+            if (null != provinceIds && provinceIds.Count > 0)
+            {
+                query = query.Where(x => provinceIds.Contains(x.ProvinceId));
+            }
+            if (null != attractionTypeIds && attractionTypeIds.Count > 0)
+            {
+                query = query.Where(x => attractionTypeIds.Contains(x.AttractionCategoryId));
+            }
+            int count = await query.CountAsync();
+            List<AttractionPreviewDTO> items = await query
+                .Include(x => x.AttractionImages)
+                .Include(x => x.Province)
+                .Include(x => x.AttractionCategory)
+                .Select(x => new AttractionPreviewDTO
+                {
+                    AttractionId = x.AttractionId,
+                    Name = x.Name,
+                    Address = x.Address,
+                    Province = x.Province.ProvinceName,
+                    AttractionType = x.AttractionCategory.Name,
+                    ImageUrl = x.AttractionImages.FirstOrDefault() != null ? x.AttractionImages.FirstOrDefault().ImageUrl : null
+                })
+                .Skip((pageIndex - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+            return (count, items);
+        }
+
         public async Task<(int totalCount, List<AttractionPreviewWithCreateAtDTO> items)> GetAllAttractionsWithCreatorAsync(
             string? nameSearch, List<string>? provinceIds, List<string>? attractionCategoryIds, AttractionStatus? status, 
             int pageSize, int pageIndex)
@@ -96,7 +133,29 @@ namespace VietWay.Service.Implement
             return (count, attractions);
         }
 
-        public async Task<AttractionDetailWithCreatorDTO?> GetAttractionWithCreatorByIdAsync(string attractionId)
+        public async Task<AttractionDetailDTO?> GetApprovedAttractionDetailById(string attractionId)
+        {
+            return await _unitOfWork.AttractionRepository.Query()
+                .Where(x=>x.AttractionId.Equals(attractionId) && x.Status == AttractionStatus.Approved && x.IsDeleted == false)
+                .Include(x => x.AttractionImages)
+                .Include(x => x.Province)
+                .Include(x => x.AttractionCategory)
+                .Select(x => new AttractionDetailDTO
+                {
+                    AttractionId = x.AttractionId,
+                    Name = x.Name,
+                    Address = x.Address,
+                    Province = new ProvincePreviewDTO { ProvinceId = x.ProvinceId, ProvinceName = x.Province.ProvinceName },
+                    AttractionType = new AttractionTypePreviewDTO { AttractionTypeId = x.AttractionCategoryId, AttractionTypeName = x.AttractionCategory.Name },
+                    Description = x.Description,
+                    Images = x.AttractionImages.Select(x => new ImageDTO() { ImageId = x.ImageId, Url = x.ImageUrl }).ToList(),
+                    ContactInfo = x.ContactInfo,
+                    GooglePlaceId = x.GooglePlaceId,
+                    Website = x.Website
+                }).SingleOrDefaultAsync();
+        }
+
+        public async Task<AttractionDetailWithCreatorDTO_NEEDFIX?> GetAttractionWithCreateDateByIdAsync(string attractionId)
         {
             return await _unitOfWork.AttractionRepository
                 .Query()
@@ -104,7 +163,7 @@ namespace VietWay.Service.Implement
                 .Include(x => x.AttractionImages)
                 .Include(x => x.Province)
                 .Include(x => x.AttractionCategory)
-                .Select(x => new AttractionDetailWithCreatorDTO
+                .Select(x => new AttractionDetailWithCreatorDTO_NEEDFIX
                 {
                     AttractionId = x.AttractionId,
                     Name = x.Name,

@@ -85,6 +85,7 @@ namespace VietWay.Service.Implement
             catch
             {
                 await _unitOfWork.RollbackTransactionAsync();
+                throw;
             }
         }
     }

@@ -4,7 +4,7 @@ using VietWay.Repository.EntityModel;
 
 namespace VietWay.Repository.DataAccessObject
 {
-    public class VietWayDbContext() : DbContext()
+    public class VietWayDbContext : DbContext
     {
         #region DbSets
         public DbSet<Account> Account { get; set; }
@@ -39,10 +39,7 @@ namespace VietWay.Repository.DataAccessObject
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             optionsBuilder
-                .UseSqlServer(GetConnectionString(),option =>
-                {
-                    option.EnableRetryOnFailure();
-                })
+                .UseSqlServer(GetConnectionString())
                 .LogTo(Console.WriteLine, LogLevel.Information);
         }
         public static string GetConnectionString()

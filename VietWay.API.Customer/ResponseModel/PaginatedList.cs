@@ -1,6 +1,6 @@
 ﻿namespace VietWay.API.Customer.ResponseModel
 {
-    public class DefaultPageResponse<T>
+    public class PaginatedList<T>
     {
         public int Total { get; set; }
         public int PageSize { get; set; }

@@ -7,7 +7,7 @@ using VietWay.Repository.EntityModel.Base;
 
 namespace VietWay.Service.DataTransferObject
 {
-    public class AttractionDetailWithCreatorDTO
+    public class AttractionDetailWithCreatorDTO_NEEDFIX
     {
         public required string AttractionId { get; set; }
         public required string Name { get; set; }

@@ -17,8 +17,15 @@ namespace VietWay.Service.Interface
             AttractionStatus? status,
             int pageSize,
             int pageIndex);
-        public Task<AttractionDetailWithCreatorDTO?> GetAttractionWithCreatorByIdAsync(string attractionId);
-
+        public Task<AttractionDetailWithCreatorDTO_NEEDFIX?> GetAttractionWithCreateDateByIdAsync(string attractionId);
         public Task UpdateAttractionImageAsync(string attractionId, List<IFormFile>? imageFiles, List<string>? imageIdsToRemove);
+
+        public Task<AttractionDetailDTO?> GetApprovedAttractionDetailById(string attractionId);
+        public Task<(int totalCount, List<AttractionPreviewDTO> items)> GetAllApprovedAttractionsAsync(
+            string? nameSearch,
+            List<string>? provinceIds,
+            List<string>? attractionTypeIds,
+            int pageSize,
+            int pageIndex);
     }
 }

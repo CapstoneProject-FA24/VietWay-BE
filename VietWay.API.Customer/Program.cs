@@ -1,3 +1,4 @@
+using Hangfire;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -22,11 +23,19 @@ namespace VietWay.API.Customer
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
-
             if (builder.Environment.IsDevelopment())
             {
                 DotEnv.Load(".env");
             }
+
+            #region builder.Services.AddHangfire(...);
+            builder.Services.AddHangfire(option =>
+            {
+                string connectionString = Environment.GetEnvironmentVariable("SQL_CONNECTION_STRING")
+                    ?? throw new Exception("SQL_CONNECTION_STRING is not set in environment variables");
+                option.UseSqlServerStorage(connectionString);
+            });
+            #endregion
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
             builder.Services.AddScoped<ICustomerService, CustomerService>();
             builder.Services.AddScoped<ITourService, TourService>();
@@ -127,6 +136,7 @@ namespace VietWay.API.Customer
             builder.Services.AddScoped<IAccountService, AccountService>();
             builder.Services.AddScoped<ITokenHelper, TokenHelper>();
             builder.Services.AddScoped<IHashHelper, BCryptHashHelper>();
+            builder.Services.AddScoped<IAttractionService, AttractionService>();
             #endregion
             builder.Services.AddSingleton<IIdGenerator, SnowflakeIdGenerator>();
             var app = builder.Build();

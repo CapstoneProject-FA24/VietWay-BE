@@ -122,7 +122,7 @@ namespace VietWay.API.Customer.Controllers
         /// <response code="200">Get customer bookings successfully</response>
         [HttpGet]
         [Produces("application/json")]
-        [ProducesResponseType<DefaultResponseModel<DefaultPageResponse<object>>>(StatusCodes.Status200OK)]
+        [ProducesResponseType<DefaultResponseModel<PaginatedList<object>>>(StatusCodes.Status200OK)]
         public async Task<IActionResult> GetCustomerBookings(int? pageCount, int? pageIndex)
         {
             throw new NotImplementedException();
