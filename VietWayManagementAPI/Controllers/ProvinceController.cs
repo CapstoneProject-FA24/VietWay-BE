@@ -27,12 +27,10 @@ namespace VietWay.API.Management.Controllers
         [ProducesResponseType<DefaultResponseModel<List<ProvincePreviewDTO>>>(StatusCodes.Status200OK)]
         public async Task<IActionResult> GetAllProvinces()
         {
-            List<Province> provinces = await _provinceService.GetAllProvince();
-            List<ProvincePreviewDTO> response = _mapper.Map<List<ProvincePreviewDTO>>(provinces);
             return Ok(new DefaultResponseModel<List<ProvincePreviewDTO>>() 
             { 
                 Message= "Get all province successfully",
-                Data = response,
+                Data = await _provinceService.GetAllProvinces(),
                 StatusCode = StatusCodes.Status200OK
             });
         }

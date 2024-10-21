@@ -23,6 +23,7 @@ namespace VietWay.Repository.EntityModel
         public string? Address { get; set; }
         public string? Description { get; set; }
         public required DateTime CreatedAt { get; set; }
+        public required EventStatus Status { get; set; }
 
         public virtual Province? Province { get; set; }
         public virtual EventCategory? EventCategory { get; set; }
