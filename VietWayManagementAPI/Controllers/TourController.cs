@@ -14,8 +14,8 @@ namespace VietWay.API.Management.Controllers
     [ApiController]
     public class TourController(ITourService tourService, IMapper mapper) : ControllerBase
     {
-        public readonly ITourService _tourService = tourService;
-        public readonly IMapper _mapper = mapper;
+        private readonly ITourService _tourService = tourService;
+        private readonly IMapper _mapper = mapper;
 
         /// <summary>
         /// [Manager][Staff] Get all tours

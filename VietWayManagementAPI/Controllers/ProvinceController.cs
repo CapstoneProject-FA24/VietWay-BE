@@ -14,8 +14,8 @@ namespace VietWay.API.Management.Controllers
     [ApiController]
     public class ProvinceController(IMapper mapper, IProvinceService provinceService) : ControllerBase
     {
-        public readonly IMapper _mapper = mapper;
-        public readonly IProvinceService _provinceService = provinceService;
+        private readonly IMapper _mapper = mapper;
+        private readonly IProvinceService _provinceService = provinceService;
 
         /// <summary>
         /// [Manager][Staff] Get all provinces

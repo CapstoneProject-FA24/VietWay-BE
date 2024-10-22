@@ -7,7 +7,7 @@ namespace VietWay.Service.Implement
 {
     public class TourCategoryService(IUnitOfWork unitOfWork) : ITourCategoryService
     {
-        public readonly IUnitOfWork _unitOfWork = unitOfWork;
+        private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
         public async Task<List<TourCategoryDTO>> GetAllTourCategory()
         {

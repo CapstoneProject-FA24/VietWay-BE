@@ -13,8 +13,8 @@ namespace VietWay.API.Management.Controllers
     [ApiController]
     public class BookingPaymentController(IBookingPaymentService bookingPaymentService, IMapper mapper) : ControllerBase
     {
-        public readonly IBookingPaymentService _bookingPaymentService = bookingPaymentService;
-        public readonly IMapper _mapper = mapper;
+        private readonly IBookingPaymentService _bookingPaymentService = bookingPaymentService;
+        private readonly IMapper _mapper = mapper;
         [HttpGet("VnPayIPN")]
         public async Task<IActionResult> HandleVnPayIPN(VnPayIPNRequest request)
         {

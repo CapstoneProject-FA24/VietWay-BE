@@ -16,10 +16,10 @@ namespace VietWay.Service.Implement
     public class AttractionService(IUnitOfWork unitOfWork, ICloudinaryService cloudinaryService, IIdGenerator idGenerator,
         IBackgroundJobClient backgroundJobClient) : IAttractionService
     {
-        public readonly IUnitOfWork _unitOfWork = unitOfWork;
-        public readonly ICloudinaryService _cloudinaryService = cloudinaryService;
-        public readonly IIdGenerator _idGenerator = idGenerator;
-        public readonly IBackgroundJobClient _backgroundJobClient = backgroundJobClient;
+        private readonly IUnitOfWork _unitOfWork = unitOfWork;
+        private readonly ICloudinaryService _cloudinaryService = cloudinaryService;
+        private readonly IIdGenerator _idGenerator = idGenerator;
+        private readonly IBackgroundJobClient _backgroundJobClient = backgroundJobClient;
         public async Task<string> CreateAttractionAsync(Attraction attraction)
         {
             try

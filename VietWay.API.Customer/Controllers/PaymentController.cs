@@ -17,14 +17,13 @@ namespace VietWay.API.Customer.Controllers
     public class PaymentController(IBookingPaymentService bookingPaymentService, ITokenHelper tokenHelper) : ControllerBase
     {
         private readonly ITokenHelper _tokenHelper = tokenHelper;
-        public readonly IBookingPaymentService _bookingPaymentService = bookingPaymentService;
+        private readonly IBookingPaymentService _bookingPaymentService = bookingPaymentService;
         /// <summary>
-        /// [Customer] Generate a VNPay URL for booking payment
+        /// ✅🔐[Customer] Generate a VNPay URL for booking payment
         /// </summary>
         /// <return>VNPay URL for booking payment</return>
         /// <response code="200">Get VNPay URL successfully</response>
         /// <response code="404">Booking ID not found</response>
-        /// 
         [HttpGet("{bookingId}/vnpay")]
         [Produces("application/json")]
         [Authorize(Roles = nameof(UserRole.Customer))]
@@ -33,7 +32,7 @@ namespace VietWay.API.Customer.Controllers
         {
             string? customerId = _tokenHelper.GetAccountIdFromToken(HttpContext);
             string url = await _bookingPaymentService
-                .GetVnPayBookingPaymentUrl(bookingId, HttpContext.Connection.RemoteIpAddress?.ToString()??"");
+                .GetVnPayBookingPaymentUrl(bookingId, customerId, HttpContext.Connection.RemoteIpAddress?.ToString()??"");
             return Ok(new DefaultResponseModel<string>()
             {
                 Message = "Success",

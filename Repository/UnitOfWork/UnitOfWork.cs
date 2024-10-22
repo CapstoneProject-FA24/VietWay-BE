@@ -7,7 +7,7 @@ namespace VietWay.Repository.UnitOfWork
 {
     public class UnitOfWork : IUnitOfWork
     {
-        public readonly VietWayDbContext _dbContext = new();
+        private readonly VietWayDbContext _dbContext = new();
 
         public IDbContextTransaction? transaction;
 

@@ -9,8 +9,8 @@ namespace VietWay.API.Management.Controllers
     [ApiController]
     public class StaffController(IStaffService staffService, IMapper mapper) : ControllerBase
     {
-        public readonly IStaffService _staffService = staffService;
-        public readonly IMapper _mapper = mapper;
+        private readonly IStaffService _staffService = staffService;
+        private readonly IMapper _mapper = mapper;
 
         [HttpGet]
         [Produces("application/json")]

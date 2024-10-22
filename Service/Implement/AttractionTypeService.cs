@@ -8,7 +8,7 @@ namespace VietWay.Service.Implement
 {
     public class AttractionTypeService(IUnitOfWork unitOfWork): IAttractionTypeService
     {
-        public readonly IUnitOfWork _unitOfWork = unitOfWork;
+        private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
         public async Task<List<AttractionCategoryPreviewDTO>> GetAllAttractionType()
         {

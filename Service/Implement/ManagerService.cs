@@ -7,7 +7,7 @@ namespace VietWay.Service.Implement
 {
     public class ManagerService : IManagerService
     {
-        public readonly IUnitOfWork _unitOfWork;
+        private readonly IUnitOfWork _unitOfWork;
 
         public ManagerService(IUnitOfWork unitOfWork)
         {

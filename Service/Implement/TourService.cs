@@ -8,7 +8,7 @@ namespace VietWay.Service.Implement
 {
     public class TourService : ITourService
     {
-        public readonly IUnitOfWork _unitOfWork;
+        private readonly IUnitOfWork _unitOfWork;
         public TourService(IUnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork;

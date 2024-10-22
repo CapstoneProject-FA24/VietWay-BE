@@ -8,10 +8,10 @@ namespace VietWay.Service.ThirdParty
 {
     public class VnPayService(ITimeZoneHelper timeZoneHelper) : IVnPayService
     {
-        public readonly ITimeZoneHelper _timeZoneHelper = timeZoneHelper;
-        public readonly string _vnpHashSecret = Environment.GetEnvironmentVariable("VNPAY_TMN_CODE") 
+        private readonly ITimeZoneHelper _timeZoneHelper = timeZoneHelper;
+        private readonly string _vnpHashSecret = Environment.GetEnvironmentVariable("VNPAY_TMN_CODE") 
             ?? throw new Exception("VNPAY_TMN_CODE is not set in environment variables");
-        public readonly string _vnpTmnCode = Environment.GetEnvironmentVariable("VNPAY_HASH_SECRET")
+        private readonly string _vnpTmnCode = Environment.GetEnvironmentVariable("VNPAY_HASH_SECRET")
             ?? throw new Exception("VNPAY_HASH_SECRET is not set in environment variables");
 
         public string GetPaymentUrl(BookingPayment payment, string userIpAddress)

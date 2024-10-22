@@ -18,8 +18,8 @@ namespace VietWay.API.Customer.Controllers
     [ApiController]
     public class CustomerController(ICustomerService customerService, ITokenHelper tokenHelper) : ControllerBase
     {
-        public readonly ICustomerService _customerService = customerService;
-        public readonly ITokenHelper _tokenHelper = tokenHelper;
+        private readonly ICustomerService _customerService = customerService;
+        private readonly ITokenHelper _tokenHelper = tokenHelper;
 
         /// <summary>
         /// ✅🔐[Customer] Get current customer profile

@@ -9,8 +9,8 @@ namespace VietWay.API.Management.Controllers
     [ApiController]
     public class TourCategoryController(ITourCategoryService tourCategoryService, IMapper mapper) : ControllerBase
     {
-        public readonly IMapper _mapper = mapper;
-        public readonly ITourCategoryService _tourCategoryService = tourCategoryService;
+        private readonly IMapper _mapper = mapper;
+        private readonly ITourCategoryService _tourCategoryService = tourCategoryService;
 
         [HttpGet]
         [Produces("application/json")]

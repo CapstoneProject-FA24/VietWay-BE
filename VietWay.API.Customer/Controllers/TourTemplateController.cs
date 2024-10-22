@@ -15,8 +15,8 @@ namespace VietWay.API.Customer.Controllers
     [ApiController]
     public class TourTemplateController(ITourTemplateService tourTemplateService, IMapper mapper) : ControllerBase
     {
-        public readonly IMapper _mapper = mapper;
-        public readonly ITourTemplateService _tourTemplateService = tourTemplateService;
+        private readonly IMapper _mapper = mapper;
+        private readonly ITourTemplateService _tourTemplateService = tourTemplateService;
 
         /// <summary>
         /// [All] Get tour template by ID

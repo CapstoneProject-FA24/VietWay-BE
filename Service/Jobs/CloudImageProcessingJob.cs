@@ -9,7 +9,7 @@ namespace VietWay.Service.Jobs
 {
     public class CloudImageProcessingJob(ICloudinaryService cloudinaryService)
     {
-        public readonly ICloudinaryService _cloudinaryService = cloudinaryService;
+        private readonly ICloudinaryService _cloudinaryService = cloudinaryService;
         public async Task UploadImageAsync(string publicId,string imagePath, string fileName)
         {
             await _cloudinaryService.UploadImageAsync(publicId, imagePath, fileName);

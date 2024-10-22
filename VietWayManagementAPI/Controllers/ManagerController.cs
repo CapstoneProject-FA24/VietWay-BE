@@ -9,8 +9,8 @@ namespace VietWay.API.Management.Controllers
     [ApiController]
     public class ManagerController (IManagerService managerService, IMapper mapper) : ControllerBase
     {
-        public readonly IManagerService _managerService = managerService;
-        public readonly IMapper _mapper = mapper;
+        private readonly IManagerService _managerService = managerService;
+        private readonly IMapper _mapper = mapper;
 
         [HttpGet]
         [Produces("application/json")]

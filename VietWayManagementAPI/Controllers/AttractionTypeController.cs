@@ -14,8 +14,8 @@ namespace VietWay.API.Management.Controllers
     [ApiController]
     public class AttractionTypeController(IAttractionTypeService attractionTypeService, IMapper mapper) : ControllerBase
     {
-        public readonly IAttractionTypeService _attractionTypeService = attractionTypeService;
-        public readonly IMapper _mapper = mapper;
+        private readonly IAttractionTypeService _attractionTypeService = attractionTypeService;
+        private readonly IMapper _mapper = mapper;
 
         /// <summary>
         /// [Manager][Staff] Get all attraction types

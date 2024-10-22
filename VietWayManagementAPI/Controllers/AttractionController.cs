@@ -18,9 +18,9 @@ namespace VietWay.API.Management.Controllers
     [ApiController]
     public class AttractionController(IAttractionService attractionService, IMapper mapper, ITokenHelper tokenHelper) : ControllerBase
     {
-        public readonly IAttractionService _attractionService = attractionService;
-        public readonly IMapper _mapper = mapper;
-        public readonly ITokenHelper _tokenHelper = tokenHelper;
+        private readonly IAttractionService _attractionService = attractionService;
+        private readonly IMapper _mapper = mapper;
+        private readonly ITokenHelper _tokenHelper = tokenHelper;
 
         /// <summary>
         /// ✅🔐[Manager][Staff] Get attraction list with filter and paging

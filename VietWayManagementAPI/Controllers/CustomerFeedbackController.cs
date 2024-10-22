@@ -9,8 +9,8 @@ namespace VietWay.API.Management.Controllers
     [ApiController]
     public class CustomerFeedbackController(ICustomerFeedbackService customerFeedbackService, IMapper mapper) : ControllerBase
     {
-        public readonly ICustomerFeedbackService _customerFeedbackService = customerFeedbackService;
-        public readonly IMapper _mapper = mapper;
+        private readonly ICustomerFeedbackService _customerFeedbackService = customerFeedbackService;
+        private readonly IMapper _mapper = mapper;
 
         [HttpGet]
         [Produces("application/json")]

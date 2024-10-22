@@ -11,9 +11,9 @@ namespace VietWay.Service.ThirdParty
 {
     public class GmailService : IEmailService
     {
-        public readonly string _senderEmail = Environment.GetEnvironmentVariable("GOOGLE_SENDER_EMAIL")
+        private readonly string _senderEmail = Environment.GetEnvironmentVariable("GOOGLE_SENDER_EMAIL")
             ?? throw new Exception("GOOGLE_SENDER_EMAIL is not set in environment variables");
-        public readonly string _appPassword = Environment.GetEnvironmentVariable("GOOGLE_APP_PASSWORD")
+        private readonly string _appPassword = Environment.GetEnvironmentVariable("GOOGLE_APP_PASSWORD")
             ?? throw new Exception("GOOGLE_APP_PASSWORD is not set in environment variables");
         public async Task SendEmailAsync(string email, string subject, string body)
         {

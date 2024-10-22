@@ -13,9 +13,9 @@ namespace VietWay.Service.Implement
 {
     public class AccountService(IUnitOfWork unitOfWork, ILogger<AccountService> logger, IHashHelper hashHelper) : IAccountService
     {
-        public readonly IUnitOfWork _unitOfWork = unitOfWork;
-        public readonly ILogger<AccountService> _logger = logger;
-        public readonly IHashHelper _hashHelper = hashHelper;
+        private readonly IUnitOfWork _unitOfWork = unitOfWork;
+        private readonly ILogger<AccountService> _logger = logger;
+        private readonly IHashHelper _hashHelper = hashHelper;
         public async Task<Account?> LoginAsync(string emailOrPhone, string password)
         {
             Account? account = await _unitOfWork.AccountRepository

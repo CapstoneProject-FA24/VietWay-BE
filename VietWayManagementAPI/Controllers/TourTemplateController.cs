@@ -12,8 +12,8 @@ namespace VietWay.API.Management.Controllers
     [ApiController]
     public class TourTemplateController(ITourTemplateService tourTemplateService, IMapper mapper) : ControllerBase
     {
-        public readonly ITourTemplateService _tourTemplateService = tourTemplateService;
-        public readonly IMapper _mapper = mapper;
+        private readonly ITourTemplateService _tourTemplateService = tourTemplateService;
+        private readonly IMapper _mapper = mapper;
         [HttpGet]
         [Produces("application/json")]
         [ProducesResponseType<DefaultResponseModel<PaginatedList<TourTemplatePreview>>>(StatusCodes.Status200OK)]

@@ -14,10 +14,10 @@ namespace VietWay.Service.Implement
     public class TourTemplateService(IUnitOfWork unitOfWork, IIdGenerator idGenerator, 
         ICloudinaryService cloudinaryService, ITimeZoneHelper timeZoneHelper) : ITourTemplateService
     {
-        public readonly IUnitOfWork _unitOfWork = unitOfWork;
-        public readonly IIdGenerator _idGenerator = idGenerator;
-        public readonly ICloudinaryService _cloudinaryService = cloudinaryService;
-        public readonly ITimeZoneHelper _timeZoneHelper = timeZoneHelper;
+        private readonly IUnitOfWork _unitOfWork = unitOfWork;
+        private readonly IIdGenerator _idGenerator = idGenerator;
+        private readonly ICloudinaryService _cloudinaryService = cloudinaryService;
+        private readonly ITimeZoneHelper _timeZoneHelper = timeZoneHelper;
         public async Task<string> CreateTemplateAsync(TourTemplate tourTemplate)
         {
             tourTemplate.TourTemplateId = _idGenerator.GenerateId();

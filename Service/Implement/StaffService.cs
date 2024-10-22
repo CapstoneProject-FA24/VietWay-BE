@@ -7,7 +7,7 @@ namespace VietWay.Service.Implement
 {
     public class StaffService: IStaffService
     {
-        public readonly IUnitOfWork _unitOfWork;
+        private readonly IUnitOfWork _unitOfWork;
 
         public StaffService(IUnitOfWork unitOfWork)
         {

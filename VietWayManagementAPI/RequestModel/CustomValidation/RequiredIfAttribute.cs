@@ -5,8 +5,8 @@ namespace VietWay.API.Management.RequestModel.CustomValidation
 {
     public class RequiredIfAttribute : ValidationAttribute
     {
-        public readonly string _propertyName;
-        public readonly object[] _expectedValues;
+        private readonly string _propertyName;
+        private readonly object[] _expectedValues;
 
         public RequiredIfAttribute(string propertyName, params object[] expectedValues)
         {

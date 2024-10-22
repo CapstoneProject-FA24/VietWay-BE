@@ -7,7 +7,7 @@ namespace VietWay.Service.Implement
 {
     public class TourDurationService(IUnitOfWork unitOfWork): ITourDurationService
     {
-        public readonly IUnitOfWork _unitOfWork = unitOfWork;
+        private readonly IUnitOfWork _unitOfWork = unitOfWork;
         public async Task<List<TourDuration>> GetAllTourDuration()
         {
             return await _unitOfWork.TourDurationRepository

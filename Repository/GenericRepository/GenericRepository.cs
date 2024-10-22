@@ -6,8 +6,8 @@ namespace VietWay.Repository.GenericRepository
 {
     public class GenericRepository<T>(VietWayDbContext dbContext) : IGenericRepository<T> where T : class
     {
-        public readonly VietWayDbContext _dbContext = dbContext;
-        public readonly DbSet<T> _dbSet = dbContext.Set<T>();
+        private readonly VietWayDbContext _dbContext = dbContext;
+        private readonly DbSet<T> _dbSet = dbContext.Set<T>();
 
         public async Task CreateAsync(T entity)
         {

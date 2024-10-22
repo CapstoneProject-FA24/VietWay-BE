@@ -8,7 +8,7 @@ namespace VietWay.Middleware
 {
     public class ErrorHandlingMiddleware(RequestDelegate next)
     {
-        public readonly RequestDelegate _next = next;
+        private readonly RequestDelegate _next = next;
 
         public async Task Invoke(HttpContext context)
         {

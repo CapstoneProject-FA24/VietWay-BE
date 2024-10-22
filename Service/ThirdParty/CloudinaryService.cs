@@ -5,7 +5,7 @@ namespace VietWay.Service.ThirdParty
 {
     public class CloudinaryService : ICloudinaryService
     {
-        public readonly Cloudinary _cloudinary;
+        private readonly Cloudinary _cloudinary;
         public CloudinaryService()
         {
             string apiKey = Environment.GetEnvironmentVariable("CLOUDINARY_API_KEY") 

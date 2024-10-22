@@ -7,7 +7,7 @@ namespace VietWay.Service.Implement
 {
     public class CustomerFeedbackService(IUnitOfWork unitOfWork): ICustomerFeedbackService
     {
-        public readonly IUnitOfWork _unitOfWork = unitOfWork;
+        private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
         public async Task<(int totalCount, List<Feedback> items)> GetAllCustomerFeedback(int pageSize, int pageIndex)
         {

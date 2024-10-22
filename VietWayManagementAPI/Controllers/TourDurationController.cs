@@ -9,8 +9,8 @@ namespace VietWay.API.Management.Controllers
     [ApiController]
     public class TourDurationController(ITourDurationService tourDurationService, IMapper mapper) : ControllerBase
     {
-        public readonly ITourDurationService _tourDurationService = tourDurationService;
-        public readonly IMapper _mapper = mapper;
+        private readonly ITourDurationService _tourDurationService = tourDurationService;
+        private readonly IMapper _mapper = mapper;
 
         [HttpGet]
         [Produces("application/json")]
