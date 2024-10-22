@@ -45,6 +45,15 @@ namespace VietWay.API.Customer.Controllers
         [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status200OK)]
         public async Task<IActionResult> BookTour(BookTourRequest request)
         {
+            string? customerId = _tokenHelper.GetAccountIdFromToken(HttpContext);
+            if (customerId == null)
+            {
+                return Unauthorized(new DefaultResponseModel<object>()
+                {
+                    Message = "Unauthorized",
+                    StatusCode = StatusCodes.Status401Unauthorized
+                });
+            }
             if (request.TourParticipants?.Count != request.NumberOfParticipants)
             {
                 DefaultResponseModel<object> response = new()
@@ -79,6 +88,7 @@ namespace VietWay.API.Customer.Controllers
                 tour.Status = TourStatus.Closed;
             }
             Booking tourBooking = _mapper.Map<Booking>(request);
+            tourBooking.CustomerId = customerId;
             tourBooking.Tour = tour;
             tourBooking.BookingId = _idGenerator.GenerateId();
             tourBooking.Status = BookingStatus.Pending;

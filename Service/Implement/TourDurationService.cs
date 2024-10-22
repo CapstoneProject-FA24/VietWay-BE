@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using VietWay.Repository.EntityModel;
 using VietWay.Repository.UnitOfWork;
+using VietWay.Service.DataTransferObject;
 using VietWay.Service.Interface;
 
 namespace VietWay.Service.Implement
@@ -12,6 +13,18 @@ namespace VietWay.Service.Implement
         {
             return await _unitOfWork.TourDurationRepository
                 .Query()
+                .ToListAsync();
+        }
+
+        public async Task<List<TourDurationPreviewDTO>> GetTourDurationPreviews()
+        {
+            return await _unitOfWork.TourDurationRepository
+                .Query()
+                .Select(x => new TourDurationPreviewDTO()
+                {
+                    DurationId = x.DurationId,
+                    DurationName = x.DurationName
+                })
                 .ToListAsync();
         }
     }
