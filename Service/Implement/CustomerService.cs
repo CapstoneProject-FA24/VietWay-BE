@@ -1,15 +1,18 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using VietWay.Repository.EntityModel;
+using VietWay.Repository.EntityModel.Base;
 using VietWay.Repository.UnitOfWork;
 using VietWay.Service.DataTransferObject;
 using VietWay.Service.Interface;
+using VietWay.Util.CustomExceptions;
 using VietWay.Util.DateTimeUtil;
 using VietWay.Util.HashUtil;
 using VietWay.Util.IdUtil;
 
 namespace VietWay.Service.Implement
 {
-    public class CustomerService(IUnitOfWork unitOfWork, IHashHelper hashHelper, IIdGenerator idGenerator, ITimeZoneHelper timeZoneHelper) : ICustomerService
+    public class CustomerService(IUnitOfWork unitOfWork, IHashHelper hashHelper, 
+        IIdGenerator idGenerator, ITimeZoneHelper timeZoneHelper) : ICustomerService
     {
         private readonly IUnitOfWork _unitOfWork = unitOfWork;
         private readonly IHashHelper _hashHelper = hashHelper;
@@ -82,6 +85,46 @@ namespace VietWay.Service.Implement
                 await _unitOfWork.CustomerRepository.CreateAsync(customer);
                 await _unitOfWork.CommitTransactionAsync();
             } 
+            catch
+            {
+                await _unitOfWork.RollbackTransactionAsync();
+                throw;
+            }
+        }
+
+        public async Task UpdateCustomerProfileAsync(string customerId, string? fullName, DateTime? dateOfBirth,
+            string? provinceId, Gender? gender, string? email)
+        {
+            Customer? customer = await _unitOfWork.CustomerRepository.Query()
+                .Where(x => x.CustomerId.Equals(customerId) && false == x.IsDeleted)
+                .Include(x => x.Account)
+                .SingleOrDefaultAsync() ?? throw new ResourceNotFoundException("Customer not found");
+            try
+            {
+                await _unitOfWork.BeginTransactionAsync();
+                if (false == string.IsNullOrEmpty(fullName))
+                {
+                    customer.FullName = fullName;
+                }
+                if (dateOfBirth.HasValue)
+                {
+                    customer.DateOfBirth = dateOfBirth.Value;
+                }
+                if (false == string.IsNullOrEmpty(provinceId))
+                {
+                    customer.ProvinceId = provinceId;
+                }
+                if (gender.HasValue)
+                {
+                    customer.Gender = gender.Value;
+                }
+                if (false == string.IsNullOrEmpty(email))
+                {
+                    customer.Account.Email = email;
+                }
+                await _unitOfWork.CustomerRepository.UpdateAsync(customer);
+                await _unitOfWork.CommitTransactionAsync();
+            }
             catch
             {
                 await _unitOfWork.RollbackTransactionAsync();

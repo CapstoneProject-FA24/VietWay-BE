@@ -7,6 +7,7 @@ using CloudinaryDotNet.Actions;
 using VietWay.Repository.EntityModel.Base;
 using VietWay.Util.TokenUtil;
 using VietWay.Service.DataTransferObject;
+using VietWay.API.Customer.RequestModel;
 
 namespace VietWay.API.Customer.Controllers
 {
@@ -27,7 +28,7 @@ namespace VietWay.API.Customer.Controllers
         [Produces("application/json")]
         [Authorize(Roles = nameof(UserRole.Customer))]
         [ProducesResponseType<DefaultResponseModel<CustomerInfoDTO>>(StatusCodes.Status200OK)]
-        public async Task<IActionResult> GetCurrentCustomerProfile()
+        public async Task<IActionResult> GetCurrentCustomerProfileAsync()
         {
             string? customerId = _tokenHelper.GetAccountIdFromToken(HttpContext);
             if (customerId == null)
@@ -55,5 +56,31 @@ namespace VietWay.API.Customer.Controllers
             });
         }
 
+        /// <summary>
+        /// ✅🔐[Customer] Update customer profile
+        /// </summary>
+        [HttpPut("profile")]
+        [Produces("application/json")]
+        [Authorize(Roles = nameof(UserRole.Customer))]
+        [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status200OK)]
+        public async Task<IActionResult> UpdateCustomerProfile(UpdateCustomerProfileRequest request)
+        {
+            string? customerId = _tokenHelper.GetAccountIdFromToken(HttpContext);
+            if (customerId == null)
+            {
+                return Unauthorized(new DefaultResponseModel<object>()
+                {
+                    Message = "Unauthorized",
+                    StatusCode = StatusCodes.Status401Unauthorized
+                });
+            }
+            await _customerService.UpdateCustomerProfileAsync(customerId, request.FullName, request.DateOfBirth,
+                request.ProvinceId, request.Gender, request.Email);
+            return Ok(new DefaultResponseModel<object>()
+            {
+                Message = "Update customer profile successfully",
+                StatusCode = StatusCodes.Status200OK
+            });
+        }
     }
 }
