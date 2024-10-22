@@ -9,7 +9,10 @@ using VietWay.Service.DataTransferObject;
 using VietWay.Service.Implement;
 using VietWay.Service.Interface;
 using VietWay.Service.ThirdParty;
+using VietWay.Util.CustomExceptions;
+using VietWay.Util.DateTimeUtil;
 using VietWay.Util.IdUtil;
+using VietWay.Util.TokenUtil;
 
 namespace VietWay.API.Customer.Controllers
 {
@@ -18,15 +21,17 @@ namespace VietWay.API.Customer.Controllers
     /// </summary>
     [Route("api/bookings")]
     [ApiController]
-    public class BookingController(ITourBookingService tourBookingService, ITourService tourService, IIdGenerator idGenerator, IMapper mapper, IVnPayService vnPayService) : ControllerBase
+    public class BookingController(ITourBookingService tourBookingService, ITourService tourService, IIdGenerator idGenerator,
+        IMapper mapper, IVnPayService vnPayService, ITimeZoneHelper timeZoneHelper, ITokenHelper tokenHelper) : ControllerBase
     {
-        public readonly ITourBookingService _tourBookingService = tourBookingService;
-        public readonly ITourService _tourService = tourService;
-        public readonly IIdGenerator _idGenerator = idGenerator;
-        public readonly IMapper _mapper = mapper;
-
+        private readonly ITourBookingService _tourBookingService = tourBookingService;
+        private readonly ITourService _tourService = tourService;
+        private readonly IIdGenerator _idGenerator = idGenerator;
+        private readonly IMapper _mapper = mapper;
+        private readonly ITimeZoneHelper _timeZoneHelper = timeZoneHelper;
+        private readonly ITokenHelper _tokenHelper = tokenHelper;
         /// <summary>
-        /// [Customer] Book a tour
+        /// ⚠️🔐[Customer] Book a tour
         /// </summary>
         /// <returns>Status message</returns>
         /// <response code="200">Booking created successfully</response>
@@ -37,7 +42,8 @@ namespace VietWay.API.Customer.Controllers
         [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status200OK)]
         public async Task<IActionResult> BookTour(BookTourRequest request)
         {
-            if (request.TourParticipants?.Count != request.NumberOfParticipants){
+            if (request.TourParticipants?.Count != request.NumberOfParticipants)
+            {
                 DefaultResponseModel<object> response = new()
                 {
                     StatusCode = StatusCodes.Status404NotFound,
@@ -74,8 +80,7 @@ namespace VietWay.API.Customer.Controllers
             tourBooking.BookingId = _idGenerator.GenerateId();
             tourBooking.Status = BookingStatus.Pending;
             tourBooking.TotalPrice = (decimal)tour.Price * request.NumberOfParticipants;
-            tourBooking.CreatedAt = DateTime.UtcNow;
-#warning use utc+7 now
+            tourBooking.CreatedAt = _timeZoneHelper.GetUTC7Now();
             tourBooking.BookingPayments = [];
             tourBooking.BookingTourParticipants = [];
             foreach (TourParticipant tourParticipant in request.TourParticipants)
@@ -97,7 +102,7 @@ namespace VietWay.API.Customer.Controllers
         }
 
         /// <summary>
-        /// [Customer] Get booking info by booking ID
+        /// ✅🔐[Customer] Get booking info by booking ID
         /// </summary>
         /// <returns> Booking detail</returns>
         /// <response code="200">Get booking successfully</response>
@@ -107,31 +112,62 @@ namespace VietWay.API.Customer.Controllers
         [ProducesResponseType<DefaultResponseModel<TourBookingInfoDTO>>(StatusCodes.Status200OK)]
         public async Task<IActionResult> GetTourBookingByIdAsync(string bookingId)
         {
+            string? customerId = _tokenHelper.GetAccountIdFromToken(HttpContext);
+            if (customerId == null)
+            {
+                return Unauthorized(new DefaultResponseModel<object>()
+                {
+                    Message = "Unauthorized",
+                    StatusCode = StatusCodes.Status401Unauthorized
+                });
+            }
             return Ok(new DefaultResponseModel<TourBookingInfoDTO>()
             {
                 Message = "Success",
                 StatusCode = StatusCodes.Status200OK,
-                Data = await _tourBookingService.GetTourBookingInfoAsync(bookingId)
+                Data = await _tourBookingService.GetTourBookingInfoAsync(bookingId, customerId)
             });
         }
 
         /// <summary>
-        /// [Customer] {WIP} Get customer bookings
+        /// ✅🔐[Customer] Get customer bookings
         /// </summary>
         /// <returns> List of customer bookings </returns>
         /// <response code="200">Get customer bookings successfully</response>
         [HttpGet]
         [Produces("application/json")]
-        [ProducesResponseType<DefaultResponseModel<PaginatedList<object>>>(StatusCodes.Status200OK)]
+        [ProducesResponseType<DefaultResponseModel<PaginatedList<TourBookingPreviewDTO>>>(StatusCodes.Status200OK)]
         public async Task<IActionResult> GetCustomerBookings(int? pageCount, int? pageIndex)
         {
-            throw new NotImplementedException();
+            string? customerId = _tokenHelper.GetAccountIdFromToken(HttpContext);
+            if (customerId == null)
+            {
+                return Unauthorized(new DefaultResponseModel<object>()
+                {
+                    Message = "Unauthorized",
+                    StatusCode = StatusCodes.Status401Unauthorized
+                });
+            }
+            int checkedPageSize = (pageCount == null || pageCount < 1) ? 10 : (int)pageCount;
+            int checkedPageIndex = (pageIndex == null || pageIndex < 1) ? 1 : (int)pageIndex;
+            var (totalCount, items) = await _tourBookingService.GetCustomerBookedToursAsync(customerId, checkedPageIndex, checkedPageSize);
+            return Ok(new DefaultResponseModel<PaginatedList<TourBookingPreviewDTO>>()
+            {
+                Data = new()
+                {
+                    Total = totalCount,
+                    PageSize = checkedPageSize,
+                    PageIndex = checkedPageIndex,
+                    Items = items
+                },
+                Message = "Get customer bookings successfully",
+                StatusCode = StatusCodes.Status200OK
+            });
         }
 
         /// <summary>
-        /// [Customer] {WIP} Cancel booking
+        /// ✅🔐[Customer] Cancel booking
         /// </summary>
-        /// <returns> Booking cancellation message </returns>
         /// <response code="200">Booking cancelled successfully</response>
         /// <response code="404">Can not find booking with id</response>
         /// <response code="400">Booking is not cancellable</response>
@@ -140,7 +176,40 @@ namespace VietWay.API.Customer.Controllers
         [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status200OK)]
         public async Task<IActionResult> CancelBooking(string bookingId, CancelBookingRequest cancelBookingRequest)
         {
-            throw new NotImplementedException();
+            string? customerId = _tokenHelper.GetAccountIdFromToken(HttpContext);
+            if (customerId == null)
+            {
+                return Unauthorized(new DefaultResponseModel<object>()
+                {
+                    Message = "Unauthorized",
+                    StatusCode = StatusCodes.Status401Unauthorized
+                });
+            }
+            try
+            {
+                await _tourBookingService.CustomerCancelBookingAsync(bookingId, customerId, cancelBookingRequest.Reason);
+                return Ok(new DefaultResponseModel<object>()
+                {
+                    Message = "Booking cancelled successfully",
+                    StatusCode = StatusCodes.Status200OK
+                });
+            }
+            catch (InvalidOperationException)
+            {
+                return BadRequest(new DefaultResponseModel<object>()
+                {
+                    Message = "Booking is not cancellable",
+                    StatusCode = StatusCodes.Status400BadRequest
+                });
+            }
+            catch (ResourceNotFoundException)
+            {
+                return NotFound(new DefaultResponseModel<object>()
+                {
+                    Message = "Can not find booking with id",
+                    StatusCode = StatusCodes.Status404NotFound
+                });
+            }
         }
     }
 }

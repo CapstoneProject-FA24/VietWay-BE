@@ -19,7 +19,7 @@ namespace VietWay.Repository.UnitOfWork
         private IGenericRepository<BookingPayment>? bookingPaymentRepository;
         private IGenericRepository<Customer>? customerRepository;
         private IGenericRepository<EntityHistory>? entityHistoryRepository;
-        private IGenericRepository<EntityStatusHistory>? entityStatusHistory;
+        private IGenericRepository<EntityStatusHistory>? entityStatusHistoryRepository;
         private IGenericRepository<Event>? eventRepository;
         private IGenericRepository<EventCategory>? eventCategoryRepository;
         private IGenericRepository<Feedback>? feedbackRepository;
@@ -105,12 +105,12 @@ namespace VietWay.Repository.UnitOfWork
             }
         }
 
-        public IGenericRepository<EntityStatusHistory> EntityStatusHistory
+        public IGenericRepository<EntityStatusHistory> EntityStatusHistoryRepository
         {
             get
             {
-                entityStatusHistory ??= new GenericRepository<EntityStatusHistory>(_dbContext);
-                return entityStatusHistory;
+                entityStatusHistoryRepository ??= new GenericRepository<EntityStatusHistory>(_dbContext);
+                return entityStatusHistoryRepository;
             }
         }
 

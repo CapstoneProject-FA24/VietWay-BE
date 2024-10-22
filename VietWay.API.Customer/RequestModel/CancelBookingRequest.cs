@@ -2,6 +2,6 @@
 {
     public class CancelBookingRequest
     {
-        public bool IsCancelled { get; set; }
+        public string? Reason { get; set; }
     }
 }

@@ -50,7 +50,7 @@ namespace VietWay.Service.Implement
             return await _unitOfWork
                 .CustomerRepository
                 .Query()
-                .Where(x => x.CustomerId.Equals(customerId))
+                .Where(x => x.CustomerId.Equals(customerId) && false == x.IsDeleted)
                 .Include(x => x.Account)
                 .Include(x => x.Province)
                 .Select(x => new CustomerInfoDTO

@@ -1,4 +1,5 @@
 ﻿using VietWay.Repository.EntityModel;
+using VietWay.Service.DataTransferObject;
 
 namespace VietWay.Service.Interface
 {
@@ -10,5 +11,6 @@ namespace VietWay.Service.Interface
             int pageSize,
             int pageIndex);
         public Task RegisterAccountAsync(Customer customer);
+        public Task<CustomerInfoDTO?> GetCustomerProfileInfo(string customerId);
     }
 }

@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 using CloudinaryDotNet.Actions;
 using VietWay.Repository.EntityModel.Base;
 using VietWay.Util.TokenUtil;
+using VietWay.Service.DataTransferObject;
 
 namespace VietWay.API.Customer.Controllers
 {
@@ -22,7 +23,7 @@ namespace VietWay.API.Customer.Controllers
         /// <summary>
         /// ✅[Customer] Get current customer profile
         /// </summary>
-        [HttpGet]
+        [HttpGet("profile")]
         [Produces("application/json")]
         [Authorize(Roles = nameof(UserRole.Customer))]
         [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status200OK)]
@@ -31,9 +32,28 @@ namespace VietWay.API.Customer.Controllers
             string? customerId = _tokenHelper.GetAccountIdFromToken(HttpContext);
             if (customerId == null)
             {
-                return Unauthorized();
+                return Unauthorized(new DefaultResponseModel<object>()
+                {
+                    Message = "Unauthorized",
+                    StatusCode = StatusCodes.Status401Unauthorized
+                });
             }
-            return Ok();
+            CustomerInfoDTO? customerInfoDTO = await _customerService.GetCustomerProfileInfo(customerId);
+            if (customerInfoDTO == null)
+            {
+                return Unauthorized(new DefaultResponseModel<object>()
+                {
+                    Message = "Unauthorized",
+                    StatusCode = StatusCodes.Status404NotFound
+                });
+            }
+            return Ok(new DefaultResponseModel<CustomerInfoDTO>()
+            {
+                Data = customerInfoDTO,
+                Message = "Get current customer profile successfully",
+                StatusCode = StatusCodes.Status200OK
+            });
         }
+
     }
 }
