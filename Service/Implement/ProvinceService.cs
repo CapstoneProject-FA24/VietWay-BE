@@ -60,9 +60,9 @@ namespace VietWay.Service.Implement
                         .Where(y => false == y.IsDeleted && PostStatus.Approved == y.Status).Count(),
                     EventsCount = x.Events
                         .Where(y => false == y.IsDeleted && EventStatus.Approved == y.Status).Count(),
-                    ToursCount = x.TourTemplates
-                        .Where(y => false == y.IsDeleted && TourTemplateStatus.Approved == y.Status)
-                        .Where(y => y.Tours.Any(z => _timeZoneHelper.GetUTC7Now() <= z.StartDate && TourStatus.Scheduled == z.Status))
+                    ToursCount = x.TourTemplateProvinces
+                        .Where(y => false == y.TourTemplate.IsDeleted && TourTemplateStatus.Approved == y.TourTemplate.Status)
+                        .Where(y => y.TourTemplate.Tours.Any(z => _timeZoneHelper.GetUTC7Now() <= z.StartDate && TourStatus.Scheduled == z.Status))
                         .Count()
                 })
                 .ToListAsync();
