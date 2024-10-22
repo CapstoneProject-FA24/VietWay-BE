@@ -6,8 +6,6 @@ namespace VietWay.API.Customer.RequestModel
     public class BookTourRequest
     {
         public required string TourId { get; set; }
-        public required string CustomerId { get; set; }
-#warning Remove customerId here and get customerId from jwt instead
         public required int NumberOfParticipants { get; set; }
         public List<TourParticipant>? TourParticipants { get; set; }
         [StringLength(100)]

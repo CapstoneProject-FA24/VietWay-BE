@@ -18,7 +18,7 @@ namespace VietWay.API.Customer.Controllers
     {
         private readonly IProvinceService _provinceService = provinceService;
         /// <summary>
-        /// [All] {WIP} Get province list
+        /// ✅[All] Get province list
         /// </summary>
         /// <returns>List of provinces</returns>
         [HttpGet]
@@ -34,6 +34,9 @@ namespace VietWay.API.Customer.Controllers
             });
         }
 
+        /// <summary>
+        /// ✅[All] Get province list with detail
+        /// </summary>
         [HttpGet("province-detail")]
         [Produces("application/json")]
         [ProducesResponseType<DefaultResponseModel<List<ProvinceDetailDTO>>>(StatusCodes.Status200OK)]
