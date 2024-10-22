@@ -43,7 +43,7 @@ namespace VietWay.API.Management.Controllers
         /// <response code="404">Province not found</response>
         [HttpGet("{provinceId}")]
         [Produces("application/json")]
-        [ProducesResponseType<DefaultResponseModel<ProvincePreviewDTO>>(StatusCodes.Status200OK)]
+        [ProducesResponseType<DefaultResponseModel<ProvinceBriefPreviewDTO>>(StatusCodes.Status200OK)]
         public async Task<IActionResult> GetProvinceById(string provinceId)
         {
             Province? province = await _provinceService
@@ -58,11 +58,11 @@ namespace VietWay.API.Management.Controllers
                 return NotFound(response);
             } else
             {
-                DefaultResponseModel<ProvincePreviewDTO> response = new()
+                DefaultResponseModel<ProvinceBriefPreviewDTO> response = new()
                 {
                     Message = "Get province successfully",
                     StatusCode = StatusCodes.Status200OK,
-                    Data = _mapper.Map<ProvincePreviewDTO>(province)
+                    Data = _mapper.Map<ProvinceBriefPreviewDTO>(province)
                 };
                 return Ok(response);
             }

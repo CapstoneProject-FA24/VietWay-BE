@@ -21,7 +21,8 @@ namespace VietWay.Service.Implement
                 .Select(x=> new ProvincePreviewDTO
                 {
                     ProvinceId = x.ProvinceId,
-                    ProvinceName = x.ProvinceName
+                    ProvinceName = x.ProvinceName,
+                    ImageUrl = x.ImageUrl
                 })
                 .ToListAsync();
         }

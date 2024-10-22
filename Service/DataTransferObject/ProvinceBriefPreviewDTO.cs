@@ -6,10 +6,9 @@ using System.Threading.Tasks;
 
 namespace VietWay.Service.DataTransferObject
 {
-    public class ProvincePreviewDTO
+    public class ProvinceBriefPreviewDTO
     {
         public required string ProvinceId { get; set; }
         public required string ProvinceName { get; set; }
-        public required string ImageUrl { get; set; }
     }
 }

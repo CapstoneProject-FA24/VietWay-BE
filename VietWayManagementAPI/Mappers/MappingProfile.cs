@@ -23,7 +23,7 @@ namespace VietWay.API.Management.Mappers
                     TourCategoryId = src.TourCategory.TourCategoryId,
                     TourCategoryName = src.TourCategory.Name
                 }))
-                .ForMember(dest => dest.Provinces, opt => opt.MapFrom(src => src.TourTemplateProvinces.Select(x => new ProvincePreviewDTO()
+                .ForMember(dest => dest.Provinces, opt => opt.MapFrom(src => src.TourTemplateProvinces.Select(x => new ProvinceBriefPreviewDTO()
                 {
                     ProvinceId = x.Province.ProvinceId,
                     ProvinceName = x.Province.ProvinceName
