@@ -165,7 +165,7 @@ namespace VietWay.API.Customer.Controllers
             }
             int checkedPageSize = (pageCount == null || pageCount < 1) ? 10 : (int)pageCount;
             int checkedPageIndex = (pageIndex == null || pageIndex < 1) ? 1 : (int)pageIndex;
-            var (totalCount, items) = await _tourBookingService.GetCustomerBookedToursAsync(customerId, checkedPageIndex, checkedPageSize);
+            var (totalCount, items) = await _tourBookingService.GetCustomerBookedToursAsync(customerId, checkedPageSize, checkedPageIndex);
             return Ok(new DefaultResponseModel<PaginatedList<TourBookingPreviewDTO>>()
             {
                 Data = new()
