@@ -10,7 +10,7 @@ namespace VietWay.Util.TokenUtil
     {
         public readonly string _issuer = Environment.GetEnvironmentVariable("JWT_ISSUER")
             ?? throw new Exception("JWT_ISSUER is not set in environment variables");
-        public readonly string _audience = Environment.GetEnvironmentVariable("JWT_ISSUER")
+        public readonly string _audience = Environment.GetEnvironmentVariable("JWT_AUDIENCE")
             ?? throw new Exception("JWT_ISSUER is not set in environment variables");
         public readonly string _secret = Environment.GetEnvironmentVariable("JWT_KEY")
             ?? throw new Exception("JWT_KEY is not set in environment variables");

@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using VietWay.Repository.UnitOfWork;
+using VietWay.Service.DataTransferObject;
 using VietWay.Service.Interface;
 
 namespace VietWay.Service.Implement
@@ -8,11 +9,16 @@ namespace VietWay.Service.Implement
     {
         public readonly IUnitOfWork _unitOfWork = unitOfWork;
 
-        public async Task<List<Repository.EntityModel.TourCategory>> GetAllTourCategory()
+        public async Task<List<TourCategoryDTO>> GetAllTourCategory()
         {
             return await _unitOfWork.TourCategoryRepository
                 .Query()
-                .ToListAsync();
+                .Select(x => new TourCategoryDTO()
+                {
+                    Description = x.Description,
+                    Name = x.Name,
+                    TourCategoryId = x.TourCategoryId
+                }).ToListAsync();
         }
     }
 }

@@ -52,7 +52,6 @@ namespace VietWay.API.Management
                     ?? throw new Exception("JWT_ISSUER is not set in environment variables");
                 string secretKey = Environment.GetEnvironmentVariable("JWT_KEY")
                     ?? throw new Exception("JWT_KEY is not set in environment variables");
-                o.UseSecurityTokenValidators = true;
                 o.TokenValidationParameters = new()
                 {
                     ValidateIssuer = true,

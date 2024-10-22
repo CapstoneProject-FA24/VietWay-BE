@@ -12,5 +12,7 @@ namespace VietWay.Repository.EntityModel
         public required string Name { get; set; }
         public required string Description { get; set; }
         public required DateTime CreatedAt { get; set; }
+
+        public virtual ICollection<TourTemplate>? TourTemplates { get; set; }
     }
 }

@@ -54,11 +54,10 @@ namespace VietWay.API.Customer
             {
                 string issuer = Environment.GetEnvironmentVariable("JWT_ISSUER")
                     ?? throw new Exception("JWT_ISSUER is not set in environment variables");
-                string audience = Environment.GetEnvironmentVariable("JWT_ISSUER")
+                string audience = Environment.GetEnvironmentVariable("JWT_AUDIENCE")
                     ?? throw new Exception("JWT_ISSUER is not set in environment variables");
                 string secretKey = Environment.GetEnvironmentVariable("JWT_KEY")
                     ?? throw new Exception("JWT_KEY is not set in environment variables");
-                o.UseSecurityTokenValidators = true;
                 o.TokenValidationParameters = new()
                 {
                     ValidateIssuer = true,
@@ -68,6 +67,14 @@ namespace VietWay.API.Customer
                     ValidateIssuerSigningKey = true,
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey)),
                     ValidateLifetime = true
+                };
+                o.Events = new JwtBearerEvents
+                {
+                    OnAuthenticationFailed = context =>
+                    {
+                        Console.WriteLine("Token validation failed: " + context.Exception.Message);
+                        return Task.CompletedTask;
+                    }
                 };
             });
             #endregion
