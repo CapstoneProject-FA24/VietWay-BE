@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using VietWay.API.Customer.RequestModel;
@@ -30,6 +31,7 @@ namespace VietWay.API.Customer.Controllers
         private readonly IMapper _mapper = mapper;
         private readonly ITimeZoneHelper _timeZoneHelper = timeZoneHelper;
         private readonly ITokenHelper _tokenHelper = tokenHelper;
+
         /// <summary>
         /// ⚠️🔐[Customer] Book a tour
         /// </summary>
@@ -39,6 +41,7 @@ namespace VietWay.API.Customer.Controllers
         /// <response code="404">Can not find Tour with id</response>
         [HttpPost]
         [Produces("application/json")]
+        [Authorize(Roles = nameof(UserRole.Customer))]
         [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status200OK)]
         public async Task<IActionResult> BookTour(BookTourRequest request)
         {
@@ -109,6 +112,7 @@ namespace VietWay.API.Customer.Controllers
         /// <response code="404">Can not find booking with id</response>
         [HttpGet("{bookingId}")]
         [Produces("application/json")]
+        [Authorize(Roles = nameof(UserRole.Customer))]
         [ProducesResponseType<DefaultResponseModel<TourBookingInfoDTO>>(StatusCodes.Status200OK)]
         public async Task<IActionResult> GetTourBookingByIdAsync(string bookingId)
         {
@@ -136,6 +140,7 @@ namespace VietWay.API.Customer.Controllers
         /// <response code="200">Get customer bookings successfully</response>
         [HttpGet]
         [Produces("application/json")]
+        [Authorize(Roles = nameof(UserRole.Customer))]
         [ProducesResponseType<DefaultResponseModel<PaginatedList<TourBookingPreviewDTO>>>(StatusCodes.Status200OK)]
         public async Task<IActionResult> GetCustomerBookings(int? pageCount, int? pageIndex)
         {
@@ -173,6 +178,7 @@ namespace VietWay.API.Customer.Controllers
         /// <response code="400">Booking is not cancellable</response>
         [HttpPatch("{bookingId}")]
         [Produces("application/json")]
+        [Authorize(Roles = nameof(UserRole.Customer))]
         [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status200OK)]
         public async Task<IActionResult> CancelBooking(string bookingId, CancelBookingRequest cancelBookingRequest)
         {

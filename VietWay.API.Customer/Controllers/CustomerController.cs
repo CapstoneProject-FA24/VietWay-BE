@@ -21,12 +21,12 @@ namespace VietWay.API.Customer.Controllers
         public readonly ITokenHelper _tokenHelper = tokenHelper;
 
         /// <summary>
-        /// ✅[Customer] Get current customer profile
+        /// ✅🔐[Customer] Get current customer profile
         /// </summary>
         [HttpGet("profile")]
         [Produces("application/json")]
         [Authorize(Roles = nameof(UserRole.Customer))]
-        [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status200OK)]
+        [ProducesResponseType<DefaultResponseModel<CustomerInfoDTO>>(StatusCodes.Status200OK)]
         public async Task<IActionResult> GetCurrentCustomerProfile()
         {
             string? customerId = _tokenHelper.GetAccountIdFromToken(HttpContext);
