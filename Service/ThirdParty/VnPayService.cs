@@ -9,9 +9,9 @@ namespace VietWay.Service.ThirdParty
     public class VnPayService(ITimeZoneHelper timeZoneHelper) : IVnPayService
     {
         private readonly ITimeZoneHelper _timeZoneHelper = timeZoneHelper;
-        private readonly string _vnpHashSecret = Environment.GetEnvironmentVariable("VNPAY_TMN_CODE") 
+        private readonly string _vnpHashSecret = Environment.GetEnvironmentVariable("VNPAY_HASH_SECRET") 
             ?? throw new Exception("VNPAY_TMN_CODE is not set in environment variables");
-        private readonly string _vnpTmnCode = Environment.GetEnvironmentVariable("VNPAY_HASH_SECRET")
+        private readonly string _vnpTmnCode = Environment.GetEnvironmentVariable("VNPAY_TMN_CODE")
             ?? throw new Exception("VNPAY_HASH_SECRET is not set in environment variables");
 
         public string GetPaymentUrl(BookingPayment payment, string userIpAddress)
@@ -24,7 +24,7 @@ namespace VietWay.Service.ThirdParty
             const string vnpLocale = "vn";
             string vnpOrderInfo = Uri.EscapeDataString($"Thanh+toan+tour+gia+{payment.Amount}+VND");
             const string vnpOrderType = "130005";
-            string vnpReturnUrl = Uri.EscapeDataString("http://localhost:5173/dat-tour/thanh-toan/hoan-thanh/"+payment.BookingId);
+            string vnpReturnUrl = Uri.EscapeDataString("https://www.google.com/");
             string vnpExpireDate = _timeZoneHelper.GetUTC7Now().AddHours(1).ToString("yyyyMMddHHmmss");
             string vnpTxnRef = payment.PaymentId;
             string ipAddress = Uri.EscapeDataString(userIpAddress);
