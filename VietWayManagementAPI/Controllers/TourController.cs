@@ -10,7 +10,7 @@ namespace VietWay.API.Management.Controllers
     /// <summary>
     /// Tour API endpoints
     /// </summary>
-    [Route("api/[controller]")]
+    [Route("api/tours")]
     [ApiController]
     public class TourController(ITourService tourService, IMapper mapper) : ControllerBase
     {
@@ -23,19 +23,19 @@ namespace VietWay.API.Management.Controllers
         /// <response code="200">Success</response>
         [HttpGet]
         [Produces("application/json")]
-        [ProducesResponseType<DefaultResponseModel<DefaultPageResponse<TourPreview>>>(StatusCodes.Status200OK)]
+        [ProducesResponseType<DefaultResponseModel<PaginatedList<TourPreview>>>(StatusCodes.Status200OK)]
         public async Task<IActionResult> GetAllTourAsync(int pageSize, int pageIndex)
         {
             var result = await _tourService.GetAllTour(pageSize, pageIndex);
             List<TourPreview> tourPreviews = _mapper.Map<List<TourPreview>>(result.items);
-            DefaultPageResponse<TourPreview> pagedResponse = new()
+            PaginatedList<TourPreview> pagedResponse = new()
             {
                 Total = result.totalCount,
                 PageSize = pageSize,
                 PageIndex = pageIndex,
                 Items = tourPreviews
             };
-            DefaultResponseModel<DefaultPageResponse<TourPreview>> response = new()
+            DefaultResponseModel<PaginatedList<TourPreview>> response = new()
             {
                 Data = pagedResponse,
                 Message = "Get all tour successfully",

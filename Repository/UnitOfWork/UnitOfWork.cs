@@ -1,4 +1,5 @@
-﻿using VietWay.Repository.DataAccessObject;
+﻿using Microsoft.EntityFrameworkCore.Storage;
+using VietWay.Repository.DataAccessObject;
 using VietWay.Repository.EntityModel;
 using VietWay.Repository.GenericRepository;
 
@@ -7,65 +8,30 @@ namespace VietWay.Repository.UnitOfWork
     public class UnitOfWork : IUnitOfWork
     {
         private readonly VietWayDbContext _dbContext = new();
-        private IGenericRepository<Account>? accountRepository;
-        private IGenericRepository<Customer>? customerInfoRepository;
-        private IGenericRepository<Image>? imageRepository;
-        private IGenericRepository<Manager>? managerInfoRepository;
-        private IGenericRepository<Province>? provinceRepository;
-        private IGenericRepository<Tour>? tourRepository;
-        private IGenericRepository<TourTemplate>? tourTemplateRepository;
-        private IGenericRepository<Staff>? staffRepository;
-        private IGenericRepository<TourCategory>? categoryRepository;
-        private IGenericRepository<AttractionType>? attractionTypeRepository;
-        private IGenericRepository<Attraction>? attractionRepository;
-        private IGenericRepository<AttractionImage>? attractionImageRepository;
-        private IGenericRepository<TourDuration>? durationRepository;
-        private IGenericRepository<TourTemplateSchedule>? tourTemplateScheduleRepository;
-        private IGenericRepository<AttractionSchedule>? attractionScheduleRepository;
-        private IGenericRepository<CustomerFeedback>? customerFeedbackRepository;
-        private IGenericRepository<TourBooking>? tourBookingRepository;
-        private IGenericRepository<BookingPayment>? bookingPaymentRepository;
 
-        public IGenericRepository<BookingPayment> BookingPaymentRepository
-        {
-            get
-            {
-                bookingPaymentRepository ??= new GenericRepository<BookingPayment>(_dbContext);
-                return bookingPaymentRepository;
-            }
-        }
-        public IGenericRepository<TourTemplateSchedule> TourTemplateScheduleRepository
-        {
-            get
-            {
-                tourTemplateScheduleRepository ??= new GenericRepository<TourTemplateSchedule>(_dbContext);
-                return tourTemplateScheduleRepository;
-            }
-        }
-        public IGenericRepository<AttractionSchedule> AttractionScheduleRepository
-        {
-            get
-            {
-                attractionScheduleRepository ??= new GenericRepository<AttractionSchedule>(_dbContext);
-                return attractionScheduleRepository;
-            }
-        }
-        public IGenericRepository<AttractionImage> AttractionImageRepository
-        {
-            get
-            {
-                attractionImageRepository ??= new GenericRepository<AttractionImage>(_dbContext);
-                return attractionImageRepository;
-            }
-        }
-        public IGenericRepository<Attraction> AttractionRepository
-        {
-            get
-            {
-                attractionRepository ??= new GenericRepository<Attraction>(_dbContext);
-                return attractionRepository;
-            }
-        }
+        public IDbContextTransaction? transaction;
+
+        private IGenericRepository<Account>? accountRepository;
+        private IGenericRepository<Admin>? adminRepository;
+        private IGenericRepository<Attraction>? attractionRepository;
+        private IGenericRepository<AttractionCategory>? attractionCategoryRepository;
+        private IGenericRepository<Booking>? bookingRepository;
+        private IGenericRepository<BookingPayment>? bookingPaymentRepository;
+        private IGenericRepository<Customer>? customerRepository;
+        private IGenericRepository<EntityHistory>? entityHistoryRepository;
+        private IGenericRepository<EntityStatusHistory>? entityStatusHistoryRepository;
+        private IGenericRepository<Event>? eventRepository;
+        private IGenericRepository<EventCategory>? eventCategoryRepository;
+        private IGenericRepository<Feedback>? feedbackRepository;
+        private IGenericRepository<Manager>? managerRepository;
+        private IGenericRepository<Post>? postRepository;
+        private IGenericRepository<PostCategory>? postCategoryRepository;
+        private IGenericRepository<Province>? provinceRepository;
+        private IGenericRepository<Staff>? staffRepository;
+        private IGenericRepository<Tour>? tourRepository;
+        private IGenericRepository<TourCategory>? tourCategoryRepository;
+        private IGenericRepository<TourDuration>? tourDurationRepository;
+        private IGenericRepository<TourTemplate>? tourTemplateRepository;
 
         public IGenericRepository<Account> AccountRepository
         {
@@ -75,30 +41,133 @@ namespace VietWay.Repository.UnitOfWork
                 return accountRepository;
             }
         }
-        public IGenericRepository<Customer> CustomerInfoRepository
+
+        public IGenericRepository<Admin> AdminRepository
         {
             get
             {
-                customerInfoRepository ??= new GenericRepository<Customer>(_dbContext);
-                return customerInfoRepository;
+                adminRepository ??= new GenericRepository<Admin>(_dbContext);
+                return adminRepository;
             }
         }
-        public IGenericRepository<Image> ImageRepository
+
+        public IGenericRepository<Attraction> AttractionRepository
         {
             get
             {
-                imageRepository ??= new GenericRepository<Image>(_dbContext);
-                return imageRepository;
+                attractionRepository ??= new GenericRepository<Attraction>(_dbContext);
+                return attractionRepository;
             }
         }
-        public IGenericRepository<Manager> ManagerInfoRepository
+
+        public IGenericRepository<AttractionCategory> AttractionCategoryRepository
         {
             get
             {
-                managerInfoRepository ??= new GenericRepository<Manager>(_dbContext);
-                return managerInfoRepository;
+                attractionCategoryRepository ??= new GenericRepository<AttractionCategory>(_dbContext);
+                return attractionCategoryRepository;
             }
         }
+
+        public IGenericRepository<Booking> BookingRepository
+        {
+            get
+            {
+                bookingRepository ??= new GenericRepository<Booking>(_dbContext);
+                return bookingRepository;
+            }
+        }
+
+        public IGenericRepository<BookingPayment> BookingPaymentRepository
+        {
+            get
+            {
+                bookingPaymentRepository ??= new GenericRepository<BookingPayment>(_dbContext);
+                return bookingPaymentRepository;
+            }
+        }
+
+        public IGenericRepository<Customer> CustomerRepository
+        {
+            get
+            {
+                customerRepository ??= new GenericRepository<Customer>(_dbContext);
+                return customerRepository;
+            }
+        }
+
+        public IGenericRepository<EntityHistory> EntityHistoryRepository
+        {
+            get
+            {
+                entityHistoryRepository ??= new GenericRepository<EntityHistory>(_dbContext);
+                return entityHistoryRepository;
+            }
+        }
+
+        public IGenericRepository<EntityStatusHistory> EntityStatusHistoryRepository
+        {
+            get
+            {
+                entityStatusHistoryRepository ??= new GenericRepository<EntityStatusHistory>(_dbContext);
+                return entityStatusHistoryRepository;
+            }
+        }
+
+        public IGenericRepository<Event> EventRepository
+        {
+            get
+            {
+                eventRepository ??= new GenericRepository<Event>(_dbContext);
+                return eventRepository;
+            }
+        }
+
+        public IGenericRepository<EventCategory> EventCategoryRepository
+        {
+            get
+            {
+                eventCategoryRepository ??= new GenericRepository<EventCategory>(_dbContext);
+                return eventCategoryRepository;
+            }
+        }
+
+        public IGenericRepository<Feedback> FeedbackRepository
+        {
+            get
+            {
+                feedbackRepository ??= new GenericRepository<Feedback>(_dbContext);
+                return feedbackRepository;
+            }
+        }
+
+        public IGenericRepository<Manager> ManagerRepository
+        {
+            get
+            {
+                managerRepository ??= new GenericRepository<Manager>(_dbContext);
+                return managerRepository;
+            }
+        }
+
+        public IGenericRepository<Post> PostRepository
+        {
+            get
+            {
+                postRepository ??= new GenericRepository<Post>(_dbContext);
+                return postRepository;
+            }
+        }
+
+        public IGenericRepository<PostCategory> PostCategoryRepository
+        {
+            get
+            {
+                postCategoryRepository ??= new GenericRepository<PostCategory>(_dbContext);
+                return postCategoryRepository;
+            }
+        }
+
         public IGenericRepository<Province> ProvinceRepository
         {
             get
@@ -108,12 +177,12 @@ namespace VietWay.Repository.UnitOfWork
             }
         }
 
-        public IGenericRepository<TourTemplate> TourTemplateRepository
+        public IGenericRepository<Staff> StaffRepository
         {
             get
             {
-                this.tourTemplateRepository ??= new GenericRepository<TourTemplate>(_dbContext);
-                return this.tourTemplateRepository;
+                staffRepository ??= new GenericRepository<Staff>(_dbContext);
+                return staffRepository;
             }
         }
 
@@ -121,17 +190,8 @@ namespace VietWay.Repository.UnitOfWork
         {
             get
             {
-                this.tourRepository ??= new GenericRepository<Tour>(_dbContext);
-                return this.tourRepository;
-            }
-        }
-
-        public IGenericRepository<Staff> StaffRepository
-        {
-            get
-            {
-                this.staffRepository ??= new GenericRepository<Staff>(_dbContext);
-                return this.staffRepository;
+                tourRepository ??= new GenericRepository<Tour>(_dbContext);
+                return tourRepository;
             }
         }
 
@@ -139,17 +199,8 @@ namespace VietWay.Repository.UnitOfWork
         {
             get
             {
-                this.categoryRepository ??= new GenericRepository<TourCategory>(_dbContext);
-                return this.categoryRepository;
-            }
-        }
-
-        public IGenericRepository<AttractionType> AttractionTypeRepository
-        {
-            get
-            {
-                this.attractionTypeRepository ??= new GenericRepository<AttractionType>(_dbContext);
-                return this.attractionTypeRepository;
+                tourCategoryRepository ??= new GenericRepository<TourCategory>(_dbContext);
+                return tourCategoryRepository;
             }
         }
 
@@ -157,51 +208,89 @@ namespace VietWay.Repository.UnitOfWork
         {
             get
             {
-                this.durationRepository ??= new GenericRepository<TourDuration>(_dbContext);
-                return this.durationRepository;
+                tourDurationRepository ??= new GenericRepository<TourDuration>(_dbContext);
+                return tourDurationRepository;
             }
         }
 
-        public IGenericRepository<CustomerFeedback> CustomerFeedbackRepository
+        public IGenericRepository<TourTemplate> TourTemplateRepository
         {
             get
             {
-                this.customerFeedbackRepository ??= new GenericRepository<CustomerFeedback>(_dbContext); 
-                return this.customerFeedbackRepository;
+                tourTemplateRepository ??= new GenericRepository<TourTemplate>(_dbContext);
+                return tourTemplateRepository;
             }
         }
 
-        public IGenericRepository<TourBooking> TourBookingRepository 
-        { 
-            get 
-            {
-                tourBookingRepository ??= new GenericRepository<TourBooking>(_dbContext);
-                return tourBookingRepository;
-            }
-        }
-
-        public void Save()
+        public async Task BeginTransactionAsync()
         {
-            _dbContext.SaveChanges();
+            if (transaction != null)
+            {
+                await transaction.DisposeAsync();
+                transaction = null;
+            }
+            transaction = await _dbContext.Database.BeginTransactionAsync();
+        }
+        public async Task CommitTransactionAsync()
+        {
+            if (transaction != null)
+            {
+                await transaction.CommitAsync();
+                await transaction.DisposeAsync();
+                transaction = null;
+            }
+        }
+        public async Task RollbackTransactionAsync()
+        {
+            if (transaction != null)
+            {
+                await transaction.RollbackAsync();
+                await transaction.DisposeAsync();
+                transaction = null;
+            }
         }
 
-        private bool disposed = false;
-
+        public bool disposed = false;
         protected virtual void Dispose(bool disposing)
         {
-            if (!disposed)
+            if (disposed)
             {
-                if (disposing)
+                return;
+            }
+            if (disposing)
+            {
+                if (transaction != null)
                 {
-                    _dbContext.Dispose();
+                    transaction.Dispose();
+                    transaction = null;
                 }
+                _dbContext.Dispose();
             }
             disposed = true;
         }
-
+        protected virtual async ValueTask DisposeAsyncCore()
+        {
+            if (disposed)
+            {
+                return;
+            }
+            if (transaction != null)
+            {
+                await transaction.DisposeAsync();
+                transaction = null;
+            }
+            await _dbContext.DisposeAsync();
+            disposed = true;
+        }
         public void Dispose()
         {
             Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+        public async ValueTask DisposeAsync()
+        {
+            await DisposeAsyncCore();
+            Dispose(false);
             GC.SuppressFinalize(this);
         }
     }

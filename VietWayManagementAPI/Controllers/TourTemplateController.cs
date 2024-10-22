@@ -16,7 +16,7 @@ namespace VietWay.API.Management.Controllers
         private readonly IMapper _mapper = mapper;
         [HttpGet]
         [Produces("application/json")]
-        [ProducesResponseType<DefaultResponseModel<DefaultPageResponse<TourTemplatePreview>>>(StatusCodes.Status200OK)]
+        [ProducesResponseType<DefaultResponseModel<PaginatedList<TourTemplatePreview>>>(StatusCodes.Status200OK)]
         public async Task<IActionResult> GetAllTemplatesAsync(
             string? nameSearch,
             [FromQuery]List<string>? templateCategoryIds,
@@ -31,14 +31,14 @@ namespace VietWay.API.Management.Controllers
 
             var result = await _tourTemplateService.GetAllTemplatesAsync(nameSearch,templateCategoryIds,provinceIds,durationIds,status,checkedPageSize,checkedPageIndex);
             List<TourTemplatePreview> tourTemplatePreviews = _mapper.Map<List<TourTemplatePreview>>(result.items);
-            DefaultPageResponse<TourTemplatePreview> pagedResponse = new()
+            PaginatedList<TourTemplatePreview> pagedResponse = new()
             {
                 Total = result.totalCount,
                 PageSize = checkedPageSize,
                 PageIndex = checkedPageIndex,
                 Items = tourTemplatePreviews
             };
-            DefaultResponseModel<DefaultPageResponse<TourTemplatePreview>> response = new()
+            DefaultResponseModel<PaginatedList<TourTemplatePreview>> response = new()
             {
                 Data = pagedResponse,
                 Message = "Get all tour templates successfully",
@@ -80,7 +80,6 @@ namespace VietWay.API.Management.Controllers
         public async Task<IActionResult> CreateTourTemplate([FromBody]CreateTourTemplateRequest request)
         {
             TourTemplate tourTemplate = _mapper.Map<TourTemplate>(request);
-            tourTemplate.CreatedBy = "1";
 #warning replace createdby with current user id in token
             await _tourTemplateService.CreateTemplateAsync(tourTemplate);
             return Ok(new DefaultResponseModel<object>()

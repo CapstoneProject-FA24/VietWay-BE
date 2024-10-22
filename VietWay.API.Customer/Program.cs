@@ -1,3 +1,4 @@
+using Hangfire;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -9,8 +10,11 @@ using VietWay.Repository.UnitOfWork;
 using VietWay.Service.Implement;
 using VietWay.Service.Interface;
 using VietWay.Service.ThirdParty;
-using VietWay.Util.DateTimeHelper;
-using VietWay.Util.IdHelper;
+using VietWay.Util;
+using VietWay.Util.DateTimeUtil;
+using VietWay.Util.HashUtil;
+using VietWay.Util.IdUtil;
+using VietWay.Util.TokenUtil;
 
 namespace VietWay.API.Customer
 {
@@ -19,22 +23,27 @@ namespace VietWay.API.Customer
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
+            if (builder.Environment.IsDevelopment())
+            {
+                DotEnv.Load(".env");
+            }
 
-            // Add services to the container.
-
-            // Customer/GetCustomerInfo-specific services
+            #region builder.Services.AddHangfire(...);
+            builder.Services.AddHangfire(option =>
+            {
+                string connectionString = Environment.GetEnvironmentVariable("SQL_CONNECTION_STRING")
+                    ?? throw new Exception("SQL_CONNECTION_STRING is not set in environment variables");
+                option.UseSqlServerStorage(connectionString);
+            });
+            #endregion
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
             builder.Services.AddScoped<ICustomerService, CustomerService>();
             builder.Services.AddScoped<ITourService, TourService>();
-
             builder.Services.AddAutoMapper(typeof(MappingProfile));
-
-            // Shared services
             builder.Services.AddControllers();
             builder.Services.AddLogging();
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddAutoMapper(typeof(MappingProfile));
-
             #region builder.Services.AddAuthentication(...);
             builder.Services.AddAuthentication(option =>
             {
@@ -43,22 +52,12 @@ namespace VietWay.API.Customer
                 option.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
             }).AddJwtBearer(o =>
             {
-                string? issuer = builder.Configuration["Jwt:Issuer"]
-                        ?? throw new Exception("Can not get JWT Issuer");
-                string? audience = builder.Configuration["Jwt:Audience"]
-                    ?? throw new Exception("Can not get JWT Audience");
-                string secretKey;
-                if (builder.Environment.IsDevelopment())
-                {
-                    secretKey = builder.Configuration["Jwt:Key"]
-                        ?? throw new Exception("Can not get JWT Key");
-                }
-                else
-                {
-                    secretKey = Environment.GetEnvironmentVariable("PROD_JWT_KEY")
-                        ?? throw new Exception("Can not get JWT Key");
-                }
-                o.UseSecurityTokenValidators = true;
+                string issuer = Environment.GetEnvironmentVariable("JWT_ISSUER")
+                    ?? throw new Exception("JWT_ISSUER is not set in environment variables");
+                string audience = Environment.GetEnvironmentVariable("JWT_AUDIENCE")
+                    ?? throw new Exception("JWT_ISSUER is not set in environment variables");
+                string secretKey = Environment.GetEnvironmentVariable("JWT_KEY")
+                    ?? throw new Exception("JWT_KEY is not set in environment variables");
                 o.TokenValidationParameters = new()
                 {
                     ValidateIssuer = true,
@@ -69,9 +68,16 @@ namespace VietWay.API.Customer
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey)),
                     ValidateLifetime = true
                 };
+                o.Events = new JwtBearerEvents
+                {
+                    OnAuthenticationFailed = context =>
+                    {
+                        Console.WriteLine("Token validation failed: " + context.Exception.Message);
+                        return Task.CompletedTask;
+                    }
+                };
             });
             #endregion
-
             #region builder.Services.AddCors(...);
             builder.Services.AddCors(option =>
             {
@@ -83,7 +89,6 @@ namespace VietWay.API.Customer
                 });
             });
             #endregion
-
             #region builder.Services.AddSwaggerGen(...);
             builder.Services.AddSwaggerGen(options =>
             {
@@ -92,7 +97,11 @@ namespace VietWay.API.Customer
                 options.IncludeXmlComments(xmlPath);
                 options.SwaggerDoc("v1",
                 new OpenApiInfo
-                { Title = "VietWay API", Description = "API for VietWay", Version = "1.0.0" });
+                { 
+                    Title = "VietWay API", 
+                    Description = "API for VietWay.<br/> {WIP} API endpoints has not been implemented yet", 
+                    Version = "1.0.0" 
+                });
                 options.AddSecurityDefinition("Bearer",
                     new OpenApiSecurityScheme
                     {
@@ -128,17 +137,17 @@ namespace VietWay.API.Customer
             builder.Services.AddScoped<IProvinceService, ProvinceService>();
             builder.Services.AddScoped<ICloudinaryService, CloudinaryService>();
             builder.Services.AddScoped<ITourBookingService,TourBookingService>();
-builder.Services.AddScoped<IAccountService, AccountService>();
-builder.Services.AddScoped<IBookingPaymentService, BookingPaymentService>();
-builder.Services.AddScoped<ITimeZoneHelper, TimeZoneHelper>();
+            builder.Services.AddScoped<IBookingPaymentService, BookingPaymentService>();
+            builder.Services.AddScoped<ITimeZoneHelper, TimeZoneHelper>();
+            builder.Services.AddScoped<IHashHelper, BCryptHashHelper>();
+            builder.Services.AddScoped<IAccountService, AccountService>();
+            builder.Services.AddScoped<ITokenHelper, TokenHelper>();
+            builder.Services.AddScoped<IHashHelper, BCryptHashHelper>();
+            builder.Services.AddScoped<IAttractionService, AttractionService>();
             #endregion
-
             builder.Services.AddSingleton<IIdGenerator, SnowflakeIdGenerator>();
-
             var app = builder.Build();
-
             app.UseStaticFiles();
-
             #region app.UseSwagger(...);
             if (app.Environment.IsDevelopment())
             {

@@ -42,12 +42,52 @@
         Pending,
         Confirmed,
         Cancelled,
-        Completed
+        Completed,
+        Refunded
     }
     public enum PaymentStatus
     {
         Pending,
         Paid,
-        Failed
+        Failed,
+        Refunded
+    }
+    public enum EntityType
+    {
+        Attraction,
+        AttractionType,
+        Booking,
+        Customer,
+        Event,
+        Manager,
+        Post,
+        Province,
+        Staff,
+        Tour,
+        TourBooking,
+        TourCategory,
+        TourDuration,
+        TourTemplate
+    }
+    public enum EventStatus
+    {
+        Draft,
+        Pending,
+        Approved,
+        Rejected
+    }
+    public enum PostStatus
+    {
+        Draft,
+        Pending,
+        Approved,
+        Rejected
+    }
+    public enum EntityModifyAction
+    {
+        Create,
+        Update,
+        ChangeStatus,
+        Delete
     }
 }

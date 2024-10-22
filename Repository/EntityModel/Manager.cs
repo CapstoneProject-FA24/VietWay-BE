@@ -4,7 +4,7 @@ using VietWay.Repository.EntityModel.Base;
 
 namespace VietWay.Repository.EntityModel
 {
-    public class Manager : CreatedByEntity<Admin>
+    public class Manager : SoftDeleteEntity
     {
         [Key]
         [ForeignKey(nameof(Account))]

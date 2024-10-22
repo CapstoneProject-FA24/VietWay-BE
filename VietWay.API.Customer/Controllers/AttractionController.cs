@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using VietWay.API.Customer.ResponseModel;
+using VietWay.Service.DataTransferObject;
+using VietWay.Service.Interface;
 
 namespace VietWay.API.Customer.Controllers
 {
@@ -9,28 +11,42 @@ namespace VietWay.API.Customer.Controllers
     /// </summary>
     [Route("api/attractions")]
     [ApiController]
-    public class AttractionController : ControllerBase
+    public class AttractionController(IAttractionService attractionService, ITourTemplateService tourTemplateService) : ControllerBase
     {
+        private readonly ITourTemplateService _tourTemplateService = tourTemplateService;
+        private readonly IAttractionService _attractionService = attractionService;
         /// <summary>
-        /// [All] {WIP} Get all attractions
+        /// ✅[All] Get all attractions
         /// </summary>
         /// <returns> List of attractions</returns>
         /// <response code="200">Return list of attractions</response>
         [HttpGet]
         [Produces("application/json")]
-        [ProducesResponseType(StatusCodes.Status200OK,Type = typeof(DefaultResponseModel<object>))]
-        public Task<IActionResult> GetAttractions(
-            string? nameSearch, 
-            [FromQuery] List<string>? provinceIds, 
-            [FromQuery] List<string>? attractionTypeIds,
-            int? pageSize,
-            int? pageIndex)
+        [ProducesResponseType(StatusCodes.Status200OK,Type = typeof(DefaultResponseModel<PaginatedList<AttractionPreviewDTO>>))]
+        public async Task<IActionResult> GetAttractions(string? nameSearch, [FromQuery] List<string>? provinceIds, 
+            [FromQuery] List<string>? attractionTypeIds,int? pageSize,int? pageIndex)
         {
-            throw new NotImplementedException();
+            int checkedPageSize = pageSize ?? 10;
+            int checkedPageIndex = pageIndex ?? 1;
+
+            (int totalCount, List<AttractionPreviewDTO> items) = await _attractionService.GetAllApprovedAttractionsAsync(
+                nameSearch, provinceIds, attractionTypeIds, checkedPageSize, checkedPageIndex);
+            return Ok(new DefaultResponseModel<PaginatedList<AttractionPreviewDTO>>()
+            {
+                Message = "Success",
+                Data = new PaginatedList<AttractionPreviewDTO>
+                {
+                    Items = items,
+                    PageSize = checkedPageSize,
+                    PageIndex = checkedPageIndex,
+                    Total = totalCount
+                },
+                StatusCode = StatusCodes.Status200OK
+            });
         }
 
         /// <summary>
-        /// [All] {WIP} Get attraction by ID
+        /// ✅[All] Get attraction by ID
         /// </summary>
         /// <param name="attractionId"></param>
         /// <returns> Attraction details</returns>
@@ -40,23 +56,43 @@ namespace VietWay.API.Customer.Controllers
         [Produces("application/json")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(DefaultResponseModel<object>))]
         [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(DefaultResponseModel<object>))]
-        public Task<IActionResult> GetAttractionById(string attractionId)
+        public async Task<IActionResult> GetAttractionById(string attractionId)
         {
-            throw new NotImplementedException();
+            AttractionDetailDTO? attractionDetailDTO = await _attractionService.GetApprovedAttractionDetailById(attractionId);
+            if (attractionDetailDTO == null)
+            {
+                return NotFound(new DefaultResponseModel<object>
+                {
+                    Message = "Attraction not found",
+                    Data = null,
+                    StatusCode = StatusCodes.Status404NotFound
+                });
+            }
+            return Ok(new DefaultResponseModel<AttractionDetailDTO>
+            {
+                Message = "Success",
+                Data = attractionDetailDTO,
+                StatusCode = StatusCodes.Status200OK
+            });
         }
         /// <summary>
-        /// [All] Get tour templates related to attraction
+        /// ✅[All] Get tour templates related to attraction
         /// </summary>
         /// <returns> List of tour templates related to this attraction </returns>
         /// <response code="200">Return list of tour templates</response>
         /// <response code="404">Attraction not found</response>
         [HttpGet("{attractionId}/tour-templates")]
         [Produces("application/json")]
-        [ProducesResponseType<DefaultResponseModel<List<object>>>(StatusCodes.Status200OK)]
+        [ProducesResponseType<DefaultResponseModel<List<TourTemplatePreviewDTO>>>(StatusCodes.Status200OK)]
         [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> GetRelatedTourTemplates(string attractionId)
+        public async Task<IActionResult> GetRelatedTourTemplates(string attractionId, int previewCount)
         {
-            throw new NotImplementedException();
+            return Ok(new DefaultResponseModel<List<TourTemplatePreviewDTO>>
+            {
+                Data = await _tourTemplateService.GetTourTemplatesPreviewRelatedToAttractionAsync(attractionId, previewCount),
+                Message = "Success",
+                StatusCode = StatusCodes.Status200OK
+            });
         }
     }
 }

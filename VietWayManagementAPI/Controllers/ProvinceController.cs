@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using VietWay.API.Management.ResponseModel;
 using VietWay.Repository.EntityModel;
+using VietWay.Service.DataTransferObject;
 using VietWay.Service.Interface;
 
 namespace VietWay.API.Management.Controllers
@@ -23,15 +24,13 @@ namespace VietWay.API.Management.Controllers
         /// <response code="200">Return list of provinces</response>
         [HttpGet]
         [Produces("application/json")]
-        [ProducesResponseType<DefaultResponseModel<List<ProvincePreview>>>(StatusCodes.Status200OK)]
+        [ProducesResponseType<DefaultResponseModel<List<ProvincePreviewDTO>>>(StatusCodes.Status200OK)]
         public async Task<IActionResult> GetAllProvinces()
         {
-            List<Province> provinces = await _provinceService.GetAllProvince();
-            List<ProvincePreview> response = _mapper.Map<List<ProvincePreview>>(provinces);
-            return Ok(new DefaultResponseModel<List<ProvincePreview>>() 
+            return Ok(new DefaultResponseModel<List<ProvincePreviewDTO>>() 
             { 
                 Message= "Get all province successfully",
-                Data = response,
+                Data = await _provinceService.GetAllProvinces(),
                 StatusCode = StatusCodes.Status200OK
             });
         }
@@ -44,7 +43,7 @@ namespace VietWay.API.Management.Controllers
         /// <response code="404">Province not found</response>
         [HttpGet("{provinceId}")]
         [Produces("application/json")]
-        [ProducesResponseType<DefaultResponseModel<ProvincePreview>>(StatusCodes.Status200OK)]
+        [ProducesResponseType<DefaultResponseModel<ProvinceBriefPreviewDTO>>(StatusCodes.Status200OK)]
         public async Task<IActionResult> GetProvinceById(string provinceId)
         {
             Province? province = await _provinceService
@@ -59,11 +58,11 @@ namespace VietWay.API.Management.Controllers
                 return NotFound(response);
             } else
             {
-                DefaultResponseModel<ProvincePreview> response = new()
+                DefaultResponseModel<ProvinceBriefPreviewDTO> response = new()
                 {
                     Message = "Get province successfully",
                     StatusCode = StatusCodes.Status200OK,
-                    Data = _mapper.Map<ProvincePreview>(province)
+                    Data = _mapper.Map<ProvinceBriefPreviewDTO>(province)
                 };
                 return Ok(response);
             }

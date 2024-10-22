@@ -1,23 +1,31 @@
 ﻿using Microsoft.AspNetCore.Http;
 using VietWay.Repository.EntityModel;
 using VietWay.Repository.EntityModel.Base;
+using VietWay.Service.DataTransferObject;
 
 namespace VietWay.Service.Interface
 {
     public interface IAttractionService
     {
-        public Task<string> CreateAttraction(Attraction attraction);
-        public Task DeleteAttraction(Attraction attraction);
-        public Task UpdateAttraction(Attraction newAttraction);
-        public Task<(int totalCount, List<Attraction> items)> GetAllAttractions(
+        public Task<string> CreateAttractionAsync(Attraction attraction);
+        public Task DeleteAttractionAsync(string attractionId);
+        public Task UpdateAttractionAsync(Attraction newAttraction);
+        public Task<(int totalCount, List<AttractionPreviewWithCreateAtDTO> items)> GetAllAttractionsWithCreatorAsync(
             string? nameSearch,
             List<string>? provinceIds,
             List<string>? attractionTypeIds,
             AttractionStatus? status,
             int pageSize,
             int pageIndex);
-        public Task<Attraction?> GetAttractionById(string attractionId);
+        public Task<AttractionDetailWithCreatorDTO_NEEDFIX?> GetAttractionWithCreateDateByIdAsync(string attractionId);
+        public Task UpdateAttractionImageAsync(string attractionId, List<IFormFile>? imageFiles, List<string>? imageIdsToRemove);
 
-        public Task UpdateAttractionImage(Attraction attraction, List<IFormFile>? imageFiles, List<string>? removedImageIds);
+        public Task<AttractionDetailDTO?> GetApprovedAttractionDetailById(string attractionId);
+        public Task<(int totalCount, List<AttractionPreviewDTO> items)> GetAllApprovedAttractionsAsync(
+            string? nameSearch,
+            List<string>? provinceIds,
+            List<string>? attractionTypeIds,
+            int pageSize,
+            int pageIndex);
     }
 }

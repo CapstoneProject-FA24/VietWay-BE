@@ -1,4 +1,5 @@
 ﻿using VietWay.Repository.EntityModel.Base;
+using VietWay.Service.DataTransferObject;
 
 namespace VietWay.API.Management.ResponseModel
 {
@@ -15,9 +16,9 @@ namespace VietWay.API.Management.ResponseModel
         public TourTemplateStatus Status { get; set; }
         public required DateTime CreatedDate { get; set; }
         public required string CreatorName { get; set; }
-        public required List<ProvincePreview> Provinces { get; set; }
+        public required List<ProvinceBriefPreviewDTO> Provinces { get; set; }
         public required List<ScheduleDetail> Schedules { get; set; }
-        public required List<ImageDetail> Images { get; set; }
+        public required List<ImageDTO> Images { get; set; }
     }
     public class ScheduleDetail
     {

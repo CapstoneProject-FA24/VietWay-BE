@@ -3,26 +3,31 @@ using VietWay.Repository.GenericRepository;
 
 namespace VietWay.Repository.UnitOfWork
 {
-    public interface IUnitOfWork : IDisposable
+    public interface IUnitOfWork : IDisposable, IAsyncDisposable
     {
         public IGenericRepository<Account> AccountRepository { get; }
+        public IGenericRepository<Admin> AdminRepository { get; }
         public IGenericRepository<Attraction> AttractionRepository { get; }
-        public IGenericRepository<Customer> CustomerInfoRepository { get; }
-        public IGenericRepository<Image> ImageRepository { get; }
-        public IGenericRepository<Manager> ManagerInfoRepository { get; }
-        public IGenericRepository<Province> ProvinceRepository { get; }
-        public IGenericRepository<TourTemplate> TourTemplateRepository { get; }
-        public IGenericRepository<Tour> TourRepository { get; }
-        public IGenericRepository<Staff> StaffRepository { get; }
-        public IGenericRepository<TourCategory> TourCategoryRepository { get; }
-        public IGenericRepository<AttractionType> AttractionTypeRepository { get; }
-        public IGenericRepository<AttractionImage> AttractionImageRepository { get; }
-        public IGenericRepository<TourDuration> TourDurationRepository { get; }
-        public IGenericRepository<TourTemplateSchedule> TourTemplateScheduleRepository { get; }
-        public IGenericRepository<AttractionSchedule> AttractionScheduleRepository { get; }
-        public IGenericRepository<CustomerFeedback> CustomerFeedbackRepository { get; }
-        public IGenericRepository<TourBooking> TourBookingRepository { get; }
+        public IGenericRepository<AttractionCategory> AttractionCategoryRepository { get; }
+        public IGenericRepository<Booking> BookingRepository { get; }
         public IGenericRepository<BookingPayment> BookingPaymentRepository { get; }
-        void Save();
+        public IGenericRepository<Customer> CustomerRepository { get; }
+        public IGenericRepository<EntityHistory> EntityHistoryRepository { get; }
+        public IGenericRepository<EntityStatusHistory> EntityStatusHistoryRepository { get; }
+        public IGenericRepository<Event> EventRepository { get; }
+        public IGenericRepository<EventCategory> EventCategoryRepository { get; }
+        public IGenericRepository<Feedback> FeedbackRepository { get; }
+        public IGenericRepository<Manager> ManagerRepository { get; }
+        public IGenericRepository<Post> PostRepository { get; }
+        public IGenericRepository<PostCategory> PostCategoryRepository { get; }
+        public IGenericRepository<Province> ProvinceRepository { get; }
+        public IGenericRepository<Staff> StaffRepository { get; }
+        public IGenericRepository<Tour> TourRepository { get; }
+        public IGenericRepository<TourCategory> TourCategoryRepository { get; }
+        public IGenericRepository<TourDuration> TourDurationRepository { get; }
+        public IGenericRepository<TourTemplate> TourTemplateRepository { get; }
+        public Task BeginTransactionAsync();
+        public Task CommitTransactionAsync();
+        public Task RollbackTransactionAsync();
     }
 }

@@ -16,7 +16,7 @@ namespace VietWay.Service.Implement
         public async Task<(int totalCount, List<Manager> items)> GetAllManagerInfos(int pageSize, int pageIndex)
         {
             var query = _unitOfWork
-                .ManagerInfoRepository
+                .ManagerRepository
                 .Query();
             int count = await query.CountAsync();
             List<Manager> items = await query
@@ -29,22 +29,22 @@ namespace VietWay.Service.Implement
         public async Task<Manager?> GetManagerInfoById(string id)
         {
             return await _unitOfWork
-                .ManagerInfoRepository
+                .ManagerRepository
                 .Query()
                 .Include(x => x.Account)
                 .SingleOrDefaultAsync(x => x.ManagerId.Equals(id));
         }
         public async Task<Manager> EditManagerInfo(Manager managerInfo)
         {
-            await _unitOfWork.ManagerInfoRepository
-                .Update(managerInfo);
+            await _unitOfWork.ManagerRepository
+                .UpdateAsync(managerInfo);
             return managerInfo;
         }
 
         public async Task<Manager> AddManager(Manager managerInfo)
         {
-            await _unitOfWork.ManagerInfoRepository
-                .Create(managerInfo);
+            await _unitOfWork.ManagerRepository
+                .CreateAsync(managerInfo);
             return managerInfo;
         }
     }

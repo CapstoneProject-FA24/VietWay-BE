@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using VietWay.API.Customer.ResponseModel;
+using VietWay.Service.DataTransferObject;
+using VietWay.Service.Interface;
 
 namespace VietWay.API.Customer.Controllers
 {
@@ -9,19 +11,23 @@ namespace VietWay.API.Customer.Controllers
     /// </summary>
     [Route("api/tour-categories")]
     [ApiController]
-    public class TourCategoryController : ControllerBase
+    public class TourCategoryController(ITourCategoryService tourCategoryService) : ControllerBase
     {
+        private readonly ITourCategoryService _tourCategoryService = tourCategoryService;
         /// <summary>
-        /// [All] {WIP} Get tour categories
+        /// ✅[All] Get tour categories
         /// </summary>
-        /// <returns> List of tour category</returns>
-        /// <response code="200">Get tour category list successfully</response>
         [HttpGet]
         [Produces("application/json")]
         [ProducesResponseType<DefaultResponseModel<List<object>>>(StatusCodes.Status200OK)]
         public async Task<IActionResult> GetTourCategories()
         {
-            throw new NotImplementedException();
+            return Ok(new DefaultResponseModel<List<TourCategoryDTO>>()
+            {
+                Data = await _tourCategoryService.GetAllTourCategory(),
+                Message = "Success",
+                StatusCode = StatusCodes.Status200OK
+            });
         }
     }
 }

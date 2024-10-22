@@ -9,20 +9,20 @@ namespace VietWay.Repository.EntityModel
         [Key]
         [StringLength(20)]
         public required string PaymentId { get; set; }
-        [ForeignKey(nameof(TourBooking))]
+        [ForeignKey(nameof(Booking))]
         [StringLength(20)]
         public required string BookingId { get; set; }
         [Range(0.00, 999999999999.99)]
         [Column(TypeName = "decimal(18,2)")]
         public required decimal Amount { get; set; }
         public string? Note { get; set; }
-        public required DateTime CreateOn { get; set; }
+        public required DateTime CreateAt { get; set; }
         public string? BankCode { get; set; }
         public string? BankTransactionNumber { get; set; }
         public DateTime? PayTime { get; set; }
         public string? ThirdPartyTransactionNumber { get; set; }
         public required PaymentStatus Status { get; set; }
 
-        public virtual TourBooking? TourBooking { get; set; }
+        public virtual Booking? Booking { get; set; }
     }
 }

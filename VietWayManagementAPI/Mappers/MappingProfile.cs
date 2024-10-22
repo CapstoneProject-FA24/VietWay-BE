@@ -23,8 +23,7 @@ namespace VietWay.API.Management.Mappers
                     TourCategoryId = src.TourCategory.TourCategoryId,
                     TourCategoryName = src.TourCategory.Name
                 }))
-                .ForMember(dest => dest.CreatorName, opt => opt.MapFrom(src => src.Creator.FullName))
-                .ForMember(dest => dest.Provinces, opt => opt.MapFrom(src => src.TourTemplateProvinces.Select(x => new ProvincePreview()
+                .ForMember(dest => dest.Provinces, opt => opt.MapFrom(src => src.TourTemplateProvinces.Select(x => new ProvinceBriefPreviewDTO()
                 {
                     ProvinceId = x.Province.ProvinceId,
                     ProvinceName = x.Province.ProvinceName
@@ -40,53 +39,28 @@ namespace VietWay.API.Management.Mappers
                         Name = y.Attraction.Name
                     }).ToList()
                 }).ToList()))
-                .ForMember(dest => dest.Images, opt => opt.MapFrom(src => src.TourTemplateImages.Select(x => new ImageDetail()
+                .ForMember(dest => dest.Images, opt => opt.MapFrom(src => src.TourTemplateImages.Select(x => new ImageDTO()
                 {
                     ImageId = x.ImageId,
-                    Url = x.Image.Url
+                    Url = x.ImageUrl
                 }).ToList()));
             CreateMap<TourTemplate, TourTemplatePreview>()
-                .ForMember(dest => dest.CreatorName, opt => opt.MapFrom(src => src.Creator.FullName))
                 .ForMember(dest => dest.Provinces, opt => opt.MapFrom(src => src.TourTemplateProvinces.Select(x => x.Province.ProvinceName).ToList()))
-                .ForMember(dest => dest.ImageUrl, opt => opt.MapFrom(src => src.TourTemplateImages.Select(x => x.Image.Url).FirstOrDefault()))
+                .ForMember(dest => dest.ImageUrl, opt => opt.MapFrom(src => src.TourTemplateImages.Select(x => x.ImageUrl).FirstOrDefault()))
                 .ForMember(dest => dest.TourTemplateId, opt => opt.MapFrom(src => src.TourTemplateId))
                 .ForMember(dest => dest.Duration, opt => opt.MapFrom(src => src.TourDuration.DurationName))
                 .ForMember(dest => dest.TourCategory, opt => opt.MapFrom(src => src.TourCategory.Name));
-            CreateMap<Province, ProvincePreview>();
             CreateMap<CreateAttractionRequest, Attraction>()
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name ?? ""))
                 .ForMember(dest => dest.Address, opt => opt.MapFrom(src => src.Address ?? ""))
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description ?? ""))
                 .ForMember(dest => dest.ContactInfo, opt => opt.MapFrom(src => src.ContactInfo ?? ""))
                 .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.IsDraft ? AttractionStatus.Draft : AttractionStatus.Pending));
-            CreateMap<Attraction, AttractionPreview>()
-                .ForMember(dest => dest.Province, opt => opt.MapFrom(src => src.Province.ProvinceName))
-                .ForMember(dest => dest.AttractionType, opt => opt.MapFrom(src => src.AttractionType.Name))
-                .ForMember(dest => dest.ImageUrl, src => src.MapFrom(x => x.AttractionImages.FirstOrDefault().Image.Url))
-                .ForMember(dest => dest.CreatorName, opt => opt.MapFrom(src => src.Creator.FullName));
-            CreateMap<Attraction, AttractionDetail>()
-                .ForMember(dest => dest.Province, opt => opt.MapFrom(src => new ProvincePreview()
-                {
-                    ProvinceId = src.ProvinceId,
-                    ProvinceName = src.Province.ProvinceName
-                }))
-                .ForMember(dest => dest.AttractionType, opt => opt.MapFrom(src => new AttractionTypePreview()
-                {
-                    AttractionTypeId = src.AttractionTypeId,
-                    AttractionTypeName = src.AttractionType.Name
-                }))
-                .ForMember(dest => dest.Images, opt => opt.MapFrom(src => src.AttractionImages.Select(x => new ImageDetail()
-                {
-                    ImageId = x.ImageId,
-                    Url = x.Image.Url
-                }).ToList()))
-                .ForMember(dest => dest.CreatorName, opt => opt.MapFrom(src => src.Creator.FullName));
             CreateMap<TourCategory, TourCategoryPreview>()
                 .ForMember(dest => dest.TourCategoryName, opt => opt.MapFrom(src => src.Name));
             CreateMap<TourDuration, DurationDetail>()
                 .ForMember(dest => dest.DayNumber, opt => opt.MapFrom(src => src.NumberOfDay));
-            CreateMap<AttractionType, AttractionTypePreview>()
-                .ForMember(dest => dest.AttractionTypeName, opt => opt.MapFrom(src => src.Name));
+            CreateMap<AttractionCategory, AttractionCategoryPreviewDTO>();
             CreateMap<Tour, TourPreview>();
             CreateMap<CreateTourTemplateRequest, TourTemplate>()
                 .ForMember(dest => dest.TourName, opt => opt.MapFrom(src => src.TourName ?? ""))
@@ -118,7 +92,7 @@ namespace VietWay.API.Management.Mappers
                 .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.IsDraft ? TourTemplateStatus.Draft : TourTemplateStatus.Pending));
             CreateMap<Tour, TourDetail>();
             CreateMap<AttractionSchedule, AttractionSchedulePreview>();
-            CreateMap<CustomerFeedback, CustomerFeedbackPreview>();
+            CreateMap<Feedback, CustomerFeedbackPreview>();
             CreateMap<VnPayIPNRequest, VnPayIPN>();
         }
     }

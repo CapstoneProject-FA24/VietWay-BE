@@ -1,9 +1,9 @@
-﻿using VietWay.Repository.EntityModel;
+﻿using VietWay.Service.DataTransferObject;
 
 namespace VietWay.Service.Interface
 {
     public interface ITourCategoryService
     {
-        public Task<List<TourCategory>> GetAllTourCategory();
+        public Task<List<TourCategoryDTO>> GetAllTourCategory();
     }
 }

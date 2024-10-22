@@ -38,5 +38,7 @@ namespace VietWay.Service.Interface
             decimal? maxPrice,
             int pageSize,
             int pageIndex);
+
+        public Task<List<TourTemplatePreviewDTO>> GetTourTemplatesPreviewRelatedToAttractionAsync(string attractionId, int previewCount);
     }
 }

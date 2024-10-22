@@ -90,8 +90,7 @@ namespace VietWay.API.Customer.Controllers
             var (count,items) = await _tourTemplateService.GetAllTemplateWithActiveToursAsync(
                 nameSearch,templateCategoryIds,provinceIds,numberOfDay,startDateFrom,
                 startDateTo,minPrice,maxPrice,checkedPageSize,checkedPageIndex);
-
-            return Ok(new DefaultResponseModel<DefaultPageResponse<TourTemplateWithTourInfoDTO>>()
+            return Ok(new DefaultResponseModel<PaginatedList<TourTemplateWithTourInfoDTO>>()
             {
                 Message = "Get tour template successfully",
                 StatusCode = StatusCodes.Status200OK,
@@ -104,6 +103,5 @@ namespace VietWay.API.Customer.Controllers
                 }
             });
         }
-
     }
 }

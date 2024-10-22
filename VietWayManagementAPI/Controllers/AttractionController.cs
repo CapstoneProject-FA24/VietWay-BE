@@ -1,10 +1,13 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using VietWay.API.Management.RequestModel;
 using VietWay.API.Management.ResponseModel;
 using VietWay.Repository.EntityModel;
 using VietWay.Repository.EntityModel.Base;
+using VietWay.Service.DataTransferObject;
 using VietWay.Service.Interface;
+using VietWay.Util.TokenUtil;
 
 namespace VietWay.API.Management.Controllers
 {
@@ -13,120 +16,104 @@ namespace VietWay.API.Management.Controllers
     /// </summary>
     [Route("api/attractions")]
     [ApiController]
-    public class AttractionController(IAttractionService attractionService, IMapper mapper) : ControllerBase
+    public class AttractionController(IAttractionService attractionService, IMapper mapper, ITokenHelper tokenHelper) : ControllerBase
     {
         private readonly IAttractionService _attractionService = attractionService;
         private readonly IMapper _mapper = mapper;
+        private readonly ITokenHelper _tokenHelper = tokenHelper;
 
         /// <summary>
-        /// [Manager][Staff] Get all attractions
+        /// ✅🔐[Manager][Staff] Get attraction list with filter and paging
         /// </summary>
-        /// <returns>List of attraction</returns>
-        /// <response code="200">Return list of attractions</response>
+        /// <response code="200">Success</response>
+        /// <response code="401">Unauthorized</response>
         [HttpGet]
         [Produces("application/json")]
-        [ProducesResponseType<DefaultResponseModel<DefaultPageResponse<AttractionPreview>>>(StatusCodes.Status200OK)]
-        public async Task<IActionResult> GetAllAttractionsAsync(
-            string? nameSearch,
-            [FromQuery] List<string>? provinceIds,
-            [FromQuery] List<string>? attractionTypeIds,
-            AttractionStatus? status,
-            int? pageSize,
-            int? pageIndex)
+        [Authorize(Roles = $"{nameof(UserRole.Manager)},{nameof(UserRole.Staff)}")]
+        [ProducesResponseType<DefaultResponseModel<PaginatedList<AttractionPreviewWithCreateAtDTO>>>(StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetAllAttractionsAsync(string? nameSearch, [FromQuery] List<string>? provinceIds, [FromQuery] List<string>? attractionTypeIds, AttractionStatus? status, int? pageSize, int? pageIndex)
         {
             int checkedPageSize = (pageSize == null || pageSize < 1) ? 10 : (int)pageSize;
             int checkedPageIndex = (pageIndex == null || pageIndex < 1) ? 1 : (int)pageIndex;
-
-            var (totalCount, items) = await _attractionService.GetAllAttractions(nameSearch, provinceIds, attractionTypeIds, status, checkedPageSize, checkedPageIndex);
-            List<AttractionPreview> attractionPreviews = _mapper.Map<List<AttractionPreview>>(items);
-            DefaultPageResponse<AttractionPreview> pagedResponse = new()
+            var (totalCount, items) = await _attractionService.GetAllAttractionsWithCreatorAsync(nameSearch, provinceIds, attractionTypeIds, status, checkedPageSize, checkedPageIndex);
+            
+            return Ok(new DefaultResponseModel<PaginatedList<AttractionPreviewWithCreateAtDTO>>
             {
-                Total = totalCount,
-                PageSize = checkedPageSize,
-                PageIndex = checkedPageIndex,
-                Items = attractionPreviews
-            };
-            DefaultResponseModel<DefaultPageResponse<AttractionPreview>> response = new()
-            {
-                Data = pagedResponse,
-                Message = "Get all attractions successfully",
+                Data = new()
+                {
+                    Total = totalCount,
+                    PageSize = checkedPageSize,
+                    PageIndex = checkedPageIndex,
+                    Items = items
+                },
+                Message = "Success",
                 StatusCode = StatusCodes.Status200OK
-            };
-            return Ok(response);
+            });
         }
 
         /// <summary>
-        /// [Manager][Staff] Get attraction by ID
+        /// ✅🔐[Manager][Staff] Get attraction by ID
         /// </summary>
         /// <returns>Attraction detail</returns>
-        /// <response code="200">Return attraction details</response>
-        /// <response code="404">Attraction not found</response>
+        /// <response code="200">Success</response>
+        /// <response code="401">Unauthorized</response>
+        /// <response code="404">Not found</response>
         [HttpGet("{attractionId}")]
         [Produces("application/json")]
-        [ProducesResponseType<DefaultResponseModel<AttractionDetail>>(StatusCodes.Status200OK)]
+        [ProducesResponseType<DefaultResponseModel<AttractionDetailWithCreatorDTO_NEEDFIX>>(StatusCodes.Status200OK)]
         [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetAttractionById(string attractionId)
         {
-            Attraction? attraction = await _attractionService.GetAttractionById(attractionId);
+            AttractionDetailWithCreatorDTO_NEEDFIX? attraction = await _attractionService.GetAttractionWithCreateDateByIdAsync(attractionId);
             if (null == attraction)
             {
-                DefaultResponseModel<object> response = new()
+                return NotFound(new DefaultResponseModel<object>
                 {
-                    Message = "Attraction not found",
+                    Message = "Not found",
                     StatusCode = StatusCodes.Status404NotFound
-                };
-                return NotFound(response);
+                });
             }
-            else 
+
+            return Ok(new DefaultResponseModel<AttractionDetailWithCreatorDTO_NEEDFIX>
             {
-                DefaultResponseModel<AttractionDetail> response = new()
-                {
-                    Message = "Get attraction successfully",
-                    StatusCode = StatusCodes.Status200OK,
-                    Data = _mapper.Map<AttractionDetail>(attraction)
-                };
-                return Ok(response);
-            }
+                Message = "Get attraction successfully",
+                StatusCode = StatusCodes.Status200OK,
+                Data = attraction
+            });
         }
 
         /// <summary>
-        /// [Staff] Create new attraction
+        /// ✅🔐[Staff] Create new attraction
         /// </summary>
-        /// <param name="request"></param>
-        /// <returns></returns>
+        /// <response code="201">Created</response>
+        /// <response code="400">Bad request</response>
+        /// <response code="401">Unauthorized</response>
         [HttpPost]
+        [Authorize(Roles = nameof(UserRole.Staff))]
         [Produces("application/json")]
-        [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status200OK)]
+        [ProducesResponseType<DefaultResponseModel<string>>(StatusCodes.Status200OK)]
         public async Task<IActionResult> CreateAttractionAsync(CreateAttractionRequest request)
         {
-            Attraction attraction = _mapper.Map<Attraction>(request);
-            if (false == request.IsDraft &&
-                (string.IsNullOrWhiteSpace(request.Name)||
-                string.IsNullOrWhiteSpace(request.Address)||
-                string.IsNullOrWhiteSpace(request.ContactInfo)||
-                string.IsNullOrWhiteSpace(request.Description)))
+            string? staffId = _tokenHelper.GetAccountIdFromToken(HttpContext) ?? "1";
+            if (string.IsNullOrWhiteSpace(staffId))
             {
-                DefaultResponseModel<object> errorResponse = new()
+                return Unauthorized(new DefaultResponseModel<object>
                 {
-                    Message = "Incomplete attraction information",
-                    StatusCode = StatusCodes.Status400BadRequest
-                };
-                return BadRequest(errorResponse);
-            } 
-            attraction.CreatedBy = "1"; 
-            #warning Need to be replaced by staffid from jwt
-            attraction.CreatedDate = DateTime.UtcNow;
-            await _attractionService.CreateAttraction(attraction);
-            DefaultResponseModel<object> response = new()
+                    Message = "Unauthorized",
+                    StatusCode = StatusCodes.Status401Unauthorized
+                });
+            }
+            Attraction attraction = _mapper.Map<Attraction>(request);
+            string attractionId = await _attractionService.CreateAttractionAsync(attraction);
+            return Ok(new DefaultResponseModel<string>
             {
                 Message = "Create attraction successfully",
-                StatusCode = StatusCodes.Status200OK
-            };
-            return Ok(response);
+                StatusCode = StatusCodes.Status200OK,
+                Data = attractionId
+            });
         }
-
         /// <summary>
-        /// [Staff] Update attraction
+        /// ✅🔐[Staff] Update attraction
         /// </summary>
         /// <returns>Update attraction message</returns>
         /// <response code="200">Return update attraction message</response>
@@ -136,46 +123,11 @@ namespace VietWay.API.Management.Controllers
         [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status200OK)]
         public async Task<IActionResult> UpdateAttractionAsync(string attractionId,CreateAttractionRequest request)
         {
-            Attraction? attraction = await _attractionService.GetAttractionById(attractionId);
-            if (null == attraction)
-            {
-                DefaultResponseModel<object> errorResponse = new()
-                {
-                    Message = "Attraction not found",
-                    StatusCode = StatusCodes.Status404NotFound
-                };
-                return NotFound(errorResponse);
-            }
-            if (false == request.IsDraft &&
-                (string.IsNullOrWhiteSpace(request.Name) ||
-                string.IsNullOrWhiteSpace(request.Address) ||
-                string.IsNullOrWhiteSpace(request.ContactInfo) ||
-                string.IsNullOrWhiteSpace(request.Description)))
-            {
-                DefaultResponseModel<object> errorResponse = new()
-                {
-                    Message = "Incomplete attraction information",
-                    StatusCode = StatusCodes.Status400BadRequest
-                };
-                return BadRequest(errorResponse);
-            }
+            Attraction attraction = _mapper.Map<Attraction>(request);
+            attraction.AttractionId = attractionId;
 
-            attraction.Address = request.Address ??"";
-            attraction.ContactInfo = request.ContactInfo ?? "";
-            attraction.Description = request.Description ?? "";
-            attraction.GooglePlaceId = request.GooglePlaceId;
-            attraction.Name = request.Name ?? "";
-            attraction.ProvinceId = request.ProvinceId;
-            attraction.Website = request.Website;
-            attraction.AttractionTypeId = request.AttractionTypeId;
-            attraction.Status = request.IsDraft ? AttractionStatus.Draft : AttractionStatus.Pending;
-            await _attractionService.UpdateAttraction(attraction);
-            DefaultResponseModel<object> response = new()
-            {
-                Message = "Update successfully",
-                StatusCode = StatusCodes.Status200OK
-            };
-            return Ok(response);
+            await _attractionService.UpdateAttractionAsync(attraction);
+            return Ok();
         }
 
         /// <summary>
@@ -189,7 +141,7 @@ namespace VietWay.API.Management.Controllers
         [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status200OK)]
         public async Task<IActionResult> DeleteAttractionAsync(string attractionId)
         {
-            Attraction? attraction = await _attractionService.GetAttractionById(attractionId);
+            Attraction? attraction = null;
             if (null == attraction)
             {
                 DefaultResponseModel<object> errorResponse = new()
@@ -199,7 +151,7 @@ namespace VietWay.API.Management.Controllers
                 };
                 return NotFound(errorResponse);
             }
-            await _attractionService.DeleteAttraction(attraction);
+            await _attractionService.DeleteAttractionAsync(attractionId);
             DefaultResponseModel<object> response = new()
             {
                 Message = "Delete successfully",
@@ -228,7 +180,7 @@ namespace VietWay.API.Management.Controllers
                 };
                 return BadRequest(errorResponse);
             }
-            Attraction? attraction = await _attractionService.GetAttractionById(attractionId);
+            Attraction? attraction = null;
             if (null == attraction)
             {
                 DefaultResponseModel<object> errorResponse = new()
@@ -238,7 +190,7 @@ namespace VietWay.API.Management.Controllers
                 };
                 return NotFound(errorResponse);
             }
-            await _attractionService.UpdateAttractionImage(attraction, request.NewImages, request.DeletedImageIds);
+            await _attractionService.UpdateAttractionImageAsync(attractionId, request.NewImages, request.DeletedImageIds);
             DefaultResponseModel<object> response = new()
             {
                 Message = "Update image successfully",
