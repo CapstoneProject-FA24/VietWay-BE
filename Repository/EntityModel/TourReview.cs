@@ -15,6 +15,7 @@ namespace VietWay.Repository.EntityModel
         public required int Rating { get; set; }
         public required string Content { get; set; }
         public required DateTime CreatedAt { get; set; }
+        public bool IsPublic { get; set; }
 
         public virtual Booking? Booking { get; set; }
     }
