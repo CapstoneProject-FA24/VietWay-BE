@@ -9,8 +9,10 @@ namespace VietWay.API.Customer.Mappers
     {
         public MappingProfile()
         {
-            CreateMap<Tour, TourPreview>();
-            CreateMap<Tour, TourDetail>();
+            CreateMap<Tour, TourPreview>()
+                .ForMember(x=>x.Price, opt=>opt.MapFrom(src=>src.DefaultTouristPrice));
+            CreateMap<Tour, TourDetail>()
+                .ForMember(x => x.Price, opt => opt.MapFrom(src => src.DefaultTouristPrice));
             CreateMap<TourTemplate, TourTemplatePreview>()
                 .ForMember(dest => dest.Provinces, opt => opt.MapFrom(src => src.TourTemplateProvinces.Select(x => x.Province.ProvinceName).ToList()))
                 .ForMember(dest => dest.ImageUrl, opt => opt.MapFrom(src => src.TourTemplateImages.Select(x => x.ImageUrl).FirstOrDefault()))
