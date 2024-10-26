@@ -16,7 +16,7 @@ namespace VietWay.Repository.UnitOfWork
         public IGenericRepository<EntityStatusHistory> EntityStatusHistoryRepository { get; }
         public IGenericRepository<Event> EventRepository { get; }
         public IGenericRepository<EventCategory> EventCategoryRepository { get; }
-        public IGenericRepository<Feedback> FeedbackRepository { get; }
+        public IGenericRepository<TourReview> FeedbackRepository { get; }
         public IGenericRepository<Manager> ManagerRepository { get; }
         public IGenericRepository<Post> PostRepository { get; }
         public IGenericRepository<PostCategory> PostCategoryRepository { get; }

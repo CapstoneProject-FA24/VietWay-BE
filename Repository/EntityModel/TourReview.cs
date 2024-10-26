@@ -4,11 +4,11 @@ using VietWay.Repository.EntityModel.Base;
 
 namespace VietWay.Repository.EntityModel
 {
-    public class Feedback : SoftDeleteEntity
+    public class TourReview : SoftDeleteEntity
     {
         [Key]
         [StringLength(20)]
-        public required string FeedbackId { get; set; }
+        public required string ReviewId { get; set; }
         [ForeignKey(nameof(Booking))]
         [StringLength(20)]
         public required string BookingId { get; set; }

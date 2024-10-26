@@ -35,9 +35,9 @@ namespace VietWay.Repository.EntityModel
 
         public virtual Tour? Tour { get; set; }
         public virtual Customer? CustomerInfo { get; set; }
-        public virtual Feedback? CustomerFeedback { get; set; }
+        public virtual TourReview? CustomerFeedback { get; set; }
 
         public virtual ICollection<BookingPayment>? BookingPayments { get; set; }
-        public virtual ICollection<BookingTourParticipant>? BookingTourParticipants { get; set; }
+        public virtual ICollection<BookingTourist>? BookingTourParticipants { get; set; }
     }
 }

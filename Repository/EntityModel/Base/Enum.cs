@@ -41,8 +41,10 @@
     {
         Pending,
         Confirmed,
-        Cancelled,
         Completed,
+        Expired,
+        Cancelled,
+        PendingRefund,
         Refunded
     }
     public enum PaymentStatus
