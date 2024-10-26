@@ -20,7 +20,9 @@ namespace VietWay.Repository.EntityModel
         public string? TourCategoryId { get; set; }
         public string? Note { get; set; }
         public required TourTemplateStatus Status { get; set; }
+        [Column(TypeName = "decimal(18,2)")]
         public decimal? MinPrice { get; set; }
+        [Column(TypeName = "decimal(18,2)")]
         public decimal? MaxPrice { get; set; }
         public required DateTime CreatedAt { get; set; }
 

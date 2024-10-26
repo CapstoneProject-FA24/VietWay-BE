@@ -27,7 +27,6 @@ namespace VietWay.Service.DataTransferObject
 
         public required string StartLocation { get; set; }
         public required DateTime StartDate { get; set; }
-        public required DateTime EndDate { get; set; }
 
         public required string TourName { get; set; }
         public required string ImageUrl { get; set; }

@@ -6,14 +6,16 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using VietWay.Repository.EntityModel.Base;
 
 namespace VietWay.Repository.EntityModel
 {
     [Index(nameof(AttractionId), nameof(CustomerId), IsUnique = true)]
-    public class AttractionReview
+    public class AttractionReview : SoftDeleteEntity
     {
         [Key]
-        public int ReviewId { get; set; }
+        [StringLength(20)]
+        public required string ReviewId { get; set; }
         [StringLength(20)]
         [ForeignKey(nameof(Attraction))]
         public required string AttractionId { get; set; }

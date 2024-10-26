@@ -107,7 +107,6 @@ namespace VietWay.Service.Implement
                     ContactFullName = x.ContactFullName,
                     ContactPhoneNumber = x.ContactPhoneNumber,
                     CustomerId = x.CustomerId,
-                    EndDate = (DateTime)x.Tour.EndDate,
                     ImageUrl = x.Tour.TourTemplate.TourTemplateImages.First().ImageUrl,
                     NumberOfParticipants = x.NumberOfParticipants,
                     StartDate = (DateTime)x.Tour.StartDate,

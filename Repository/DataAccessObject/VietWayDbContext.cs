@@ -64,6 +64,10 @@ namespace VietWay.Repository.DataAccessObject
             modelBuilder.Entity<Account>()
                 .HasIndex(x => x.PhoneNumber)
                 .IsUnique();
+            modelBuilder.Entity<AttractionReviewLike>()
+                .HasOne(x => x.Customer)
+                .WithMany()
+                .OnDelete(DeleteBehavior.Restrict);
         }
     }
 }

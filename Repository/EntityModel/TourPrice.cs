@@ -16,6 +16,7 @@ namespace VietWay.Repository.EntityModel
         [ForeignKey(nameof(Tour))]
         [StringLength(20)]
         public required string TourId { get; set; }
+        [Column(TypeName = "decimal(18,2)")]
         public required decimal Price { get; set; }
         public required int AgeFrom { get; set; }
         public required int AgeTo { get; set; }
