@@ -12,6 +12,7 @@ namespace VietWay.Repository.EntityModel
     public class Post : SoftDeleteEntity
     {
         [Key]
+        [StringLength(20)]
         public required string PostId { get; set; }
         public string? Title { get; set; }
         public string? ImageUrl { get; set; }

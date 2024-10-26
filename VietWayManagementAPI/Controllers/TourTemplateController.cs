@@ -124,7 +124,6 @@ namespace VietWay.API.Management.Controllers
             tourTemplate.Description = request.Description ?? "";
             tourTemplate.DurationId = request.DurationId;
             tourTemplate.TourCategoryId = request.TourCategoryId;
-            tourTemplate.Policy = request.Policy ?? "";
             tourTemplate.Note = request.Note ?? "";
             tourTemplate.TourTemplateProvinces?.Clear();
             foreach (string provinceId in request.ProvinceIds)

@@ -229,11 +229,11 @@ namespace VietWay.Service.Implement
             }
             if (minPrice != null)
             {
-                query = query.Where(x => x.Tours.Any(x => x.Price >= minPrice));
+                query = query.Where(x => x.Tours.Any(x => x.DefaultTouristPrice >= minPrice));
             }
             if (maxPrice != null)
             {
-                query = query.Where(x=>x.Tours.Any(x=>x.Price <= maxPrice));
+                query = query.Where(x=>x.Tours.Any(x=>x.DefaultTouristPrice <= maxPrice));
             }
 
             int count = await query.CountAsync();
@@ -255,7 +255,7 @@ namespace VietWay.Service.Implement
                     Duration = x.TourDuration.DurationName,
                     TourCategory = x.TourCategory.Name,
                     ImageUrl = x.TourTemplateImages.FirstOrDefault().ImageUrl,
-                    MinPrice = x.Tours.Where(x => x.Status == TourStatus.Scheduled).Select(y => (decimal)y.Price).Min(),
+                    MinPrice = x.Tours.Where(x => x.Status == TourStatus.Scheduled).Select(y => (decimal)y.DefaultTouristPrice).Min(),
                     Provinces = x.TourTemplateProvinces.Select(y => y.Province.ProvinceName).ToList(),
                     StartDate = x.Tours.Where(x=>x.Status == TourStatus.Scheduled).Select(y => (DateTime)y.StartDate).ToList(),
                     TourName = x.TourName,

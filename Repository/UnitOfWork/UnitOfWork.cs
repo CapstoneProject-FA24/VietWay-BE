@@ -22,7 +22,7 @@ namespace VietWay.Repository.UnitOfWork
         private IGenericRepository<EntityStatusHistory>? entityStatusHistoryRepository;
         private IGenericRepository<Event>? eventRepository;
         private IGenericRepository<EventCategory>? eventCategoryRepository;
-        private IGenericRepository<Feedback>? feedbackRepository;
+        private IGenericRepository<TourReview>? feedbackRepository;
         private IGenericRepository<Manager>? managerRepository;
         private IGenericRepository<Post>? postRepository;
         private IGenericRepository<PostCategory>? postCategoryRepository;
@@ -132,11 +132,11 @@ namespace VietWay.Repository.UnitOfWork
             }
         }
 
-        public IGenericRepository<Feedback> FeedbackRepository
+        public IGenericRepository<TourReview> FeedbackRepository
         {
             get
             {
-                feedbackRepository ??= new GenericRepository<Feedback>(_dbContext);
+                feedbackRepository ??= new GenericRepository<TourReview>(_dbContext);
                 return feedbackRepository;
             }
         }

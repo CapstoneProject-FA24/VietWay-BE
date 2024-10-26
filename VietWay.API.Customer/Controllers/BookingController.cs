@@ -92,13 +92,13 @@ namespace VietWay.API.Customer.Controllers
             tourBooking.Tour = tour;
             tourBooking.BookingId = _idGenerator.GenerateId();
             tourBooking.Status = BookingStatus.Pending;
-            tourBooking.TotalPrice = (decimal)tour.Price * request.NumberOfParticipants;
+            tourBooking.TotalPrice = (decimal)tour.DefaultTouristPrice * request.NumberOfParticipants;
             tourBooking.CreatedAt = _timeZoneHelper.GetUTC7Now();
             tourBooking.BookingPayments = [];
             tourBooking.BookingTourParticipants = [];
             foreach (TourParticipant tourParticipant in request.TourParticipants)
             {
-                BookingTourParticipant bookingTourParticipant = _mapper.Map<BookingTourParticipant>(tourParticipant);
+                BookingTourist bookingTourParticipant = _mapper.Map<BookingTourist>(tourParticipant);
                 bookingTourParticipant.TourBookingId = tourBooking.BookingId;
                 bookingTourParticipant.ParticipantId = _idGenerator.GenerateId();
                 tourBooking.BookingTourParticipants.Add(bookingTourParticipant);

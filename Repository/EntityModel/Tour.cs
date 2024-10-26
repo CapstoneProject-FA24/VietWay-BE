@@ -15,17 +15,20 @@ namespace VietWay.Repository.EntityModel
         [StringLength(255)]
         public string? StartLocation { get; set; }
         public DateTime? StartDate { get; set; }
-        public DateTime? EndDate { get; set; }
         [Column(TypeName = "decimal(18,2)")]
-        public decimal? Price { get; set; }
+        public decimal? DefaultTouristPrice { get; set; }
+        public DateTime? RegisterOpenDate { get; set; }
+        public DateTime? RegisterCloseDate { get; set; }
         public int? MaxParticipant { get; set; }
         public int? MinParticipant { get; set; }
-        public int? CurrentParticipant { get; set; }
+        public int CurrentParticipant { get; set; }
         public required TourStatus Status { get; set; }
-        public required DateTime CreatedAt { get; set; }
 
+
+        public required DateTime CreatedAt { get; set; }
         public virtual TourTemplate? TourTemplate { get; set; }
         public virtual ICollection<Booking>? TourBookings { get; set; }
+        public virtual ICollection<TourPrice>? TourPrices { get; set; }
 
     }
 }

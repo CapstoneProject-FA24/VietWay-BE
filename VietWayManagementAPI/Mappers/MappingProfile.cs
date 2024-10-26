@@ -66,7 +66,6 @@ namespace VietWay.API.Management.Mappers
                 .ForMember(dest => dest.TourName, opt => opt.MapFrom(src => src.TourName ?? ""))
                 .ForMember(dest => dest.Code, opt => opt.MapFrom(src => src.Code ?? ""))
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description ?? ""))
-                .ForMember(dest => dest.Policy, opt => opt.MapFrom(src => src.Policy ?? ""))
                 .ForMember(dest => dest.Note, opt => opt.MapFrom(src => src.Note ?? ""))
                 .ForMember(dest => dest.TourTemplateProvinces, opt => opt.MapFrom(src => (src.ProvinceIds ?? new())
                     .Select(x => new TourTemplateProvince()
@@ -92,7 +91,7 @@ namespace VietWay.API.Management.Mappers
                 .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.IsDraft ? TourTemplateStatus.Draft : TourTemplateStatus.Pending));
             CreateMap<Tour, TourDetail>();
             CreateMap<AttractionSchedule, AttractionSchedulePreview>();
-            CreateMap<Feedback, CustomerFeedbackPreview>();
+            CreateMap<TourReview, CustomerFeedbackPreview>();
             CreateMap<VnPayIPNRequest, VnPayIPN>();
         }
     }

@@ -53,7 +53,7 @@ namespace VietWay.API.Customer.Mappers
                 }).ToList()));
             CreateMap<BookTourRequest, Booking>();
             CreateMap<CreateAccountRequest, Account>();
-            CreateMap<TourParticipant, BookingTourParticipant>();
+            CreateMap<TourParticipant, BookingTourist>();
             CreateMap<CreateAccountRequest, Repository.EntityModel.Customer>()
                 .ForMember(dest => dest.ProvinceId, opt => opt.MapFrom(src => src.ProvinceId))
                 .ForMember(dest => dest.DateOfBirth, opt => opt.MapFrom(src => src.DateOfBirth))

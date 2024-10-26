@@ -9,7 +9,7 @@ using VietWay.Repository.EntityModel.Base;
 
 namespace VietWay.Repository.EntityModel
 {
-    public class BookingTourParticipant
+    public class BookingTourist
     {
         [Key]
         [StringLength(20)]

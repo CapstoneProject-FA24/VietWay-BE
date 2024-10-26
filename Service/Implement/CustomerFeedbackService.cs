@@ -9,13 +9,13 @@ namespace VietWay.Service.Implement
     {
         private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
-        public async Task<(int totalCount, List<Feedback> items)> GetAllCustomerFeedback(int pageSize, int pageIndex)
+        public async Task<(int totalCount, List<TourReview> items)> GetAllCustomerFeedback(int pageSize, int pageIndex)
         {
             var query = _unitOfWork
                 .FeedbackRepository
                 .Query();
             int count = await query.CountAsync();
-            List<Feedback> items = await query
+            List<TourReview> items = await query
                 .Skip((pageIndex - 1) * pageSize)
                 .Take(pageSize)
                 .Include(x => x.Booking)
