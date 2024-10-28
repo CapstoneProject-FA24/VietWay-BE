@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using VietWay.API.Management.RequestModel;
 using VietWay.API.Management.ResponseModel;
 using VietWay.Repository.EntityModel;
+using VietWay.Service.DataTransferObject;
 using VietWay.Service.Interface;
 using VietWay.Util.TokenUtil;
 using UserRole = VietWay.Repository.EntityModel.Base.UserRole;  
@@ -14,11 +15,10 @@ namespace VietWay.API.Management.Controllers
     /// </summary>
     [Route("api/account")]
     [ApiController]
-    public class AccountController(IAccountService accountService, ITokenHelper tokenHelper, ICustomerService customerService) : ControllerBase
+    public class AccountController(IAccountService accountService, ITokenHelper tokenHelper) : ControllerBase
     {
         private readonly IAccountService _accountService = accountService;
         private readonly ITokenHelper _tokenHelper = tokenHelper;
-        private readonly ICustomerService _customerService = customerService;
 
         /// <summary>
         /// ✅ Login with email/phone and password
@@ -38,11 +38,16 @@ namespace VietWay.API.Management.Controllers
                     Message = "Email or password is incorrect"
                 });
             }
-            return Ok(new DefaultResponseModel<string>()
+            ManagementAccountLoginDTO result = new ManagementAccountLoginDTO
+            {   
+                Token = _tokenHelper.GenerateAuthenticationToken(account.AccountId, account.Role.ToString()),
+                Role = account.Role
+            };
+            return Ok(new DefaultResponseModel<ManagementAccountLoginDTO>()
             {
                 Message = "Login successfully",
                 StatusCode = StatusCodes.Status200OK,
-                Data = _tokenHelper.GenerateAuthenticationToken(account.AccountId,account.Role.ToString())
+                Data = result
             });
         }
     }

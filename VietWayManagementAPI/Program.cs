@@ -14,6 +14,7 @@ using VietWay.Util.DateTimeUtil;
 using VietWay.Util.TokenUtil;
 using Hangfire;
 using VietWay.Util;
+using VietWay.Util.HashUtil;
 
 namespace VietWay.API.Management
 {
@@ -127,6 +128,8 @@ namespace VietWay.API.Management
             builder.Services.AddScoped<IVnPayService, VnPayService>();
             builder.Services.AddScoped<ITimeZoneHelper, TimeZoneHelper>();
             builder.Services.AddScoped<ITokenHelper,TokenHelper>();
+            builder.Services.AddScoped<IAccountService, AccountService>();
+            builder.Services.AddScoped<IHashHelper, BCryptHashHelper>();
             #endregion
             builder.Services.AddSingleton<IIdGenerator, SnowflakeIdGenerator>();
             var app = builder.Build();
