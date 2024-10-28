@@ -147,6 +147,7 @@ namespace VietWay.API.Customer
             builder.Services.AddScoped<IEventCategoryService, EventCategoryService>();
             builder.Services.AddScoped<ITourCategoryService, TourCategoryService>();
             builder.Services.AddScoped<IAttractionTypeService,AttractionTypeService>();
+            builder.Services.AddScoped<IPostService,PostService>();
             #endregion
             builder.Services.AddSingleton<IIdGenerator, SnowflakeIdGenerator>();
             var app = builder.Build();

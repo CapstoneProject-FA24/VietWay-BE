@@ -127,6 +127,7 @@ namespace VietWay.API.Management
             builder.Services.AddScoped<IVnPayService, VnPayService>();
             builder.Services.AddScoped<ITimeZoneHelper, TimeZoneHelper>();
             builder.Services.AddScoped<ITokenHelper,TokenHelper>();
+            builder.Services.AddScoped<IPostService,PostService>();
             #endregion
             builder.Services.AddSingleton<IIdGenerator, SnowflakeIdGenerator>();
             var app = builder.Build();
