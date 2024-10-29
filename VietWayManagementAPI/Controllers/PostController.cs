@@ -5,14 +5,21 @@ using VietWay.Service.DataTransferObject;
 using VietWay.API.Management.ResponseModel;
 using VietWay.Service.Implement;
 using VietWay.Repository.EntityModel.Base;
+using Microsoft.AspNetCore.Authorization;
+using VietWay.API.Management.RequestModel;
+using VietWay.Repository.EntityModel;
+using VietWay.Util.TokenUtil;
+using AutoMapper;
 
 namespace VietWay.API.Management.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class PostController(IPostService postService) : ControllerBase
+    public class PostController(IPostService postService, ITokenHelper tokenHelper, IMapper mapper) : ControllerBase
     {
         private readonly IPostService _postService = postService;
+        private readonly ITokenHelper _tokenHelper = tokenHelper;
+        private readonly IMapper _mapper = mapper;
 
         /// <summary>
         /// ✅[All] Get all posts
@@ -45,6 +52,37 @@ namespace VietWay.API.Management.Controllers
                     Total = totalCount
                 },
                 StatusCode = StatusCodes.Status200OK
+            });
+        }
+
+        /// <summary>
+        /// ✅🔐[Staff] Create new attraction
+        /// </summary>
+        /// <response code="201">Created</response>
+        /// <response code="400">Bad request</response>
+        /// <response code="401">Unauthorized</response>
+        [HttpPost]
+        [Authorize(Roles = nameof(UserRole.Staff))]
+        [Produces("application/json")]
+        [ProducesResponseType<DefaultResponseModel<string>>(StatusCodes.Status200OK)]
+        public async Task<IActionResult> CreatePostAsync(CreatePostRequest request)
+        {
+            string? staffId = _tokenHelper.GetAccountIdFromToken(HttpContext) ?? "1";
+            if (string.IsNullOrWhiteSpace(staffId))
+            {
+                return Unauthorized(new DefaultResponseModel<object>
+                {
+                    Message = "Unauthorized",
+                    StatusCode = StatusCodes.Status401Unauthorized
+                });
+            }
+            Post post = _mapper.Map<Post>(request);
+            string postId = await _postService.CreatePostAsync(post);
+            return Ok(new DefaultResponseModel<string>
+            {
+                Message = "Create post successfully",
+                StatusCode = StatusCodes.Status200OK,
+                Data = postId
             });
         }
     }

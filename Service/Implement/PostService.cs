@@ -70,5 +70,22 @@ namespace VietWay.Service.Implement
                 .ToListAsync();
             return (count, items);
         }
+
+        public async Task<string> CreatePostAsync(Post post)
+        {
+            try
+            {
+                post.PostId ??= _idGenerator.GenerateId();
+                await _unitOfWork.BeginTransactionAsync();
+                await _unitOfWork.PostRepository.CreateAsync(post);
+                await _unitOfWork.CommitTransactionAsync();
+                return post.PostId;
+            }
+            catch
+            {
+                await _unitOfWork.RollbackTransactionAsync();
+                throw;
+            }
+        }
     }
 }
