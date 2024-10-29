@@ -68,7 +68,7 @@ namespace VietWay.Service.Implement
             }
             bookingPayment.BankCode = vnPayIPN.BankCode;
             bookingPayment.BankTransactionNumber = vnPayIPN.BankTranNo;
-            bookingPayment.PayTime = DateTime.Parse(vnPayIPN.PayDate);
+            bookingPayment.PayTime = DateTime.ParseExact(vnPayIPN.PayDate, "yyyyMMddHHmmss",null);
             bookingPayment.ThirdPartyTransactionNumber = vnPayIPN.TransactionNo;
             if (vnPayIPN.TransactionStatus.Equals("00"))
             {
