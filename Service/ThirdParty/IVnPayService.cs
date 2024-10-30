@@ -1,7 +1,7 @@
 ﻿using VietWay.Repository.EntityModel;
 using VietWay.Service.DataTransferObject;
 
-namespace VietWay.Service.ThirdParty
+namespace VietWay.Service.Management.ThirdParty
 {
     public interface IVnPayService
     {

@@ -2,7 +2,8 @@
 using Microsoft.AspNetCore.Mvc;
 using VietWay.API.Customer.ResponseModel;
 using VietWay.Repository.EntityModel;
-using VietWay.Service.Interface;
+using VietWay.Service.Customer.DataTransferObject;
+using VietWay.Service.Customer.Interface;
 
 namespace VietWay.API.Customer.Controllers
 {
@@ -11,22 +12,21 @@ namespace VietWay.API.Customer.Controllers
     /// </summary>
     [Route("api/tours")]
     [ApiController]
-    public class TourController(ITourService tourService, IMapper mapper) : ControllerBase
+    public class TourController(ITourService tourService) : ControllerBase
     {
         private readonly ITourService _tourService = tourService;
-        private readonly IMapper _mapper = mapper;
 
         /// <summary>
         /// ⚠️[All] Get tour by tour ID
         /// </summary>
         [HttpGet("{tourId}")]
         [Produces("application/json")]
-        [ProducesResponseType<DefaultResponseModel<DefaultResponseModel<TourDetail>>>(StatusCodes.Status200OK)]
+        [ProducesResponseType<DefaultResponseModel<DefaultResponseModel<TourDetailDTO>>>(StatusCodes.Status200OK)]
         [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetTourById(string tourId)
         {
-            Tour? tour = await _tourService
-                .GetTourById(tourId);
+            TourDetailDTO? tour = await _tourService
+                .GetTourByIdAsync(tourId);
             if (tour == null)
             {
                 DefaultResponseModel<object> response = new()
@@ -38,11 +38,11 @@ namespace VietWay.API.Customer.Controllers
             }
             else
             {
-                DefaultResponseModel<TourDetail> response = new()
+                DefaultResponseModel<TourDetailDTO> response = new()
                 {
                     StatusCode = StatusCodes.Status200OK,
                     Message = "Get tour successfully",
-                    Data = _mapper.Map<TourDetail>(tour)
+                    Data = tour
                 };
                 return Ok(response);
             }
@@ -53,15 +53,14 @@ namespace VietWay.API.Customer.Controllers
         /// </summary>
         [HttpGet]
         [Produces("application/json")]
-        [ProducesResponseType<DefaultResponseModel<PaginatedList<TourPreview>>>(StatusCodes.Status200OK)]
+        [ProducesResponseType<DefaultResponseModel<List<TourPreviewDTO>>>(StatusCodes.Status200OK)]
         public async Task<IActionResult> GetAllToursByTemplateIdsAsync(
             string tourTemplateId)
         {
+            List<TourPreviewDTO> tourPreviews = await _tourService
+                .GetAllToursByTemplateIdsAsync(tourTemplateId);
 
-            var result = await _tourService.GetAllToursByTemplateIdsAsync(tourTemplateId);
-            List<TourPreview> tourPreviews = _mapper.Map<List<TourPreview>>(result);
-            
-            DefaultResponseModel<List<TourPreview>> response = new()
+            DefaultResponseModel<List<TourPreviewDTO>> response = new()
             {
                 Data = tourPreviews,
                 Message = "Get all tour successfully",

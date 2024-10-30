@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using VietWay.Repository.EntityModel.Base;
 
-namespace VietWay.Service.DataTransferObject
+namespace VietWay.Service.Customer.DataTransferObject
 {
     public class AttractionDetailDTO
     {
@@ -17,8 +17,8 @@ namespace VietWay.Service.DataTransferObject
         public string? Description { get; set; }
         public string? GooglePlaceId { get; set; }
 
-        public required ProvinceBriefPreviewDTO Province { get; set; }
-        public required AttractionCategoryPreviewDTO AttractionType { get; set; }
+        public required ProvincePreviewDTO Province { get; set; }
+        public required AttractionCategoryPreviewDTO AttractionCategory { get; set; }
         public virtual ICollection<ImageDTO>? Images { get; set; }
     }
 }

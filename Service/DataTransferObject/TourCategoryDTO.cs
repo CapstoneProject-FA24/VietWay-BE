@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace VietWay.Service.DataTransferObject
+namespace VietWay.Service.Management.DataTransferObject
 {
     public class TourCategoryDTO
     {

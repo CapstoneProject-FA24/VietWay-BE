@@ -1,4 +1,4 @@
-﻿namespace VietWay.Service.ThirdParty
+﻿namespace VietWay.Service.Management.ThirdParty
 {
     public interface ICloudinaryService
     {

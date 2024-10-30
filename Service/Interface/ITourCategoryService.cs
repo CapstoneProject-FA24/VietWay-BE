@@ -1,6 +1,6 @@
-﻿using VietWay.Service.DataTransferObject;
+﻿using VietWay.Service.Management.DataTransferObject;
 
-namespace VietWay.Service.Interface
+namespace VietWay.Service.Management.Interface
 {
     public interface ITourCategoryService
     {

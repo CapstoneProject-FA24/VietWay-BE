@@ -1,10 +1,10 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using VietWay.Repository.EntityModel;
 using VietWay.Repository.UnitOfWork;
-using VietWay.Service.Interface;
 using VietWay.Repository.EntityModel.Base;
+using VietWay.Service.Management.Interface;
 
-namespace VietWay.Service.Implement
+namespace VietWay.Service.Management.Implement
 {
     public class TourService : ITourService
     {
@@ -73,7 +73,7 @@ namespace VietWay.Service.Implement
             return await _unitOfWork
                 .TourRepository
                 .Query()
-                .Where(x => x.IsDeleted == false && x.TourTemplateId.Equals(tourTemplateId) &&x.Status == TourStatus.Scheduled)
+                .Where(x => x.IsDeleted == false && x.TourTemplateId.Equals(tourTemplateId) && x.Status == TourStatus.Scheduled)
                 .Include(x => x.TourTemplate)
                 .ThenInclude(x => x.TourTemplateImages)
                 .ToListAsync();

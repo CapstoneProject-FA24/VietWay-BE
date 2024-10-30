@@ -4,6 +4,7 @@ using VietWay.API.Management.ResponseModel;
 using VietWay.Repository.EntityModel;
 using VietWay.Repository.EntityModel.Base;
 using VietWay.Service.DataTransferObject;
+using VietWay.Service.Management.DataTransferObject;
 
 namespace VietWay.API.Management.Mappers
 {

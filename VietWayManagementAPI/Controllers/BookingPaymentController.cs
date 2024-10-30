@@ -5,7 +5,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using VietWay.API.Management.RequestModel;
 using VietWay.Service.DataTransferObject;
-using VietWay.Service.Interface;
+using VietWay.Service.Management.Interface;
 
 namespace VietWay.API.Management.Controllers
 {

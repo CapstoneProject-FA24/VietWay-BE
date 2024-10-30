@@ -4,9 +4,6 @@ using System.Text;
 using Microsoft.OpenApi.Models;
 using VietWay.API.Management.Mappers;
 using VietWay.Repository.UnitOfWork;
-using VietWay.Service.Interface;
-using VietWay.Service.Implement;
-using VietWay.Service.ThirdParty;
 using VietWay.Middleware;
 using System.Reflection;
 using VietWay.Util.IdUtil;
@@ -14,6 +11,9 @@ using VietWay.Util.DateTimeUtil;
 using VietWay.Util.TokenUtil;
 using Hangfire;
 using VietWay.Util;
+using VietWay.Service.Management.Implement;
+using VietWay.Service.Management.Interface;
+using VietWay.Service.Management.ThirdParty;
 
 namespace VietWay.API.Management
 {

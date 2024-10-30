@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace VietWay.Service.ThirdParty
+namespace VietWay.Service.Management.ThirdParty
 {
     public class GmailService : IEmailService
     {
@@ -20,14 +20,14 @@ namespace VietWay.Service.ThirdParty
 
             MimeMessage message = new();
             message.From.Add(new MailboxAddress("VietWay", "dotoan22112003@gmail.com"));
-            message.To.Add(new MailboxAddress("",email));
+            message.To.Add(new MailboxAddress("", email));
             message.Subject = subject;
             message.Body = new TextPart("plain")
             {
                 Text = body
             };
             using SmtpClient client = new();
-            await client.ConnectAsync("smtp.google.com",587,SecureSocketOptions.StartTls);
+            await client.ConnectAsync("smtp.google.com", 587, SecureSocketOptions.StartTls);
             await client.AuthenticateAsync(_senderEmail, _appPassword);
             await client.SendAsync(message);
             await client.DisconnectAsync(true);

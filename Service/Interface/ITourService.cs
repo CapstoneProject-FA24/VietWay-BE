@@ -1,6 +1,6 @@
 ﻿using VietWay.Repository.EntityModel;
 
-namespace VietWay.Service.Interface
+namespace VietWay.Service.Management.Interface
 {
     public interface ITourService
     {

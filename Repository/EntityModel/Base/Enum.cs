@@ -92,4 +92,11 @@
         ChangeStatus,
         Delete
     }
+    public enum PaymentMethod
+    {
+        VNPay,
+        Momo,
+        ZaloPay,
+        PayOS
+    }
 }

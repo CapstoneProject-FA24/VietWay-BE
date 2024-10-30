@@ -1,14 +1,14 @@
 ﻿using CloudinaryDotNet;
 using CloudinaryDotNet.Actions;
 
-namespace VietWay.Service.ThirdParty
+namespace VietWay.Service.Management.ThirdParty
 {
     public class CloudinaryService : ICloudinaryService
     {
         private readonly Cloudinary _cloudinary;
         public CloudinaryService()
         {
-            string apiKey = Environment.GetEnvironmentVariable("CLOUDINARY_API_KEY") 
+            string apiKey = Environment.GetEnvironmentVariable("CLOUDINARY_API_KEY")
                 ?? throw new Exception("CLOUDINARY_API_KEY is not set in environment variables");
             string apiSecret = Environment.GetEnvironmentVariable("CLOUDINARY_API_SECRET")
                 ?? throw new Exception("CLOUDINARY_API_SECRET is not set in environment variables");

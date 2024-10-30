@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace VietWay.Service.ThirdParty
+namespace VietWay.Service.Management.ThirdParty
 {
     public interface IEmailService
     {

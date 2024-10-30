@@ -3,9 +3,9 @@ using Microsoft.AspNetCore.Mvc;
 using VietWay.API.Management.RequestModel;
 using VietWay.API.Management.ResponseModel;
 using VietWay.Repository.EntityModel;
-using VietWay.Service.Interface;
+using VietWay.Service.Management.Interface;
 using VietWay.Util.TokenUtil;
-using UserRole = VietWay.Repository.EntityModel.Base.UserRole;  
+using UserRole = VietWay.Repository.EntityModel.Base.UserRole;
 
 namespace VietWay.API.Management.Controllers
 {

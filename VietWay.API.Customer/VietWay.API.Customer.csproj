@@ -22,8 +22,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Repository\VietWay.Repository.csproj" />
-    <ProjectReference Include="..\Service\VietWay.Service.csproj" />
     <ProjectReference Include="..\VietWay.Middleware\VietWay.Middleware.csproj" />
+    <ProjectReference Include="..\VietWay.Service.Customer\VietWay.Service.Customer.csproj" />
     <ProjectReference Include="..\VietWay.Util\VietWay.Util.csproj" />
   </ItemGroup>
 

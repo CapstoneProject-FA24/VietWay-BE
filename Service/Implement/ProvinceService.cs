@@ -1,13 +1,13 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using VietWay.Repository.EntityModel;
 using VietWay.Repository.UnitOfWork;
-using VietWay.Service.DataTransferObject;
-using VietWay.Service.Interface;
 using PostStatus = VietWay.Repository.EntityModel.Base.PostStatus;
 using EventStatus = VietWay.Repository.EntityModel.Base.EventStatus;
 using VietWay.Repository.EntityModel.Base;
 using VietWay.Util.DateTimeUtil;
-namespace VietWay.Service.Implement
+using VietWay.Service.Management.Interface;
+using VietWay.Service.Management.DataTransferObject;
+namespace VietWay.Service.Management.Implement
 {
     public class ProvinceService(IUnitOfWork unitOfWork, ITimeZoneHelper timeZoneHelper) : IProvinceService
     {
@@ -18,7 +18,7 @@ namespace VietWay.Service.Implement
             return await _unitOfWork
                 .ProvinceRepository
                 .Query()
-                .Select(x=> new ProvincePreviewDTO
+                .Select(x => new ProvincePreviewDTO
                 {
                     ProvinceId = x.ProvinceId,
                     ProvinceName = x.ProvinceName,
@@ -46,7 +46,7 @@ namespace VietWay.Service.Implement
 #warning implement sort province by zone
             int count = await query.CountAsync();
             List<ProvinceDetailDTO> result = await query
-                .OrderBy(x=>x.ProvinceId)
+                .OrderBy(x => x.ProvinceId)
                 .Skip((pageIndex - 1) * pageSize)
                 .Take(pageSize)
                 .Select(x => new ProvinceDetailDTO

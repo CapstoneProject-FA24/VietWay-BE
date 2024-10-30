@@ -1,11 +1,11 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using VietWay.Repository.EntityModel;
 using VietWay.Repository.UnitOfWork;
-using VietWay.Service.Interface;
+using VietWay.Service.Management.Interface;
 
-namespace VietWay.Service.Implement
+namespace VietWay.Service.Management.Implement
 {
-    public class StaffService: IStaffService
+    public class StaffService : IStaffService
     {
         private readonly IUnitOfWork _unitOfWork;
 

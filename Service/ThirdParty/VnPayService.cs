@@ -4,12 +4,12 @@ using VietWay.Repository.EntityModel;
 using VietWay.Service.DataTransferObject;
 using VietWay.Util.DateTimeUtil;
 
-namespace VietWay.Service.ThirdParty
+namespace VietWay.Service.Management.ThirdParty
 {
     public class VnPayService(ITimeZoneHelper timeZoneHelper) : IVnPayService
     {
         private readonly ITimeZoneHelper _timeZoneHelper = timeZoneHelper;
-        private readonly string _vnpHashSecret = Environment.GetEnvironmentVariable("VNPAY_HASH_SECRET") 
+        private readonly string _vnpHashSecret = Environment.GetEnvironmentVariable("VNPAY_HASH_SECRET")
             ?? throw new Exception("VNPAY_TMN_CODE is not set in environment variables");
         private readonly string _vnpTmnCode = Environment.GetEnvironmentVariable("VNPAY_TMN_CODE")
             ?? throw new Exception("VNPAY_HASH_SECRET is not set in environment variables");

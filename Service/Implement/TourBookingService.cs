@@ -2,13 +2,13 @@ using Microsoft.EntityFrameworkCore;
 using VietWay.Repository.EntityModel;
 using VietWay.Repository.EntityModel.Base;
 using VietWay.Repository.UnitOfWork;
-using VietWay.Service.DataTransferObject;
-using VietWay.Service.Interface;
+using VietWay.Service.Management.DataTransferObject;
+using VietWay.Service.Management.Interface;
 using VietWay.Util.CustomExceptions;
 using VietWay.Util.DateTimeUtil;
 using VietWay.Util.IdUtil;
 
-namespace VietWay.Service.Implement
+namespace VietWay.Service.Management.Implement
 {
     public class TourBookingService(IUnitOfWork unitOfWork, IIdGenerator idGenerator, ITimeZoneHelper timeZoneHelper) : ITourBookingService
     {
@@ -21,7 +21,7 @@ namespace VietWay.Service.Implement
         }
         public async Task CustomerCancelBookingAsync(string bookingId, string customerId, string? reason)
         {
-            Booking? booking  = await _unitOfWork
+            Booking? booking = await _unitOfWork
                 .BookingRepository
                 .Query()
                 .Where(x => x.BookingId == bookingId && x.CustomerId == customerId)
@@ -55,7 +55,7 @@ namespace VietWay.Service.Implement
                 });
                 await _unitOfWork.BookingRepository.UpdateAsync(booking);
                 await _unitOfWork.CommitTransactionAsync();
-            } 
+            }
             catch
             {
                 await _unitOfWork.RollbackTransactionAsync();
@@ -89,7 +89,7 @@ namespace VietWay.Service.Implement
                     Code = x.Tour.TourTemplate.Code
                 }).ToListAsync();
             return (count, items);
-        } 
+        }
 
         public async Task<TourBookingInfoDTO?> GetTourBookingInfoAsync(string bookingId, string customerId)
         {
