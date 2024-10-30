@@ -19,5 +19,7 @@ namespace VietWay.Service.Interface
             int pageSize,
             int pageIndex);
         public Task<string> CreatePostAsync(Post post);
+        public Task DeletePostAsync(string postId);
+        public Task UpdatePostAsync(Post newPost);
     }
 }

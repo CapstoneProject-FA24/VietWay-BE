@@ -85,5 +85,53 @@ namespace VietWay.API.Management.Controllers
                 Data = postId
             });
         }
+
+        /// <summary>
+        /// ✅🔐[Staff] Update post
+        /// </summary>
+        /// <returns>Update post message</returns>
+        /// <response code="200">Return update post message</response>
+        /// <response code="400">Bad request</response>
+        [HttpPut("{postId}")]
+        [Produces("application/json")]
+        [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status200OK)]
+        public async Task<IActionResult> UpdatePostAsync(string postId, CreatePostRequest request)
+        {
+            Post post = _mapper.Map<Post>(request);
+            post.PostId = postId;
+
+            await _postService.UpdatePostAsync(post);
+            return Ok();
+        }
+
+        /// <summary>
+        /// [Staff] Delete draft post
+        /// </summary>
+        /// <returns>Delete post message</returns>
+        /// <response code="200">Return delete post message</response>
+        /// <response code="404">Post not found</response>
+        [HttpDelete("{postId}")]
+        [Produces("application/json")]
+        [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status200OK)]
+        public async Task<IActionResult> DeletePostAsync(string postId)
+        {
+            Post? post = null;
+            if (null == post)
+            {
+                DefaultResponseModel<object> errorResponse = new()
+                {
+                    Message = "Post not found",
+                    StatusCode = StatusCodes.Status404NotFound
+                };
+                return NotFound(errorResponse);
+            }
+            await _postService.DeletePostAsync(postId);
+            DefaultResponseModel<object> response = new()
+            {
+                Message = "Delete successfully",
+                StatusCode = StatusCodes.Status200OK
+            };
+            return Ok(response);
+        }
     }
 }

@@ -1,4 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Hangfire;
+using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,17 +11,20 @@ using VietWay.Repository.EntityModel.Base;
 using VietWay.Repository.UnitOfWork;
 using VietWay.Service.DataTransferObject;
 using VietWay.Service.Interface;
+using VietWay.Service.Jobs;
 using VietWay.Service.ThirdParty;
+using VietWay.Util.CustomExceptions;
 using VietWay.Util.IdUtil;
 
 namespace VietWay.Service.Implement
 {
     public class PostService(IUnitOfWork unitOfWork, ICloudinaryService cloudinaryService,
-        IIdGenerator idGenerator) : IPostService
+        IIdGenerator idGenerator, IBackgroundJobClient backgroundJobClient) : IPostService
     {
         private readonly IUnitOfWork _unitOfWork = unitOfWork;
         private readonly ICloudinaryService _cloudinaryService = cloudinaryService;
         private readonly IIdGenerator _idGenerator = idGenerator;
+        private readonly IBackgroundJobClient _backgroundJobClient = backgroundJobClient;
         public async Task<(int totalCount, List<PostPreviewDTO> items)> GetAllPostAsync(
             string? nameSearch,
             List<string>? postCategoryIds,
@@ -80,6 +85,50 @@ namespace VietWay.Service.Implement
                 await _unitOfWork.PostRepository.CreateAsync(post);
                 await _unitOfWork.CommitTransactionAsync();
                 return post.PostId;
+            }
+            catch
+            {
+                await _unitOfWork.RollbackTransactionAsync();
+                throw;
+            }
+        }
+
+        public async Task DeletePostAsync(string postId)
+        {
+            Post? post = await _unitOfWork.PostRepository.Query()
+                .SingleOrDefaultAsync(x => x.PostId.Equals(postId)) ??
+                throw new ResourceNotFoundException("Post not found");
+            try
+            {
+                await _unitOfWork.BeginTransactionAsync();
+                await _unitOfWork.PostRepository.SoftDeleteAsync(post);
+                await _unitOfWork.CommitTransactionAsync();
+            }
+            catch
+            {
+                await _unitOfWork.RollbackTransactionAsync();
+                throw;
+            }
+        }
+
+        public async Task UpdatePostAsync(Post newPost)
+        {
+            Post? post = await _unitOfWork.PostRepository.Query()
+                .SingleOrDefaultAsync(x => x.PostId.Equals(newPost.PostId)) ??
+                throw new ResourceNotFoundException("Attraction not found");
+
+            post.Status = PostStatus.Pending;
+            post.Title = newPost.Title;
+            post.Content = newPost.Content;
+            post.PostCategoryId = newPost.PostCategoryId;
+            post.Description = newPost.Description;
+            post.ProvinceId = newPost.ProvinceId;
+            post.ImageUrl = newPost.ImageUrl;
+            try
+            {
+                await _unitOfWork.BeginTransactionAsync();
+                await _unitOfWork.PostRepository.UpdateAsync(post);
+                await _unitOfWork.CommitTransactionAsync();
             }
             catch
             {
