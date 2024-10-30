@@ -56,7 +56,7 @@ namespace VietWay.API.Management.Controllers
         }
 
         /// <summary>
-        /// ✅🔐[Staff] Create new attraction
+        /// ✅🔐[Staff] Create new post
         /// </summary>
         /// <response code="201">Created</response>
         /// <response code="400">Bad request</response>

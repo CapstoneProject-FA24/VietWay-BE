@@ -142,7 +142,6 @@ namespace VietWay.API.Customer
             builder.Services.AddScoped<IHashHelper, BCryptHashHelper>();
             builder.Services.AddScoped<IAccountService, AccountService>();
             builder.Services.AddScoped<ITokenHelper, TokenHelper>();
-            builder.Services.AddScoped<IHashHelper, BCryptHashHelper>();
             builder.Services.AddScoped<IAttractionService, AttractionService>();
             builder.Services.AddScoped<IEventCategoryService, EventCategoryService>();
             builder.Services.AddScoped<ITourCategoryService, TourCategoryService>();
