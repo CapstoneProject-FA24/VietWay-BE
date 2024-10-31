@@ -7,9 +7,7 @@ using System.Text;
 using VietWay.API.Customer.Mappers;
 using VietWay.Middleware;
 using VietWay.Repository.UnitOfWork;
-using VietWay.Service.Implement;
-using VietWay.Service.Interface;
-using VietWay.Service.ThirdParty;
+using VietWay.Service.Customer.Interface;
 using VietWay.Util;
 using VietWay.Util.DateTimeUtil;
 using VietWay.Util.HashUtil;
@@ -27,7 +25,6 @@ namespace VietWay.API.Customer
             {
                 DotEnv.Load(".env");
             }
-
             #region builder.Services.AddHangfire(...);
             builder.Services.AddHangfire(option =>
             {
@@ -36,9 +33,6 @@ namespace VietWay.API.Customer
                 option.UseSqlServerStorage(connectionString);
             });
             #endregion
-            builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
-            builder.Services.AddScoped<ICustomerService, CustomerService>();
-            builder.Services.AddScoped<ITourService, TourService>();
             builder.Services.AddAutoMapper(typeof(MappingProfile));
             builder.Services.AddControllers();
             builder.Services.AddLogging();
@@ -129,18 +123,25 @@ namespace VietWay.API.Customer
             });
             #endregion
             #region builder.Services.AddScoped(...);
+            builder.Services.AddScoped<IAccountService>();
+            builder.Services.AddScoped<IAttractionCategoryService>();
+            builder.Services.AddScoped<IAttractionService>();
+            builder.Services.AddScoped<IBookingPaymentService>();
+            builder.Services.AddScoped<IBookingService>();
+            builder.Services.AddScoped<ICustomerService>();
+            builder.Services.AddScoped<IEventCategoryService>();
+            builder.Services.AddScoped<IEventService>();
+            builder.Services.AddScoped<IPostCategoryService>();
+            builder.Services.AddScoped<IProvinceService>();
+            builder.Services.AddScoped<ITourCategoryService>();
+            builder.Services.AddScoped<ITourDurationService>();
+            builder.Services.AddScoped<ITourService>();
+            builder.Services.AddScoped<ITourTemplateService>();
+
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
-            builder.Services.AddScoped<IVnPayService, VnPayService>();
-            builder.Services.AddScoped<ITourService, TourService>();
-            builder.Services.AddScoped<ICustomerService, CustomerService>();
-            builder.Services.AddScoped<ITourTemplateService, TourTemplateService>();
-            builder.Services.AddScoped<IProvinceService, ProvinceService>();
-            builder.Services.AddScoped<ICloudinaryService, CloudinaryService>();
-            builder.Services.AddScoped<ITourBookingService,TourBookingService>();
-            builder.Services.AddScoped<IBookingPaymentService, BookingPaymentService>();
+
             builder.Services.AddScoped<ITimeZoneHelper, TimeZoneHelper>();
-            builder.Services.AddScoped<IHashHelper, BCryptHashHelper>();
-            builder.Services.AddScoped<IAccountService, AccountService>();
+            builder.Services.AddScoped<IHashHelper,IHashHelper>();
             builder.Services.AddScoped<ITokenHelper, TokenHelper>();
             builder.Services.AddScoped<IAttractionService, AttractionService>();
             builder.Services.AddScoped<IEventCategoryService, EventCategoryService>();
@@ -173,7 +174,6 @@ namespace VietWay.API.Customer
                 });
             }
             #endregion
-
             app.UseHttpsRedirection();
             app.UseCors("AllowAll");
             app.UseAuthentication();

@@ -5,11 +5,11 @@ using Microsoft.Extensions.Logging;
 using VietWay.Repository.EntityModel;
 using VietWay.Repository.EntityModel.Base;
 using VietWay.Repository.UnitOfWork;
-using VietWay.Service.Interface;
+using VietWay.Service.Management.Interface;
 using VietWay.Util.HashUtil;
 using VietWay.Util.IdUtil;
 
-namespace VietWay.Service.Implement
+namespace VietWay.Service.Management.Implement
 {
     public class AccountService(IUnitOfWork unitOfWork, ILogger<AccountService> logger, IHashHelper hashHelper) : IAccountService
     {
@@ -21,7 +21,7 @@ namespace VietWay.Service.Implement
             Account? account = await _unitOfWork.AccountRepository
                 .Query()
                 .SingleOrDefaultAsync(x => (x.PhoneNumber.Equals(emailOrPhone) || x.Email.Equals(emailOrPhone)) && false == x.IsDeleted);
-            if (account == null || false == _hashHelper.Verify(password,account.Password))
+            if (account == null || false == _hashHelper.Verify(password, account.Password))
             {
                 return null;
             }

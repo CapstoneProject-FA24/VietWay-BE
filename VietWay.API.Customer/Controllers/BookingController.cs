@@ -1,19 +1,14 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using VietWay.API.Customer.RequestModel;
 using VietWay.API.Customer.ResponseModel;
-using VietWay.Repository.EntityModel;
 using VietWay.Repository.EntityModel.Base;
-using VietWay.Service.DataTransferObject;
-using VietWay.Service.Implement;
-using VietWay.Service.Interface;
-using VietWay.Service.ThirdParty;
 using VietWay.Util.CustomExceptions;
-using VietWay.Util.DateTimeUtil;
-using VietWay.Util.IdUtil;
 using VietWay.Util.TokenUtil;
+using VietWay.Service.Customer.Interface;
+using VietWay.Service.Customer.DataTransferObject;
+using VietWay.Repository.EntityModel;
 
 namespace VietWay.API.Customer.Controllers
 {
@@ -22,14 +17,12 @@ namespace VietWay.API.Customer.Controllers
     /// </summary>
     [Route("api/bookings")]
     [ApiController]
-    public class BookingController(ITourBookingService tourBookingService, ITourService tourService, IIdGenerator idGenerator,
-        IMapper mapper, IVnPayService vnPayService, ITimeZoneHelper timeZoneHelper, ITokenHelper tokenHelper) : ControllerBase
+    public class BookingController(IBookingService bookingService, ITourService tourService,
+        IMapper mapper, ITokenHelper tokenHelper) : ControllerBase
     {
-        private readonly ITourBookingService _tourBookingService = tourBookingService;
+        private readonly IBookingService _bookingService = bookingService;
         private readonly ITourService _tourService = tourService;
-        private readonly IIdGenerator _idGenerator = idGenerator;
         private readonly IMapper _mapper = mapper;
-        private readonly ITimeZoneHelper _timeZoneHelper = timeZoneHelper;
         private readonly ITokenHelper _tokenHelper = tokenHelper;
 
         /// <summary>
@@ -43,7 +36,7 @@ namespace VietWay.API.Customer.Controllers
         [Produces("application/json")]
         [Authorize(Roles = nameof(UserRole.Customer))]
         [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status200OK)]
-        public async Task<IActionResult> BookTour(BookTourRequest request)
+        public async Task<IActionResult> BookTourAsync(BookTourRequest request)
         {
             string? customerId = _tokenHelper.GetAccountIdFromToken(HttpContext);
             if (customerId == null)
@@ -54,7 +47,7 @@ namespace VietWay.API.Customer.Controllers
                     StatusCode = StatusCodes.Status401Unauthorized
                 });
             }
-            if (request.TourParticipants?.Count != request.NumberOfParticipants)
+            if (request.NumberOfParticipants < 1 || request.TourParticipants?.Count != request.NumberOfParticipants)
             {
                 DefaultResponseModel<object> response = new()
                 {
@@ -63,52 +56,16 @@ namespace VietWay.API.Customer.Controllers
                 };
                 return BadRequest(response);
             }
-            Tour? tour = await _tourService.GetTourById(request.TourId);
-            if (tour == null)
-            {
-                DefaultResponseModel<object> response = new()
-                {
-                    StatusCode = StatusCodes.Status404NotFound,
-                    Message = $"Can not find Tour with id {request.TourId}"
-                };
-                return NotFound(response);
-            }
-            if (tour.CurrentParticipant + request.NumberOfParticipants > tour.MaxParticipant)
-            {
-                DefaultResponseModel<object> response = new()
-                {
-                    StatusCode = StatusCodes.Status400BadRequest,
-                    Message = $"Tour is full"
-                };
-                return BadRequest(response);
-            }
-            tour.CurrentParticipant = tour.CurrentParticipant + request.NumberOfParticipants;
-            if (tour.CurrentParticipant == tour.MaxParticipant)
-            {
-                tour.Status = TourStatus.Closed;
-            }
-            Booking tourBooking = _mapper.Map<Booking>(request);
-            tourBooking.CustomerId = customerId;
-            tourBooking.Tour = tour;
-            tourBooking.BookingId = _idGenerator.GenerateId();
-            tourBooking.Status = BookingStatus.Pending;
-            tourBooking.TotalPrice = (decimal)tour.DefaultTouristPrice * request.NumberOfParticipants;
-            tourBooking.CreatedAt = _timeZoneHelper.GetUTC7Now();
-            tourBooking.BookingPayments = [];
-            tourBooking.BookingTourParticipants = [];
-            foreach (TourParticipant tourParticipant in request.TourParticipants)
-            {
-                BookingTourist bookingTourParticipant = _mapper.Map<BookingTourist>(tourParticipant);
-                bookingTourParticipant.TourBookingId = tourBooking.BookingId;
-                bookingTourParticipant.ParticipantId = _idGenerator.GenerateId();
-                tourBooking.BookingTourParticipants.Add(bookingTourParticipant);
-            }
-            await _tourBookingService.CreateBookingAsync(tourBooking);
-            //call service
+
+            Booking booking = _mapper.Map<Booking>(request);
+            booking.CustomerId = customerId;
+
+            await _bookingService.BookTourAsync(booking);
+
             DefaultResponseModel<string> responseModel = new()
             {
                 Message = "Booking created successfully",
-                Data = tourBooking.BookingId,
+                Data = null,
                 StatusCode = StatusCodes.Status200OK
             };
             return Ok(responseModel);
@@ -123,7 +80,7 @@ namespace VietWay.API.Customer.Controllers
         [HttpGet("{bookingId}")]
         [Produces("application/json")]
         [Authorize(Roles = nameof(UserRole.Customer))]
-        [ProducesResponseType<DefaultResponseModel<TourBookingInfoDTO>>(StatusCodes.Status200OK)]
+        [ProducesResponseType<DefaultResponseModel<BookingDetailDTO>>(StatusCodes.Status200OK)]
         public async Task<IActionResult> GetTourBookingByIdAsync(string bookingId)
         {
             string? customerId = _tokenHelper.GetAccountIdFromToken(HttpContext);
@@ -135,11 +92,20 @@ namespace VietWay.API.Customer.Controllers
                     StatusCode = StatusCodes.Status401Unauthorized
                 });
             }
-            return Ok(new DefaultResponseModel<TourBookingInfoDTO>()
+            BookingDetailDTO? bookingDetailDTO = await _bookingService.GetBookingDetailAsync(customerId, bookingId);
+            if (bookingDetailDTO == null)
+            {
+                return NotFound(new DefaultResponseModel<object>()
+                {
+                    Message = "Not Found",
+                    StatusCode = StatusCodes.Status404NotFound
+                });
+            }
+            return Ok(new DefaultResponseModel<BookingDetailDTO>()
             {
                 Message = "Success",
                 StatusCode = StatusCodes.Status200OK,
-                Data = await _tourBookingService.GetTourBookingInfoAsync(bookingId, customerId)
+                Data = bookingDetailDTO
             });
         }
 
@@ -151,7 +117,7 @@ namespace VietWay.API.Customer.Controllers
         [HttpGet]
         [Produces("application/json")]
         [Authorize(Roles = nameof(UserRole.Customer))]
-        [ProducesResponseType<DefaultResponseModel<PaginatedList<TourBookingPreviewDTO>>>(StatusCodes.Status200OK)]
+        [ProducesResponseType<DefaultResponseModel<PaginatedList<BookingPreviewDTO>>>(StatusCodes.Status200OK)]
         public async Task<IActionResult> GetCustomerBookings(int? pageCount, int? pageIndex)
         {
             string? customerId = _tokenHelper.GetAccountIdFromToken(HttpContext);
@@ -165,12 +131,14 @@ namespace VietWay.API.Customer.Controllers
             }
             int checkedPageSize = (pageCount == null || pageCount < 1) ? 10 : (int)pageCount;
             int checkedPageIndex = (pageIndex == null || pageIndex < 1) ? 1 : (int)pageIndex;
-            var (totalCount, items) = await _tourBookingService.GetCustomerBookedToursAsync(customerId, checkedPageSize, checkedPageIndex);
-            return Ok(new DefaultResponseModel<PaginatedList<TourBookingPreviewDTO>>()
+
+            var (count, items) = await _bookingService.GetCustomerBookingsAsync(customerId, checkedPageSize, checkedPageIndex);
+
+            return Ok(new DefaultResponseModel<PaginatedList<BookingPreviewDTO>>()
             {
                 Data = new()
                 {
-                    Total = totalCount,
+                    Total = count,
                     PageSize = checkedPageSize,
                     PageIndex = checkedPageIndex,
                     Items = items
@@ -203,7 +171,7 @@ namespace VietWay.API.Customer.Controllers
             }
             try
             {
-                await _tourBookingService.CustomerCancelBookingAsync(bookingId, customerId, cancelBookingRequest.Reason);
+                await _bookingService.CancelBookingAsync(customerId, bookingId);
                 return Ok(new DefaultResponseModel<object>()
                 {
                     Message = "Booking cancelled successfully",

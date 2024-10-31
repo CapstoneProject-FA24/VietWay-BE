@@ -4,14 +4,14 @@ using Microsoft.EntityFrameworkCore;
 using VietWay.Repository.EntityModel;
 using VietWay.Repository.EntityModel.Base;
 using VietWay.Repository.UnitOfWork;
-using VietWay.Service.DataTransferObject;
-using VietWay.Service.Interface;
-using VietWay.Service.Jobs;
-using VietWay.Service.ThirdParty;
+using VietWay.Service.Management.DataTransferObject;
+using VietWay.Service.Management.Interface;
+using VietWay.Service.Management.Jobs;
+using VietWay.Service.ThirdParty.Cloudinary;
 using VietWay.Util.CustomExceptions;
 using VietWay.Util.IdUtil;
 
-namespace VietWay.Service.Implement
+namespace VietWay.Service.Management.Implement
 {
     public class AttractionService(IUnitOfWork unitOfWork, ICloudinaryService cloudinaryService, IIdGenerator idGenerator,
         IBackgroundJobClient backgroundJobClient) : IAttractionService
@@ -58,7 +58,7 @@ namespace VietWay.Service.Implement
         public async Task<(int totalCount, List<AttractionPreviewDTO> items)> GetAllApprovedAttractionsAsync(string? nameSearch, List<string>? provinceIds, List<string>? attractionTypeIds, int pageSize, int pageIndex)
         {
             IQueryable<Attraction> query = _unitOfWork.AttractionRepository.Query()
-                .Where(x=>x.Status==AttractionStatus.Approved && x.IsDeleted == false);
+                .Where(x => x.Status == AttractionStatus.Approved && x.IsDeleted == false);
             if (false == string.IsNullOrWhiteSpace(nameSearch))
             {
                 query = query.Where(x => x.Name.Contains(nameSearch));
@@ -91,8 +91,8 @@ namespace VietWay.Service.Implement
             return (count, items);
         }
 
-        public async Task<(int totalCount, List<AttractionPreviewWithCreateAtDTO> items)> GetAllAttractionsWithCreatorAsync(
-            string? nameSearch, List<string>? provinceIds, List<string>? attractionCategoryIds, AttractionStatus? status, 
+        public async Task<(int totalCount, List<AttractionPreviewDTO> items)> GetAllAttractionsWithCreatorAsync(
+            string? nameSearch, List<string>? provinceIds, List<string>? attractionCategoryIds, AttractionStatus? status,
             int pageSize, int pageIndex)
         {
             IQueryable<Attraction> query = _unitOfWork.AttractionRepository.Query();
@@ -113,13 +113,13 @@ namespace VietWay.Service.Implement
                 query = query.Where(x => x.Status == status);
             }
             int count = await query.CountAsync();
-            List<AttractionPreviewWithCreateAtDTO> attractions = await query
+            List<AttractionPreviewDTO> attractions = await query
                 .Include(x => x.AttractionImages)
                 .Include(x => x.Province)
                 .Include(x => x.AttractionCategory)
                 .Skip(pageSize * (pageIndex - 1))
                 .Take(pageSize)
-                .Select(x => new AttractionPreviewWithCreateAtDTO
+                .Select(x => new AttractionPreviewDTO
                 {
                     AttractionId = x.AttractionId,
                     Name = x.Name,
@@ -136,7 +136,7 @@ namespace VietWay.Service.Implement
         public async Task<AttractionDetailDTO?> GetApprovedAttractionDetailById(string attractionId)
         {
             return await _unitOfWork.AttractionRepository.Query()
-                .Where(x=>x.AttractionId.Equals(attractionId) && x.Status == AttractionStatus.Approved && x.IsDeleted == false)
+                .Where(x => x.AttractionId.Equals(attractionId) && x.Status == AttractionStatus.Approved && x.IsDeleted == false)
                 .Include(x => x.AttractionImages)
                 .Include(x => x.Province)
                 .Include(x => x.AttractionCategory)
@@ -145,17 +145,19 @@ namespace VietWay.Service.Implement
                     AttractionId = x.AttractionId,
                     Name = x.Name,
                     Address = x.Address,
-                    Province = new ProvinceBriefPreviewDTO { ProvinceId = x.ProvinceId, ProvinceName = x.Province.ProvinceName },
-                    AttractionType = new AttractionCategoryPreviewDTO { AttractionCategoryId = x.AttractionCategoryId, Name = x.AttractionCategory.Name },
+                    Province = new ProvinceBriefPreviewDTO(),
+                    AttractionType = new AttractionCategoryPreviewDTO(),
                     Description = x.Description,
-                    Images = x.AttractionImages.Select(x => new ImageDTO() { ImageId = x.ImageId, Url = x.ImageUrl }).ToList(),
+                    Images = x.AttractionImages.Select(x => new ImageDTO()).ToList(),
                     ContactInfo = x.ContactInfo,
                     GooglePlaceId = x.GooglePlaceId,
-                    Website = x.Website
+                    Website = x.Website,
+                    Status = x.Status,
+                    CreatedDate = x.CreatedAt
                 }).SingleOrDefaultAsync();
         }
 
-        public async Task<AttractionDetailWithCreatorDTO_NEEDFIX?> GetAttractionWithCreateDateByIdAsync(string attractionId)
+        public async Task<AttractionDetailDTO?> GetAttractionWithCreateDateByIdAsync(string attractionId)
         {
             return await _unitOfWork.AttractionRepository
                 .Query()
@@ -163,17 +165,17 @@ namespace VietWay.Service.Implement
                 .Include(x => x.AttractionImages)
                 .Include(x => x.Province)
                 .Include(x => x.AttractionCategory)
-                .Select(x => new AttractionDetailWithCreatorDTO_NEEDFIX
+                .Select(x => new AttractionDetailDTO
                 {
                     AttractionId = x.AttractionId,
                     Name = x.Name,
                     Address = x.Address,
-                    Province = new ProvinceBriefPreviewDTO { ProvinceId = x.ProvinceId, ProvinceName = x.Province.ProvinceName },
-                    AttractionType = new AttractionCategoryPreviewDTO { AttractionCategoryId = x.AttractionCategoryId, Name = x.AttractionCategory.Name },
+                    Province = new ProvinceBriefPreviewDTO(),
+                    AttractionType = new AttractionCategoryPreviewDTO(),
                     Status = x.Status,
                     CreatedDate = x.CreatedAt,
                     Description = x.Description,
-                    Images = x.AttractionImages.Select(x => new ImageDTO() { ImageId = x.ImageId, Url = x.ImageUrl }).ToList(),
+                    Images = x.AttractionImages.Select(x => new ImageDTO()).ToList(),
                     ContactInfo = x.ContactInfo,
                     GooglePlaceId = x.GooglePlaceId,
                     Website = x.Website
@@ -208,7 +210,7 @@ namespace VietWay.Service.Implement
                 throw;
             }
         }
-        public async Task UpdateAttractionImageAsync(string attractionId, List<IFormFile>? imageFiles, 
+        public async Task UpdateAttractionImageAsync(string attractionId, List<IFormFile>? imageFiles,
             List<string>? imageIdsToRemove)
         {
             Attraction attraction = await _unitOfWork.AttractionRepository.Query()
@@ -218,7 +220,7 @@ namespace VietWay.Service.Implement
             {
                 var enqueuedJobs = new List<Action>();
                 await _unitOfWork.BeginTransactionAsync();
-                attraction.AttractionImages ??= [] ;
+                attraction.AttractionImages ??= [];
                 if (imageFiles != null)
                 {
                     foreach (var imageFile in imageFiles)
@@ -248,7 +250,7 @@ namespace VietWay.Service.Implement
                         attraction.AttractionImages.Remove(image);
                     }
                     enqueuedJobs.Add(() => _backgroundJobClient.Enqueue<CloudImageProcessingJob>(
-                        x => x.DeleteImagesAsync(imagesToRemove.Select(x=>x.ImageId))));
+                        x => x.DeleteImagesAsync(imagesToRemove.Select(x => x.ImageId))));
                 }
                 await _unitOfWork.AttractionRepository.UpdateAsync(attraction);
 

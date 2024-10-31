@@ -4,7 +4,7 @@ using VietWay.API.Management.RequestModel;
 using VietWay.API.Management.ResponseModel;
 using VietWay.Repository.EntityModel;
 using VietWay.Repository.EntityModel.Base;
-using VietWay.Service.Interface;
+using VietWay.Service.Management.Interface;
 
 namespace VietWay.API.Management.Controllers
 {

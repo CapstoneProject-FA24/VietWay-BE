@@ -2,16 +2,16 @@
 using VietWay.Repository.EntityModel;
 using VietWay.Repository.EntityModel.Base;
 using VietWay.Repository.UnitOfWork;
-using VietWay.Service.DataTransferObject;
-using VietWay.Service.Interface;
+using VietWay.Service.Management.DataTransferObject;
+using VietWay.Service.Management.Interface;
 using VietWay.Util.CustomExceptions;
 using VietWay.Util.DateTimeUtil;
 using VietWay.Util.HashUtil;
 using VietWay.Util.IdUtil;
 
-namespace VietWay.Service.Implement
+namespace VietWay.Service.Management.Implement
 {
-    public class CustomerService(IUnitOfWork unitOfWork, IHashHelper hashHelper, 
+    public class CustomerService(IUnitOfWork unitOfWork, IHashHelper hashHelper,
         IIdGenerator idGenerator, ITimeZoneHelper timeZoneHelper) : ICustomerService
     {
         private readonly IUnitOfWork _unitOfWork = unitOfWork;
@@ -84,7 +84,7 @@ namespace VietWay.Service.Implement
                 customer.Account.CreatedAt = _timeZoneHelper.GetUTC7Now();
                 await _unitOfWork.CustomerRepository.CreateAsync(customer);
                 await _unitOfWork.CommitTransactionAsync();
-            } 
+            }
             catch
             {
                 await _unitOfWork.RollbackTransactionAsync();

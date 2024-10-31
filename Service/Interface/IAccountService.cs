@@ -1,7 +1,7 @@
 ﻿using VietWay.Repository.EntityModel;
 using VietWay.Repository.EntityModel.Base;
 
-namespace VietWay.Service.Interface
+namespace VietWay.Service.Management.Interface
 {
     public interface IAccountService
     {

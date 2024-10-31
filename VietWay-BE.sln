@@ -7,13 +7,17 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VietWay.API.Management", "V
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VietWay.Repository", "Repository\VietWay.Repository.csproj", "{C725CDEF-D4DE-4E47-8C78-C7E745171115}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VietWay.Service", "Service\VietWay.Service.csproj", "{4933E75A-8BE8-478D-83B0-1ED3A457D327}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VietWay.Service.Management", "Service\VietWay.Service.Management.csproj", "{4933E75A-8BE8-478D-83B0-1ED3A457D327}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VietWay.Util", "VietWay.Util\VietWay.Util.csproj", "{098F1730-E83B-4193-A460-075E484EBE4F}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VietWay.API.Customer", "VietWay.API.Customer\VietWay.API.Customer.csproj", "{C60FA13B-9392-41F5-B24D-6F672F762C39}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VietWay.Middleware", "VietWay.Middleware\VietWay.Middleware.csproj", "{99ED2C8A-470D-4669-AB76-23DAE3A5424E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VietWay.Service.Customer", "VietWay.Service.Customer\VietWay.Service.Customer.csproj", "{74C419F2-AB41-47F1-9803-386EA1B6BDA0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VietWay.Service.ThirdParty", "VietWay.Service.ThirdParty\VietWay.Service.ThirdParty.csproj", "{A4232D11-5312-4390-93E0-37FB9C08BEE3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -45,6 +49,14 @@ Global
 		{99ED2C8A-470D-4669-AB76-23DAE3A5424E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{99ED2C8A-470D-4669-AB76-23DAE3A5424E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{99ED2C8A-470D-4669-AB76-23DAE3A5424E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{74C419F2-AB41-47F1-9803-386EA1B6BDA0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{74C419F2-AB41-47F1-9803-386EA1B6BDA0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{74C419F2-AB41-47F1-9803-386EA1B6BDA0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{74C419F2-AB41-47F1-9803-386EA1B6BDA0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A4232D11-5312-4390-93E0-37FB9C08BEE3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A4232D11-5312-4390-93E0-37FB9C08BEE3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A4232D11-5312-4390-93E0-37FB9C08BEE3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A4232D11-5312-4390-93E0-37FB9C08BEE3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

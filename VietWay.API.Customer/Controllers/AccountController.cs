@@ -4,7 +4,7 @@ using VietWay.API.Customer.RequestModel;
 using VietWay.API.Customer.ResponseModel;
 using VietWay.Repository.EntityModel;
 using VietWay.Repository.EntityModel.Base;
-using VietWay.Service.Interface;
+using VietWay.Service.Customer.Interface;
 using VietWay.Util.TokenUtil;
 
 namespace VietWay.API.Customer.Controllers
