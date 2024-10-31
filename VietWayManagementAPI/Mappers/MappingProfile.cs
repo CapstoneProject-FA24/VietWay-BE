@@ -108,6 +108,20 @@ namespace VietWay.API.Management.Mappers
                     IsDeleted = false,
                 }));
             CreateMap<CreatePostRequest, Post>();
+            CreateMap<CreateManagerAccountRequest, Manager>()
+                .ForMember(dest => dest.FullName, opt => opt.MapFrom(src => src.FullName))
+                .ForMember(dest => dest.IsDeleted, opt => opt.MapFrom(src => false))
+                .ForMember(dest => dest.ManagerId, opt => opt.MapFrom(src => ""))
+                .ForMember(dest => dest.Account, opt => opt.MapFrom(src => new Account()
+                {
+                    AccountId = "",
+                    Email = src.Email,
+                    Password = src.Password,
+                    PhoneNumber = src.PhoneNumber,
+                    Role = UserRole.Manager,
+                    CreatedAt = DateTime.MinValue,
+                    IsDeleted = false,
+                }));
         }
     }
 }

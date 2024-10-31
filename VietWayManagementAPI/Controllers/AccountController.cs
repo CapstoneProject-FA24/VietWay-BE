@@ -17,6 +17,7 @@ namespace VietWay.API.Management.Controllers
     [Route("api/account")]
     [ApiController]
     public class AccountController(IAccountService accountService, 
+        IManagerService managerService,
         ITokenHelper tokenHelper, 
         IMapper mapper,
         IStaffService staffService) : ControllerBase
@@ -25,6 +26,7 @@ namespace VietWay.API.Management.Controllers
         private readonly ITokenHelper _tokenHelper = tokenHelper;
         private readonly IMapper _mapper = mapper;
         private readonly IStaffService _staffService = staffService;
+        private readonly IManagerService _managerService = managerService;
 
         /// <summary>
         /// ✅ Login with email/phone and password
@@ -54,7 +56,7 @@ namespace VietWay.API.Management.Controllers
         /// <summary>
         /// ✅ Create new staff account
         /// </summary>
-        [HttpPost("register")]
+        [HttpPost("create-staff-account")]
         [Produces("application/json")]
         [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status200OK)]
         [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status400BadRequest)]
@@ -65,6 +67,24 @@ namespace VietWay.API.Management.Controllers
             return Ok(new DefaultResponseModel<object>()
             {
                 Message = "Create staff account successfully",
+                StatusCode = StatusCodes.Status200OK
+            });
+        }
+
+        /// <summary>
+        /// ✅ Create new manager account
+        /// </summary>
+        [HttpPost("create-manager-account")]
+        [Produces("application/json")]
+        [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status200OK)]
+        [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> CreateManagerAccountAsync([FromBody] CreateManagerAccountRequest request)
+        {
+            Manager account = _mapper.Map<Manager>(request);
+            await _managerService.RegisterAccountAsync(account);
+            return Ok(new DefaultResponseModel<object>()
+            {
+                Message = "Create manager account successfully",
                 StatusCode = StatusCodes.Status200OK
             });
         }
