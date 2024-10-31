@@ -5,7 +5,7 @@ using VietWay.Repository.EntityModel.Base;
 using VietWay.Repository.UnitOfWork;
 using VietWay.Service.Management.DataTransferObject;
 using VietWay.Service.Management.Interface;
-using VietWay.Service.Management.ThirdParty;
+using VietWay.Service.ThirdParty.Cloudinary;
 using VietWay.Util.DateTimeUtil;
 using VietWay.Util.IdUtil;
 
@@ -259,7 +259,6 @@ namespace VietWay.Service.Management.Implement
                     Provinces = x.TourTemplateProvinces.Select(y => y.Province.ProvinceName).ToList(),
                     StartDate = x.Tours.Where(x => x.Status == TourStatus.Scheduled).Select(y => (DateTime)y.StartDate).ToList(),
                     TourName = x.TourName,
-                    Status = x.Status
                 })
                 .ToListAsync();
             return (count, items);

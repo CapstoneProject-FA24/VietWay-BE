@@ -4,8 +4,9 @@ using Microsoft.AspNetCore.Mvc;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using VietWay.API.Management.RequestModel;
-using VietWay.Service.DataTransferObject;
+using VietWay.Service.Management.DataTransferObject;
 using VietWay.Service.Management.Interface;
+using VietWay.Service.ThirdParty.VnPay;
 
 namespace VietWay.API.Management.Controllers
 {

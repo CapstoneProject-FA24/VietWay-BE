@@ -14,12 +14,7 @@ namespace VietWay.Service.Management.Implement
         {
             return await _unitOfWork.AttractionCategoryRepository
                 .Query()
-                .Select(x => new AttractionCategoryPreviewDTO
-                {
-                    AttractionCategoryId = x.AttractionCategoryId,
-                    Name = x.Name,
-                    Description = x.Description
-                }).ToListAsync();
+                .Select(x => new AttractionCategoryPreviewDTO { }).ToListAsync();
         }
     }
 }

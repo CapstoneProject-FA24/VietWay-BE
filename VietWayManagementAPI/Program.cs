@@ -13,8 +13,8 @@ using Hangfire;
 using VietWay.Util;
 using VietWay.Service.Management.Implement;
 using VietWay.Service.Management.Interface;
-using VietWay.Service.Management.ThirdParty;
-
+using VietWay.Service.ThirdParty.Cloudinary;
+using VietWay.Service.ThirdParty.VnPay;
 namespace VietWay.API.Management
 {
     public class Program

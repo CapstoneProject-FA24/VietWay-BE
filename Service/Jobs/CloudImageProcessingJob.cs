@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using VietWay.Service.Management.ThirdParty;
+using VietWay.Service.ThirdParty.Cloudinary;
 
 namespace VietWay.Service.Management.Jobs
 {

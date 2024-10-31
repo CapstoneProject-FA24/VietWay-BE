@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace VietWay.Service.ThirdParty
+namespace VietWay.Service.ThirdParty.VnPay
 {
     public class VnPayIPN
     {

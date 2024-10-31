@@ -98,7 +98,7 @@ namespace VietWay.Service.Management.Implement
                 .Query()
                 .Where(x => x.BookingId == bookingId && x.CustomerId == customerId)
                 .Include(x => x.Tour.TourTemplate.TourTemplateImages)
-                .Include(x => x.BookingTourParticipants)
+                .Include(x => x.BookingTourists)
                 .Select(x => new TourBookingInfoDTO()
                 {
                     BookingId = x.BookingId,
@@ -117,7 +117,7 @@ namespace VietWay.Service.Management.Implement
                     TourName = x.Tour.TourTemplate.TourName,
                     CreatedOn = x.CreatedAt,
                     Note = x.Note,
-                    Participants = x.BookingTourParticipants.Select(y => new TourParticipantDTO()
+                    Participants = x.BookingTourists.Select(y => new TourParticipantDTO()
                     {
                         DateOfBirth = y.DateOfBirth,
                         FullName = y.FullName,

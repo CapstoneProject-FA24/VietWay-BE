@@ -10,14 +10,14 @@ namespace VietWay.Service.Management.Interface
         public Task<string> CreateAttractionAsync(Attraction attraction);
         public Task DeleteAttractionAsync(string attractionId);
         public Task UpdateAttractionAsync(Attraction newAttraction);
-        public Task<(int totalCount, List<AttractionPreviewWithCreateAtDTO> items)> GetAllAttractionsWithCreatorAsync(
+        public Task<(int totalCount, List<AttractionPreviewDTO> items)> GetAllAttractionsWithCreatorAsync(
             string? nameSearch,
             List<string>? provinceIds,
             List<string>? attractionTypeIds,
             AttractionStatus? status,
             int pageSize,
             int pageIndex);
-        public Task<AttractionDetailWithCreatorDTO_NEEDFIX?> GetAttractionWithCreateDateByIdAsync(string attractionId);
+        public Task<AttractionDetailDTO?> GetAttractionWithCreateDateByIdAsync(string attractionId);
         public Task UpdateAttractionImageAsync(string attractionId, List<IFormFile>? imageFiles, List<string>? imageIdsToRemove);
 
         public Task<AttractionDetailDTO?> GetApprovedAttractionDetailById(string attractionId);

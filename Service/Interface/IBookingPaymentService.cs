@@ -1,5 +1,5 @@
 ﻿using VietWay.Repository.EntityModel;
-using VietWay.Service.DataTransferObject;
+using VietWay.Service.ThirdParty.VnPay;
 
 namespace VietWay.Service.Management.Interface
 {
