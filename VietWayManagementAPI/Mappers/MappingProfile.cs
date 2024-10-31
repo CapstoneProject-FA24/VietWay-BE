@@ -93,6 +93,35 @@ namespace VietWay.API.Management.Mappers
             CreateMap<AttractionSchedule, AttractionSchedulePreview>();
             CreateMap<TourReview, CustomerFeedbackPreview>();
             CreateMap<VnPayIPNRequest, VnPayIPN>();
+            CreateMap<CreateAccountRequest, Staff>()
+                .ForMember(dest => dest.FullName, opt => opt.MapFrom(src => src.FullName))
+                .ForMember(dest => dest.IsDeleted, opt => opt.MapFrom(src => false))
+                .ForMember(dest => dest.StaffId, opt => opt.MapFrom(src => ""))
+                .ForMember(dest => dest.Account, opt => opt.MapFrom(src => new Account()
+                {
+                    AccountId = "",
+                    Email = src.Email,
+                    Password = src.Password,
+                    PhoneNumber = src.PhoneNumber,
+                    Role = UserRole.Staff,
+                    CreatedAt = DateTime.MinValue,
+                    IsDeleted = false,
+                }));
+            CreateMap<CreatePostRequest, Post>();
+            CreateMap<CreateManagerAccountRequest, Manager>()
+                .ForMember(dest => dest.FullName, opt => opt.MapFrom(src => src.FullName))
+                .ForMember(dest => dest.IsDeleted, opt => opt.MapFrom(src => false))
+                .ForMember(dest => dest.ManagerId, opt => opt.MapFrom(src => ""))
+                .ForMember(dest => dest.Account, opt => opt.MapFrom(src => new Account()
+                {
+                    AccountId = "",
+                    Email = src.Email,
+                    Password = src.Password,
+                    PhoneNumber = src.PhoneNumber,
+                    Role = UserRole.Manager,
+                    CreatedAt = DateTime.MinValue,
+                    IsDeleted = false,
+                }));
         }
     }
 }
