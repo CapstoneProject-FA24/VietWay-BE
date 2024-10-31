@@ -8,5 +8,6 @@ namespace VietWay.Service.Management.Interface
         public Task<Staff?> GetStaffInfoById(string id);
         public Task<Staff> EditStaffInfo(Staff staffInfo);
         public Task<Staff> AddStaff(Staff staffInfo);
+        public Task RegisterAccountAsync(Staff staff);
     }
 }

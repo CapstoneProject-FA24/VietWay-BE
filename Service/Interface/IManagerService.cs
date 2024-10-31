@@ -8,5 +8,6 @@ namespace VietWay.Service.Management.Interface
         public Task<Manager?> GetManagerInfoById(string id);
         public Task<Manager> EditManagerInfo(Manager managerInfo);
         public Task<Manager> AddManager(Manager managerInfo);
+        public Task RegisterAccountAsync(Manager manager);
     }
 }

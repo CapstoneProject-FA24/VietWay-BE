@@ -11,6 +11,7 @@ using VietWay.Util.DateTimeUtil;
 using VietWay.Util.TokenUtil;
 using Hangfire;
 using VietWay.Util;
+using VietWay.Util.HashUtil;
 using VietWay.Service.Management.Implement;
 using VietWay.Service.Management.Interface;
 using VietWay.Service.ThirdParty.Cloudinary;
@@ -48,8 +49,8 @@ namespace VietWay.API.Management
             {
                 string issuer = Environment.GetEnvironmentVariable("JWT_ISSUER")
                     ?? throw new Exception("JWT_ISSUER is not set in environment variables");
-                string audience = Environment.GetEnvironmentVariable("JWT_ISSUER")
-                    ?? throw new Exception("JWT_ISSUER is not set in environment variables");
+                string audience = Environment.GetEnvironmentVariable("JWT_AUDIENCE")
+                    ?? throw new Exception("JWT_AUDIENCE is not set in environment variables");
                 string secretKey = Environment.GetEnvironmentVariable("JWT_KEY")
                     ?? throw new Exception("JWT_KEY is not set in environment variables");
                 o.TokenValidationParameters = new()
@@ -126,7 +127,10 @@ namespace VietWay.API.Management
             builder.Services.AddScoped<IBookingPaymentService, BookingPaymentService>();
             builder.Services.AddScoped<IVnPayService, VnPayService>();
             builder.Services.AddScoped<ITimeZoneHelper, TimeZoneHelper>();
-            builder.Services.AddScoped<ITokenHelper,TokenHelper>();
+            builder.Services.AddScoped<IPostService, PostService>();
+            builder.Services.AddScoped<IHashHelper, BCryptHashHelper>();
+            builder.Services.AddScoped<IAccountService, AccountService>();
+            builder.Services.AddScoped<ITokenHelper, TokenHelper>();
             #endregion
             builder.Services.AddSingleton<IIdGenerator, SnowflakeIdGenerator>();
             var app = builder.Build();
