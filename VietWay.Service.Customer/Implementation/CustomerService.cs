@@ -29,7 +29,7 @@ namespace VietWay.Service.Customer.Implementation
                     ProvinceId = x.ProvinceId,
                     ProvinceName = x.Province.Name,
                     DateOfBirth = x.DateOfBirth,
-                    Email = x.Account.PhoneNumber,
+                    Email = x.Account.Email,
                     Gender = x.Gender,
                 }).SingleOrDefaultAsync();
         }
