@@ -3,29 +3,49 @@ using VietWay.Repository.EntityModel;
 using VietWay.Repository.UnitOfWork;
 using VietWay.Repository.EntityModel.Base;
 using VietWay.Service.Management.Interface;
+using VietWay.Util.DateTimeUtil;
+using VietWay.Util.IdUtil;
 
 namespace VietWay.Service.Management.Implement
 {
-    public class TourService : ITourService
+    public class TourService(IUnitOfWork unitOfWork, IIdGenerator idGenerator, ITimeZoneHelper timeZoneHelper) : ITourService
     {
-        private readonly IUnitOfWork _unitOfWork;
-        public TourService(IUnitOfWork unitOfWork)
+        private readonly IUnitOfWork _unitOfWork = unitOfWork;
+        private readonly ITimeZoneHelper _timeZoneHelper = timeZoneHelper;
+        private readonly IIdGenerator _idGenerator = idGenerator;
+        public async Task<string> CreateTour(Tour tour)
         {
-            _unitOfWork = unitOfWork;
+            try
+            {
+                await _unitOfWork.BeginTransactionAsync();
+                tour.CreatedAt = _timeZoneHelper.GetUTC7Now();
+                tour.TourId = _idGenerator.GenerateId();
+                foreach (TourPrice item in tour.TourPrices)
+                {
+                    item.PriceId = _idGenerator.GenerateId();
+                    item.TourId = tour.TourId;
+                }
+                foreach (TourRefundPolicy item in tour.TourRefundPolicies)
+                {
+                    item.TourRefundPolicyId = _idGenerator.GenerateId();
+                    item.TourId = tour.TourId;
+                }
+                await _unitOfWork.TourRepository
+                    .CreateAsync(tour);
+                await _unitOfWork.CommitTransactionAsync();
+                return tour.TourId;
+            }
+            catch
+            {
+                await _unitOfWork.RollbackTransactionAsync();
+                throw;
+            }
         }
 
-        public async Task<Tour> CreateTour(Tour tour)
-        {
-            await _unitOfWork.TourRepository
-                .CreateAsync(tour);
-            return tour;
-        }
-
-        public async Task<Tour> EditTour(Tour updatedTour)
+        public async Task EditTour(Tour updatedTour)
         {
             await _unitOfWork.TourRepository
                 .UpdateAsync(updatedTour);
-            return updatedTour;
         }
 
         public async Task<(int totalCount, List<Tour> items)> GetAllTour(int pageSize, int pageIndex)
