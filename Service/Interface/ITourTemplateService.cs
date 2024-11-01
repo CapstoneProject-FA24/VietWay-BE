@@ -40,5 +40,6 @@ namespace VietWay.Service.Management.Interface
             int pageIndex);
 
         public Task<List<TourTemplatePreviewDTO>> GetTourTemplatesPreviewRelatedToAttractionAsync(string attractionId, int previewCount);
+        Task UpdateTourTemplateImageAsync(string tourTemplateId, string staffId, List<IFormFile>? newImages, List<string>? deletedImageIds);
     }
 }

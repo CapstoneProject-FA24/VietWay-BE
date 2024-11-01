@@ -180,16 +180,6 @@ namespace VietWay.API.Management.Controllers
                 };
                 return BadRequest(errorResponse);
             }
-            Attraction? attraction = null;
-            if (null == attraction)
-            {
-                DefaultResponseModel<object> errorResponse = new()
-                {
-                    Message = "Attraction not found",
-                    StatusCode = StatusCodes.Status404NotFound
-                };
-                return NotFound(errorResponse);
-            }
             await _attractionService.UpdateAttractionImageAsync(attractionId, request.NewImages, request.DeletedImageIds);
             DefaultResponseModel<object> response = new()
             {

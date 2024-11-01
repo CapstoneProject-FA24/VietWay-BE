@@ -5,35 +5,37 @@ using VietWay.API.Management.ResponseModel;
 using VietWay.Repository.EntityModel;
 using VietWay.Repository.EntityModel.Base;
 using VietWay.Service.Management.Interface;
+using VietWay.Util.TokenUtil;
 
 namespace VietWay.API.Management.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class TourTemplateController(ITourTemplateService tourTemplateService, IMapper mapper) : ControllerBase
+    public class TourTemplateController(ITourTemplateService tourTemplateService, IMapper mapper, ITokenHelper tokenHelper) : ControllerBase
     {
         private readonly ITourTemplateService _tourTemplateService = tourTemplateService;
         private readonly IMapper _mapper = mapper;
+        private readonly ITokenHelper _tokenHelper = tokenHelper;
         [HttpGet]
         [Produces("application/json")]
         [ProducesResponseType<DefaultResponseModel<PaginatedList<TourTemplatePreview>>>(StatusCodes.Status200OK)]
         public async Task<IActionResult> GetAllTemplatesAsync(
             string? nameSearch,
-            [FromQuery]List<string>? templateCategoryIds,
-            [FromQuery]List<string>? provinceIds,
-            [FromQuery]List<string>? durationIds,
+            [FromQuery] List<string>? templateCategoryIds,
+            [FromQuery] List<string>? provinceIds,
+            [FromQuery] List<string>? durationIds,
             TourTemplateStatus? status,
-            int? pageSize, 
+            int? pageSize,
             int? pageIndex)
         {
             int checkedPageSize = (pageSize == null || pageSize < 1) ? 10 : (int)pageSize;
-            int checkedPageIndex = (pageIndex == null || pageIndex < 1)? 1 : (int)pageIndex;
+            int checkedPageIndex = (pageIndex == null || pageIndex < 1) ? 1 : (int)pageIndex;
 
-            var result = await _tourTemplateService.GetAllTemplatesAsync(nameSearch,templateCategoryIds,provinceIds,durationIds,status,checkedPageSize,checkedPageIndex);
-            List<TourTemplatePreview> tourTemplatePreviews = _mapper.Map<List<TourTemplatePreview>>(result.items);
+            var (totalCount, items) = await _tourTemplateService.GetAllTemplatesAsync(nameSearch, templateCategoryIds, provinceIds, durationIds, status, checkedPageSize, checkedPageIndex);
+            List<TourTemplatePreview> tourTemplatePreviews = _mapper.Map<List<TourTemplatePreview>>(items);
             PaginatedList<TourTemplatePreview> pagedResponse = new()
             {
-                Total = result.totalCount,
+                Total = totalCount,
                 PageSize = checkedPageSize,
                 PageIndex = checkedPageIndex,
                 Items = tourTemplatePreviews
@@ -62,7 +64,7 @@ namespace VietWay.API.Management.Controllers
                     Message = $"Can not find Tour template with id {tourTemplateId}"
                 };
                 return NotFound(response);
-            } 
+            }
             else
             {
                 DefaultResponseModel<TourTemplateDetail> response = new()
@@ -77,7 +79,7 @@ namespace VietWay.API.Management.Controllers
         [HttpPost]
         [Produces("application/json")]
         [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status200OK)]
-        public async Task<IActionResult> CreateTourTemplate([FromBody]CreateTourTemplateRequest request)
+        public async Task<IActionResult> CreateTourTemplate([FromBody] CreateTourTemplateRequest request)
         {
             TourTemplate tourTemplate = _mapper.Map<TourTemplate>(request);
 #warning replace createdby with current user id in token
@@ -91,7 +93,7 @@ namespace VietWay.API.Management.Controllers
         [HttpPut("{tourTemplateId}")]
         [Produces("application/json")]
         [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status200OK)]
-        public async Task<IActionResult> UpdateTourTemplate(string tourTemplateId,CreateTourTemplateRequest request)
+        public async Task<IActionResult> UpdateTourTemplate(string tourTemplateId, CreateTourTemplateRequest request)
         {
             TourTemplate? tourTemplate = await _tourTemplateService.GetTemplateByIdAsync(tourTemplateId);
             if (tourTemplate == null)
@@ -119,7 +121,7 @@ namespace VietWay.API.Management.Controllers
                 };
                 return BadRequest(errorResponse);
             }
-            tourTemplate.Code = request.Code?? "";
+            tourTemplate.Code = request.Code ?? "";
             tourTemplate.TourName = request.TourName ?? "";
             tourTemplate.Description = request.Description ?? "";
             tourTemplate.DurationId = request.DurationId;
@@ -136,7 +138,7 @@ namespace VietWay.API.Management.Controllers
                     });
             }
             List<TourTemplateSchedule> newSchedule = [];
-            foreach(var schedule in request.Schedules)
+            foreach (var schedule in request.Schedules)
             {
                 newSchedule.Add(new()
                 {
@@ -178,6 +180,37 @@ namespace VietWay.API.Management.Controllers
             return Ok(new DefaultResponseModel<object>()
             {
                 Message = "Tour template deleted successfully",
+                StatusCode = StatusCodes.Status200OK
+            });
+        }
+        [HttpPatch("{tourTemplateId}/images")]
+        [Produces("application/json")]
+        public async Task<IActionResult> UpdateTourTemplateImageAsync(string tourTemplateId, UpdateImageRequest request)
+        {
+            string? staffId = _tokenHelper.GetAccountIdFromToken(HttpContext);
+            if (staffId == null)
+            {
+                return Unauthorized(new DefaultResponseModel<string>()
+                {
+                    Message = "Unauthorized",
+                    Data = null,
+                    StatusCode = StatusCodes.Status401Unauthorized
+                });
+            }
+            if (0 == request.NewImages?.Count && 0 == request.DeletedImageIds?.Count)
+            {
+                DefaultResponseModel<object> errorResponse = new()
+                {
+                    Message = "Nothing to update",
+                    StatusCode = StatusCodes.Status400BadRequest
+                };
+                return BadRequest(errorResponse);
+            }
+            await _tourTemplateService.UpdateTourTemplateImageAsync(tourTemplateId, staffId, request.NewImages, request.DeletedImageIds);
+            return Ok(new DefaultResponseModel<string>()
+            {
+                Message = "Success",
+                Data = null,
                 StatusCode = StatusCodes.Status200OK
             });
         }

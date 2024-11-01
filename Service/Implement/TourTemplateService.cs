@@ -6,6 +6,7 @@ using VietWay.Repository.UnitOfWork;
 using VietWay.Service.Management.DataTransferObject;
 using VietWay.Service.Management.Interface;
 using VietWay.Service.ThirdParty.Cloudinary;
+using VietWay.Util.CustomExceptions;
 using VietWay.Util.DateTimeUtil;
 using VietWay.Util.IdUtil;
 
@@ -277,6 +278,55 @@ namespace VietWay.Service.Management.Implement
                     TourName = x.TourName,
                     TourTemplateId = x.TourTemplateId
                 }).ToListAsync();
+        }
+
+        public async Task UpdateTourTemplateImageAsync(string tourTemplateId, string staffId, List<IFormFile>? newImages, List<string>? imageIdsToRemove)
+        {
+            TourTemplate tourTemplate = await _unitOfWork.TourTemplateRepository.Query()
+                .Include(x => x.TourTemplateImages).SingleOrDefaultAsync(x => x.TourTemplateId.Equals(tourTemplateId))
+                ?? throw new ResourceNotFoundException("Tour template not found");
+            try
+            {
+                var enqueuedJobs = new List<Action>();
+                await _unitOfWork.BeginTransactionAsync();
+                tourTemplate.TourTemplateImages ??= [];
+                if (newImages != null)
+                {
+                    foreach (var imageFile in newImages)
+                    {
+                        string imageId = _idGenerator.GenerateId();
+                        using Stream stream = imageFile.OpenReadStream();
+                        enqueuedJobs.Add(() => _cloudinaryService.UploadImageAsync(imageId, imageFile.FileName, stream));
+                        tourTemplate.TourTemplateImages.Add(new TourTemplateImage
+                        {
+                            TourTemplateId = tourTemplate.TourTemplateId,
+                            ImageId = imageId,
+                            ImageUrl = _cloudinaryService.GetImage(imageId)
+                        });
+                    }
+                }
+                List<TourTemplateImage>? imagesToRemove = null;
+                if (imageIdsToRemove?.Count > 0)
+                {
+                    imagesToRemove = tourTemplate.TourTemplateImages
+                        .Where(x => imageIdsToRemove.Contains(x.ImageId))
+                        .ToList();
+                    foreach (TourTemplateImage image in imagesToRemove)
+                    {
+                        tourTemplate.TourTemplateImages.Remove(image);
+                    }
+                    enqueuedJobs.Add(() => _cloudinaryService.DeleteImagesAsync(imageIdsToRemove));
+                }
+                await _unitOfWork.TourTemplateRepository.UpdateAsync(tourTemplate);
+
+                await _unitOfWork.CommitTransactionAsync();
+                enqueuedJobs.ForEach(job => job.Invoke());
+            }
+            catch
+            {
+                await _unitOfWork.RollbackTransactionAsync();
+                throw;
+            }
         }
     }
 }

@@ -26,11 +26,11 @@ namespace VietWay.Service.ThirdParty.Cloudinary
                     .FetchFormat("auto"))
                 .BuildUrl(publicId);
         }
-        public async Task UploadImageAsync(string publicId, string filePath, string fileName)
+        public async Task UploadImageAsync(string publicId, string fileName, Stream fileStream)
         {
             ImageUploadParams uploadParams = new()
             {
-                File = new FileDescription(fileName, filePath),
+                File = new FileDescription(fileName,fileStream),
                 PublicId = publicId
             };
             _ = await _cloudinary.UploadAsync(uploadParams);

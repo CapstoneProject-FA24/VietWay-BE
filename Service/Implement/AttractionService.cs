@@ -226,11 +226,8 @@ namespace VietWay.Service.Management.Implement
                     foreach (var imageFile in imageFiles)
                     {
                         string imageId = _idGenerator.GenerateId();
-                        string filePath = Path.GetTempFileName();
-                        using FileStream stream = new(filePath, FileMode.Create);
-                        await imageFile.CopyToAsync(stream);
-                        enqueuedJobs.Add(() => _backgroundJobClient.Enqueue<CloudImageProcessingJob>(
-                            x => x.UploadImageAsync(imageId, filePath, imageFile.FileName)));
+                        using Stream stream = imageFile.OpenReadStream();
+                        enqueuedJobs.Add(() => _cloudinaryService.UploadImageAsync(imageId,imageFile.FileName,stream));
                         attraction.AttractionImages.Add(new AttractionImage
                         {
                             AttractionId = attraction.AttractionId,
@@ -249,8 +246,7 @@ namespace VietWay.Service.Management.Implement
                     {
                         attraction.AttractionImages.Remove(image);
                     }
-                    enqueuedJobs.Add(() => _backgroundJobClient.Enqueue<CloudImageProcessingJob>(
-                        x => x.DeleteImagesAsync(imagesToRemove.Select(x => x.ImageId))));
+                    enqueuedJobs.Add(() => _cloudinaryService.DeleteImagesAsync(imageIdsToRemove));
                 }
                 await _unitOfWork.AttractionRepository.UpdateAsync(attraction);
 
