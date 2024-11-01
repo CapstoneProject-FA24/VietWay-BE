@@ -160,7 +160,8 @@ namespace VietWay.Service.Customer.Implementation
                     TourName = x.TourName,
                     TourTemplateId = x.TourTemplateId,
                     Provinces = x.TourTemplateProvinces.Select(y => y.Province.Name).ToList(),
-                    TourCategory = x.TourCategory.Name
+                    TourCategory = x.TourCategory.Name,
+                    Price = x.Tours.Where(y => y.Status == TourStatus.Opened).Select(y => (decimal)y.DefaultTouristPrice).Min()
                 }).Take(previewCount)
                 .ToListAsync();
         }
