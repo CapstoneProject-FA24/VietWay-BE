@@ -16,7 +16,7 @@ namespace VietWay.API.Customer.Controllers
         private readonly IPostService _postService = postService;
 
         /// <summary>
-        /// ❌[All] Get posts
+        /// ✅[All] Get posts
         /// </summary>
         [HttpGet]
         [Produces("application/json")]
@@ -42,14 +42,14 @@ namespace VietWay.API.Customer.Controllers
         }
 
         /// <summary>
-        /// ❌[All] Get post detail
+        /// ✅[All] Get post detail
         /// </summary>
-        [HttpGet("{tourId}")]
+        [HttpGet("{postId}")]
         [Produces("application/json")]
         [ProducesResponseType<DefaultResponseModel<PostDetailDTO>>(StatusCodes.Status200OK)]
-        public async Task<IActionResult> GetPostDetailAsync(string tourId)
+        public async Task<IActionResult> GetPostDetailAsync(string postId)
         {
-            PostDetailDTO? postDetail = await _postService.GetPostDetailAsync(tourId);
+            PostDetailDTO? postDetail = await _postService.GetPostDetailAsync(postId);
             if (postDetail == null)
             {
                 return NotFound(new DefaultResponseModel<object>()
