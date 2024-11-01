@@ -75,8 +75,8 @@ namespace VietWay.Service.Customer.Implementation
                     Code = x.Code,
                     Duration = x.TourDuration.DurationName,
                     TourCategory = x.TourCategory.Name,
-                    ImageUrl = x.TourTemplateImages.FirstOrDefault().ImageUrl,
-                    MinPrice = x.Tours.Where(x => x.Status == TourStatus.Opened && x.DefaultTouristPrice >= minPrice)
+                    ImageUrl = x.TourTemplateImages.Select(x=>x.ImageUrl).FirstOrDefault() ?? "" ,
+                    MinPrice = x.Tours.Where(x => x.Status == TourStatus.Opened && (false == minPrice.HasValue || minPrice <= x.DefaultTouristPrice))
                                     .Select(y => (decimal)y.DefaultTouristPrice).Min(),
                     Provinces = x.TourTemplateProvinces.Select(y => y.Province.Name).ToList(),
                     StartDate = x.Tours.Where(x => x.Status == TourStatus.Opened).Select(y => (DateTime)y.StartDate).ToList(),
