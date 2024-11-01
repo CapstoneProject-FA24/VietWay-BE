@@ -11,8 +11,7 @@ using VietWay.Repository.EntityModel.Base;
 using VietWay.Repository.UnitOfWork;
 using VietWay.Service.DataTransferObject;
 using VietWay.Service.Interface;
-using VietWay.Service.Jobs;
-using VietWay.Service.ThirdParty;
+using VietWay.Service.ThirdParty.Cloudinary;
 using VietWay.Util.CustomExceptions;
 using VietWay.Util.IdUtil;
 
@@ -65,7 +64,7 @@ namespace VietWay.Service.Implement
                     ImageUrl = x.ImageUrl,
                     Content = x.Content,
                     PostCategory = x.PostCategory.Name,
-                    Province = x.Province.ProvinceName,
+                    Province = x.Province.Name,
                     Description = x.Description,
                     CreatedAt = x.CreatedAt,
                     Status = x.Status

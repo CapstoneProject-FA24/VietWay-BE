@@ -4,7 +4,6 @@ using VietWay.Service.Customer.Interface;
 using VietWay.API.Customer.ResponseModel;
 using VietWay.Repository.EntityModel;
 using VietWay.Service.Customer.DataTransferObject;
-using VietWay.Service.Management.DataTransferObject;
 
 namespace VietWay.API.Customer.Controllers
 {
@@ -71,7 +70,7 @@ namespace VietWay.API.Customer.Controllers
             int checkedPageSize = (null == pageSize || pageSize < 1) ? 10 : (int)pageSize;
             int checkedPageIndex = (null == pageIndex || pageIndex <1)? 1 : (int)pageIndex;
 
-            var (count,items) = await _tourTemplateService.GetAllTemplateWithActiveToursAsync(
+            var (count,items) = await _tourTemplateService.GetTourTemplatesWithActiveToursAsync(
                 nameSearch,templateCategoryIds,provinceIds,numberOfDay,startDateFrom,
                 startDateTo,minPrice,maxPrice,checkedPageSize,checkedPageIndex);
             return Ok(new DefaultResponseModel<PaginatedList<TourTemplateWithTourInfoDTO>>()

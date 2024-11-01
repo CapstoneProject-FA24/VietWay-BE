@@ -27,7 +27,7 @@ namespace VietWay.API.Customer.Controllers
             return Ok(new DefaultResponseModel<List<AttractionCategoryPreviewDTO>>
             {
                 Message = "Success",
-                Data = await _attractionTypeService.GetAllAttractionType(),
+                Data = await _attractionTypeService.GetAllAttractionCategoriesAsync(),
                 StatusCode = StatusCodes.Status200OK
             });
         }

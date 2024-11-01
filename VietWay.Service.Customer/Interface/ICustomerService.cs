@@ -12,6 +12,6 @@ namespace VietWay.Service.Customer.Interface
     {
         Task<CustomerDetailDTO?> GetCustomerDetailAsync(string customerId);
         public Task RegisterAccountAsync(Repository.EntityModel.Customer account);
-        Task UpdateCustomerInfoAsync(string? fullName, DateTime? dateOfBirth, string? provinceId, Gender? gender, string? email);
+        Task UpdateCustomerInfoAsync(string customerId, string? fullName, DateTime? dateOfBirth, string? provinceId, Gender? gender, string? email);
     }
 }

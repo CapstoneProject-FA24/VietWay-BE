@@ -127,7 +127,6 @@ namespace VietWay.API.Management
             builder.Services.AddScoped<IBookingPaymentService, BookingPaymentService>();
             builder.Services.AddScoped<IVnPayService, VnPayService>();
             builder.Services.AddScoped<ITimeZoneHelper, TimeZoneHelper>();
-            builder.Services.AddScoped<IPostService, PostService>();
             builder.Services.AddScoped<IHashHelper, BCryptHashHelper>();
             builder.Services.AddScoped<IAccountService, AccountService>();
             builder.Services.AddScoped<ITokenHelper, TokenHelper>();

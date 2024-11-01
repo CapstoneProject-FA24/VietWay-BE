@@ -72,7 +72,7 @@ namespace VietWay.API.Customer.Controllers
                     StatusCode = StatusCodes.Status401Unauthorized
                 });
             }
-            await _customerService.UpdateCustomerInfoAsync(request.FullName,request.DateOfBirth,request.ProvinceId,request.Gender,request.Email);
+            await _customerService.UpdateCustomerInfoAsync(customerId, request.FullName,request.DateOfBirth,request.ProvinceId,request.Gender,request.Email);
             return Ok(new DefaultResponseModel<object>()
             {
                 Message = "Update customer profile successfully",

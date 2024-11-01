@@ -28,9 +28,10 @@ namespace VietWay.API.Customer.Mappers
                         DateOfBirth = x.DateOfBirth,
                         FullName = x.FullName,
                         Gender = x.Gender,
-                        ParticipantId = "",
+                        TouristId = "",
                         PhoneNumber = x.PhoneNumber,
-                        TourBookingId = "",
+                        BookingId = "",
+                        Price = 0,
                     })));
             CreateMap<CreateAccountRequest, Account>();
             CreateMap<CreateAccountRequest, Repository.EntityModel.Customer>()

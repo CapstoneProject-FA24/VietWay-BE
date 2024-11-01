@@ -34,7 +34,9 @@ namespace VietWay.API.Customer.Controllers
                 StatusCode = StatusCodes.Status200OK
             });
         }
-
+        /// <summary>
+        /// ✅[All] Get event detail by id
+        /// </summary>
         [HttpGet("{eventId}")]
         [Produces("application/json")]
         [ProducesResponseType<DefaultResponseModel<EventDetailDTO>>(StatusCodes.Status200OK)]

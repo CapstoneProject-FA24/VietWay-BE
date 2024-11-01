@@ -63,7 +63,7 @@ namespace VietWay.Service.Management.Implement
                     FullName = x.FullName,
                     DateOfBirth = x.DateOfBirth,
                     ProvinceId = x.ProvinceId,
-                    ProvinceName = x.Province.ProvinceName,
+                    ProvinceName = x.Province.Name,
                     Gender = x.Gender
                 })
                 .SingleOrDefaultAsync();

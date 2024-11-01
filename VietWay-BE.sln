@@ -15,9 +15,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VietWay.API.Customer", "Vie
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VietWay.Middleware", "VietWay.Middleware\VietWay.Middleware.csproj", "{99ED2C8A-470D-4669-AB76-23DAE3A5424E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VietWay.Service.Customer", "VietWay.Service.Customer\VietWay.Service.Customer.csproj", "{74C419F2-AB41-47F1-9803-386EA1B6BDA0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VietWay.Service.Customer", "VietWay.Service.Customer\VietWay.Service.Customer.csproj", "{74C419F2-AB41-47F1-9803-386EA1B6BDA0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VietWay.Service.ThirdParty", "VietWay.Service.ThirdParty\VietWay.Service.ThirdParty.csproj", "{A4232D11-5312-4390-93E0-37FB9C08BEE3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VietWay.Service.ThirdParty", "VietWay.Service.ThirdParty\VietWay.Service.ThirdParty.csproj", "{A4232D11-5312-4390-93E0-37FB9C08BEE3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

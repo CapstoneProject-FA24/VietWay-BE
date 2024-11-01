@@ -26,7 +26,7 @@ namespace VietWay.API.Customer.Controllers
             return Ok(new DefaultResponseModel<List<EventCategoryPreviewDTO>>()
             {
                 Message = "Success",
-                Data = await _eventCategoryService.GetAllEventCategoryPreviewAsync(),
+                Data = await _eventCategoryService.GetEventCategoriesAsync(),
                 StatusCode = StatusCodes.Status200OK
             });
         }

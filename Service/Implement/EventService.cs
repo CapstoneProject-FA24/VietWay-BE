@@ -59,7 +59,7 @@ namespace VietWay.Service.Management.Implement
                     EventCategory = x.EventCategory.Name,
                     StartDate = x.StartDate,
                     EndDate = x.EndDate,
-                    ProvinceName = x.Province.ProvinceName,
+                    ProvinceName = x.Province.Name,
                     Description = x.Description
                 }).ToListAsync();
             return list;
@@ -80,7 +80,7 @@ namespace VietWay.Service.Management.Implement
                     EventCategoryId = x.EventCategoryId,
                     ImageUrl = x.ImageUrl,
                     ProvinceId = x.ProvinceId,
-                    ProvinceName = x.Province.ProvinceName,
+                    ProvinceName = x.Province.Name,
                     StartDate = x.StartDate,
                     Title = x.Title
                 }).SingleOrDefaultAsync();

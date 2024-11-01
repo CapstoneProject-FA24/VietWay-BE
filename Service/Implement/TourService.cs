@@ -63,7 +63,7 @@ namespace VietWay.Service.Management.Implement
                 .Take(pageSize)
                 .Include(x => x.TourTemplate)
                 .ThenInclude(x => x.TourTemplateImages)
-                .Where(x => x.Status == TourStatus.Scheduled)
+                .Where(x => x.Status == TourStatus.Opened)
                 .ToListAsync();
             return (count, items);
         }
@@ -73,7 +73,7 @@ namespace VietWay.Service.Management.Implement
             return await _unitOfWork
                 .TourRepository
                 .Query()
-                .Where(x => x.IsDeleted == false && x.TourTemplateId.Equals(tourTemplateId) && x.Status == TourStatus.Scheduled)
+                .Where(x => x.IsDeleted == false && x.TourTemplateId.Equals(tourTemplateId) && x.Status == TourStatus.Opened)
                 .Include(x => x.TourTemplate)
                 .ThenInclude(x => x.TourTemplateImages)
                 .ToListAsync();

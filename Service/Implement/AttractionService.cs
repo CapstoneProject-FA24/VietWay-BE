@@ -81,7 +81,7 @@ namespace VietWay.Service.Management.Implement
                     AttractionId = x.AttractionId,
                     Name = x.Name,
                     Address = x.Address,
-                    Province = x.Province.ProvinceName,
+                    Province = x.Province.Name,
                     AttractionType = x.AttractionCategory.Name,
                     ImageUrl = x.AttractionImages.FirstOrDefault() != null ? x.AttractionImages.FirstOrDefault().ImageUrl : null
                 })
@@ -124,7 +124,7 @@ namespace VietWay.Service.Management.Implement
                     AttractionId = x.AttractionId,
                     Name = x.Name,
                     Address = x.Address,
-                    Province = x.Province.ProvinceName,
+                    Province = x.Province.Name,
                     AttractionType = x.AttractionCategory.Name,
                     Status = x.Status,
                     ImageUrl = x.AttractionImages.FirstOrDefault() != null ? x.AttractionImages.FirstOrDefault().ImageUrl : null

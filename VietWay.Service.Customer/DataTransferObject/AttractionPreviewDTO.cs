@@ -13,7 +13,7 @@ namespace VietWay.Service.Customer.DataTransferObject
         public string? Name { get; set; }
         public string? Address { get; set; }
         public string? Province { get; set; }
-        public string? AttractionType { get; set; }
+        public string? AttractionCategory { get; set; }
         public string? ImageUrl { get; set; }
     }
 }

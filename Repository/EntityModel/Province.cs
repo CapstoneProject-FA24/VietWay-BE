@@ -10,7 +10,7 @@ namespace VietWay.Repository.EntityModel
         [StringLength(20)]
         public required string ProvinceId { get; set; }
         [StringLength(50)]
-        public required string ProvinceName { get; set; }
+        public required string Name { get; set; }
         public required DateTime CreatedAt { get; set; }
         [StringLength(2048)]
         public required string ImageUrl { get; set; }

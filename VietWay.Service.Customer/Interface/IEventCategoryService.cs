@@ -9,6 +9,6 @@ namespace VietWay.Service.Customer.Interface
 {
     public interface IEventCategoryService
     {
-        Task<List<EventCategoryPreviewDTO>> GetAllEventCategoryPreviewAsync();
+        Task<List<EventCategoryPreviewDTO>> GetEventCategoriesAsync();
     }
 }

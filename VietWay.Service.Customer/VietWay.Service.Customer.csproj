@@ -7,11 +7,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Implementation\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\Repository\VietWay.Repository.csproj" />
+    <ProjectReference Include="..\VietWay.Service.ThirdParty\VietWay.Service.ThirdParty.csproj" />
   </ItemGroup>
 
 </Project>

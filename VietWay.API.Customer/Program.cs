@@ -2,12 +2,15 @@ using Hangfire;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using StackExchange.Redis;
 using System.Reflection;
 using System.Text;
 using VietWay.API.Customer.Mappers;
 using VietWay.Middleware;
 using VietWay.Repository.UnitOfWork;
+using VietWay.Service.Customer.Implementation;
 using VietWay.Service.Customer.Interface;
+using VietWay.Service.ThirdParty.VnPay;
 using VietWay.Util;
 using VietWay.Util.DateTimeUtil;
 using VietWay.Util.HashUtil;
@@ -91,10 +94,10 @@ namespace VietWay.API.Customer
                 options.IncludeXmlComments(xmlPath);
                 options.SwaggerDoc("v1",
                 new OpenApiInfo
-                { 
-                    Title = "VietWay API", 
-                    Description = "API for VietWay.<br/> {WIP} API endpoints has not been implemented yet", 
-                    Version = "1.0.0" 
+                {
+                    Title = "VietWay API",
+                    Description = "API for VietWay.<br/> {WIP} API endpoints has not been implemented yet",
+                    Version = "1.0.0"
                 });
                 options.AddSecurityDefinition("Bearer",
                     new OpenApiSecurityScheme
@@ -123,33 +126,31 @@ namespace VietWay.API.Customer
             });
             #endregion
             #region builder.Services.AddScoped(...);
-            builder.Services.AddScoped<IAccountService>();
-            builder.Services.AddScoped<IAttractionCategoryService>();
-            builder.Services.AddScoped<IAttractionService>();
-            builder.Services.AddScoped<IBookingPaymentService>();
-            builder.Services.AddScoped<IBookingService>();
-            builder.Services.AddScoped<ICustomerService>();
-            builder.Services.AddScoped<IEventCategoryService>();
-            builder.Services.AddScoped<IEventService>();
-            builder.Services.AddScoped<IPostCategoryService>();
-            builder.Services.AddScoped<IProvinceService>();
-            builder.Services.AddScoped<ITourCategoryService>();
-            builder.Services.AddScoped<ITourDurationService>();
-            builder.Services.AddScoped<ITourService>();
-            builder.Services.AddScoped<ITourTemplateService>();
-
-            builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
-
-            builder.Services.AddScoped<ITimeZoneHelper, TimeZoneHelper>();
-            builder.Services.AddScoped<IHashHelper,IHashHelper>();
-            builder.Services.AddScoped<ITokenHelper, TokenHelper>();
+            builder.Services.AddScoped<IAccountService, AccountService>();
+            builder.Services.AddScoped<IAttractionCategoryService, AttractionCategoryService>();
             builder.Services.AddScoped<IAttractionService, AttractionService>();
+            builder.Services.AddScoped<IBookingPaymentService, BookingPaymentService>();
+            builder.Services.AddScoped<IBookingService, BookingService>();
+            builder.Services.AddScoped<ICustomerService, CustomerService>();
             builder.Services.AddScoped<IEventCategoryService, EventCategoryService>();
-            builder.Services.AddScoped<ITourCategoryService, TourCategoryService>();
-            builder.Services.AddScoped<IAttractionTypeService,AttractionTypeService>();
+            builder.Services.AddScoped<IEventService, EventService>();
+            builder.Services.AddScoped<IPostCategoryService, PostCategoryService>();
             builder.Services.AddScoped<IPostService,PostService>();
+            builder.Services.AddScoped<IProvinceService, ProvinceService>();
+            builder.Services.AddScoped<ITourCategoryService, TourCategoryService>();
+            builder.Services.AddScoped<ITourDurationService, TourDurationService>();
+            builder.Services.AddScoped<ITourService, TourService>();
+            builder.Services.AddScoped<ITourTemplateService, TourTemplateService>();
+            builder.Services.AddScoped<IVnPayService, VnPayService>();
+            builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+            builder.Services.AddScoped<ITimeZoneHelper, TimeZoneHelper>();
+            builder.Services.AddScoped<IHashHelper, BCryptHashHelper>();
+            builder.Services.AddScoped<ITokenHelper, TokenHelper>();
             #endregion
             builder.Services.AddSingleton<IIdGenerator, SnowflakeIdGenerator>();
+            /*builder.Services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer
+                .Connect(Environment.GetEnvironmentVariable("REDIS_CONNECTION_STRING") ??
+                    throw new Exception("REDIS_CONNECTION_STRING is not set in environment variables")));*/
             var app = builder.Build();
             app.UseStaticFiles();
             #region app.UseSwagger(...);

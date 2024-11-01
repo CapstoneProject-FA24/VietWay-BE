@@ -31,7 +31,8 @@
     {
         Pending,
         Rejected,
-        Scheduled,
+        Accepted,
+        Opened,
         Closed,
         OnGoing,
         Completed,

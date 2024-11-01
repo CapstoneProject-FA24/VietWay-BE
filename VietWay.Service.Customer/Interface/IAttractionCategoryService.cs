@@ -4,6 +4,6 @@ namespace VietWay.Service.Customer.Interface
 {
     public interface IAttractionCategoryService
     {
-        public Task<List<AttractionCategoryPreviewDTO>> GetAllAttractionType();
+        public Task<List<AttractionCategoryPreviewDTO>> GetAllAttractionCategoriesAsync();
     }
 }

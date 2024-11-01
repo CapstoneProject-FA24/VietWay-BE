@@ -13,6 +13,9 @@ namespace VietWay.API.Customer.Controllers
     {
         private readonly IPostCategoryService _postCategoryService = postCategoryService;
 
+        /// <summary>
+        /// ✅[All] Get post categories
+        /// </summary>
         [HttpGet]
         [Produces("application/json")]
         [ProducesResponseType<DefaultResponseModel<List<PostCategoryDTO>>>(StatusCodes.Status200OK)]
