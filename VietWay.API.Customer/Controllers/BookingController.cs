@@ -60,12 +60,12 @@ namespace VietWay.API.Customer.Controllers
             Booking booking = _mapper.Map<Booking>(request);
             booking.CustomerId = customerId;
 
-            await _bookingService.BookTourAsync(booking);
+            string bookingId = await _bookingService.BookTourAsync(booking);
 
             DefaultResponseModel<string> responseModel = new()
             {
                 Message = "Booking created successfully",
-                Data = null,
+                Data = bookingId,
                 StatusCode = StatusCodes.Status200OK
             };
             return Ok(responseModel);

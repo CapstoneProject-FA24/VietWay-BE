@@ -15,7 +15,7 @@ namespace VietWay.Service.Customer.Implementation
         private readonly IUnitOfWork _unitOfWork = unitOfWork;
         private readonly IIdGenerator _idGenerator = idGenerator;
         private readonly ITimeZoneHelper _timeZoneHelper = timeZoneHelper;
-        public async Task BookTourAsync(Booking booking)
+        public async Task<string> BookTourAsync(Booking booking)
         {
             try
             {
@@ -53,6 +53,7 @@ namespace VietWay.Service.Customer.Implementation
                 await _unitOfWork.BookingRepository.CreateAsync(booking);
                 await _unitOfWork.TourRepository.UpdateAsync(tour);
                 await _unitOfWork.CommitTransactionAsync();
+                return booking.BookingId;
             }
             catch
             {
