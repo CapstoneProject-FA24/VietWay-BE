@@ -35,6 +35,7 @@ namespace VietWay.Service.Customer.Implementation
                 .Select(x => new TourDetailDTO()
                 {
                     TourId = x.TourId,
+                    TourTemplateId = x.TourTemplateId,
                     CurrentParticipant = x.CurrentParticipant,
                     DefaultTouristPrice = x.DefaultTouristPrice,
                     MaxParticipant = x.MaxParticipant,

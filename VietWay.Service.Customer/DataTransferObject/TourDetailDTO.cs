@@ -9,6 +9,7 @@ namespace VietWay.Service.Customer.DataTransferObject
     public class TourDetailDTO
     {
         public required string TourId { get; set; }
+        public required string TourTemplateId { get; set; }
         public string? StartLocation { get; set; }
         public DateTime? StartDate { get; set; }
         public decimal? DefaultTouristPrice { get; set; }
