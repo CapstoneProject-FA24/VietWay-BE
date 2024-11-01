@@ -6,6 +6,7 @@ using VietWay.API.Management.ResponseModel;
 using VietWay.Repository.EntityModel;
 using VietWay.Service.Implement;
 using VietWay.Service.Interface;
+using VietWay.Service.Management.DataTransferObject;
 using VietWay.Service.Management.Interface;
 using VietWay.Util.TokenUtil;
 using UserRole = VietWay.Repository.EntityModel.Base.UserRole;
@@ -38,8 +39,8 @@ namespace VietWay.API.Management.Controllers
         [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> LoginAsync([FromBody] LoginRequest request)
         {
-            Account? account = await _accountService.LoginAsync(request.EmailOrPhone, request.Password);
-            if (account == null || account.Role == UserRole.Customer)
+            CredentialDTO? credential = await _accountService.LoginAsync(request.EmailOrPhone, request.Password);
+            if (credential == null || credential.Role == UserRole.Customer)
             {
                 return Unauthorized(new DefaultResponseModel<object>()
                 {
@@ -47,11 +48,11 @@ namespace VietWay.API.Management.Controllers
                     Message = "Email or password is incorrect"
                 });
             }
-            return Ok(new DefaultResponseModel<string>()
+            return Ok(new DefaultResponseModel<CredentialDTO>()
             {
                 Message = "Login successfully",
                 StatusCode = StatusCodes.Status200OK,
-                Data = _tokenHelper.GenerateAuthenticationToken(account.AccountId,account.Role.ToString())
+                Data = credential
             });
         }
         /// <summary>
