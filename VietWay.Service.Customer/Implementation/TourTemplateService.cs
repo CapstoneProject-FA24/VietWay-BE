@@ -24,7 +24,7 @@ namespace VietWay.Service.Customer.Implementation
                 .TourTemplateRepository
                 .Query()
                 .Where(x => x.IsDeleted == false &&
-                            x.Tours.Any(y => y.StartDate >= _timeZoneHelper.GetUTC7Now() &&
+                            x.Tours.Any(y => y.RegisterOpenDate >= _timeZoneHelper.GetUTC7Now() &&
                                              y.Status == TourStatus.Opened));
             if (false == string.IsNullOrWhiteSpace(nameSearch))
             {
