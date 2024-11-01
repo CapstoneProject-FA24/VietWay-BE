@@ -9,5 +9,7 @@ namespace VietWay.Service.Interface
         public Task<Manager> EditManagerInfo(Manager managerInfo);
         public Task<Manager> AddManager(Manager managerInfo);
         public Task RegisterAccountAsync(Manager manager);
+        public Task ActivateStaffAccountAsync(Staff newStaff);
+        public Task DeactivateStaffAccountAsync(Staff newStaff);
     }
 }

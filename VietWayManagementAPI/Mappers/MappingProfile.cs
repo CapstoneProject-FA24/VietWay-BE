@@ -122,6 +122,13 @@ namespace VietWay.API.Management.Mappers
                     CreatedAt = DateTime.MinValue,
                     IsDeleted = false,
                 }));
+            CreateMap<ActivateStaffAccountRequest, Staff>()
+                .ForMember(dest => dest.IsDeleted, opt => opt.MapFrom(src => false))
+                .ForMember(dest => dest.StaffId, opt => opt.MapFrom(src => ""));
+
+            CreateMap<DeactivateStaffAccountRequest, Staff>()
+                .ForMember(dest => dest.IsDeleted, opt => opt.MapFrom(src => true))
+                .ForMember(dest => dest.StaffId, opt => opt.MapFrom(src => ""));
         }
     }
 }

@@ -1,7 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using VietWay.Repository.EntityModel;
+using VietWay.Repository.EntityModel.Base;
 using VietWay.Repository.UnitOfWork;
 using VietWay.Service.Interface;
+using VietWay.Util.CustomExceptions;
 using VietWay.Util.DateTimeUtil;
 using VietWay.Util.HashUtil;
 using VietWay.Util.IdUtil;
@@ -62,6 +64,46 @@ namespace VietWay.Service.Implement
                 manager.Account.Password = _hashHelper.Hash(manager.Account.Password);
                 manager.Account.CreatedAt = _timeZoneHelper.GetUTC7Now();
                 await _unitOfWork.ManagerRepository.CreateAsync(manager);
+                await _unitOfWork.CommitTransactionAsync();
+            }
+            catch
+            {
+                await _unitOfWork.RollbackTransactionAsync();
+                throw;
+            }
+        }
+
+        public async Task DeactivateStaffAccountAsync(Staff newStaff)
+        {
+            Staff? staff = await _unitOfWork.StaffRepository.Query()
+                .SingleOrDefaultAsync(x => x.StaffId.Equals(newStaff.StaffId)) ??
+                throw new ResourceNotFoundException("Staff not found");
+
+            staff.IsDeleted = newStaff.IsDeleted;
+            try
+            {
+                await _unitOfWork.BeginTransactionAsync();
+                await _unitOfWork.StaffRepository.UpdateAsync(staff);
+                await _unitOfWork.CommitTransactionAsync();
+            }
+            catch
+            {
+                await _unitOfWork.RollbackTransactionAsync();
+                throw;
+            }
+        }
+
+        public async Task ActivateStaffAccountAsync(Staff newStaff)
+        {
+            Staff? staff = await _unitOfWork.StaffRepository.Query()
+                .SingleOrDefaultAsync(x => x.StaffId.Equals(newStaff.StaffId)) ??
+                throw new ResourceNotFoundException("Staff not found");
+
+            staff.IsDeleted = newStaff.IsDeleted;
+            try
+            {
+                await _unitOfWork.BeginTransactionAsync();
+                await _unitOfWork.StaffRepository.UpdateAsync(staff);
                 await _unitOfWork.CommitTransactionAsync();
             }
             catch
