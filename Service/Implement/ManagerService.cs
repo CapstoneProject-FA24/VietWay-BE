@@ -72,45 +72,5 @@ namespace VietWay.Service.Implement
                 throw;
             }
         }
-
-        public async Task DeactivateStaffAccountAsync(Staff newStaff)
-        {
-            Staff? staff = await _unitOfWork.StaffRepository.Query()
-                .SingleOrDefaultAsync(x => x.StaffId.Equals(newStaff.StaffId)) ??
-                throw new ResourceNotFoundException("Staff not found");
-
-            staff.IsDeleted = newStaff.IsDeleted;
-            try
-            {
-                await _unitOfWork.BeginTransactionAsync();
-                await _unitOfWork.StaffRepository.UpdateAsync(staff);
-                await _unitOfWork.CommitTransactionAsync();
-            }
-            catch
-            {
-                await _unitOfWork.RollbackTransactionAsync();
-                throw;
-            }
-        }
-
-        public async Task ActivateStaffAccountAsync(Staff newStaff)
-        {
-            Staff? staff = await _unitOfWork.StaffRepository.Query()
-                .SingleOrDefaultAsync(x => x.StaffId.Equals(newStaff.StaffId)) ??
-                throw new ResourceNotFoundException("Staff not found");
-
-            staff.IsDeleted = newStaff.IsDeleted;
-            try
-            {
-                await _unitOfWork.BeginTransactionAsync();
-                await _unitOfWork.StaffRepository.UpdateAsync(staff);
-                await _unitOfWork.CommitTransactionAsync();
-            }
-            catch
-            {
-                await _unitOfWork.RollbackTransactionAsync();
-                throw;
-            }
-        }
     }
 }
