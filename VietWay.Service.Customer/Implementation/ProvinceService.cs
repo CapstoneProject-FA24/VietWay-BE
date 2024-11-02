@@ -38,12 +38,12 @@ namespace VietWay.Service.Customer.Implementation
             .SelectMany(x => x.AttractionImageDTOs.Concat(x.PostImageDTOs))
             .Take(imageCount-1)
             .ToListAsync();
-            
+            images.Insert(0, new ImageDTO() { ImageId = province.ProvinceId, Url = province.ImageUrl });
             return new ProvinceWithImageDTO
             {
                 ProvinceId = province.ProvinceId,
                 Name = province.Name,
-                Images = [.. (new List<ImageDTO>() { new() { ImageId = province.ProvinceId, Url = province.ImageUrl } }), .. images]
+                Images = images
             };
         }
 
