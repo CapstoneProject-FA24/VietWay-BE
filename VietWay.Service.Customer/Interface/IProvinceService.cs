@@ -9,6 +9,7 @@ namespace VietWay.Service.Customer.Interface
 {
     public interface IProvinceService
     {
+        Task<ProvinceWithImageDTO?> GetProvinceImagesAsync(string provinceId, int imageCount);
         public Task<List<ProvincePreviewDTO>> GetProvinces();
         public Task<(int count, List<ProvinceDetailDTO> items)> GetProvincesDetails(string? nameSearch, string? zoneId, int pageIndex, int pageSize);
     }

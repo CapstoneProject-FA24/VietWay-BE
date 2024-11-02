@@ -259,5 +259,40 @@ namespace VietWay.Service.Management.Implement
                 throw;
             }
         }
+
+        public async Task UpdateAttractionStatusAsync(string attractionId, string accountId, AttractionStatus status, string? reason)
+        {
+            try
+            {
+                await _unitOfWork.BeginTransactionAsync();
+                Account? account = await _unitOfWork.AccountRepository.Query()
+                    .SingleOrDefaultAsync(x => x.AccountId.Equals(accountId)) ??
+                    throw new ResourceNotFoundException("Account not found");
+                Attraction? attraction = await _unitOfWork.AttractionRepository.Query()
+                    .SingleOrDefaultAsync(x => attractionId.Equals(x.AttractionId)) ??
+                    throw new ResourceNotFoundException("Attraction not found");
+
+                bool isManagerApproveOrDenyPendingAttraction = (AttractionStatus.Approved == status || AttractionStatus.Rejected == status) &&
+                    UserRole.Manager == account.Role && AttractionStatus.Pending == attraction.Status;
+                bool isStaffSubmitDraftAttractionForPreview = AttractionStatus.Pending == status && UserRole.Staff == account.Role &&
+                    AttractionStatus.Draft == attraction.Status;
+
+                if (isManagerApproveOrDenyPendingAttraction || isStaffSubmitDraftAttractionForPreview)
+                {
+                    attraction.Status = status;
+                    await _unitOfWork.AttractionRepository.UpdateAsync(attraction);
+                }
+                else
+                {
+                    throw new UnauthorizedException("You are not allowed to perform this action");
+                }
+                await _unitOfWork.CommitTransactionAsync();
+            } 
+            catch
+            {
+                await _unitOfWork.RollbackTransactionAsync();
+                throw;
+            }
+        }
     }
 }

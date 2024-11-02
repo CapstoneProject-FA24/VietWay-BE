@@ -27,5 +27,6 @@ namespace VietWay.Service.Management.Interface
             List<string>? attractionTypeIds,
             int pageSize,
             int pageIndex);
+        Task UpdateAttractionStatusAsync(string attractionId, string accountId, AttractionStatus status, string? reason);
     }
 }

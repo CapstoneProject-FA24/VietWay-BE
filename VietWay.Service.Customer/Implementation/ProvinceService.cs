@@ -12,6 +12,41 @@ namespace VietWay.Service.Customer.Implementation
     {
         private readonly IUnitOfWork _unitOfWork = unitOfWork;
         private readonly ITimeZoneHelper _timeZoneHelper = timeZoneHelper;
+
+        public async Task<ProvinceWithImageDTO?> GetProvinceImagesAsync(string provinceId, int imageCount)
+        {
+            Province? province = await _unitOfWork.ProvinceRepository.Query()
+                .Where(x => x.ProvinceId == provinceId)
+                .FirstOrDefaultAsync();
+            if (province == null)
+            {
+                return null;
+            }
+            List<ImageDTO> images = await _unitOfWork.ProvinceRepository.Query()
+            .Where(x => x.ProvinceId == provinceId)
+            .Select(x => new
+            {
+                AttractionImageDTOs = x.Attractions
+                    .Where(y => !y.IsDeleted && y.Status == AttractionStatus.Approved)
+                    .SelectMany(attraction => attraction.AttractionImages
+                        .Select(image => new ImageDTO { ImageId = image.ImageId, Url = image.ImageUrl })
+                    ),
+                PostImageDTOs = x.Posts
+                    .Where(post => !post.IsDeleted && post.Status == PostStatus.Approved)
+                    .Select(post => new ImageDTO { ImageId = post.PostId, Url = post.ImageUrl })
+            })
+            .SelectMany(x => x.AttractionImageDTOs.Concat(x.PostImageDTOs))
+            .Take(imageCount-1)
+            .ToListAsync();
+            
+            return new ProvinceWithImageDTO
+            {
+                ProvinceId = province.ProvinceId,
+                Name = province.Name,
+                Images = [.. (new List<ImageDTO>() { new() { ImageId = province.ProvinceId, Url = province.ImageUrl } }), .. images]
+            };
+        }
+
         public async Task<List<ProvincePreviewDTO>> GetProvinces()
         {
             return await _unitOfWork.ProvinceRepository.Query()

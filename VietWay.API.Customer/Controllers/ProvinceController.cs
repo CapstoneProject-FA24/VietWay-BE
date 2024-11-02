@@ -61,5 +61,17 @@ namespace VietWay.API.Customer.Controllers
                 StatusCode = StatusCodes.Status200OK
             });
         }
+        [HttpGet("{provinceId}/images")]
+        [Produces("application/json")]
+        [ProducesResponseType<DefaultResponseModel<ProvinceWithImageDTO>>(StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetProvinceImagesAsync(string provinceId, int imageCount)
+        {
+            return Ok(new DefaultResponseModel<ProvinceWithImageDTO>()
+            {
+                Message = "Success",
+                Data = await _provinceService.GetProvinceImagesAsync(provinceId, imageCount),
+                StatusCode = StatusCodes.Status200OK,
+            });
+        }
     }
 }
