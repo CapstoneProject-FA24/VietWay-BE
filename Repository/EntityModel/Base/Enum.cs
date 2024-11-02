@@ -80,10 +80,10 @@
     }
     public enum PostStatus
     {
-        Draft,
-        Pending,
-        Approved,
-        Rejected
+        Draft, //0
+        Pending, //1 
+        Approved, //2
+        Rejected //3
     }
     public enum EntityModifyAction
     {

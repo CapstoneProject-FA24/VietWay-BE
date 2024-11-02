@@ -107,7 +107,8 @@ namespace VietWay.API.Management.Mappers
                     CreatedAt = DateTime.MinValue,
                     IsDeleted = false,
                 }));
-            CreateMap<CreatePostRequest, Post>();
+            CreateMap<CreatePostRequest, Post>()
+                .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.IsDraft ? PostStatus.Draft : PostStatus.Pending));
             CreateMap<CreateManagerAccountRequest, Manager>()
                 .ForMember(dest => dest.FullName, opt => opt.MapFrom(src => src.FullName))
                 .ForMember(dest => dest.IsDeleted, opt => opt.MapFrom(src => false))

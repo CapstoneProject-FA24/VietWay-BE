@@ -77,6 +77,9 @@ namespace VietWay.API.Management.Controllers
                 });
             }
             Post post = _mapper.Map<Post>(request);
+
+            post.CreatedAt = DateTime.UtcNow;
+
             string postId = await _postService.CreatePostAsync(post);
             return Ok(new DefaultResponseModel<string>
             {
