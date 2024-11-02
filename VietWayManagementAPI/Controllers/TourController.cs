@@ -4,6 +4,7 @@ using VietWay.API.Management.RequestModel;
 using VietWay.API.Management.ResponseModel;
 using VietWay.Repository.EntityModel;
 using VietWay.Repository.EntityModel.Base;
+using VietWay.Service.Management.DataTransferObject;
 using VietWay.Service.Management.Interface;
 
 namespace VietWay.API.Management.Controllers
@@ -25,18 +26,25 @@ namespace VietWay.API.Management.Controllers
         [HttpGet]
         [Produces("application/json")]
         [ProducesResponseType<DefaultResponseModel<PaginatedList<TourPreview>>>(StatusCodes.Status200OK)]
-        public async Task<IActionResult> GetAllTourAsync(int pageSize, int pageIndex)
+        public async Task<IActionResult> GetAllTourAsync(
+            string? nameSearch, string? codeSearch, [FromQuery] List<string>? provinceIds, [FromQuery] List<string>? tourCategoryIds,
+            [FromQuery] List<string>? durationIds, TourStatus? status, int? pageSize, int? pageIndex,
+            DateTime? startDateFrom, DateTime? startDateTo
+            )
         {
-            var result = await _tourService.GetAllTour(pageSize, pageIndex);
-            List<TourPreview> tourPreviews = _mapper.Map<List<TourPreview>>(result.items);
-            PaginatedList<TourPreview> pagedResponse = new()
+            int checkedPageSize = (pageSize == null || pageSize < 1) ? 10 : (int)pageSize;
+            int checkedPageIndex = (pageIndex == null || pageIndex < 1) ? 1 : (int)pageIndex;
+            var (totalCount, items) = await _tourService.GetAllTour(
+                nameSearch, codeSearch, provinceIds, tourCategoryIds, durationIds, status, 
+                checkedPageSize, checkedPageIndex, startDateFrom, startDateTo);
+            PaginatedList<TourPreviewDTO> pagedResponse = new()
             {
-                Total = result.totalCount,
-                PageSize = pageSize,
-                PageIndex = pageIndex,
-                Items = tourPreviews
+                Total = totalCount,
+                PageSize = checkedPageSize,
+                PageIndex = checkedPageIndex,
+                Items = items
             };
-            DefaultResponseModel<PaginatedList<TourPreview>> response = new()
+            DefaultResponseModel<PaginatedList<TourPreviewDTO>> response = new()
             {
                 Data = pagedResponse,
                 Message = "Get all tour successfully",
@@ -122,7 +130,7 @@ namespace VietWay.API.Management.Controllers
                 }).ToList()
             };
             string tourId = await _tourService.CreateTour(tour);
-            return Ok( new DefaultResponseModel<string>()
+            return Ok(new DefaultResponseModel<string>()
             {
                 Message = "Create tour successfully",
                 StatusCode = StatusCodes.Status200OK,
