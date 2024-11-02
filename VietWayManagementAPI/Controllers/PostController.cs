@@ -133,5 +133,36 @@ namespace VietWay.API.Management.Controllers
             };
             return Ok(response);
         }
+
+        /// <summary>
+        /// ✅🔐[Staff] Get post by ID
+        /// </summary>
+        /// <returns>Post detail</returns>
+        /// <response code="200">Success</response>
+        /// <response code="401">Unauthorized</response>
+        /// <response code="404">Not found</response>
+        [HttpGet("{postId}")]
+        [Produces("application/json")]
+        [ProducesResponseType<DefaultResponseModel<PostPreviewDTO>>(StatusCodes.Status200OK)]
+        [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> GetPostById(string postId)
+        {
+            PostPreviewDTO? post = await _postService.GetPostByIdAsync(postId);
+            if (null == post)
+            {
+                return NotFound(new DefaultResponseModel<object>
+                {
+                    Message = "Not found",
+                    StatusCode = StatusCodes.Status404NotFound
+                });
+            }
+
+            return Ok(new DefaultResponseModel<PostPreviewDTO>
+            {
+                Message = "Get post successfully",
+                StatusCode = StatusCodes.Status200OK,
+                Data = post
+            });
+        }
     }
 }

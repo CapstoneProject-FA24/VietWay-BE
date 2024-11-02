@@ -136,5 +136,26 @@ namespace VietWay.Service.Implement
                 throw;
             }
         }
+        public async Task<PostPreviewDTO?> GetPostByIdAsync(string postId)
+        {
+            return await _unitOfWork.PostRepository
+                .Query()
+                .Where(x => x.PostId.Equals(postId))
+                .Include(x => x.Province)
+                .Include(x => x.PostCategory)
+                .Select(x => new PostPreviewDTO
+                {
+                    PostId = x.PostId,
+                    Title = x.Title,
+                    ImageUrl = x.ImageUrl,
+                    Content = x.Content,
+                    PostCategory = x.PostCategory.Name,
+                    Province = x.Province.ProvinceName,
+                    Description = x.Description,
+                    CreatedAt = x.CreatedAt,
+                    Status = x.Status
+                })
+                .SingleOrDefaultAsync();
+        }
     }
 }
