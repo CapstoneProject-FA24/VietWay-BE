@@ -2,16 +2,16 @@
 using VietWay.Repository.EntityModel;
 using VietWay.Repository.EntityModel.Base;
 using VietWay.Repository.UnitOfWork;
-using VietWay.Service.DataTransferObject;
-using VietWay.Service.Interface;
+using VietWay.Service.Management.DataTransferObject;
+using VietWay.Service.Management.Interface;
 using VietWay.Util.CustomExceptions;
 using VietWay.Util.DateTimeUtil;
 using VietWay.Util.HashUtil;
 using VietWay.Util.IdUtil;
 
-namespace VietWay.Service.Implement
+namespace VietWay.Service.Management.Implement
 {
-    public class CustomerService(IUnitOfWork unitOfWork, IHashHelper hashHelper, 
+    public class CustomerService(IUnitOfWork unitOfWork, IHashHelper hashHelper,
         IIdGenerator idGenerator, ITimeZoneHelper timeZoneHelper) : ICustomerService
     {
         private readonly IUnitOfWork _unitOfWork = unitOfWork;
@@ -63,7 +63,7 @@ namespace VietWay.Service.Implement
                     FullName = x.FullName,
                     DateOfBirth = x.DateOfBirth,
                     ProvinceId = x.ProvinceId,
-                    ProvinceName = x.Province.ProvinceName,
+                    ProvinceName = x.Province.Name,
                     Gender = x.Gender
                 })
                 .SingleOrDefaultAsync();
@@ -84,7 +84,7 @@ namespace VietWay.Service.Implement
                 customer.Account.CreatedAt = _timeZoneHelper.GetUTC7Now();
                 await _unitOfWork.CustomerRepository.CreateAsync(customer);
                 await _unitOfWork.CommitTransactionAsync();
-            } 
+            }
             catch
             {
                 await _unitOfWork.RollbackTransactionAsync();
@@ -127,6 +127,23 @@ namespace VietWay.Service.Implement
             }
             catch
             {
+                await _unitOfWork.RollbackTransactionAsync();
+                throw;
+            }
+        }
+
+        public async Task ChangeCustomerStatus(string customerId, string managerId, bool isDeleted)
+        {
+            try
+            {
+                await _unitOfWork.BeginTransactionAsync();
+                Customer? customer = await _unitOfWork.CustomerRepository.Query()
+                    .Include(x => x.Account)
+                    .SingleOrDefaultAsync(x => x.CustomerId.Equals(customerId)) ?? throw new ResourceNotFoundException("Customer not found");
+                customer.IsDeleted = isDeleted;
+                await _unitOfWork.CustomerRepository.UpdateAsync(customer);
+                await _unitOfWork.CommitTransactionAsync();
+            } catch {
                 await _unitOfWork.RollbackTransactionAsync();
                 throw;
             }

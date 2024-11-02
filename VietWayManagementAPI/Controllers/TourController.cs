@@ -3,7 +3,8 @@ using Microsoft.AspNetCore.Mvc;
 using VietWay.API.Management.RequestModel;
 using VietWay.API.Management.ResponseModel;
 using VietWay.Repository.EntityModel;
-using VietWay.Service.Interface;
+using VietWay.Repository.EntityModel.Base;
+using VietWay.Service.Management.Interface;
 
 namespace VietWay.API.Management.Controllers
 {
@@ -88,7 +89,45 @@ namespace VietWay.API.Management.Controllers
         [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status201Created)]
         public async Task<IActionResult> CreateTourAsync([FromBody] CreateTourRequest request)
         {
-            throw new NotImplementedException();
+            Tour tour = new()
+            {
+                CreatedAt = DateTime.MinValue,
+                Status = TourStatus.Pending,
+                TourId = "",
+                TourTemplateId = request.TourTemplateId,
+                CurrentParticipant = 0,
+                DefaultTouristPrice = request.DefaultTouristPrice,
+                IsDeleted = false,
+                MaxParticipant = request.MaxParticipant,
+                MinParticipant = request.MinParticipant,
+                RegisterCloseDate = request.RegisterCloseDate,
+                RegisterOpenDate = request.RegisterOpenDate,
+                StartDate = request.StartDate,
+                StartLocation = request.StartLocation,
+                TourPrices = request.TourPrices.Select(x => new TourPrice()
+                {
+                    AgeFrom = x.AgeFrom,
+                    AgeTo = x.AgeTo,
+                    Name = x.Name,
+                    Price = x.Price,
+                    PriceId = "",
+                    TourId = ""
+                }).ToList(),
+                TourRefundPolicies = request.RefundPolicies.Select(x => new TourRefundPolicy()
+                {
+                    CancelBefore = x.CancelBefore,
+                    RefundPercent = x.RefundPercent,
+                    TourId = "",
+                    TourRefundPolicyId = ""
+                }).ToList()
+            };
+            string tourId = await _tourService.CreateTour(tour);
+            return Ok( new DefaultResponseModel<string>()
+            {
+                Message = "Create tour successfully",
+                StatusCode = StatusCodes.Status200OK,
+                Data = tourId
+            });
         }
     }
 }

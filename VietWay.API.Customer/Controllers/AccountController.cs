@@ -4,7 +4,7 @@ using VietWay.API.Customer.RequestModel;
 using VietWay.API.Customer.ResponseModel;
 using VietWay.Repository.EntityModel;
 using VietWay.Repository.EntityModel.Base;
-using VietWay.Service.Interface;
+using VietWay.Service.Customer.Interface;
 using VietWay.Util.TokenUtil;
 
 namespace VietWay.API.Customer.Controllers
@@ -36,12 +36,12 @@ namespace VietWay.API.Customer.Controllers
                 return Unauthorized(new DefaultResponseModel<object>()
                 {
                     StatusCode = StatusCodes.Status401Unauthorized,
-                    Message = "Email or password is incorrect"
+                    Message = "Unauthorized"
                 });
             }
             return Ok(new DefaultResponseModel<string>()
             {
-                Message = "Login successfully",
+                Message = "Success",
                 StatusCode = StatusCodes.Status200OK,
                 Data = _tokenHelper.GenerateAuthenticationToken(account.AccountId, account.Role.ToString())
             });
@@ -59,7 +59,7 @@ namespace VietWay.API.Customer.Controllers
             await _customerService.RegisterAccountAsync(account);
             return Ok(new DefaultResponseModel<object>()
             {
-                Message = "Register successfully",
+                Message = "Success",
                 StatusCode = StatusCodes.Status200OK
             });
         }

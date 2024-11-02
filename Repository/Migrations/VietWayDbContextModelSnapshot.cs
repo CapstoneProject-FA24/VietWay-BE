@@ -310,9 +310,10 @@ namespace VietWay.Repository.Migrations
 
                     b.HasKey("BookingId");
 
-                    b.HasIndex("CustomerId");
-
                     b.HasIndex("TourId");
+
+                    b.HasIndex("CustomerId", "TourId")
+                        .IsUnique();
 
                     b.ToTable("Booking");
                 });
@@ -361,7 +362,12 @@ namespace VietWay.Repository.Migrations
 
             modelBuilder.Entity("VietWay.Repository.EntityModel.BookingTourist", b =>
                 {
-                    b.Property<string>("ParticipantId")
+                    b.Property<string>("TouristId")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<string>("BookingId")
+                        .IsRequired()
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
 
@@ -386,14 +392,12 @@ namespace VietWay.Repository.Migrations
                         .HasMaxLength(10)
                         .HasColumnType("nvarchar(10)");
 
-                    b.Property<string>("TourBookingId")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                    b.Property<decimal>("Price")
+                        .HasColumnType("decimal(18,2)");
 
-                    b.HasKey("ParticipantId");
+                    b.HasKey("TouristId");
 
-                    b.HasIndex("TourBookingId");
+                    b.HasIndex("BookingId");
 
                     b.ToTable("BookingTourist");
                 });
@@ -712,7 +716,7 @@ namespace VietWay.Repository.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
-                    b.Property<string>("ProvinceName")
+                    b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
@@ -855,6 +859,10 @@ namespace VietWay.Repository.Migrations
 
                     b.Property<int>("AgeTo")
                         .HasColumnType("int");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<decimal>("Price")
                         .HasColumnType("decimal(18,2)");
@@ -1164,8 +1172,8 @@ namespace VietWay.Repository.Migrations
             modelBuilder.Entity("VietWay.Repository.EntityModel.BookingTourist", b =>
                 {
                     b.HasOne("VietWay.Repository.EntityModel.Booking", "Booking")
-                        .WithMany("BookingTourParticipants")
-                        .HasForeignKey("TourBookingId")
+                        .WithMany("BookingTourists")
+                        .HasForeignKey("BookingId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -1336,7 +1344,7 @@ namespace VietWay.Repository.Migrations
             modelBuilder.Entity("VietWay.Repository.EntityModel.TourRefundPolicy", b =>
                 {
                     b.HasOne("VietWay.Repository.EntityModel.Tour", "Tour")
-                        .WithMany()
+                        .WithMany("TourRefundPolicies")
                         .HasForeignKey("TourId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -1430,7 +1438,7 @@ namespace VietWay.Repository.Migrations
                 {
                     b.Navigation("BookingPayments");
 
-                    b.Navigation("BookingTourParticipants");
+                    b.Navigation("BookingTourists");
 
                     b.Navigation("CustomerFeedback");
                 });
@@ -1461,6 +1469,8 @@ namespace VietWay.Repository.Migrations
                     b.Navigation("TourBookings");
 
                     b.Navigation("TourPrices");
+
+                    b.Navigation("TourRefundPolicies");
                 });
 
             modelBuilder.Entity("VietWay.Repository.EntityModel.TourCategory", b =>

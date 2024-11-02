@@ -1,12 +1,12 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using VietWay.Repository.EntityModel;
 using VietWay.Repository.UnitOfWork;
-using VietWay.Service.DataTransferObject;
-using VietWay.Service.Interface;
+using VietWay.Service.Management.DataTransferObject;
+using VietWay.Service.Management.Interface;
 
-namespace VietWay.Service.Implement
+namespace VietWay.Service.Management.Implement
 {
-    public class AttractionTypeService(IUnitOfWork unitOfWork): IAttractionTypeService
+    public class AttractionTypeService(IUnitOfWork unitOfWork) : IAttractionTypeService
     {
         private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
@@ -14,12 +14,7 @@ namespace VietWay.Service.Implement
         {
             return await _unitOfWork.AttractionCategoryRepository
                 .Query()
-                .Select(x => new AttractionCategoryPreviewDTO
-                {
-                    AttractionCategoryId = x.AttractionCategoryId,
-                    Name = x.Name,
-                    Description = x.Description
-                }).ToListAsync();
+                .Select(x => new AttractionCategoryPreviewDTO { }).ToListAsync();
         }
     }
 }

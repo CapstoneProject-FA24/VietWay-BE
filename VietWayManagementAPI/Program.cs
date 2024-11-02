@@ -4,9 +4,6 @@ using System.Text;
 using Microsoft.OpenApi.Models;
 using VietWay.API.Management.Mappers;
 using VietWay.Repository.UnitOfWork;
-using VietWay.Service.Interface;
-using VietWay.Service.Implement;
-using VietWay.Service.ThirdParty;
 using VietWay.Middleware;
 using System.Reflection;
 using VietWay.Util.IdUtil;
@@ -15,7 +12,10 @@ using VietWay.Util.TokenUtil;
 using Hangfire;
 using VietWay.Util;
 using VietWay.Util.HashUtil;
-
+using VietWay.Service.Management.Implement;
+using VietWay.Service.Management.Interface;
+using VietWay.Service.ThirdParty.Cloudinary;
+using VietWay.Service.ThirdParty.VnPay;
 namespace VietWay.API.Management
 {
     public class Program
@@ -127,10 +127,10 @@ namespace VietWay.API.Management
             builder.Services.AddScoped<IBookingPaymentService, BookingPaymentService>();
             builder.Services.AddScoped<IVnPayService, VnPayService>();
             builder.Services.AddScoped<ITimeZoneHelper, TimeZoneHelper>();
-            builder.Services.AddScoped<IPostService, PostService>();
             builder.Services.AddScoped<IHashHelper, BCryptHashHelper>();
             builder.Services.AddScoped<IAccountService, AccountService>();
             builder.Services.AddScoped<ITokenHelper, TokenHelper>();
+            builder.Services.AddScoped<ICustomerService, CustomerService>();
             #endregion
             builder.Services.AddSingleton<IIdGenerator, SnowflakeIdGenerator>();
             var app = builder.Build();

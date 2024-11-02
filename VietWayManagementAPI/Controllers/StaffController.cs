@@ -6,6 +6,7 @@ using VietWay.Repository.EntityModel.Base;
 using VietWay.Service.Implement;
 using VietWay.Service.Interface;
 using VietWay.Util.TokenUtil;
+using VietWay.Service.Management.Interface;
 
 namespace VietWay.API.Management.Controllers
 {

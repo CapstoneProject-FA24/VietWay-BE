@@ -3,11 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using VietWay.API.Management.RequestModel;
 using VietWay.API.Management.ResponseModel;
-using VietWay.Repository.EntityModel;
-using VietWay.Repository.EntityModel.Base;
-using VietWay.Service.Implement;
-using VietWay.Service.Interface;
-using VietWay.Util.TokenUtil;
+using VietWay.Service.Management.Interface;
 
 namespace VietWay.API.Management.Controllers
 {

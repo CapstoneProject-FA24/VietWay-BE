@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using VietWay.Repository.EntityModel.Base;
 
-namespace VietWay.Service.DataTransferObject
+namespace VietWay.Service.Management.DataTransferObject
 {
     public class TourParticipantDTO
     {

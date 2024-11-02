@@ -3,7 +3,8 @@ using VietWay.API.Management.RequestModel;
 using VietWay.API.Management.ResponseModel;
 using VietWay.Repository.EntityModel;
 using VietWay.Repository.EntityModel.Base;
-using VietWay.Service.DataTransferObject;
+using VietWay.Service.Management.DataTransferObject;
+using VietWay.Service.ThirdParty.VnPay;
 
 namespace VietWay.API.Management.Mappers
 {
@@ -25,8 +26,6 @@ namespace VietWay.API.Management.Mappers
                 }))
                 .ForMember(dest => dest.Provinces, opt => opt.MapFrom(src => src.TourTemplateProvinces.Select(x => new ProvinceBriefPreviewDTO()
                 {
-                    ProvinceId = x.Province.ProvinceId,
-                    ProvinceName = x.Province.ProvinceName
                 }).ToList()))
                 .ForMember(dest => dest.Schedules, opt => opt.MapFrom(src => src.TourTemplateSchedules.Select(x => new ScheduleDetail
                 {
@@ -41,11 +40,9 @@ namespace VietWay.API.Management.Mappers
                 }).ToList()))
                 .ForMember(dest => dest.Images, opt => opt.MapFrom(src => src.TourTemplateImages.Select(x => new ImageDTO()
                 {
-                    ImageId = x.ImageId,
-                    Url = x.ImageUrl
                 }).ToList()));
             CreateMap<TourTemplate, TourTemplatePreview>()
-                .ForMember(dest => dest.Provinces, opt => opt.MapFrom(src => src.TourTemplateProvinces.Select(x => x.Province.ProvinceName).ToList()))
+                .ForMember(dest => dest.Provinces, opt => opt.MapFrom(src => src.TourTemplateProvinces.Select(x => x.Province.Name).ToList()))
                 .ForMember(dest => dest.ImageUrl, opt => opt.MapFrom(src => src.TourTemplateImages.Select(x => x.ImageUrl).FirstOrDefault()))
                 .ForMember(dest => dest.TourTemplateId, opt => opt.MapFrom(src => src.TourTemplateId))
                 .ForMember(dest => dest.Duration, opt => opt.MapFrom(src => src.TourDuration.DurationName))

@@ -1,13 +1,13 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using VietWay.Repository.EntityModel;
 using VietWay.Repository.UnitOfWork;
-using VietWay.Service.DataTransferObject;
-using VietWay.Service.Interface;
 using PostStatus = VietWay.Repository.EntityModel.Base.PostStatus;
 using EventStatus = VietWay.Repository.EntityModel.Base.EventStatus;
 using VietWay.Repository.EntityModel.Base;
 using VietWay.Util.DateTimeUtil;
-namespace VietWay.Service.Implement
+using VietWay.Service.Management.Interface;
+using VietWay.Service.Management.DataTransferObject;
+namespace VietWay.Service.Management.Implement
 {
     public class ProvinceService(IUnitOfWork unitOfWork, ITimeZoneHelper timeZoneHelper) : IProvinceService
     {
@@ -18,10 +18,10 @@ namespace VietWay.Service.Implement
             return await _unitOfWork
                 .ProvinceRepository
                 .Query()
-                .Select(x=> new ProvincePreviewDTO
+                .Select(x => new ProvincePreviewDTO
                 {
                     ProvinceId = x.ProvinceId,
-                    ProvinceName = x.ProvinceName,
+                    ProvinceName = x.Name,
                     ImageUrl = x.ImageUrl
                 })
                 .ToListAsync();
@@ -41,18 +41,18 @@ namespace VietWay.Service.Implement
                 .Where(x => x.IsDeleted == false);
             if (!string.IsNullOrEmpty(nameSearch))
             {
-                query = query.Where(x => x.ProvinceName.Contains(nameSearch));
+                query = query.Where(x => x.Name.Contains(nameSearch));
             }
 #warning implement sort province by zone
             int count = await query.CountAsync();
             List<ProvinceDetailDTO> result = await query
-                .OrderBy(x=>x.ProvinceId)
+                .OrderBy(x => x.ProvinceId)
                 .Skip((pageIndex - 1) * pageSize)
                 .Take(pageSize)
                 .Select(x => new ProvinceDetailDTO
                 {
                     ProvinceId = x.ProvinceId,
-                    ProvinceName = x.ProvinceName,
+                    ProvinceName = x.Name,
                     ImageUrl = x.ImageUrl,
                     AttractionsCount = x.Attractions
                         .Where(y => false == y.IsDeleted && AttractionStatus.Approved == y.Status).Count(),
@@ -62,7 +62,7 @@ namespace VietWay.Service.Implement
                         .Where(y => false == y.IsDeleted && EventStatus.Approved == y.Status).Count(),
                     ToursCount = x.TourTemplateProvinces
                         .Where(y => false == y.TourTemplate.IsDeleted && TourTemplateStatus.Approved == y.TourTemplate.Status)
-                        .Where(y => y.TourTemplate.Tours.Any(z => _timeZoneHelper.GetUTC7Now() <= z.StartDate && TourStatus.Scheduled == z.Status))
+                        .Where(y => y.TourTemplate.Tours.Any(z => _timeZoneHelper.GetUTC7Now() <= z.StartDate && TourStatus.Opened == z.Status))
                         .Count()
                 })
                 .ToListAsync();

@@ -1,4 +1,4 @@
-﻿namespace VietWay.Service.DataTransferObject
+﻿namespace VietWay.Service.Management.DataTransferObject
 {
     public class TourDurationPreviewDTO
     {

@@ -1,15 +1,15 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using VietWay.API.Customer.ResponseModel;
-using VietWay.Service.DataTransferObject;
-using VietWay.Service.Interface;
+using VietWay.Service.Customer.DataTransferObject;
+using VietWay.Service.Customer.Interface;
 
 namespace VietWay.API.Customer.Controllers
 {
     /// <summary>
     /// Event category API endpoints
     /// </summary>
-    [Route("api/[controller]")]
+    [Route("api/event-category")]
     [ApiController]
     public class EventCategoryController(IEventCategoryService eventCategoryService) : ControllerBase
     {
@@ -26,7 +26,7 @@ namespace VietWay.API.Customer.Controllers
             return Ok(new DefaultResponseModel<List<EventCategoryPreviewDTO>>()
             {
                 Message = "Success",
-                Data = await _eventCategoryService.GetAllEventCategoryPreviewAsync(),
+                Data = await _eventCategoryService.GetEventCategoriesAsync(),
                 StatusCode = StatusCodes.Status200OK
             });
         }

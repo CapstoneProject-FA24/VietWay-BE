@@ -2,14 +2,15 @@ using Hangfire;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using StackExchange.Redis;
 using System.Reflection;
 using System.Text;
 using VietWay.API.Customer.Mappers;
 using VietWay.Middleware;
 using VietWay.Repository.UnitOfWork;
-using VietWay.Service.Implement;
-using VietWay.Service.Interface;
-using VietWay.Service.ThirdParty;
+using VietWay.Service.Customer.Implementation;
+using VietWay.Service.Customer.Interface;
+using VietWay.Service.ThirdParty.VnPay;
 using VietWay.Util;
 using VietWay.Util.DateTimeUtil;
 using VietWay.Util.HashUtil;
@@ -27,7 +28,6 @@ namespace VietWay.API.Customer
             {
                 DotEnv.Load(".env");
             }
-
             #region builder.Services.AddHangfire(...);
             builder.Services.AddHangfire(option =>
             {
@@ -36,9 +36,6 @@ namespace VietWay.API.Customer
                 option.UseSqlServerStorage(connectionString);
             });
             #endregion
-            builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
-            builder.Services.AddScoped<ICustomerService, CustomerService>();
-            builder.Services.AddScoped<ITourService, TourService>();
             builder.Services.AddAutoMapper(typeof(MappingProfile));
             builder.Services.AddControllers();
             builder.Services.AddLogging();
@@ -97,10 +94,10 @@ namespace VietWay.API.Customer
                 options.IncludeXmlComments(xmlPath);
                 options.SwaggerDoc("v1",
                 new OpenApiInfo
-                { 
-                    Title = "VietWay API", 
-                    Description = "API for VietWay.<br/> {WIP} API endpoints has not been implemented yet", 
-                    Version = "1.0.0" 
+                {
+                    Title = "VietWay API",
+                    Description = "API for VietWay.<br/> {WIP} API endpoints has not been implemented yet",
+                    Version = "1.0.0"
                 });
                 options.AddSecurityDefinition("Bearer",
                     new OpenApiSecurityScheme
@@ -129,26 +126,31 @@ namespace VietWay.API.Customer
             });
             #endregion
             #region builder.Services.AddScoped(...);
-            builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
-            builder.Services.AddScoped<IVnPayService, VnPayService>();
-            builder.Services.AddScoped<ITourService, TourService>();
-            builder.Services.AddScoped<ICustomerService, CustomerService>();
-            builder.Services.AddScoped<ITourTemplateService, TourTemplateService>();
-            builder.Services.AddScoped<IProvinceService, ProvinceService>();
-            builder.Services.AddScoped<ICloudinaryService, CloudinaryService>();
-            builder.Services.AddScoped<ITourBookingService,TourBookingService>();
+            builder.Services.AddScoped<IAccountService, AccountService>();
+            builder.Services.AddScoped<IAttractionCategoryService, AttractionCategoryService>();
+            builder.Services.AddScoped<IAttractionService, AttractionService>();
             builder.Services.AddScoped<IBookingPaymentService, BookingPaymentService>();
+            builder.Services.AddScoped<IBookingService, BookingService>();
+            builder.Services.AddScoped<ICustomerService, CustomerService>();
+            builder.Services.AddScoped<IEventCategoryService, EventCategoryService>();
+            builder.Services.AddScoped<IEventService, EventService>();
+            builder.Services.AddScoped<IPostCategoryService, PostCategoryService>();
+            builder.Services.AddScoped<IPostService,PostService>();
+            builder.Services.AddScoped<IProvinceService, ProvinceService>();
+            builder.Services.AddScoped<ITourCategoryService, TourCategoryService>();
+            builder.Services.AddScoped<ITourDurationService, TourDurationService>();
+            builder.Services.AddScoped<ITourService, TourService>();
+            builder.Services.AddScoped<ITourTemplateService, TourTemplateService>();
+            builder.Services.AddScoped<IVnPayService, VnPayService>();
+            builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
             builder.Services.AddScoped<ITimeZoneHelper, TimeZoneHelper>();
             builder.Services.AddScoped<IHashHelper, BCryptHashHelper>();
-            builder.Services.AddScoped<IAccountService, AccountService>();
             builder.Services.AddScoped<ITokenHelper, TokenHelper>();
-            builder.Services.AddScoped<IAttractionService, AttractionService>();
-            builder.Services.AddScoped<IEventCategoryService, EventCategoryService>();
-            builder.Services.AddScoped<ITourCategoryService, TourCategoryService>();
-            builder.Services.AddScoped<IAttractionTypeService,AttractionTypeService>();
-            builder.Services.AddScoped<IPostService,PostService>();
             #endregion
             builder.Services.AddSingleton<IIdGenerator, SnowflakeIdGenerator>();
+            /*builder.Services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer
+                .Connect(Environment.GetEnvironmentVariable("REDIS_CONNECTION_STRING") ??
+                    throw new Exception("REDIS_CONNECTION_STRING is not set in environment variables")));*/
             var app = builder.Build();
             app.UseStaticFiles();
             #region app.UseSwagger(...);
@@ -173,7 +175,6 @@ namespace VietWay.API.Customer
                 });
             }
             #endregion
-
             app.UseHttpsRedirection();
             app.UseCors("AllowAll");
             app.UseAuthentication();

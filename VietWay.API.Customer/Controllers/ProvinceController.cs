@@ -1,11 +1,11 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.ComponentModel.DataAnnotations;
 using VietWay.API.Customer.ResponseModel;
 using VietWay.Repository.EntityModel;
-using VietWay.Service.DataTransferObject;
-using VietWay.Service.Implement;
-using VietWay.Service.Interface;
+using VietWay.Service.Customer.DataTransferObject;
+using VietWay.Service.Customer.Interface;
 
 namespace VietWay.API.Customer.Controllers
 {
@@ -24,12 +24,12 @@ namespace VietWay.API.Customer.Controllers
         [HttpGet]
         [Produces("application/json")]
         [ProducesResponseType<DefaultResponseModel<List<ProvincePreviewDTO>>>(StatusCodes.Status200OK)]
-        public async Task<IActionResult> GetAllProvinces()
+        public async Task<IActionResult> GetProvinces()
         {
             return Ok(new DefaultResponseModel<List<ProvincePreviewDTO>>()
             {
                 Message = "Get all province successfully",
-                Data = await _provinceService.GetAllProvinces(),
+                Data = await _provinceService.GetProvinces(),
                 StatusCode = StatusCodes.Status200OK
             });
         }
@@ -40,7 +40,7 @@ namespace VietWay.API.Customer.Controllers
         [HttpGet("province-detail")]
         [Produces("application/json")]
         [ProducesResponseType<DefaultResponseModel<List<ProvinceDetailDTO>>>(StatusCodes.Status200OK)]
-        public async Task<IActionResult> GetAllProvincesWithDetail(
+        public async Task<IActionResult> GetProvincesDetails(
             string? nameSearch,
             string? zoneId,
             int? pageSize,
@@ -48,7 +48,7 @@ namespace VietWay.API.Customer.Controllers
         {
             int checkedPageSize = (pageSize == null || pageSize < 1) ? 10 : (int)pageSize;
             int checkedPageIndex = (pageIndex == null || pageIndex < 1) ? 1 : (int)pageIndex;
-            var (totalCount, items) = await _provinceService.GetAllProvinceDetails(nameSearch,zoneId, checkedPageIndex, checkedPageSize);
+            var (totalCount, items) = await _provinceService.GetProvincesDetails(nameSearch,zoneId, checkedPageIndex, checkedPageSize);
             return Ok(new DefaultResponseModel<PaginatedList<ProvinceDetailDTO>>()
             {
                 Data = new()
@@ -60,6 +60,18 @@ namespace VietWay.API.Customer.Controllers
                 },
                 Message = "Get all province successfully",
                 StatusCode = StatusCodes.Status200OK
+            });
+        }
+        [HttpGet("{provinceId}/images")]
+        [Produces("application/json")]
+        [ProducesResponseType<DefaultResponseModel<ProvinceWithImageDTO>>(StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetProvinceImagesAsync(string provinceId,[Required] int imageCount)
+        {
+            return Ok(new DefaultResponseModel<ProvinceWithImageDTO>()
+            {
+                Message = "Success",
+                Data = await _provinceService.GetProvinceImagesAsync(provinceId, imageCount),
+                StatusCode = StatusCodes.Status200OK,
             });
         }
     }

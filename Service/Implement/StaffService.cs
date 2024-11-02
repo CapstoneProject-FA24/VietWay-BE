@@ -6,8 +6,9 @@ using VietWay.Util.CustomExceptions;
 using VietWay.Util.DateTimeUtil;
 using VietWay.Util.HashUtil;
 using VietWay.Util.IdUtil;
+using VietWay.Service.Management.Interface;
 
-namespace VietWay.Service.Implement
+namespace VietWay.Service.Management.Implement
 {
     public class StaffService(IUnitOfWork unitOfWork, IHashHelper hashHelper,
         IIdGenerator idGenerator, ITimeZoneHelper timeZoneHelper) : IStaffService
