@@ -5,17 +5,19 @@ using System.Text;
 using System.Threading.Tasks;
 using VietWay.Repository.EntityModel.Base;
 
-namespace VietWay.Service.DataTransferObject
+namespace VietWay.Service.Management.DataTransferObject
 {
     public class AttractionDetailDTO
     {
         public required string AttractionId { get; set; }
-        public string? Name { get; set; }
-        public string? Address { get; set; }
-        public string? ContactInfo { get; set; }
+        public required string Name { get; set; }
+        public required string Address { get; set; }
+        public required string ContactInfo { get; set; }
         public string? Website { get; set; }
-        public string? Description { get; set; }
+        public required string Description { get; set; }
         public string? GooglePlaceId { get; set; }
+        public required AttractionStatus Status { get; set; }
+        public required DateTime CreatedDate { get; set; }
 
         public required ProvinceBriefPreviewDTO Province { get; set; }
         public required AttractionCategoryPreviewDTO AttractionType { get; set; }

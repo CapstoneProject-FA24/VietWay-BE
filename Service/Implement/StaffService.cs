@@ -2,17 +2,20 @@
 using VietWay.Repository.EntityModel;
 using VietWay.Repository.UnitOfWork;
 using VietWay.Service.Interface;
+using VietWay.Util.DateTimeUtil;
+using VietWay.Util.HashUtil;
+using VietWay.Util.IdUtil;
+using VietWay.Service.Management.Interface;
 
-namespace VietWay.Service.Implement
+namespace VietWay.Service.Management.Implement
 {
-    public class StaffService: IStaffService
+    public class StaffService(IUnitOfWork unitOfWork, IHashHelper hashHelper,
+        IIdGenerator idGenerator, ITimeZoneHelper timeZoneHelper) : IStaffService
     {
-        private readonly IUnitOfWork _unitOfWork;
-
-        public StaffService(IUnitOfWork unitOfWork)
-        {
-            _unitOfWork = unitOfWork;
-        }
+        private readonly IUnitOfWork _unitOfWork = unitOfWork;
+        private readonly IHashHelper _hashHelper = hashHelper;
+        private readonly IIdGenerator _idGenerator = idGenerator;
+        private readonly ITimeZoneHelper _timeZoneHelper = timeZoneHelper;
 
         public async Task<Staff> AddStaff(Staff staffInfo)
         {
@@ -49,6 +52,26 @@ namespace VietWay.Service.Implement
                 .Where(x => x.StaffId.Equals(id))
                 .Include(x => x.Account)
                 .FirstOrDefaultAsync();
+        }
+
+        public async Task RegisterAccountAsync(Staff staff)
+        {
+            try
+            {
+                await _unitOfWork.BeginTransactionAsync();
+                string accountId = _idGenerator.GenerateId();
+                staff.StaffId = accountId;
+                staff.Account.AccountId = accountId;
+                staff.Account.Password = _hashHelper.Hash(staff.Account.Password);
+                staff.Account.CreatedAt = _timeZoneHelper.GetUTC7Now();
+                await _unitOfWork.StaffRepository.CreateAsync(staff);
+                await _unitOfWork.CommitTransactionAsync();
+            }
+            catch
+            {
+                await _unitOfWork.RollbackTransactionAsync();
+                throw;
+            }
         }
     }
 }

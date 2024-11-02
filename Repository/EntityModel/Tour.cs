@@ -23,12 +23,12 @@ namespace VietWay.Repository.EntityModel
         public int? MinParticipant { get; set; }
         public int CurrentParticipant { get; set; }
         public required TourStatus Status { get; set; }
-
-
         public required DateTime CreatedAt { get; set; }
+
         public virtual TourTemplate? TourTemplate { get; set; }
         public virtual ICollection<Booking>? TourBookings { get; set; }
         public virtual ICollection<TourPrice>? TourPrices { get; set; }
+        public virtual ICollection<TourRefundPolicy>? TourRefundPolicies { get; set; }
 
     }
 }

@@ -5,8 +5,8 @@ using VietWay.API.Management.RequestModel;
 using VietWay.API.Management.ResponseModel;
 using VietWay.Repository.EntityModel;
 using VietWay.Repository.EntityModel.Base;
-using VietWay.Service.DataTransferObject;
-using VietWay.Service.Interface;
+using VietWay.Service.Management.DataTransferObject;
+using VietWay.Service.Management.Interface;
 using VietWay.Util.TokenUtil;
 
 namespace VietWay.API.Management.Controllers
@@ -30,14 +30,14 @@ namespace VietWay.API.Management.Controllers
         [HttpGet]
         [Produces("application/json")]
         [Authorize(Roles = $"{nameof(UserRole.Manager)},{nameof(UserRole.Staff)}")]
-        [ProducesResponseType<DefaultResponseModel<PaginatedList<AttractionPreviewWithCreateAtDTO>>>(StatusCodes.Status200OK)]
+        [ProducesResponseType<DefaultResponseModel<PaginatedList<AttractionPreviewDTO>>>(StatusCodes.Status200OK)]
         public async Task<IActionResult> GetAllAttractionsAsync(string? nameSearch, [FromQuery] List<string>? provinceIds, [FromQuery] List<string>? attractionTypeIds, AttractionStatus? status, int? pageSize, int? pageIndex)
         {
             int checkedPageSize = (pageSize == null || pageSize < 1) ? 10 : (int)pageSize;
             int checkedPageIndex = (pageIndex == null || pageIndex < 1) ? 1 : (int)pageIndex;
             var (totalCount, items) = await _attractionService.GetAllAttractionsWithCreatorAsync(nameSearch, provinceIds, attractionTypeIds, status, checkedPageSize, checkedPageIndex);
             
-            return Ok(new DefaultResponseModel<PaginatedList<AttractionPreviewWithCreateAtDTO>>
+            return Ok(new DefaultResponseModel<PaginatedList<AttractionPreviewDTO>>
             {
                 Data = new()
                 {
@@ -60,11 +60,11 @@ namespace VietWay.API.Management.Controllers
         /// <response code="404">Not found</response>
         [HttpGet("{attractionId}")]
         [Produces("application/json")]
-        [ProducesResponseType<DefaultResponseModel<AttractionDetailWithCreatorDTO_NEEDFIX>>(StatusCodes.Status200OK)]
+        [ProducesResponseType<DefaultResponseModel<AttractionDetailDTO>>(StatusCodes.Status200OK)]
         [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetAttractionById(string attractionId)
         {
-            AttractionDetailWithCreatorDTO_NEEDFIX? attraction = await _attractionService.GetAttractionWithCreateDateByIdAsync(attractionId);
+            AttractionDetailDTO? attraction = await _attractionService.GetAttractionWithCreateDateByIdAsync(attractionId);
             if (null == attraction)
             {
                 return NotFound(new DefaultResponseModel<object>
@@ -74,7 +74,7 @@ namespace VietWay.API.Management.Controllers
                 });
             }
 
-            return Ok(new DefaultResponseModel<AttractionDetailWithCreatorDTO_NEEDFIX>
+            return Ok(new DefaultResponseModel<AttractionDetailDTO>
             {
                 Message = "Get attraction successfully",
                 StatusCode = StatusCodes.Status200OK,
@@ -180,16 +180,6 @@ namespace VietWay.API.Management.Controllers
                 };
                 return BadRequest(errorResponse);
             }
-            Attraction? attraction = null;
-            if (null == attraction)
-            {
-                DefaultResponseModel<object> errorResponse = new()
-                {
-                    Message = "Attraction not found",
-                    StatusCode = StatusCodes.Status404NotFound
-                };
-                return NotFound(errorResponse);
-            }
             await _attractionService.UpdateAttractionImageAsync(attractionId, request.NewImages, request.DeletedImageIds);
             DefaultResponseModel<object> response = new()
             {
@@ -211,10 +201,21 @@ namespace VietWay.API.Management.Controllers
         /// <response code="400">Bad request</response>
         /// <response code="404">Attraction not found</response>
         /// <response code="403">Unauthorized status change request</response>
+        [Authorize(Roles = $"{nameof(UserRole.Manager)}, ${nameof(UserRole.Staff)}")]
         [HttpPatch("{attractionId}/status")]
         public async Task<IActionResult> UpdateAttractionStatusAsync(string attractionId, UpdateAttractionStatusRequest request)
         {
-            throw new NotImplementedException();
+            string? accountId = _tokenHelper.GetAccountIdFromToken(HttpContext);
+            if (string.IsNullOrWhiteSpace(accountId))
+            {
+                return Unauthorized(new DefaultResponseModel<object>
+                {
+                    Message = "Unauthorized",
+                    StatusCode = StatusCodes.Status401Unauthorized
+                });
+            }
+            await _attractionService.UpdateAttractionStatusAsync(attractionId, accountId, request.Status, request.Reason);
+            return Ok();
         }
     }
 }

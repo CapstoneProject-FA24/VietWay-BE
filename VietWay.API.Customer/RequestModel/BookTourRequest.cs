@@ -7,7 +7,6 @@ namespace VietWay.API.Customer.RequestModel
     {
         public required string TourId { get; set; }
         public required int NumberOfParticipants { get; set; }
-        public List<TourParticipant>? TourParticipants { get; set; }
         [StringLength(100)]
         public required string ContactFullName { get; set; }
         [StringLength(320)]
@@ -17,6 +16,7 @@ namespace VietWay.API.Customer.RequestModel
         [StringLength(255)]
         public string? ContactAddress { get; set; }
         public string? Note { get; set; }
+        public List<TourParticipant>? TourParticipants { get; set; }
     }
     public class TourParticipant
     {

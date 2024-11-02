@@ -2,8 +2,8 @@
 using Microsoft.AspNetCore.Mvc;
 using VietWay.API.Customer.ResponseModel;
 using VietWay.Repository.EntityModel;
-using VietWay.Service.DataTransferObject;
-using VietWay.Service.Interface;
+using VietWay.Service.Customer.DataTransferObject;
+using VietWay.Service.Customer.Interface;
 
 namespace VietWay.API.Customer.Controllers
 {
@@ -23,10 +23,10 @@ namespace VietWay.API.Customer.Controllers
         [ProducesResponseType<DefaultResponseModel<List<TourDuration>>>(StatusCodes.Status200OK)]
         public async Task<IActionResult> GetAllTourDuration()
         {
-            return Ok(new DefaultResponseModel<List<TourDurationPreviewDTO>>()
+            return Ok(new DefaultResponseModel<List<TourDurationDTO>>()
             {
                 Message = "Get all tour duration successfully",
-                Data = await _tourDurationService.GetTourDurationPreviews(),
+                Data = await _tourDurationService.GetTourDurationsAsync(),
                 StatusCode = StatusCodes.Status200OK
             });
         }

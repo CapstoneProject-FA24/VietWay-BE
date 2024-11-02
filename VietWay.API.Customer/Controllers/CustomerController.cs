@@ -1,13 +1,11 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using AutoMapper;
-using VietWay.Service.Interface;
 using VietWay.API.Customer.ResponseModel;
 using Microsoft.AspNetCore.Authorization;
-using CloudinaryDotNet.Actions;
 using VietWay.Repository.EntityModel.Base;
 using VietWay.Util.TokenUtil;
-using VietWay.Service.DataTransferObject;
+using VietWay.Service.Customer.Interface;
 using VietWay.API.Customer.RequestModel;
+using VietWay.Service.Customer.DataTransferObject;
 
 namespace VietWay.API.Customer.Controllers
 {
@@ -27,7 +25,7 @@ namespace VietWay.API.Customer.Controllers
         [HttpGet("profile")]
         [Produces("application/json")]
         [Authorize(Roles = nameof(UserRole.Customer))]
-        [ProducesResponseType<DefaultResponseModel<CustomerInfoDTO>>(StatusCodes.Status200OK)]
+        [ProducesResponseType<DefaultResponseModel<CustomerDetailDTO>>(StatusCodes.Status200OK)]
         public async Task<IActionResult> GetCurrentCustomerProfileAsync()
         {
             string? customerId = _tokenHelper.GetAccountIdFromToken(HttpContext);
@@ -39,8 +37,8 @@ namespace VietWay.API.Customer.Controllers
                     StatusCode = StatusCodes.Status401Unauthorized
                 });
             }
-            CustomerInfoDTO? customerInfoDTO = await _customerService.GetCustomerProfileInfo(customerId);
-            if (customerInfoDTO == null)
+            CustomerDetailDTO? customerDetailDTO = await _customerService.GetCustomerDetailAsync(customerId);
+            if (customerDetailDTO == null)
             {
                 return Unauthorized(new DefaultResponseModel<object>()
                 {
@@ -48,9 +46,9 @@ namespace VietWay.API.Customer.Controllers
                     StatusCode = StatusCodes.Status404NotFound
                 });
             }
-            return Ok(new DefaultResponseModel<CustomerInfoDTO>()
+            return Ok(new DefaultResponseModel<CustomerDetailDTO>()
             {
-                Data = customerInfoDTO,
+                Data = customerDetailDTO,
                 Message = "Get current customer profile successfully",
                 StatusCode = StatusCodes.Status200OK
             });
@@ -74,8 +72,7 @@ namespace VietWay.API.Customer.Controllers
                     StatusCode = StatusCodes.Status401Unauthorized
                 });
             }
-            await _customerService.UpdateCustomerProfileAsync(customerId, request.FullName, request.DateOfBirth,
-                request.ProvinceId, request.Gender, request.Email);
+            await _customerService.UpdateCustomerInfoAsync(customerId, request.FullName,request.DateOfBirth,request.ProvinceId,request.Gender,request.Email);
             return Ok(new DefaultResponseModel<object>()
             {
                 Message = "Update customer profile successfully",

@@ -1,9 +1,6 @@
-﻿namespace VietWay.Service.DataTransferObject
+﻿namespace VietWay.Service.Management.DataTransferObject
 {
     public class AttractionCategoryPreviewDTO
     {
-        public required string AttractionCategoryId { get; set; }
-        public required string Name { get; set; }
-        public string? Description { get; set; }
     }
 }

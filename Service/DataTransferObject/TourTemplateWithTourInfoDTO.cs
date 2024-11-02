@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using VietWay.Repository.EntityModel.Base;
 
-namespace VietWay.Service.DataTransferObject
+namespace VietWay.Service.Management.DataTransferObject
 {
     public class TourTemplateWithTourInfoDTO
     {
@@ -14,7 +14,6 @@ namespace VietWay.Service.DataTransferObject
         public required string TourName { get; set; }
         public required string Duration { get; set; }
         public required string TourCategory { get; set; }
-        public TourTemplateStatus Status { get; set; }
         public required List<string> Provinces { get; set; }
         public required string ImageUrl { get; set; }
         public required decimal MinPrice { get; set; }
