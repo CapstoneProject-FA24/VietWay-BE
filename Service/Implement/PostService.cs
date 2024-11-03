@@ -9,13 +9,13 @@ using System.Threading.Tasks;
 using VietWay.Repository.EntityModel;
 using VietWay.Repository.EntityModel.Base;
 using VietWay.Repository.UnitOfWork;
-using VietWay.Service.DataTransferObject;
-using VietWay.Service.Interface;
+using VietWay.Service.Management.DataTransferObject;
+using VietWay.Service.Management.Interface;
 using VietWay.Service.ThirdParty.Cloudinary;
 using VietWay.Util.CustomExceptions;
 using VietWay.Util.IdUtil;
 
-namespace VietWay.Service.Implement
+namespace VietWay.Service.Management.Implement
 {
     public class PostService(IUnitOfWork unitOfWork, ICloudinaryService cloudinaryService,
         IIdGenerator idGenerator, IBackgroundJobClient backgroundJobClient) : IPostService

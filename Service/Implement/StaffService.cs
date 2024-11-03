@@ -1,12 +1,11 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using VietWay.Repository.EntityModel;
 using VietWay.Repository.UnitOfWork;
-using VietWay.Service.Interface;
+using VietWay.Service.Management.Interface;
 using VietWay.Util.CustomExceptions;
 using VietWay.Util.DateTimeUtil;
 using VietWay.Util.HashUtil;
 using VietWay.Util.IdUtil;
-using VietWay.Service.Management.Interface;
 
 namespace VietWay.Service.Management.Implement
 {

@@ -3,8 +3,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using VietWay.API.Management.ResponseModel;
 using VietWay.Repository.EntityModel.Base;
-using VietWay.Service.Implement;
-using VietWay.Service.Interface;
 using VietWay.Util.TokenUtil;
 using VietWay.Service.Management.Interface;
 
@@ -25,11 +23,11 @@ namespace VietWay.API.Management.Controllers
         [ProducesResponseType<DefaultResponseModel<PaginatedList<StaffInfoPreview>>>(StatusCodes.Status200OK)]
         public async Task<IActionResult> GetAllStaffInfosAsync(int pageSize, int pageIndex)
         {
-            var result = await _staffService.GetAllStaffInfos(pageSize, pageIndex);
-            List<StaffInfoPreview> staffInfoPreviews = _mapper.Map<List<StaffInfoPreview>>(result.items);
+            var (totalCount, items) = await _staffService.GetAllStaffInfos(pageSize, pageIndex);
+            List<StaffInfoPreview> staffInfoPreviews = _mapper.Map<List<StaffInfoPreview>>(items);
             PaginatedList<StaffInfoPreview> pagedResponse = new()
             {
-                Total = result.totalCount,
+                Total = totalCount,
                 PageSize = pageSize,
                 PageIndex = pageIndex,
                 Items = staffInfoPreviews
