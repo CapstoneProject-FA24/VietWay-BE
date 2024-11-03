@@ -28,7 +28,8 @@ namespace VietWay.Service.Customer.Implementation
                     ProvinceName = x.Province.Name,
                     Description = x.Description,
                     PostCategoryId = x.PostCategoryId,
-                    ProvinceId = x.ProvinceId
+                    ProvinceId = x.ProvinceId,
+                    CreatedAt = x.CreatedAt,
                 })
                 .SingleOrDefaultAsync(x => x.PostId.Equals(postId));
         }
