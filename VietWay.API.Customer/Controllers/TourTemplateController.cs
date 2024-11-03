@@ -1,9 +1,9 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
-using VietWay.Service.Interface;
+using VietWay.Service.Customer.Interface;
 using VietWay.API.Customer.ResponseModel;
 using VietWay.Repository.EntityModel;
-using VietWay.Service.DataTransferObject;
+using VietWay.Service.Customer.DataTransferObject;
 
 namespace VietWay.API.Customer.Controllers
 {
@@ -22,11 +22,11 @@ namespace VietWay.API.Customer.Controllers
         /// </summary>
         [HttpGet("{tourTemplateId}")]
         [Produces("application/json")]
-        [ProducesResponseType<DefaultResponseModel<DefaultResponseModel<TourTemplateDetail>>>(StatusCodes.Status200OK)]
+        [ProducesResponseType<DefaultResponseModel<DefaultResponseModel<TourTemplateDetailDTO>>>(StatusCodes.Status200OK)]
         [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetTourTemplateById(string tourTemplateId)
         {
-            TourTemplate? tourTemplate = await _tourTemplateService
+            TourTemplateDetailDTO? tourTemplate = await _tourTemplateService
                 .GetTemplateByIdAsync(tourTemplateId);
             if (tourTemplate == null)
             {
@@ -39,11 +39,11 @@ namespace VietWay.API.Customer.Controllers
             }
             else
             {
-                DefaultResponseModel<TourTemplateDetail> response = new()
+                DefaultResponseModel<TourTemplateDetailDTO> response = new()
                 {
                     StatusCode = StatusCodes.Status200OK,
                     Message = "Get tour template successfully",
-                    Data = _mapper.Map<TourTemplateDetail>(tourTemplate)
+                    Data = tourTemplate
                 };
                 return Ok(response);
             }
@@ -70,7 +70,7 @@ namespace VietWay.API.Customer.Controllers
             int checkedPageSize = (null == pageSize || pageSize < 1) ? 10 : (int)pageSize;
             int checkedPageIndex = (null == pageIndex || pageIndex <1)? 1 : (int)pageIndex;
 
-            var (count,items) = await _tourTemplateService.GetAllTemplateWithActiveToursAsync(
+            var (count,items) = await _tourTemplateService.GetTourTemplatesWithActiveToursAsync(
                 nameSearch,templateCategoryIds,provinceIds,numberOfDay,startDateFrom,
                 startDateTo,minPrice,maxPrice,checkedPageSize,checkedPageIndex);
             return Ok(new DefaultResponseModel<PaginatedList<TourTemplateWithTourInfoDTO>>()

@@ -3,7 +3,8 @@ using VietWay.API.Management.RequestModel;
 using VietWay.API.Management.ResponseModel;
 using VietWay.Repository.EntityModel;
 using VietWay.Repository.EntityModel.Base;
-using VietWay.Service.DataTransferObject;
+using VietWay.Service.Management.DataTransferObject;
+using VietWay.Service.ThirdParty.VnPay;
 
 namespace VietWay.API.Management.Mappers
 {
@@ -25,8 +26,6 @@ namespace VietWay.API.Management.Mappers
                 }))
                 .ForMember(dest => dest.Provinces, opt => opt.MapFrom(src => src.TourTemplateProvinces.Select(x => new ProvinceBriefPreviewDTO()
                 {
-                    ProvinceId = x.Province.ProvinceId,
-                    ProvinceName = x.Province.ProvinceName
                 }).ToList()))
                 .ForMember(dest => dest.Schedules, opt => opt.MapFrom(src => src.TourTemplateSchedules.Select(x => new ScheduleDetail
                 {
@@ -41,11 +40,9 @@ namespace VietWay.API.Management.Mappers
                 }).ToList()))
                 .ForMember(dest => dest.Images, opt => opt.MapFrom(src => src.TourTemplateImages.Select(x => new ImageDTO()
                 {
-                    ImageId = x.ImageId,
-                    Url = x.ImageUrl
                 }).ToList()));
             CreateMap<TourTemplate, TourTemplatePreview>()
-                .ForMember(dest => dest.Provinces, opt => opt.MapFrom(src => src.TourTemplateProvinces.Select(x => x.Province.ProvinceName).ToList()))
+                .ForMember(dest => dest.Provinces, opt => opt.MapFrom(src => src.TourTemplateProvinces.Select(x => x.Province.Name).ToList()))
                 .ForMember(dest => dest.ImageUrl, opt => opt.MapFrom(src => src.TourTemplateImages.Select(x => x.ImageUrl).FirstOrDefault()))
                 .ForMember(dest => dest.TourTemplateId, opt => opt.MapFrom(src => src.TourTemplateId))
                 .ForMember(dest => dest.Duration, opt => opt.MapFrom(src => src.TourDuration.DurationName))
@@ -66,7 +63,6 @@ namespace VietWay.API.Management.Mappers
                 .ForMember(dest => dest.TourName, opt => opt.MapFrom(src => src.TourName ?? ""))
                 .ForMember(dest => dest.Code, opt => opt.MapFrom(src => src.Code ?? ""))
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description ?? ""))
-                .ForMember(dest => dest.Policy, opt => opt.MapFrom(src => src.Policy ?? ""))
                 .ForMember(dest => dest.Note, opt => opt.MapFrom(src => src.Note ?? ""))
                 .ForMember(dest => dest.TourTemplateProvinces, opt => opt.MapFrom(src => (src.ProvinceIds ?? new())
                     .Select(x => new TourTemplateProvince()
@@ -92,8 +88,37 @@ namespace VietWay.API.Management.Mappers
                 .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.IsDraft ? TourTemplateStatus.Draft : TourTemplateStatus.Pending));
             CreateMap<Tour, TourDetail>();
             CreateMap<AttractionSchedule, AttractionSchedulePreview>();
-            CreateMap<Feedback, CustomerFeedbackPreview>();
+            CreateMap<TourReview, CustomerFeedbackPreview>();
             CreateMap<VnPayIPNRequest, VnPayIPN>();
+            CreateMap<CreateAccountRequest, Staff>()
+                .ForMember(dest => dest.FullName, opt => opt.MapFrom(src => src.FullName))
+                .ForMember(dest => dest.IsDeleted, opt => opt.MapFrom(src => false))
+                .ForMember(dest => dest.StaffId, opt => opt.MapFrom(src => ""))
+                .ForMember(dest => dest.Account, opt => opt.MapFrom(src => new Account()
+                {
+                    AccountId = "",
+                    Email = src.Email,
+                    Password = src.Password,
+                    PhoneNumber = src.PhoneNumber,
+                    Role = UserRole.Staff,
+                    CreatedAt = DateTime.MinValue,
+                    IsDeleted = false,
+                }));
+            CreateMap<CreatePostRequest, Post>();
+            CreateMap<CreateManagerAccountRequest, Manager>()
+                .ForMember(dest => dest.FullName, opt => opt.MapFrom(src => src.FullName))
+                .ForMember(dest => dest.IsDeleted, opt => opt.MapFrom(src => false))
+                .ForMember(dest => dest.ManagerId, opt => opt.MapFrom(src => ""))
+                .ForMember(dest => dest.Account, opt => opt.MapFrom(src => new Account()
+                {
+                    AccountId = "",
+                    Email = src.Email,
+                    Password = src.Password,
+                    PhoneNumber = src.PhoneNumber,
+                    Role = UserRole.Manager,
+                    CreatedAt = DateTime.MinValue,
+                    IsDeleted = false,
+                }));
         }
     }
 }

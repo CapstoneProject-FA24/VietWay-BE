@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using VietWay.API.Management.ResponseModel;
-using VietWay.Service.Interface;
+using VietWay.Service.Management.Interface;
 
 namespace VietWay.API.Management.Controllers
 {

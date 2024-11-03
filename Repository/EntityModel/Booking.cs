@@ -1,10 +1,12 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using VietWay.Repository.EntityModel.Base;
 
 
 namespace VietWay.Repository.EntityModel
 {
+    [Index(nameof(CustomerId),nameof(TourId),IsUnique = true)]
     public class Booking
     {
         [Key]
@@ -35,9 +37,9 @@ namespace VietWay.Repository.EntityModel
 
         public virtual Tour? Tour { get; set; }
         public virtual Customer? CustomerInfo { get; set; }
-        public virtual Feedback? CustomerFeedback { get; set; }
+        public virtual TourReview? CustomerFeedback { get; set; }
 
         public virtual ICollection<BookingPayment>? BookingPayments { get; set; }
-        public virtual ICollection<BookingTourParticipant>? BookingTourParticipants { get; set; }
+        public virtual ICollection<BookingTourist>? BookingTourists { get; set; }
     }
 }

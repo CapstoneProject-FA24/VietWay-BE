@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 using VietWay.Repository.EntityModel.Base;
 using VietWay.Repository.EntityModel;
 
-namespace VietWay.Service.DataTransferObject
+namespace VietWay.Service.Management.DataTransferObject
 {
     public class TourBookingInfoDTO
     {
@@ -27,7 +27,6 @@ namespace VietWay.Service.DataTransferObject
 
         public required string StartLocation { get; set; }
         public required DateTime StartDate { get; set; }
-        public required DateTime EndDate { get; set; }
 
         public required string TourName { get; set; }
         public required string ImageUrl { get; set; }

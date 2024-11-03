@@ -9,51 +9,31 @@ namespace VietWay.API.Customer.Mappers
     {
         public MappingProfile()
         {
-            CreateMap<Tour, TourPreview>();
-            CreateMap<Tour, TourDetail>();
-            CreateMap<TourTemplate, TourTemplatePreview>()
-                .ForMember(dest => dest.Provinces, opt => opt.MapFrom(src => src.TourTemplateProvinces.Select(x => x.Province.ProvinceName).ToList()))
-                .ForMember(dest => dest.ImageUrl, opt => opt.MapFrom(src => src.TourTemplateImages.Select(x => x.ImageUrl).FirstOrDefault()))
-                .ForMember(dest => dest.TourTemplateId, opt => opt.MapFrom(src => src.TourTemplateId))
-                .ForMember(dest => dest.Duration, opt => opt.MapFrom(src => src.TourDuration.DurationName))
-                .ForMember(dest => dest.TourCategory, opt => opt.MapFrom(src => src.TourCategory.Name));
-
-            CreateMap<TourTemplate, TourTemplateDetail>()
-                .ForMember(dest => dest.Duration, opt => opt.MapFrom(src => new DurationDetail()
-                {
-                    DayNumber = src.TourDuration.NumberOfDay,
-                    DurationId = src.TourDuration.DurationId,
-                    DurationName = src.TourDuration.DurationName
-                }))
-                .ForMember(dest => dest.TourCategory, opt => opt.MapFrom(src => new TourCategoryPreview()
-                {
-                    TourCategoryId = src.TourCategory.TourCategoryId,
-                    TourCategoryName = src.TourCategory.Name
-                }))
-                .ForMember(dest => dest.Provinces, opt => opt.MapFrom(src => src.TourTemplateProvinces.Select(x => new ProvincePreview()
-                {
-                    ProvinceId = x.Province.ProvinceId,
-                    ProvinceName = x.Province.ProvinceName
-                }).ToList()))
-                .ForMember(dest => dest.Schedules, opt => opt.MapFrom(src => src.TourTemplateSchedules.Select(x => new ScheduleDetail
-                {
-                    DayNumber = x.DayNumber,
-                    Title = x.Title,
-                    Description = x.Description,
-                    Attractions = x.AttractionSchedules.Select(y => new AttractionBriefPreview()
+            CreateMap<BookTourRequest, Booking>()
+                .ForMember(dest => dest.BookingId, opt => opt.MapFrom(src => ""))
+                .ForMember(dest => dest.TourId, opt => opt.MapFrom(src => src.TourId))
+                .ForMember(dest => dest.CustomerId, opt => opt.MapFrom(src => ""))
+                .ForMember(dest => dest.NumberOfParticipants, opt => opt.MapFrom(src => src.NumberOfParticipants))
+                .ForMember(dest => dest.ContactFullName, opt => opt.MapFrom(src => src.ContactFullName))
+                .ForMember(dest => dest.ContactEmail, opt => opt.MapFrom(src => src.ContactEmail))
+                .ForMember(dest => dest.ContactPhoneNumber, opt => opt.MapFrom(src => src.ContactPhoneNumber))
+                .ForMember(dest => dest.ContactAddress, opt => opt.MapFrom(src => src.ContactAddress))
+                .ForMember(dest => dest.TotalPrice, opt => opt.MapFrom(src => 0))
+                .ForMember(dest => dest.Status, opt => opt.MapFrom(src => BookingStatus.Pending))
+                .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => DateTime.MinValue))
+                .ForMember(dest => dest.Note, opt => opt.MapFrom(src => src.Note))
+                .ForMember(dest => dest.BookingTourists, opt => opt.MapFrom(src => src.TourParticipants
+                    .Select(x => new BookingTourist()
                     {
-                        AttractionId = y.AttractionId,
-                        Name = y.Attraction.Name
-                    }).ToList()
-                }).ToList()))
-                .ForMember(dest => dest.Images, opt => opt.MapFrom(src => src.TourTemplateImages.Select(x => new ImageDetail()
-                {
-                    ImageId = x.ImageId,
-                    Url = x.ImageUrl
-                }).ToList()));
-            CreateMap<BookTourRequest, Booking>();
+                        DateOfBirth = x.DateOfBirth,
+                        FullName = x.FullName,
+                        Gender = x.Gender,
+                        TouristId = "",
+                        PhoneNumber = x.PhoneNumber,
+                        BookingId = "",
+                        Price = 0,
+                    })));
             CreateMap<CreateAccountRequest, Account>();
-            CreateMap<TourParticipant, BookingTourParticipant>();
             CreateMap<CreateAccountRequest, Repository.EntityModel.Customer>()
                 .ForMember(dest => dest.ProvinceId, opt => opt.MapFrom(src => src.ProvinceId))
                 .ForMember(dest => dest.DateOfBirth, opt => opt.MapFrom(src => src.DateOfBirth))

@@ -17,13 +17,14 @@
       <publicAssets>all</publicAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+    <PackageReference Include="StackExchange.Redis" Version="2.8.16" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Repository\VietWay.Repository.csproj" />
-    <ProjectReference Include="..\Service\VietWay.Service.csproj" />
     <ProjectReference Include="..\VietWay.Middleware\VietWay.Middleware.csproj" />
+    <ProjectReference Include="..\VietWay.Service.Customer\VietWay.Service.Customer.csproj" />
     <ProjectReference Include="..\VietWay.Util\VietWay.Util.csproj" />
   </ItemGroup>
 

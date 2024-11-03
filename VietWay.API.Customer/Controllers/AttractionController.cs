@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using VietWay.API.Customer.ResponseModel;
-using VietWay.Service.DataTransferObject;
-using VietWay.Service.Interface;
+using VietWay.Service.Customer.DataTransferObject;
+using VietWay.Service.Customer.Interface;
 
 namespace VietWay.API.Customer.Controllers
 {
@@ -29,7 +29,7 @@ namespace VietWay.API.Customer.Controllers
             int checkedPageSize = pageSize ?? 10;
             int checkedPageIndex = pageIndex ?? 1;
 
-            (int totalCount, List<AttractionPreviewDTO> items) = await _attractionService.GetAllApprovedAttractionsAsync(
+            (int totalCount, List<AttractionPreviewDTO> items) = await _attractionService.GetAttractionsPreviewAsync(
                 nameSearch, provinceIds, attractionTypeIds, checkedPageSize, checkedPageIndex);
             return Ok(new DefaultResponseModel<PaginatedList<AttractionPreviewDTO>>()
             {
@@ -58,7 +58,7 @@ namespace VietWay.API.Customer.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(DefaultResponseModel<object>))]
         public async Task<IActionResult> GetAttractionById(string attractionId)
         {
-            AttractionDetailDTO? attractionDetailDTO = await _attractionService.GetApprovedAttractionDetailById(attractionId);
+            AttractionDetailDTO? attractionDetailDTO = await _attractionService.GetAttractionDetailByIdAsync(attractionId);
             if (attractionDetailDTO == null)
             {
                 return NotFound(new DefaultResponseModel<object>
@@ -89,7 +89,7 @@ namespace VietWay.API.Customer.Controllers
         {
             return Ok(new DefaultResponseModel<List<TourTemplatePreviewDTO>>
             {
-                Data = await _tourTemplateService.GetTourTemplatesPreviewRelatedToAttractionAsync(attractionId, previewCount),
+                Data = await _tourTemplateService.GetTourTemplatePreviewsByAttractionId(attractionId, previewCount),
                 Message = "Success",
                 StatusCode = StatusCodes.Status200OK
             });

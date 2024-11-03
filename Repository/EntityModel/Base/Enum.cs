@@ -31,7 +31,8 @@
     {
         Pending,
         Rejected,
-        Scheduled,
+        Accepted,
+        Opened,
         Closed,
         OnGoing,
         Completed,
@@ -41,8 +42,10 @@
     {
         Pending,
         Confirmed,
-        Cancelled,
         Completed,
+        Expired,
+        Cancelled,
+        PendingRefund,
         Refunded
     }
     public enum PaymentStatus
@@ -89,5 +92,12 @@
         Update,
         ChangeStatus,
         Delete
+    }
+    public enum PaymentMethod
+    {
+        VNPay,
+        Momo,
+        ZaloPay,
+        PayOS
     }
 }

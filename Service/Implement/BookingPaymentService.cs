@@ -7,14 +7,13 @@ using System.Threading.Tasks;
 using VietWay.Repository.EntityModel;
 using VietWay.Repository.EntityModel.Base;
 using VietWay.Repository.UnitOfWork;
-using VietWay.Service.DataTransferObject;
-using VietWay.Service.Interface;
-using VietWay.Service.ThirdParty;
+using VietWay.Service.Management.Interface;
+using VietWay.Service.ThirdParty.VnPay;
 using VietWay.Util.CustomExceptions;
 using VietWay.Util.DateTimeUtil;
 using VietWay.Util.IdUtil;
 
-namespace VietWay.Service.Implement
+namespace VietWay.Service.Management.Implement
 {
     public class BookingPaymentService(IUnitOfWork unitOfWork, IVnPayService vnPayService,
         IIdGenerator idGenerator, ITimeZoneHelper timeZoneHelper) : IBookingPaymentService
@@ -27,7 +26,7 @@ namespace VietWay.Service.Implement
         {
             return await _unitOfWork.BookingPaymentRepository.Query()
                 .Include(x => x.Booking)
-                .SingleOrDefaultAsync(x=>x.PaymentId.Equals(id));
+                .SingleOrDefaultAsync(x => x.PaymentId.Equals(id));
         }
 
         public async Task<string> GetVnPayBookingPaymentUrl(string bookingId, string customerId, string ipAddress)
@@ -61,14 +60,14 @@ namespace VietWay.Service.Implement
                 .BookingPaymentRepository
                 .Query()
                 .Include(x => x.Booking)
-                .SingleOrDefaultAsync(x => x.PaymentId.Equals(vnPayIPN.TxnRef) && x.Status == PaymentStatus.Pending );
+                .SingleOrDefaultAsync(x => x.PaymentId.Equals(vnPayIPN.TxnRef) && x.Status == PaymentStatus.Pending);
             if (bookingPayment == null)
             {
                 return;
             }
             bookingPayment.BankCode = vnPayIPN.BankCode;
             bookingPayment.BankTransactionNumber = vnPayIPN.BankTranNo;
-            bookingPayment.PayTime = DateTime.Parse(vnPayIPN.PayDate);
+            bookingPayment.PayTime = DateTime.ParseExact(vnPayIPN.PayDate, "yyyyMMddHHmmss", null);
             bookingPayment.ThirdPartyTransactionNumber = vnPayIPN.TransactionNo;
             if (vnPayIPN.TransactionStatus.Equals("00"))
             {

@@ -1,6 +1,6 @@
 ﻿using VietWay.Repository.EntityModel;
 
-namespace VietWay.Service.Interface
+namespace VietWay.Service.Management.Interface
 {
     public interface IStaffService
     {
@@ -8,5 +8,6 @@ namespace VietWay.Service.Interface
         public Task<Staff?> GetStaffInfoById(string id);
         public Task<Staff> EditStaffInfo(Staff staffInfo);
         public Task<Staff> AddStaff(Staff staffInfo);
+        public Task RegisterAccountAsync(Staff staff);
     }
 }

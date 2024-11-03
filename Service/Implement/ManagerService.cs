@@ -2,17 +2,21 @@
 using VietWay.Repository.EntityModel;
 using VietWay.Repository.UnitOfWork;
 using VietWay.Service.Interface;
+using VietWay.Util.DateTimeUtil;
+using VietWay.Util.HashUtil;
+using VietWay.Util.IdUtil;
+using VietWay.Service.Management.Interface;
 
-namespace VietWay.Service.Implement
+namespace VietWay.Service.Management.Implement
 {
-    public class ManagerService : IManagerService
+    public class ManagerService(IUnitOfWork unitOfWork, IHashHelper hashHelper,
+        IIdGenerator idGenerator, ITimeZoneHelper timeZoneHelper) : IManagerService
     {
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly IUnitOfWork _unitOfWork = unitOfWork;
+        private readonly IHashHelper _hashHelper = hashHelper;
+        private readonly IIdGenerator _idGenerator = idGenerator;
+        private readonly ITimeZoneHelper _timeZoneHelper = timeZoneHelper;
 
-        public ManagerService(IUnitOfWork unitOfWork)
-        {
-            _unitOfWork = unitOfWork;
-        }
         public async Task<(int totalCount, List<Manager> items)> GetAllManagerInfos(int pageSize, int pageIndex)
         {
             var query = _unitOfWork
@@ -46,6 +50,26 @@ namespace VietWay.Service.Implement
             await _unitOfWork.ManagerRepository
                 .CreateAsync(managerInfo);
             return managerInfo;
+        }
+
+        public async Task RegisterAccountAsync(Manager manager)
+        {
+            try
+            {
+                await _unitOfWork.BeginTransactionAsync();
+                string accountId = _idGenerator.GenerateId();
+                manager.ManagerId = accountId;
+                manager.Account.AccountId = accountId;
+                manager.Account.Password = _hashHelper.Hash(manager.Account.Password);
+                manager.Account.CreatedAt = _timeZoneHelper.GetUTC7Now();
+                await _unitOfWork.ManagerRepository.CreateAsync(manager);
+                await _unitOfWork.CommitTransactionAsync();
+            }
+            catch
+            {
+                await _unitOfWork.RollbackTransactionAsync();
+                throw;
+            }
         }
     }
 }

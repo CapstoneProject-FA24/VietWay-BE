@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using VietWay.API.Customer.ResponseModel;
-using VietWay.Service.DataTransferObject;
-using VietWay.Service.Interface;
+using VietWay.Service.Customer.DataTransferObject;
+using VietWay.Service.Customer.Interface;
 
 namespace VietWay.API.Customer.Controllers
 {
@@ -24,7 +24,7 @@ namespace VietWay.API.Customer.Controllers
         {
             return Ok(new DefaultResponseModel<List<TourCategoryDTO>>()
             {
-                Data = await _tourCategoryService.GetAllTourCategory(),
+                Data = await _tourCategoryService.GetTourCategories(),
                 Message = "Success",
                 StatusCode = StatusCodes.Status200OK
             });

@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using VietWay.API.Customer.ResponseModel;
-using VietWay.Service.DataTransferObject;
-using VietWay.Service.Interface;
+using VietWay.Service.Customer.DataTransferObject;
+using VietWay.Service.Customer.Interface;
 
 namespace VietWay.API.Customer.Controllers
 {
@@ -11,9 +11,9 @@ namespace VietWay.API.Customer.Controllers
     /// </summary>
     [Route("api/attraction-types")]
     [ApiController]
-    public class AttractionTypeController(IAttractionTypeService attractionTypeService) : ControllerBase
+    public class AttractionTypeController(IAttractionCategoryService attractionTypeService) : ControllerBase
     {
-        private readonly IAttractionTypeService _attractionTypeService = attractionTypeService;
+        private readonly IAttractionCategoryService _attractionTypeService = attractionTypeService;
         /// <summary>
         /// ✅[All] Get all attraction types
         /// </summary>
@@ -27,7 +27,7 @@ namespace VietWay.API.Customer.Controllers
             return Ok(new DefaultResponseModel<List<AttractionCategoryPreviewDTO>>
             {
                 Message = "Success",
-                Data = await _attractionTypeService.GetAllAttractionType(),
+                Data = await _attractionTypeService.GetAllAttractionCategoriesAsync(),
                 StatusCode = StatusCodes.Status200OK
             });
         }

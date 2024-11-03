@@ -1,12 +1,12 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using VietWay.Repository.EntityModel;
 using VietWay.Repository.UnitOfWork;
-using VietWay.Service.DataTransferObject;
-using VietWay.Service.Interface;
+using VietWay.Service.Management.DataTransferObject;
+using VietWay.Service.Management.Interface;
 
-namespace VietWay.Service.Implement
+namespace VietWay.Service.Management.Implement
 {
-    public class TourDurationService(IUnitOfWork unitOfWork): ITourDurationService
+    public class TourDurationService(IUnitOfWork unitOfWork) : ITourDurationService
     {
         private readonly IUnitOfWork _unitOfWork = unitOfWork;
         public async Task<List<TourDuration>> GetAllTourDuration()
