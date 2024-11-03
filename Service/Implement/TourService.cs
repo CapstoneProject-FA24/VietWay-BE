@@ -5,6 +5,8 @@ using VietWay.Repository.EntityModel.Base;
 using VietWay.Service.Management.Interface;
 using VietWay.Util.DateTimeUtil;
 using VietWay.Util.IdUtil;
+using VietWay.Service.Management.DataTransferObject;
+using static Org.BouncyCastle.Crypto.Engines.SM2Engine;
 
 namespace VietWay.Service.Management.Implement
 {
@@ -48,17 +50,68 @@ namespace VietWay.Service.Management.Implement
                 .UpdateAsync(updatedTour);
         }
 
-        public async Task<(int totalCount, List<Tour> items)> GetAllTour(int pageSize, int pageIndex)
+        public async Task<(int totalCount, List<TourPreviewDTO> items)> GetAllTour(string? nameSearch, string? codeSearch, List<string>? provinceIds, List<string>? tourCategoryIds, List<string>? durationIds, TourStatus? status, int pageSize, int pageIndex, DateTime? startDateFrom, DateTime? startDateTo)
         {
-            var query = _unitOfWork
+            IQueryable<Tour> query = _unitOfWork
                 .TourRepository
-                .Query();
+                .Query()
+                .Include(x => x.TourTemplate)
+                .ThenInclude(x => x.TourTemplateImages);
+            if (nameSearch != null)
+            {
+                query = query.Where(x => x.TourTemplate.TourName.Contains(nameSearch));
+            }
+            if (codeSearch != null)
+            {
+                query = query.Where(x => x.TourTemplate.Code.Contains(codeSearch));
+            }
+            if (provinceIds?.Count > 0)
+            {
+                query = query.Where(x => x.TourTemplate.TourTemplateProvinces.Any(y => provinceIds.Contains(y.ProvinceId)));
+            }
+            if (tourCategoryIds?.Count > 0)
+            {
+                query = query.Where(x => tourCategoryIds.Contains(x.TourTemplate.TourCategoryId));
+            }
+            if (durationIds?.Count > 0)
+            {
+                query = query.Where(x => durationIds.Contains(x.TourTemplate.DurationId));
+            }
+            if (status != null)
+            {
+                query = query.Where(x => status == x.Status);
+            }
+            if (startDateFrom != null)
+            {
+                query = query.Where(x => startDateFrom <= x.StartDate);
+            }
+            if (startDateTo != null)
+            {
+                query = query.Where(x => startDateTo >= x.StartDate);
+            }
             int count = await query.CountAsync();
-            List<Tour> items = await query
+            List<TourPreviewDTO> items = await query
                 .Skip((pageIndex - 1) * pageSize)
                 .Take(pageSize)
                 .Include(x => x.TourTemplate)
                 .ThenInclude(x => x.TourTemplateImages)
+
+                .Select(x => new TourPreviewDTO
+                {
+                    TourId = x.TourId,
+                    TourTemplateId = x.TourTemplateId,
+                    Code = x.TourTemplate.Code,
+                    TourName = x.TourTemplate.TourName,
+                    Duration = x.TourTemplate.TourDuration.DurationName,
+                    ImageUrl = x.TourTemplate.TourTemplateImages.FirstOrDefault().ImageUrl,
+                    StartLocation = x.StartLocation,
+                    StartDate = x.StartDate,
+                    DefaultTouristPrice = x.DefaultTouristPrice,
+                    MaxParticipant = x.MaxParticipant,
+                    MinParticipant = x.MinParticipant,
+                    CurrentParticipant = x.CurrentParticipant,
+                    Status = x.Status
+                })
                 .ToListAsync();
             return (count, items);
         }
