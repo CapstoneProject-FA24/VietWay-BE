@@ -14,5 +14,6 @@ namespace VietWay.Service.Customer.DataTransferObject
         public required string PostCategoryName { get; set; }
         public required string ProvinceName { get; set; }
         public required string Description { get; set; }
+        public required DateTime CreatedAt { get; set; }
     }
 }

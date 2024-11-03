@@ -64,6 +64,7 @@ namespace VietWay.Service.Customer.Implementation
                     PostCategoryName = x.PostCategory.Name,
                     ProvinceName = x.Province.Name,
                     Description = x.Description,
+                    CreatedAt = x.CreatedAt,
                 }).ToListAsync();
             return (count, items);
         }
