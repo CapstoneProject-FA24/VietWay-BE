@@ -149,7 +149,7 @@ namespace VietWay.Service.Implement
                     ImageUrl = x.ImageUrl,
                     Content = x.Content,
                     PostCategory = x.PostCategory.Name,
-                    Province = x.Province.ProvinceName,
+                    Province = x.Province.Name,
                     Description = x.Description,
                     CreatedAt = x.CreatedAt,
                     Status = x.Status
