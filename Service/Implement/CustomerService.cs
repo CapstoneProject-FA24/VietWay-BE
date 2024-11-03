@@ -131,5 +131,22 @@ namespace VietWay.Service.Management.Implement
                 throw;
             }
         }
+
+        public async Task ChangeCustomerStatus(string customerId, string managerId, bool isDeleted)
+        {
+            try
+            {
+                await _unitOfWork.BeginTransactionAsync();
+                Customer? customer = await _unitOfWork.CustomerRepository.Query()
+                    .Include(x => x.Account)
+                    .SingleOrDefaultAsync(x => x.CustomerId.Equals(customerId)) ?? throw new ResourceNotFoundException("Customer not found");
+                customer.IsDeleted = isDeleted;
+                await _unitOfWork.CustomerRepository.UpdateAsync(customer);
+                await _unitOfWork.CommitTransactionAsync();
+            } catch {
+                await _unitOfWork.RollbackTransactionAsync();
+                throw;
+            }
+        }
     }
 }

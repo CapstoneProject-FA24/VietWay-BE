@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.ComponentModel.DataAnnotations;
 using VietWay.API.Customer.ResponseModel;
 using VietWay.Repository.EntityModel;
 using VietWay.Service.Customer.DataTransferObject;
@@ -59,6 +60,18 @@ namespace VietWay.API.Customer.Controllers
                 },
                 Message = "Get all province successfully",
                 StatusCode = StatusCodes.Status200OK
+            });
+        }
+        [HttpGet("{provinceId}/images")]
+        [Produces("application/json")]
+        [ProducesResponseType<DefaultResponseModel<ProvinceWithImageDTO>>(StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetProvinceImagesAsync(string provinceId,[Required] int imageCount)
+        {
+            return Ok(new DefaultResponseModel<ProvinceWithImageDTO>()
+            {
+                Message = "Success",
+                Data = await _provinceService.GetProvinceImagesAsync(provinceId, imageCount),
+                StatusCode = StatusCodes.Status200OK,
             });
         }
     }

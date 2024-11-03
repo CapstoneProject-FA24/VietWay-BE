@@ -201,10 +201,21 @@ namespace VietWay.API.Management.Controllers
         /// <response code="400">Bad request</response>
         /// <response code="404">Attraction not found</response>
         /// <response code="403">Unauthorized status change request</response>
+        [Authorize(Roles = $"{nameof(UserRole.Manager)}, ${nameof(UserRole.Staff)}")]
         [HttpPatch("{attractionId}/status")]
         public async Task<IActionResult> UpdateAttractionStatusAsync(string attractionId, UpdateAttractionStatusRequest request)
         {
-            throw new NotImplementedException();
+            string? accountId = _tokenHelper.GetAccountIdFromToken(HttpContext);
+            if (string.IsNullOrWhiteSpace(accountId))
+            {
+                return Unauthorized(new DefaultResponseModel<object>
+                {
+                    Message = "Unauthorized",
+                    StatusCode = StatusCodes.Status401Unauthorized
+                });
+            }
+            await _attractionService.UpdateAttractionStatusAsync(attractionId, accountId, request.Status, request.Reason);
+            return Ok();
         }
     }
 }
