@@ -2,6 +2,7 @@
 using VietWay.Repository.EntityModel;
 using VietWay.Repository.UnitOfWork;
 using VietWay.Service.Interface;
+using VietWay.Util.CustomExceptions;
 using VietWay.Util.DateTimeUtil;
 using VietWay.Util.HashUtil;
 using VietWay.Util.IdUtil;
@@ -65,6 +66,26 @@ namespace VietWay.Service.Management.Implement
                 staff.Account.Password = _hashHelper.Hash(staff.Account.Password);
                 staff.Account.CreatedAt = _timeZoneHelper.GetUTC7Now();
                 await _unitOfWork.StaffRepository.CreateAsync(staff);
+                await _unitOfWork.CommitTransactionAsync();
+            }
+            catch
+            {
+                await _unitOfWork.RollbackTransactionAsync();
+                throw;
+            }
+        }
+
+        public async Task ChangeStaffStatusAsync(string staffId, bool isDeleted)
+        {
+            Staff? staff = await _unitOfWork.StaffRepository.Query()
+                .SingleOrDefaultAsync(x => x.StaffId.Equals(staffId)) ??
+                throw new ResourceNotFoundException("Staff not found");
+
+            staff.IsDeleted = isDeleted;
+            try
+            {
+                await _unitOfWork.BeginTransactionAsync();
+                await _unitOfWork.StaffRepository.UpdateAsync(staff);
                 await _unitOfWork.CommitTransactionAsync();
             }
             catch

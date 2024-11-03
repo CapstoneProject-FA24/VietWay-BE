@@ -104,7 +104,8 @@ namespace VietWay.API.Management.Mappers
                     CreatedAt = DateTime.MinValue,
                     IsDeleted = false,
                 }));
-            CreateMap<CreatePostRequest, Post>();
+            CreateMap<CreatePostRequest, Post>()
+                .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.IsDraft ? PostStatus.Draft : PostStatus.Pending));
             CreateMap<CreateManagerAccountRequest, Manager>()
                 .ForMember(dest => dest.FullName, opt => opt.MapFrom(src => src.FullName))
                 .ForMember(dest => dest.IsDeleted, opt => opt.MapFrom(src => false))
@@ -119,6 +120,20 @@ namespace VietWay.API.Management.Mappers
                     CreatedAt = DateTime.MinValue,
                     IsDeleted = false,
                 }));
+            CreateMap<ActivateStaffAccountRequest, Staff>()
+                .ForMember(dest => dest.IsDeleted, opt => opt.MapFrom(src => false))
+                .ForMember(dest => dest.StaffId, opt => opt.MapFrom(src => ""));
+
+            CreateMap<DeactivateStaffAccountRequest, Staff>()
+                .ForMember(dest => dest.IsDeleted, opt => opt.MapFrom(src => true))
+                .ForMember(dest => dest.StaffId, opt => opt.MapFrom(src => ""));
+            CreateMap<ActivateCustomerAccountRequest, Customer>()
+                .ForMember(dest => dest.IsDeleted, opt => opt.MapFrom(src => false))
+                .ForMember(dest => dest.CustomerId, opt => opt.MapFrom(src => ""));
+
+            CreateMap<DeactivateCustomerAccountRequest, Customer>()
+                .ForMember(dest => dest.IsDeleted, opt => opt.MapFrom(src => true))
+                .ForMember(dest => dest.CustomerId, opt => opt.MapFrom(src => ""));
         }
     }
 }

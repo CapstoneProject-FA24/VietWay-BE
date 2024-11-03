@@ -77,6 +77,9 @@ namespace VietWay.API.Management.Controllers
                 });
             }
             Post post = _mapper.Map<Post>(request);
+
+            post.CreatedAt = DateTime.UtcNow;
+
             string postId = await _postService.CreatePostAsync(post);
             return Ok(new DefaultResponseModel<string>
             {
@@ -132,6 +135,37 @@ namespace VietWay.API.Management.Controllers
                 StatusCode = StatusCodes.Status200OK
             };
             return Ok(response);
+        }
+
+        /// <summary>
+        /// ✅🔐[Staff] Get post by ID
+        /// </summary>
+        /// <returns>Post detail</returns>
+        /// <response code="200">Success</response>
+        /// <response code="401">Unauthorized</response>
+        /// <response code="404">Not found</response>
+        [HttpGet("{postId}")]
+        [Produces("application/json")]
+        [ProducesResponseType<DefaultResponseModel<PostPreviewDTO>>(StatusCodes.Status200OK)]
+        [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> GetPostById(string postId)
+        {
+            PostPreviewDTO? post = await _postService.GetPostByIdAsync(postId);
+            if (null == post)
+            {
+                return NotFound(new DefaultResponseModel<object>
+                {
+                    Message = "Not found",
+                    StatusCode = StatusCodes.Status404NotFound
+                });
+            }
+
+            return Ok(new DefaultResponseModel<PostPreviewDTO>
+            {
+                Message = "Get post successfully",
+                StatusCode = StatusCodes.Status200OK,
+                Data = post
+            });
         }
     }
 }

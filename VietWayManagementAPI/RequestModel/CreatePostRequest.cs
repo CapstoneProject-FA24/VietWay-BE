@@ -13,9 +13,6 @@ namespace VietWay.API.Management.RequestModel
         public string? Title { get; set; }
 
         [RequiredIf(nameof(IsDraft), false)]
-        public string? ImageUrl { get; set; }
-
-        [RequiredIf(nameof(IsDraft), false)]
         public string? Content { get; set; }
 
         [RequiredIf(nameof(IsDraft), false)]
@@ -26,12 +23,6 @@ namespace VietWay.API.Management.RequestModel
 
         [RequiredIf(nameof(IsDraft), false)]
         public string? Description { get; set; }
-
-        [RequiredIf(nameof(IsDraft), false)]
-        public required DateTime CreatedAt { get; set; }
-
-        [RequiredIf(nameof(IsDraft), false)]
-        public required PostStatus Status { get; set; }
 
         [Required]
         public bool IsDraft { get; set; }
