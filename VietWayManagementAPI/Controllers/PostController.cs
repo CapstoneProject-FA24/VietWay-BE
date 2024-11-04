@@ -62,11 +62,11 @@ namespace VietWay.API.Management.Controllers
         /// <response code="404">Not found</response>
         [HttpGet("{postId}")]
         [Produces("application/json")]
-        [ProducesResponseType<DefaultResponseModel<PostPreviewDTO>>(StatusCodes.Status200OK)]
+        [ProducesResponseType<DefaultResponseModel<PostDetailDTO>>(StatusCodes.Status200OK)]
         [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetPostById(string postId)
         {
-            PostPreviewDTO? post = await _postService.GetPostByIdAsync(postId);
+            PostDetailDTO? post = await _postService.GetPostByIdAsync(postId);
             if (null == post)
             {
                 return NotFound(new DefaultResponseModel<object>
@@ -75,7 +75,7 @@ namespace VietWay.API.Management.Controllers
                     StatusCode = StatusCodes.Status404NotFound
                 });
             }
-            return Ok(new DefaultResponseModel<PostPreviewDTO>
+            return Ok(new DefaultResponseModel<PostDetailDTO>
             {
                 Message = "Get post successfully",
                 StatusCode = StatusCodes.Status200OK,
