@@ -77,6 +77,7 @@ namespace VietWay.Service.Implement
 
         public async Task<string> CreatePostAsync(Post post)
         {
+            post.CreatedAt = DateTime.Now;
             try
             {
                 post.PostId ??= _idGenerator.GenerateId();
