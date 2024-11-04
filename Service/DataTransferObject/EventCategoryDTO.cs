@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace VietWay.Service.Management.DataTransferObject
 {
-    public class PostCategoryDTO
+    public class EventCategoryDTO
     {
-        public string PostCategoryId { get; set; }
+        public string EventCategoryId { get; set; }
         public string Name { get; set; }
         public string Description { get; set; }
         public DateTime CreatedAt { get; set; }

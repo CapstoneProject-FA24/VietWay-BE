@@ -20,7 +20,8 @@ namespace VietWay.Service.Management.Implement
                 {
                     Description = x.Description,
                     Name = x.Name,
-                    PostCategoryId = x.PostCategoryId
+                    PostCategoryId = x.PostCategoryId,
+                    CreatedAt = x.CreatedAt
                 }).ToListAsync();
         }
     }

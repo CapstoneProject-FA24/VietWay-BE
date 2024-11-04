@@ -9,21 +9,16 @@ namespace VietWay.Service.Management.Implement
     public class TourDurationService(IUnitOfWork unitOfWork) : ITourDurationService
     {
         private readonly IUnitOfWork _unitOfWork = unitOfWork;
-        public async Task<List<TourDuration>> GetAllTourDuration()
+        public async Task<List<TourDurationDTO>> GetAllTourDuration()
         {
             return await _unitOfWork.TourDurationRepository
                 .Query()
-                .ToListAsync();
-        }
-
-        public async Task<List<TourDurationPreviewDTO>> GetTourDurationPreviews()
-        {
-            return await _unitOfWork.TourDurationRepository
-                .Query()
-                .Select(x => new TourDurationPreviewDTO()
+                .Select(x => new TourDurationDTO()
                 {
                     DurationId = x.DurationId,
-                    DurationName = x.DurationName
+                    DurationName = x.DurationName,
+                    NumberOfDay = x.NumberOfDay,
+                    CreatedAt = x.CreatedAt
                 })
                 .ToListAsync();
         }
