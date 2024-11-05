@@ -9,13 +9,13 @@ using System.Threading.Tasks;
 using VietWay.Repository.EntityModel;
 using VietWay.Repository.EntityModel.Base;
 using VietWay.Repository.UnitOfWork;
-using VietWay.Service.DataTransferObject;
-using VietWay.Service.Interface;
+using VietWay.Service.Management.DataTransferObject;
+using VietWay.Service.Management.Interface;
 using VietWay.Service.ThirdParty.Cloudinary;
 using VietWay.Util.CustomExceptions;
 using VietWay.Util.IdUtil;
 
-namespace VietWay.Service.Implement
+namespace VietWay.Service.Management.Implement
 {
     public class PostService(IUnitOfWork unitOfWork, ICloudinaryService cloudinaryService,
         IIdGenerator idGenerator, IBackgroundJobClient backgroundJobClient) : IPostService
@@ -77,6 +77,7 @@ namespace VietWay.Service.Implement
 
         public async Task<string> CreatePostAsync(Post post)
         {
+            post.CreatedAt = DateTime.Now;
             try
             {
                 post.PostId ??= _idGenerator.GenerateId();
@@ -94,6 +95,8 @@ namespace VietWay.Service.Implement
 
         public async Task DeletePostAsync(string postId)
         {
+            Post? a = await _unitOfWork.PostRepository.Query()
+                .SingleOrDefaultAsync(x => x.PostId.Equals(postId));
             Post? post = await _unitOfWork.PostRepository.Query()
                 .SingleOrDefaultAsync(x => x.PostId.Equals(postId)) ??
                 throw new ResourceNotFoundException("Post not found");
@@ -114,9 +117,9 @@ namespace VietWay.Service.Implement
         {
             Post? post = await _unitOfWork.PostRepository.Query()
                 .SingleOrDefaultAsync(x => x.PostId.Equals(newPost.PostId)) ??
-                throw new ResourceNotFoundException("Attraction not found");
+                throw new ResourceNotFoundException("Post not found");
 
-            post.Status = PostStatus.Pending;
+            post.Status = newPost.Status;
             post.Title = newPost.Title;
             post.Content = newPost.Content;
             post.PostCategoryId = newPost.PostCategoryId;
@@ -134,6 +137,29 @@ namespace VietWay.Service.Implement
                 await _unitOfWork.RollbackTransactionAsync();
                 throw;
             }
+        }
+        public async Task<PostDetailDTO?> GetPostByIdAsync(string postId)
+        {
+            return await _unitOfWork.PostRepository
+                .Query()
+                .Where(x => x.PostId.Equals(postId))
+                .Include(x => x.Province)
+                .Include(x => x.PostCategory)
+                .Select(x => new PostDetailDTO
+                {
+                    PostId = x.PostId,
+                    Title = x.Title,
+                    ImageUrl = x.ImageUrl,
+                    Content = x.Content,
+                    CreateAt = x.CreatedAt,
+                    PostCategoryId = x.PostCategoryId,
+                    PostCategoryName = x.PostCategory.Name,
+                    ProvinceId = x.ProvinceId,
+                    ProvinceName = x.Province.Name,
+                    Description = x.Description,
+                    Status = x.Status,
+                })
+                .SingleOrDefaultAsync();
         }
     }
 }

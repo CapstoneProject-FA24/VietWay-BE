@@ -10,11 +10,17 @@ namespace VietWay.Service.Management.Implement
     {
         private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
-        public async Task<List<AttractionCategoryPreviewDTO>> GetAllAttractionType()
+        public async Task<List<AttractionCategoryDTO>> GetAllAttractionType()
         {
             return await _unitOfWork.AttractionCategoryRepository
                 .Query()
-                .Select(x => new AttractionCategoryPreviewDTO { }).ToListAsync();
+                .Select(x => new AttractionCategoryDTO 
+                {
+                    Description = x.Description,
+                    Name = x.Name,
+                    AttractionCategoryId = x.AttractionCategoryId,
+                    CreatedAt = x.CreatedAt,
+                }).ToListAsync();
         }
     }
 }

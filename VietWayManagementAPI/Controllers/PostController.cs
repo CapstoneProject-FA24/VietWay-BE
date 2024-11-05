@@ -1,15 +1,14 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using VietWay.Service.Interface;
-using VietWay.Service.DataTransferObject;
 using VietWay.API.Management.ResponseModel;
-using VietWay.Service.Implement;
 using VietWay.Repository.EntityModel.Base;
 using Microsoft.AspNetCore.Authorization;
 using VietWay.API.Management.RequestModel;
 using VietWay.Repository.EntityModel;
 using VietWay.Util.TokenUtil;
 using AutoMapper;
+using VietWay.Service.Management.Interface;
+using VietWay.Service.Management.DataTransferObject;
 
 namespace VietWay.API.Management.Controllers
 {
@@ -52,6 +51,35 @@ namespace VietWay.API.Management.Controllers
                     Total = totalCount
                 },
                 StatusCode = StatusCodes.Status200OK
+            });
+        }
+        /// <summary>
+        /// ✅🔐[Staff] Get post by ID
+        /// </summary>
+        /// <returns>Post detail</returns>
+        /// <response code="200">Success</response>
+        /// <response code="401">Unauthorized</response>
+        /// <response code="404">Not found</response>
+        [HttpGet("{postId}")]
+        [Produces("application/json")]
+        [ProducesResponseType<DefaultResponseModel<PostDetailDTO>>(StatusCodes.Status200OK)]
+        [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> GetPostById(string postId)
+        {
+            PostDetailDTO? post = await _postService.GetPostByIdAsync(postId);
+            if (null == post)
+            {
+                return NotFound(new DefaultResponseModel<object>
+                {
+                    Message = "Not found",
+                    StatusCode = StatusCodes.Status404NotFound
+                });
+            }
+            return Ok(new DefaultResponseModel<PostDetailDTO>
+            {
+                Message = "Get post successfully",
+                StatusCode = StatusCodes.Status200OK,
+                Data = post
             });
         }
 
@@ -115,8 +143,8 @@ namespace VietWay.API.Management.Controllers
         [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status200OK)]
         public async Task<IActionResult> DeletePostAsync(string postId)
         {
-            Post? post = null;
-            if (null == post)
+            PostPreviewDTO? post = await _postService.GetPostByIdAsync(postId);
+            if (post == null)
             {
                 DefaultResponseModel<object> errorResponse = new()
                 {

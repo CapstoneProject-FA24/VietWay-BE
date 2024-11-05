@@ -5,6 +5,6 @@ namespace VietWay.Service.Management.Interface
 {
     public interface IAttractionTypeService
     {
-        public Task<List<AttractionCategoryPreviewDTO>> GetAllAttractionType();
+        public Task<List<AttractionCategoryDTO>> GetAllAttractionType();
     }
 }

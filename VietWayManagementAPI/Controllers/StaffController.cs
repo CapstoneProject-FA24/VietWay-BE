@@ -1,27 +1,33 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using VietWay.API.Management.ResponseModel;
+using VietWay.Repository.EntityModel.Base;
+using VietWay.Util.TokenUtil;
 using VietWay.Service.Management.Interface;
 
 namespace VietWay.API.Management.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/staff")]
     [ApiController]
-    public class StaffController(IStaffService staffService, IMapper mapper) : ControllerBase
+    public class StaffController(IStaffService staffService,
+        ITokenHelper tokenHelper,
+        IMapper mapper) : ControllerBase
     {
         private readonly IStaffService _staffService = staffService;
         private readonly IMapper _mapper = mapper;
+        private readonly ITokenHelper _tokenHelper = tokenHelper;
 
         [HttpGet]
         [Produces("application/json")]
         [ProducesResponseType<DefaultResponseModel<PaginatedList<StaffInfoPreview>>>(StatusCodes.Status200OK)]
         public async Task<IActionResult> GetAllStaffInfosAsync(int pageSize, int pageIndex)
         {
-            var result = await _staffService.GetAllStaffInfos(pageSize, pageIndex);
-            List<StaffInfoPreview> staffInfoPreviews = _mapper.Map<List<StaffInfoPreview>>(result.items);
+            var (totalCount, items) = await _staffService.GetAllStaffInfos(pageSize, pageIndex);
+            List<StaffInfoPreview> staffInfoPreviews = _mapper.Map<List<StaffInfoPreview>>(items);
             PaginatedList<StaffInfoPreview> pagedResponse = new()
             {
-                Total = result.totalCount,
+                Total = totalCount,
                 PageSize = pageSize,
                 PageIndex = pageIndex,
                 Items = staffInfoPreviews
@@ -33,6 +39,32 @@ namespace VietWay.API.Management.Controllers
                 StatusCode = StatusCodes.Status200OK
             };
             return Ok(response);
+        }
+
+        /// <summary>
+        /// ✅🔐[Manager] Change staff status
+        /// </summary>
+        /// <returns>Staff status changed</returns>
+        /// <response code="200">Return staff account status changed</response>
+        /// <response code="400">Bad request</response>
+        [HttpPatch("change-staff-status/{staffId}")]
+        [Authorize(Roles = nameof(UserRole.Manager))]
+        [Produces("application/json")]
+        [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status200OK)]
+        public async Task<IActionResult> ChangeStaffAccountStatusAsync(string staffId, bool isDeleted)
+        {
+            string? managerId = _tokenHelper.GetAccountIdFromToken(HttpContext) ?? "2";
+            if (string.IsNullOrWhiteSpace(managerId))
+            {
+                return Unauthorized(new DefaultResponseModel<object>
+                {
+                    Message = "Unauthorized",
+                    StatusCode = StatusCodes.Status401Unauthorized
+                });
+            }
+
+            await _staffService.ChangeStaffStatusAsync(staffId, isDeleted);
+            return Ok();
         }
     }
 }

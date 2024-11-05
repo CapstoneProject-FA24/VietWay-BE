@@ -1,11 +1,10 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using VietWay.API.Management.RequestModel;
 using VietWay.API.Management.ResponseModel;
 using VietWay.Repository.EntityModel;
-using VietWay.Service.Implement;
-using VietWay.Service.Interface;
 using VietWay.Service.Management.DataTransferObject;
 using VietWay.Service.Management.Interface;
 using VietWay.Util.TokenUtil;
@@ -59,11 +58,21 @@ namespace VietWay.API.Management.Controllers
         /// ✅ Create new staff account
         /// </summary>
         [HttpPost("create-staff-account")]
+        [Authorize(Roles = nameof(UserRole.Manager))]
         [Produces("application/json")]
         [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status200OK)]
         [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> CreateStaffAccountAsync([FromBody] CreateAccountRequest request)
         {
+            string? managerId = _tokenHelper.GetAccountIdFromToken(HttpContext) ?? "2";
+            if (string.IsNullOrWhiteSpace(managerId))
+            {
+                return Unauthorized(new DefaultResponseModel<object>
+                {
+                    Message = "Unauthorized",
+                    StatusCode = StatusCodes.Status401Unauthorized
+                });
+            }
             Staff account = _mapper.Map<Staff>(request);
             await _staffService.RegisterAccountAsync(account);
             return Ok(new DefaultResponseModel<object>()
@@ -77,11 +86,21 @@ namespace VietWay.API.Management.Controllers
         /// ✅ Create new manager account
         /// </summary>
         [HttpPost("create-manager-account")]
+        [Authorize(Roles = nameof(UserRole.Admin))]
         [Produces("application/json")]
         [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status200OK)]
         [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> CreateManagerAccountAsync([FromBody] CreateManagerAccountRequest request)
         {
+            string? adminId = _tokenHelper.GetAccountIdFromToken(HttpContext) ?? "3";
+            if (string.IsNullOrWhiteSpace(adminId))
+            {
+                return Unauthorized(new DefaultResponseModel<object>
+                {
+                    Message = "Unauthorized",
+                    StatusCode = StatusCodes.Status401Unauthorized
+                });
+            }
             Manager account = _mapper.Map<Manager>(request);
             await _managerService.RegisterAccountAsync(account);
             return Ok(new DefaultResponseModel<object>()

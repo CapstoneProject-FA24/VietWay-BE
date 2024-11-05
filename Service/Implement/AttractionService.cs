@@ -9,22 +9,25 @@ using VietWay.Service.Management.Interface;
 using VietWay.Service.Management.Jobs;
 using VietWay.Service.ThirdParty.Cloudinary;
 using VietWay.Util.CustomExceptions;
+using VietWay.Util.DateTimeUtil;
 using VietWay.Util.IdUtil;
 
 namespace VietWay.Service.Management.Implement
 {
     public class AttractionService(IUnitOfWork unitOfWork, ICloudinaryService cloudinaryService, IIdGenerator idGenerator,
-        IBackgroundJobClient backgroundJobClient) : IAttractionService
+        IBackgroundJobClient backgroundJobClient, ITimeZoneHelper timeZoneHelper) : IAttractionService
     {
         private readonly IUnitOfWork _unitOfWork = unitOfWork;
         private readonly ICloudinaryService _cloudinaryService = cloudinaryService;
         private readonly IIdGenerator _idGenerator = idGenerator;
         private readonly IBackgroundJobClient _backgroundJobClient = backgroundJobClient;
+        private readonly ITimeZoneHelper _timeZoneHelper = timeZoneHelper;
         public async Task<string> CreateAttractionAsync(Attraction attraction)
         {
             try
             {
                 attraction.AttractionId ??= _idGenerator.GenerateId();
+                attraction.CreatedAt = _timeZoneHelper.GetUTC7Now();
                 await _unitOfWork.BeginTransactionAsync();
                 await _unitOfWork.AttractionRepository.CreateAsync(attraction);
                 await _unitOfWork.CommitTransactionAsync();
@@ -127,7 +130,8 @@ namespace VietWay.Service.Management.Implement
                     Province = x.Province.Name,
                     AttractionType = x.AttractionCategory.Name,
                     Status = x.Status,
-                    ImageUrl = x.AttractionImages.FirstOrDefault() != null ? x.AttractionImages.FirstOrDefault().ImageUrl : null
+                    ImageUrl = x.AttractionImages.FirstOrDefault() != null ? x.AttractionImages.FirstOrDefault().ImageUrl : null,
+                    CreatedAt = x.CreatedAt
                 })
                 .ToListAsync();
             return (count, attractions);
@@ -145,10 +149,22 @@ namespace VietWay.Service.Management.Implement
                     AttractionId = x.AttractionId,
                     Name = x.Name,
                     Address = x.Address,
-                    Province = new ProvinceBriefPreviewDTO(),
-                    AttractionType = new AttractionCategoryPreviewDTO(),
+                    Province = new ProvinceBriefPreviewDTO
+                    {
+                        ProvinceId = x.ProvinceId,
+                        ProvinceName = x.Province.Name
+                    },
+                    AttractionType = new AttractionCategoryPreviewDTO
+                    {
+                        AttractionCategoryId = x.AttractionCategoryId,
+                        Name = x.AttractionCategory.Name
+                    },
                     Description = x.Description,
-                    Images = x.AttractionImages.Select(x => new ImageDTO()).ToList(),
+                    Images = x.AttractionImages.Select(x => new ImageDTO
+                    {
+                        ImageId = x.ImageId,
+                        ImageUrl = x.ImageUrl
+                    }).ToList(),
                     ContactInfo = x.ContactInfo,
                     GooglePlaceId = x.GooglePlaceId,
                     Website = x.Website,
@@ -170,12 +186,24 @@ namespace VietWay.Service.Management.Implement
                     AttractionId = x.AttractionId,
                     Name = x.Name,
                     Address = x.Address,
-                    Province = new ProvinceBriefPreviewDTO(),
-                    AttractionType = new AttractionCategoryPreviewDTO(),
+                    Province = new ProvinceBriefPreviewDTO
+                    {
+                        ProvinceId = x.ProvinceId,
+                        ProvinceName = x.Province.Name
+                    },
+                    AttractionType = new AttractionCategoryPreviewDTO
+                    {
+                        AttractionCategoryId = x.AttractionCategoryId,
+                        Name = x.AttractionCategory.Name
+                    },
                     Status = x.Status,
                     CreatedDate = x.CreatedAt,
                     Description = x.Description,
-                    Images = x.AttractionImages.Select(x => new ImageDTO()).ToList(),
+                    Images = x.AttractionImages.Select(x => new ImageDTO
+                    {
+                        ImageId = x.ImageId,
+                        ImageUrl = x.ImageUrl
+                    }).ToList(),
                     ContactInfo = x.ContactInfo,
                     GooglePlaceId = x.GooglePlaceId,
                     Website = x.Website
@@ -227,7 +255,9 @@ namespace VietWay.Service.Management.Implement
                     {
                         string imageId = _idGenerator.GenerateId();
                         using Stream stream = imageFile.OpenReadStream();
-                        enqueuedJobs.Add(() => _cloudinaryService.UploadImageAsync(imageId,imageFile.FileName,stream));
+                        using MemoryStream memoryStream = new();
+                        await stream.CopyToAsync(memoryStream);
+                        enqueuedJobs.Add(async () => await _cloudinaryService.UploadImageAsync(imageId,imageFile.FileName,memoryStream.ToArray()));
                         attraction.AttractionImages.Add(new AttractionImage
                         {
                             AttractionId = attraction.AttractionId,
@@ -246,7 +276,7 @@ namespace VietWay.Service.Management.Implement
                     {
                         attraction.AttractionImages.Remove(image);
                     }
-                    enqueuedJobs.Add(() => _cloudinaryService.DeleteImagesAsync(imageIdsToRemove));
+                    enqueuedJobs.Add(async () => await _cloudinaryService.DeleteImagesAsync(imageIdsToRemove));
                 }
                 await _unitOfWork.AttractionRepository.UpdateAsync(attraction);
 
@@ -287,7 +317,7 @@ namespace VietWay.Service.Management.Implement
                     throw new UnauthorizedException("You are not allowed to perform this action");
                 }
                 await _unitOfWork.CommitTransactionAsync();
-            } 
+            }
             catch
             {
                 await _unitOfWork.RollbackTransactionAsync();

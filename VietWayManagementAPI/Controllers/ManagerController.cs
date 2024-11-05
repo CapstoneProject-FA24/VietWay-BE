@@ -1,16 +1,22 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using VietWay.API.Management.RequestModel;
 using VietWay.API.Management.ResponseModel;
 using VietWay.Service.Management.Interface;
+using VietWay.Util.TokenUtil;
 
 namespace VietWay.API.Management.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/manager")]
     [ApiController]
-    public class ManagerController (IManagerService managerService, IMapper mapper) : ControllerBase
+    public class ManagerController (IManagerService managerService,
+        ITokenHelper tokenHelper,
+        IMapper mapper) : ControllerBase
     {
         private readonly IManagerService _managerService = managerService;
         private readonly IMapper _mapper = mapper;
+        private readonly ITokenHelper _tokenHelper = tokenHelper;
 
         [HttpGet]
         [Produces("application/json")]

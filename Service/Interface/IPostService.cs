@@ -5,9 +5,9 @@ using System.Text;
 using System.Threading.Tasks;
 using VietWay.Repository.EntityModel;
 using VietWay.Repository.EntityModel.Base;
-using VietWay.Service.DataTransferObject;
+using VietWay.Service.Management.DataTransferObject;
 
-namespace VietWay.Service.Interface
+namespace VietWay.Service.Management.Interface
 {
     public interface IPostService
     {
@@ -21,5 +21,6 @@ namespace VietWay.Service.Interface
         public Task<string> CreatePostAsync(Post post);
         public Task DeletePostAsync(string postId);
         public Task UpdatePostAsync(Post newPost);
+        public Task<PostDetailDTO?> GetPostByIdAsync(string postId);
     }
 }

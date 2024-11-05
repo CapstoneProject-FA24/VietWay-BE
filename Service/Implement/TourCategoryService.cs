@@ -17,7 +17,8 @@ namespace VietWay.Service.Management.Implement
                 {
                     Description = x.Description,
                     Name = x.Name,
-                    TourCategoryId = x.TourCategoryId
+                    TourCategoryId = x.TourCategoryId,
+                    CreatedAt = x.CreatedAt,
                 }).ToListAsync();
         }
     }
