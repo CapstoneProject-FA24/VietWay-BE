@@ -295,8 +295,10 @@ namespace VietWay.Service.Management.Implement
                     foreach (var imageFile in newImages)
                     {
                         string imageId = _idGenerator.GenerateId();
+                        using MemoryStream memoryStream = new();
                         using Stream stream = imageFile.OpenReadStream();
-                        enqueuedJobs.Add(() => _cloudinaryService.UploadImageAsync(imageId, imageFile.FileName, stream));
+                        await stream.CopyToAsync(memoryStream);
+                        enqueuedJobs.Add(() => _cloudinaryService.UploadImageAsync(imageId, imageFile.FileName, memoryStream.ToArray()));
                         tourTemplate.TourTemplateImages.Add(new TourTemplateImage
                         {
                             TourTemplateId = tourTemplate.TourTemplateId,

@@ -13,7 +13,7 @@ using VietWay.Util.DateTimeUtil;
 
 namespace VietWay.Service.Management.Implement
 {
-    internal class EventService(IUnitOfWork unitOfWork, ITimeZoneHelper timeZoneHelper) : IEventService
+    public class EventService(IUnitOfWork unitOfWork, ITimeZoneHelper timeZoneHelper) : IEventService
     {
         private readonly IUnitOfWork _unitOfWork = unitOfWork;
         private readonly ITimeZoneHelper _timeZoneHelper = timeZoneHelper;

@@ -12,8 +12,6 @@ namespace VietWay.API.Management.RequestModel
         public DateTime? RegisterCloseDate { get; set; }
         public int? MaxParticipant { get; set; }
         public int? MinParticipant { get; set; }
-        public int CurrentParticipant { get; set; }
-        public required DateTime CreatedAt { get; set; }
         public virtual ICollection<TourPriceInfo>? TourPrices { get; set; }
         public virtual ICollection<RefundPolicy>? RefundPolicies { get; set; }
     }

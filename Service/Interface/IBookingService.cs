@@ -8,7 +8,7 @@ using VietWay.Service.Management.DataTransferObject;
 
 namespace VietWay.Service.Management.Interface
 {
-    public interface ITourBookingService
+    public interface IBookingService
     {
         public Task CreateBookingAsync(Booking tourBooking);
         public Task<TourBookingInfoDTO?> GetTourBookingInfoAsync(string bookingId, string customerId);

@@ -23,14 +23,13 @@ namespace VietWay.API.Management.Controllers
         /// <response code="200">Success</response>
         [HttpGet]
         [Produces("application/json")]
-        [ProducesResponseType<DefaultResponseModel<AttractionCategoryPreviewDTO>>(StatusCodes.Status200OK)]
+        [ProducesResponseType<DefaultResponseModel<AttractionCategoryDTO>>(StatusCodes.Status200OK)]
         public async Task<IActionResult> GetAllAttractionTypeAsync()
         {
             var result = await _attractionTypeService.GetAllAttractionType();
-            List<AttractionCategoryPreviewDTO> attractionTypePreviews = _mapper.Map<List<AttractionCategoryPreviewDTO>>(result);
-            DefaultResponseModel<List<AttractionCategoryPreviewDTO>> response = new()
+            DefaultResponseModel<List<AttractionCategoryDTO>> response = new()
             {
-                Data = attractionTypePreviews,
+                Data = result,
                 Message = "Get all attraction type successfully",
                 StatusCode = StatusCodes.Status200OK
             };
@@ -44,7 +43,7 @@ namespace VietWay.API.Management.Controllers
         /// <response code="404">Not found</response>
         [HttpGet("{attractionTypeId}")]
         [Produces("application/json")]
-        [ProducesResponseType<DefaultResponseModel<AttractionCategoryPreviewDTO>>(StatusCodes.Status200OK)]
+        [ProducesResponseType<DefaultResponseModel<AttractionCategoryDTO>>(StatusCodes.Status200OK)]
         public async Task<IActionResult> GetAttractionTypeByIdAsync(string attractionTypeId)
         {
             throw new NotImplementedException();

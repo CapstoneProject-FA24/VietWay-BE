@@ -1,5 +1,7 @@
 ﻿using CloudinaryDotNet;
 using CloudinaryDotNet.Actions;
+using Microsoft.Extensions.Logging;
+using System.Text.Json;
 using CloudinaryClient = CloudinaryDotNet.Cloudinary;
 namespace VietWay.Service.ThirdParty.Cloudinary
 {
@@ -26,11 +28,12 @@ namespace VietWay.Service.ThirdParty.Cloudinary
                     .FetchFormat("auto"))
                 .BuildUrl(publicId);
         }
-        public async Task UploadImageAsync(string publicId, string fileName, Stream fileStream)
+        public async Task UploadImageAsync(string publicId, string fileName, byte[] fileStream)
         {
+            using MemoryStream stream = new(fileStream);
             ImageUploadParams uploadParams = new()
             {
-                File = new FileDescription(fileName,fileStream),
+                File = new FileDescription(fileName,stream),
                 PublicId = publicId
             };
             _ = await _cloudinary.UploadAsync(uploadParams);

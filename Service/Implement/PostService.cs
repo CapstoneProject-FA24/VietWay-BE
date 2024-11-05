@@ -9,13 +9,13 @@ using System.Threading.Tasks;
 using VietWay.Repository.EntityModel;
 using VietWay.Repository.EntityModel.Base;
 using VietWay.Repository.UnitOfWork;
-using VietWay.Service.DataTransferObject;
-using VietWay.Service.Interface;
+using VietWay.Service.Management.DataTransferObject;
+using VietWay.Service.Management.Interface;
 using VietWay.Service.ThirdParty.Cloudinary;
 using VietWay.Util.CustomExceptions;
 using VietWay.Util.IdUtil;
 
-namespace VietWay.Service.Implement
+namespace VietWay.Service.Management.Implement
 {
     public class PostService(IUnitOfWork unitOfWork, ICloudinaryService cloudinaryService,
         IIdGenerator idGenerator, IBackgroundJobClient backgroundJobClient) : IPostService
@@ -95,6 +95,8 @@ namespace VietWay.Service.Implement
 
         public async Task DeletePostAsync(string postId)
         {
+            Post? a = await _unitOfWork.PostRepository.Query()
+                .SingleOrDefaultAsync(x => x.PostId.Equals(postId));
             Post? post = await _unitOfWork.PostRepository.Query()
                 .SingleOrDefaultAsync(x => x.PostId.Equals(postId)) ??
                 throw new ResourceNotFoundException("Post not found");
@@ -136,24 +138,26 @@ namespace VietWay.Service.Implement
                 throw;
             }
         }
-        public async Task<PostPreviewDTO?> GetPostByIdAsync(string postId)
+        public async Task<PostDetailDTO?> GetPostByIdAsync(string postId)
         {
             return await _unitOfWork.PostRepository
                 .Query()
                 .Where(x => x.PostId.Equals(postId))
                 .Include(x => x.Province)
                 .Include(x => x.PostCategory)
-                .Select(x => new PostPreviewDTO
+                .Select(x => new PostDetailDTO
                 {
                     PostId = x.PostId,
                     Title = x.Title,
                     ImageUrl = x.ImageUrl,
                     Content = x.Content,
-                    PostCategory = x.PostCategory.Name,
-                    Province = x.Province.Name,
+                    CreateAt = x.CreatedAt,
+                    PostCategoryId = x.PostCategoryId,
+                    PostCategoryName = x.PostCategory.Name,
+                    ProvinceId = x.ProvinceId,
+                    ProvinceName = x.Province.Name,
                     Description = x.Description,
-                    CreatedAt = x.CreatedAt,
-                    Status = x.Status
+                    Status = x.Status,
                 })
                 .SingleOrDefaultAsync();
         }
