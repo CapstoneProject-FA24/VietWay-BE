@@ -1,11 +1,12 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using VietWay.API.Management.ResponseModel;
+using VietWay.Service.Management.DataTransferObject;
 using VietWay.Service.Management.Interface;
 
 namespace VietWay.API.Management.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/tour-durations")]
     [ApiController]
     public class TourDurationController(ITourDurationService tourDurationService, IMapper mapper) : ControllerBase
     {
@@ -14,14 +15,13 @@ namespace VietWay.API.Management.Controllers
 
         [HttpGet]
         [Produces("application/json")]
-        [ProducesResponseType<DefaultResponseModel<DurationDetail>>(StatusCodes.Status200OK)]
+        [ProducesResponseType<DefaultResponseModel<TourDurationDTO>>(StatusCodes.Status200OK)]
         public async Task<IActionResult> GetAllTourDurationAsync()
         {
             var result = await _tourDurationService.GetAllTourDuration();
-            List<DurationDetail> durationDetails = _mapper.Map<List<DurationDetail>>(result);
-            DefaultResponseModel<List<DurationDetail>> response = new()
+            DefaultResponseModel<List<TourDurationDTO>> response = new()
             {
-                Data = durationDetails,
+                Data = result,
                 Message = "Get all tour category successfully",
                 StatusCode = StatusCodes.Status200OK
             };

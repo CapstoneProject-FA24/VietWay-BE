@@ -1,14 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.ComponentModel.DataAnnotations;
+using VietWay.Repository.EntityModel;
 
 namespace VietWay.Service.Management.DataTransferObject
 {
-    public class PostCategoryDTO
+    public class AttractionCategoryDTO
     {
-        public string PostCategoryId { get; set; }
+        public string AttractionCategoryId { get; set; }
         public string Name { get; set; }
         public string Description { get; set; }
         public DateTime CreatedAt { get; set; }

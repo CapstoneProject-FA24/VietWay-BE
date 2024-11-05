@@ -1,4 +1,5 @@
-﻿using VietWay.Repository.EntityModel.Base;
+﻿using System.ComponentModel.DataAnnotations.Schema;
+using VietWay.Repository.EntityModel.Base;
 using VietWay.Service.Management.DataTransferObject;
 
 namespace VietWay.API.Management.ResponseModel
@@ -19,6 +20,8 @@ namespace VietWay.API.Management.ResponseModel
         public required List<ProvinceBriefPreviewDTO> Provinces { get; set; }
         public required List<ScheduleDetail> Schedules { get; set; }
         public required List<ImageDTO> Images { get; set; }
+        public decimal? MinPrice { get; set; }
+        public decimal? MaxPrice { get; set; }
     }
     public class ScheduleDetail
     {
