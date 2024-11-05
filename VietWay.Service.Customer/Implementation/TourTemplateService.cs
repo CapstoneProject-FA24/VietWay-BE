@@ -24,8 +24,7 @@ namespace VietWay.Service.Customer.Implementation
                 .TourTemplateRepository
                 .Query()
                 .Where(x => x.IsDeleted == false && TourTemplateStatus.Approved == x.Status &&
-                            x.Tours.Any(y => y.RegisterOpenDate >= _timeZoneHelper.GetUTC7Now() &&
-                                             y.Status == TourStatus.Opened));
+                            x.Tours.Any(y => y.Status == TourStatus.Opened));
             if (false == string.IsNullOrWhiteSpace(nameSearch))
             {
                 query = query.Where(x => x.TourName.Contains(nameSearch));
@@ -151,7 +150,9 @@ namespace VietWay.Service.Customer.Implementation
         public Task<List<TourTemplatePreviewDTO>> GetTourTemplatePreviewsByAttractionId(string attractionId, int previewCount)
         {
             return _unitOfWork.TourTemplateRepository.Query()
-                .Where(x => x.TourTemplateSchedules.Any(y => y.AttractionSchedules.Any(z => z.AttractionId == attractionId)))
+                .Where(x => x.IsDeleted == false && TourTemplateStatus.Approved == x.Status &&
+                            x.Tours.Any(y => y.Status == TourStatus.Opened) &&
+                            x.TourTemplateSchedules.Any(y => y.AttractionSchedules.Any(z => z.AttractionId == attractionId)))
                 .Select(x => new TourTemplatePreviewDTO()
                 {
                     Code = x.Code,
