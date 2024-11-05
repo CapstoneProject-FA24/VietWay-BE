@@ -9,22 +9,25 @@ using VietWay.Service.Management.Interface;
 using VietWay.Service.Management.Jobs;
 using VietWay.Service.ThirdParty.Cloudinary;
 using VietWay.Util.CustomExceptions;
+using VietWay.Util.DateTimeUtil;
 using VietWay.Util.IdUtil;
 
 namespace VietWay.Service.Management.Implement
 {
     public class AttractionService(IUnitOfWork unitOfWork, ICloudinaryService cloudinaryService, IIdGenerator idGenerator,
-        IBackgroundJobClient backgroundJobClient) : IAttractionService
+        IBackgroundJobClient backgroundJobClient, ITimeZoneHelper timeZoneHelper) : IAttractionService
     {
         private readonly IUnitOfWork _unitOfWork = unitOfWork;
         private readonly ICloudinaryService _cloudinaryService = cloudinaryService;
         private readonly IIdGenerator _idGenerator = idGenerator;
         private readonly IBackgroundJobClient _backgroundJobClient = backgroundJobClient;
+        private readonly ITimeZoneHelper _timeZoneHelper = timeZoneHelper;
         public async Task<string> CreateAttractionAsync(Attraction attraction)
         {
             try
             {
                 attraction.AttractionId ??= _idGenerator.GenerateId();
+                attraction.CreatedAt = _timeZoneHelper.GetUTC7Now();
                 await _unitOfWork.BeginTransactionAsync();
                 await _unitOfWork.AttractionRepository.CreateAsync(attraction);
                 await _unitOfWork.CommitTransactionAsync();

@@ -23,7 +23,7 @@ namespace VietWay.API.Management.RequestModel
         public required string ProvinceId { get; set; }
         [StringLength(20)]
         [Required]
-        public required string AttractionTypeId { get; set; }
+        public required string AttractionCategoryId { get; set; }
         [StringLength(50)]
         public string? GooglePlaceId { get; set; }
         [Required]
