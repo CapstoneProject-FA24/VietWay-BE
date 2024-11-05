@@ -8,8 +8,7 @@ namespace VietWay.Service.ThirdParty.Cloudinary
     public class CloudinaryService : ICloudinaryService
     {
         private readonly CloudinaryClient _cloudinary;
-        private readonly ILogger<CloudinaryService> _logger;
-        public CloudinaryService(ILogger<CloudinaryService> logger)
+        public CloudinaryService()
         {
             string apiKey = Environment.GetEnvironmentVariable("CLOUDINARY_API_KEY")
                 ?? throw new Exception("CLOUDINARY_API_KEY is not set in environment variables");
@@ -19,7 +18,6 @@ namespace VietWay.Service.ThirdParty.Cloudinary
                 ?? throw new Exception("CLOUDINARY_CLOUD_NAME is not set in environment variables");
             _cloudinary = new($"cloudinary://{apiKey}:{apiSecret}@{cloudName}");
             _cloudinary.Api.Secure = true;
-            _logger = logger;
         }
         public string GetImage(string publicId)
         {
@@ -30,15 +28,15 @@ namespace VietWay.Service.ThirdParty.Cloudinary
                     .FetchFormat("auto"))
                 .BuildUrl(publicId);
         }
-        public async Task UploadImageAsync(string publicId, string fileName, Stream fileStream)
+        public async Task UploadImageAsync(string publicId, string fileName, byte[] fileStream)
         {
+            using MemoryStream stream = new(fileStream);
             ImageUploadParams uploadParams = new()
             {
-                File = new FileDescription(fileName,fileStream),
+                File = new FileDescription(fileName,stream),
                 PublicId = publicId
             };
-            ImageUploadResult result = await _cloudinary.UploadAsync(uploadParams);
-            _logger.LogInformation(JsonSerializer.Serialize(result));
+            _ = await _cloudinary.UploadAsync(uploadParams);
         }
 
         public async Task DeleteImagesAsync(IEnumerable<string> publicIds)
