@@ -127,7 +127,8 @@ namespace VietWay.Service.Management.Implement
                     Province = x.Province.Name,
                     AttractionType = x.AttractionCategory.Name,
                     Status = x.Status,
-                    ImageUrl = x.AttractionImages.FirstOrDefault() != null ? x.AttractionImages.FirstOrDefault().ImageUrl : null
+                    ImageUrl = x.AttractionImages.FirstOrDefault() != null ? x.AttractionImages.FirstOrDefault().ImageUrl : null,
+                    CreatedAt = x.CreatedAt
                 })
                 .ToListAsync();
             return (count, attractions);
@@ -145,10 +146,22 @@ namespace VietWay.Service.Management.Implement
                     AttractionId = x.AttractionId,
                     Name = x.Name,
                     Address = x.Address,
-                    Province = new ProvinceBriefPreviewDTO(),
-                    AttractionType = new AttractionCategoryDTO(),
+                    Province = new ProvinceBriefPreviewDTO
+                    {
+                        ProvinceId = x.ProvinceId,
+                        ProvinceName = x.Province.Name
+                    },
+                    AttractionType = new AttractionCategoryPreviewDTO
+                    {
+                        AttractionCategoryId = x.AttractionCategoryId,
+                        Name = x.AttractionCategory.Name
+                    },
                     Description = x.Description,
-                    Images = x.AttractionImages.Select(x => new ImageDTO()).ToList(),
+                    Images = x.AttractionImages.Select(x => new ImageDTO
+                    {
+                        ImageId = x.ImageId,
+                        ImageUrl = x.ImageUrl
+                    }).ToList(),
                     ContactInfo = x.ContactInfo,
                     GooglePlaceId = x.GooglePlaceId,
                     Website = x.Website,
@@ -170,12 +183,24 @@ namespace VietWay.Service.Management.Implement
                     AttractionId = x.AttractionId,
                     Name = x.Name,
                     Address = x.Address,
-                    Province = new ProvinceBriefPreviewDTO(),
-                    AttractionType = new AttractionCategoryDTO(),
+                    Province = new ProvinceBriefPreviewDTO
+                    {
+                        ProvinceId = x.ProvinceId,
+                        ProvinceName = x.Province.Name
+                    },
+                    AttractionType = new AttractionCategoryPreviewDTO
+                    {
+                        AttractionCategoryId = x.AttractionCategoryId,
+                        Name = x.AttractionCategory.Name
+                    },
                     Status = x.Status,
                     CreatedDate = x.CreatedAt,
                     Description = x.Description,
-                    Images = x.AttractionImages.Select(x => new ImageDTO()).ToList(),
+                    Images = x.AttractionImages.Select(x => new ImageDTO
+                    {
+                        ImageId = x.ImageId,
+                        ImageUrl = x.ImageUrl
+                    }).ToList(),
                     ContactInfo = x.ContactInfo,
                     GooglePlaceId = x.GooglePlaceId,
                     Website = x.Website
@@ -289,7 +314,7 @@ namespace VietWay.Service.Management.Implement
                     throw new UnauthorizedException("You are not allowed to perform this action");
                 }
                 await _unitOfWork.CommitTransactionAsync();
-            } 
+            }
             catch
             {
                 await _unitOfWork.RollbackTransactionAsync();

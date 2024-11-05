@@ -94,6 +94,8 @@ namespace VietWay.Service.Management.Implement
 
         public async Task DeletePostAsync(string postId)
         {
+            Post? a = await _unitOfWork.PostRepository.Query()
+                .SingleOrDefaultAsync(x => x.PostId.Equals(postId));
             Post? post = await _unitOfWork.PostRepository.Query()
                 .SingleOrDefaultAsync(x => x.PostId.Equals(postId)) ??
                 throw new ResourceNotFoundException("Post not found");

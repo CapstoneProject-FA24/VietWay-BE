@@ -26,6 +26,8 @@ namespace VietWay.API.Management.Mappers
                 }))
                 .ForMember(dest => dest.Provinces, opt => opt.MapFrom(src => src.TourTemplateProvinces.Select(x => new ProvinceBriefPreviewDTO()
                 {
+                    ProvinceId = x.ProvinceId,
+                    ProvinceName = x.Province.Name
                 }).ToList()))
                 .ForMember(dest => dest.Schedules, opt => opt.MapFrom(src => src.TourTemplateSchedules.Select(x => new ScheduleDetail
                 {
@@ -40,6 +42,8 @@ namespace VietWay.API.Management.Mappers
                 }).ToList()))
                 .ForMember(dest => dest.Images, opt => opt.MapFrom(src => src.TourTemplateImages.Select(x => new ImageDTO()
                 {
+                    ImageId = x.ImageId,
+                    ImageUrl = x.ImageUrl
                 }).ToList()));
             CreateMap<TourTemplate, TourTemplatePreview>()
                 .ForMember(dest => dest.Provinces, opt => opt.MapFrom(src => src.TourTemplateProvinces.Select(x => x.Province.Name).ToList()))

@@ -20,7 +20,7 @@ namespace VietWay.Service.Management.DataTransferObject
         public required DateTime CreatedDate { get; set; }
 
         public required ProvinceBriefPreviewDTO Province { get; set; }
-        public required AttractionCategoryDTO AttractionType { get; set; }
+        public required AttractionCategoryPreviewDTO AttractionType { get; set; }
         public virtual ICollection<ImageDTO>? Images { get; set; }
     }
 }
