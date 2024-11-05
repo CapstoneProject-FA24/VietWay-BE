@@ -16,6 +16,7 @@ using VietWay.Service.Management.Implement;
 using VietWay.Service.Management.Interface;
 using VietWay.Service.ThirdParty.Cloudinary;
 using VietWay.Service.ThirdParty.VnPay;
+using VietWay.Service.ThirdParty.Twitter;
 namespace VietWay.API.Management
 {
     public class Program
@@ -136,6 +137,8 @@ namespace VietWay.API.Management
             builder.Services.AddScoped<IHashHelper, BCryptHashHelper>();
             builder.Services.AddScoped<ITokenHelper, TokenHelper>();
             builder.Services.AddScoped<ICloudinaryService, CloudinaryService>();
+            builder.Services.AddScoped<ITwitterService, TwitterService>();
+            builder.Services.AddScoped<IPublishPostService, PublishPostService>();
             #endregion
             builder.Services.AddSingleton<IIdGenerator, SnowflakeIdGenerator>();
             var app = builder.Build();
