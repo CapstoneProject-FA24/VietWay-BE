@@ -227,7 +227,9 @@ namespace VietWay.Service.Management.Implement
                     {
                         string imageId = _idGenerator.GenerateId();
                         using Stream stream = imageFile.OpenReadStream();
-                        enqueuedJobs.Add(() => _cloudinaryService.UploadImageAsync(imageId,imageFile.FileName,stream));
+                        using MemoryStream memoryStream = new();
+                        await stream.CopyToAsync(memoryStream);
+                        enqueuedJobs.Add(async () => await _cloudinaryService.UploadImageAsync(imageId,imageFile.FileName,memoryStream.ToArray()));
                         attraction.AttractionImages.Add(new AttractionImage
                         {
                             AttractionId = attraction.AttractionId,
@@ -246,7 +248,7 @@ namespace VietWay.Service.Management.Implement
                     {
                         attraction.AttractionImages.Remove(image);
                     }
-                    enqueuedJobs.Add(() => _cloudinaryService.DeleteImagesAsync(imageIdsToRemove));
+                    enqueuedJobs.Add(async () => await _cloudinaryService.DeleteImagesAsync(imageIdsToRemove));
                 }
                 await _unitOfWork.AttractionRepository.UpdateAsync(attraction);
 
