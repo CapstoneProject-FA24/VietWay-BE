@@ -32,6 +32,10 @@ namespace VietWay.Service.Management.Implement
             {
                 throw new ServerErrorException("Post has not been approved yet");
             }
+            if (!post.XTweetId.IsNullOrEmpty())
+            {
+                throw new ServerErrorException("The post has already been tweeted");
+            }
 
             PostTweetRequestDTO postTweetRequestDTO = new PostTweetRequestDTO
             {
