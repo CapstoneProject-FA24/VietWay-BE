@@ -115,11 +115,12 @@ namespace VietWay.Service.Customer.Implementation
                         Attractions = y.AttractionSchedules.Select(z => new AttractionPreviewDTO()
                         {
                             AttractionId = z.AttractionId,
-                            Name = z.Attraction.Name,
-                            ImageUrl = z.Attraction.AttractionImages.FirstOrDefault().ImageUrl,
+                            Name = z.Attraction!.Name,
+                            ImageUrl = z.Attraction!.AttractionImages!.Select(x=>x.ImageUrl).FirstOrDefault(),
                             Address = z.Attraction.Address,
-                            AttractionCategory = z.Attraction.AttractionCategory.Name,
-                            Province = z.Attraction.Province.Name,
+                            AttractionCategory = z.Attraction!.AttractionCategory!.Name,
+                            Province = z.Attraction!.Province!.Name,
+                            AverageRating = z.Attraction!.AttractionReviews!.Where(r => false == r.IsDeleted).Average(r=>r.Rating),
                         }).ToList(),
                         Description = y.Description,
                         Events = y.EventSchedules.Select(z => new EventPreviewDTO()

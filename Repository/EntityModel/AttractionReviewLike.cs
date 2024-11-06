@@ -9,12 +9,12 @@ using System.Threading.Tasks;
 
 namespace VietWay.Repository.EntityModel
 {
-    [PrimaryKey(nameof(AttractionReviewId), nameof(CustomerId))]
+    [PrimaryKey(nameof(ReviewId), nameof(CustomerId))]
     public class AttractionReviewLike
     {
         [StringLength(20)]
         [ForeignKey(nameof(AttractionReview))]
-        public required string AttractionReviewId { get; set; }
+        public required string ReviewId { get; set; }
         [StringLength(20)]
         [ForeignKey(nameof(Customer))]
         public required string CustomerId { get; set; }
