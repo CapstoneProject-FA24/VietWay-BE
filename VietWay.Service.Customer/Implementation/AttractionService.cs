@@ -39,10 +39,11 @@ namespace VietWay.Service.Customer.Implementation
                         ImageId = y.ImageId,
                         Url = y.ImageUrl
                     }).ToList(),
-                    AverageRating = x.AttractionReviews!.Where(x=>false == x.IsDeleted).Average(y => y.Rating),
-                    RatingCount = x.AttractionReviews!.Where(x => false == x.IsDeleted)
-                        .GroupBy(x => x.Rating)
-                        .ToDictionary(x => x.Key, x => x.Count())
+                    AverageRating = x.AttractionReviews.Where(x=>false == x.IsDeleted).Average(y => y.Rating),
+                    RatingCount = x.AttractionReviews.Where(x => false == x.IsDeleted)
+                        .GroupBy(g => g.Rating)
+                        .Select(s=> new RatingDTO { Rating = s.Key, Count = s.Count()})
+                        .ToList()
                 })
                 .SingleOrDefaultAsync();
         }
@@ -72,10 +73,10 @@ namespace VietWay.Service.Customer.Implementation
                     AttractionId = x.AttractionId,
                     Name = x.Name,
                     Address = x.Address,
-                    Province = x.Province!.Name,
-                    AttractionCategory = x.AttractionCategory!.Name,
-                    ImageUrl = x.AttractionImages!.First().ImageUrl,
-                    AverageRating = x.AttractionReviews!.Where(x => false == x.IsDeleted).Average(y => y.Rating)
+                    Province = x.Province.Name,
+                    AttractionCategory = x.AttractionCategory.Name,
+                    ImageUrl = x.AttractionImages.Select(x=>x.ImageUrl).First(),
+                    AverageRating = x.AttractionReviews.Where(x => false == x.IsDeleted).Average(y => y.Rating)
                 })
                 .ToListAsync();
             return (count, items);

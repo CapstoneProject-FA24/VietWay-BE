@@ -15,6 +15,6 @@ namespace VietWay.Service.Customer.DataTransferObject
         public string? Province { get; set; }
         public string? AttractionCategory { get; set; }
         public string? ImageUrl { get; set; }
-        public required double AverageRating { get; set; }
+        public double? AverageRating { get; set; }
     }
 }
