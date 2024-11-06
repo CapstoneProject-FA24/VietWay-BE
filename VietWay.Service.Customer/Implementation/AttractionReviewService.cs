@@ -84,7 +84,7 @@ namespace VietWay.Service.Customer.Implementation
             int count = await query.CountAsync();
             List<AttractionReviewDTO> items = await query
                 .OrderByDescending(x => x.CreatedAt)
-                .Skip(pageSize * pageIndex)
+                .Skip((pageIndex-1) * pageSize)
                 .Take(pageSize)
                 .Select(x => new AttractionReviewDTO
                 {
