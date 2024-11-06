@@ -13,8 +13,13 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Repository\VietWay.Repository.csproj" />
+    <ProjectReference Include="..\VietWay.Job\VietWay.Job.csproj" />
     <ProjectReference Include="..\VietWay.Service.ThirdParty\VietWay.Service.ThirdParty.csproj" />
     <ProjectReference Include="..\VietWay.Util\VietWay.Util.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Jobs\" />
   </ItemGroup>
 
 </Project>

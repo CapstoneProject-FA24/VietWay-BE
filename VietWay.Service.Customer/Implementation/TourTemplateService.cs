@@ -16,7 +16,7 @@ namespace VietWay.Service.Customer.Implementation
     {
         private readonly IUnitOfWork _unitOfWork = unitOfWork;
         private readonly ITimeZoneHelper _timeZoneHelper = timeZoneHelper;
-        public async Task<(int count, List<TourTemplateWithTourInfoDTO> items)> GetTourTemplatesWithActiveToursAsync(string? nameSearch, 
+        public async Task<PaginatedList<TourTemplateWithTourInfoDTO>> GetTourTemplatesWithActiveToursAsync(string? nameSearch, 
             List<string>? templateCategoryIds,  List<string>? provinceIds, List<int>? numberOfDay, DateTime? startDateFrom, DateTime? startDateTo, 
             decimal? minPrice, decimal? maxPrice, int pageSize, int pageIndex)
         {
@@ -82,7 +82,13 @@ namespace VietWay.Service.Customer.Implementation
                     TourName = x.TourName,
                 })
                 .ToListAsync();
-            return (count, items);
+            return new PaginatedList<TourTemplateWithTourInfoDTO>
+            {
+                Items = items,
+                Total = count,
+                PageIndex = pageIndex,
+                PageSize = pageSize
+            };
         }
 
         public async Task<TourTemplateDetailDTO?> GetTemplateByIdAsync(string tourTemplateId)
@@ -115,24 +121,14 @@ namespace VietWay.Service.Customer.Implementation
                         Attractions = y.AttractionSchedules.Select(z => new AttractionPreviewDTO()
                         {
                             AttractionId = z.AttractionId,
-                            Name = z.Attraction.Name,
-                            ImageUrl = z.Attraction.AttractionImages.FirstOrDefault().ImageUrl,
+                            Name = z.Attraction!.Name,
+                            ImageUrl = z.Attraction!.AttractionImages!.Select(x=>x.ImageUrl).FirstOrDefault(),
                             Address = z.Attraction.Address,
-                            AttractionCategory = z.Attraction.AttractionCategory.Name,
-                            Province = z.Attraction.Province.Name,
+                            AttractionCategory = z.Attraction!.AttractionCategory!.Name,
+                            Province = z.Attraction!.Province!.Name,
+                            AverageRating = z.Attraction!.AttractionReviews!.Where(r => false == r.IsDeleted).Average(r=>r.Rating),
                         }).ToList(),
                         Description = y.Description,
-                        Events = y.EventSchedules.Select(z => new EventPreviewDTO()
-                        {
-                            EventId = z.EventId,
-                            Description = z.Event.Description,
-                            EndDate = z.Event.EndDate,
-                            EventCategory = z.Event.EventCategory.Name,
-                            ImageUrl = z.Event.ImageUrl,
-                            ProvinceName = z.Event.Province.Name,
-                            StartDate = z.Event.StartDate,
-                            Title = z.Event.Title,
-                        }).ToList(),
                         Title = y.Title,
                         DayNumber = y.DayNumber
                     }).ToList(),

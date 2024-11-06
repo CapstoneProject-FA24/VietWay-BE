@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using VietWay.API.Management.RequestModel;
 using VietWay.API.Management.ResponseModel;
@@ -212,6 +213,36 @@ namespace VietWay.API.Management.Controllers
                 Message = "Success",
                 Data = null,
                 StatusCode = StatusCodes.Status200OK
+            });
+        }
+
+        /// <summary>
+        /// ✅🔐[Manager] Change tour template status
+        /// </summary>
+        /// <returns>Tour template status changed</returns>
+        /// <response code="200">Return tour template status changed</response>
+        /// <response code="400">Bad request</response>
+        [HttpPatch("change-tour-template-status/{tourTemplateId}")]
+        [Authorize(Roles = $"{nameof(UserRole.Manager)}, {nameof(UserRole.Staff)}")]
+        [Produces("application/json")]
+        [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status200OK)]
+        public async Task<IActionResult> ChangePostStatusAsync(string tourTemplateId, ChangeTourTemplateStatusRequest request)
+        {
+            string? accountId = _tokenHelper.GetAccountIdFromToken(HttpContext);
+            if (string.IsNullOrWhiteSpace(accountId))
+            {
+                return Unauthorized(new DefaultResponseModel<object>
+                {
+                    Message = "Unauthorized",
+                    StatusCode = StatusCodes.Status401Unauthorized
+                });
+            }
+
+            await _tourTemplateService.ChangeTourTemplateStatusAsync(tourTemplateId, accountId, request.Status, request.Reason);
+            return Ok(new DefaultResponseModel<string>
+            {
+                Message = "Status change successfully",
+                StatusCode = StatusCodes.Status200OK,
             });
         }
     }

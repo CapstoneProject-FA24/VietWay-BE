@@ -14,6 +14,5 @@ namespace VietWay.Repository.EntityModel
 
         public virtual TourTemplate? TourTemplate { get; set; }
         public virtual ICollection<AttractionSchedule>? AttractionSchedules { get; set; }
-        public virtual ICollection<EventSchedule>? EventSchedules { get; set; }
     }
 }

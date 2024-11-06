@@ -34,7 +34,7 @@ namespace VietWay.Service.Customer.Implementation
                 .SingleOrDefaultAsync(x => x.PostId.Equals(postId));
         }
 
-        public async Task<(int counts, List<PostPreviewDTO> items)> GetPostPreviewsAsync(string? nameSearch, List<string>? provinceIds, 
+        public async Task<PaginatedList<PostPreviewDTO>> GetPostPreviewsAsync(string? nameSearch, List<string>? provinceIds, 
             List<string>? postCategoryIds, int pageSize, int pageIndex)
         {
             IQueryable<Post> query = _unitOfWork.PostRepository.Query()
@@ -66,7 +66,13 @@ namespace VietWay.Service.Customer.Implementation
                     Description = x.Description,
                     CreatedAt = x.CreatedAt,
                 }).ToListAsync();
-            return (count, items);
+            return new PaginatedList<PostPreviewDTO>
+            {
+                Items = items,
+                PageIndex = pageIndex,
+                PageSize = pageSize,
+                Total = count,
+            };
         }
     }
 }

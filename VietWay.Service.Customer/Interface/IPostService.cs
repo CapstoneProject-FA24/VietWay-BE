@@ -10,7 +10,7 @@ namespace VietWay.Service.Customer.Interface
     public interface IPostService
     {
         Task<PostDetailDTO?> GetPostDetailAsync(string postId);
-        public Task<(int counts,List<PostPreviewDTO> items)> GetPostPreviewsAsync(string? nameSearch, List<string>? provinceIds, 
+        public Task<PaginatedList<PostPreviewDTO>> GetPostPreviewsAsync(string? nameSearch, List<string>? provinceIds, 
             List<string>? postCategoryIds, int pageSize, int pageIndex);
     }
 }

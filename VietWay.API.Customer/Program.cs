@@ -129,11 +129,10 @@ namespace VietWay.API.Customer
             builder.Services.AddScoped<IAccountService, AccountService>();
             builder.Services.AddScoped<IAttractionCategoryService, AttractionCategoryService>();
             builder.Services.AddScoped<IAttractionService, AttractionService>();
+            builder.Services.AddScoped<IAttractionReviewService, AttractionReviewService>();
             builder.Services.AddScoped<IBookingPaymentService, BookingPaymentService>();
             builder.Services.AddScoped<IBookingService, BookingService>();
             builder.Services.AddScoped<ICustomerService, CustomerService>();
-            builder.Services.AddScoped<IEventCategoryService, EventCategoryService>();
-            builder.Services.AddScoped<IEventService, EventService>();
             builder.Services.AddScoped<IPostCategoryService, PostCategoryService>();
             builder.Services.AddScoped<IPostService,PostService>();
             builder.Services.AddScoped<IProvinceService, ProvinceService>();

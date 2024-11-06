@@ -16,6 +16,10 @@ using VietWay.Service.Management.Implement;
 using VietWay.Service.Management.Interface;
 using VietWay.Service.ThirdParty.Cloudinary;
 using VietWay.Service.ThirdParty.VnPay;
+using VietWay.Service.ThirdParty.Twitter;
+using VietWay.Job.Interface;
+using VietWay.Job.Implementation;
+using VietWay.Service.ThirdParty.Facebook;
 namespace VietWay.API.Management
 {
     public class Program
@@ -119,8 +123,6 @@ namespace VietWay.API.Management
             builder.Services.AddScoped<IBookingService, BookingService>();
             builder.Services.AddScoped<ICustomerFeedbackService, CustomerFeedbackService>();
             builder.Services.AddScoped<ICustomerService, CustomerService>();
-            builder.Services.AddScoped<IEventCategoryService, EventCategoryService>();
-            builder.Services.AddScoped<IEventService, EventService>();
             builder.Services.AddScoped<IManagerService, ManagerService>();
             builder.Services.AddScoped<IPostCategoryService, PostCategoryService>();
             builder.Services.AddScoped<IPostService, PostService>();
@@ -138,10 +140,13 @@ namespace VietWay.API.Management
             builder.Services.AddScoped<ICustomerService, CustomerService>();
             builder.Services.AddScoped<IPostService, PostService>();
             builder.Services.AddScoped<ICloudinaryService, CloudinaryService>();
+            builder.Services.AddScoped<ITwitterService, TwitterService>();
+            builder.Services.AddScoped<IPublishPostService, PublishPostService>();
+            builder.Services.AddScoped<IBookingJob, BookingJob>();
+            builder.Services.AddScoped<IFacebookService, FacebookService>();
             #endregion
             builder.Services.AddSingleton<IIdGenerator, SnowflakeIdGenerator>();
             var app = builder.Build();
-
             app.UseStaticFiles();
             #region app.UseSwagger(...);
             if (app.Environment.IsDevelopment())

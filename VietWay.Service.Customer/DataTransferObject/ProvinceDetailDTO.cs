@@ -13,7 +13,6 @@ namespace VietWay.Service.Customer.DataTransferObject
         public required string ImageUrl { get; set; }
         public required int AttractionsCount { get; set; }
         public required int PostsCount { get; set; }
-        public required int EventsCount { get; set; }
         public required int ToursCount { get; set; }
     }
 }

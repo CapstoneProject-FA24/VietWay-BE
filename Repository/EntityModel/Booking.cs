@@ -6,7 +6,6 @@ using VietWay.Repository.EntityModel.Base;
 
 namespace VietWay.Repository.EntityModel
 {
-    [Index(nameof(CustomerId),nameof(TourId),IsUnique = true)]
     public class Booking
     {
         [Key]

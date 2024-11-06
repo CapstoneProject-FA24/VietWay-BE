@@ -15,13 +15,14 @@ namespace VietWay.Repository.UnitOfWork
         private IGenericRepository<Admin>? adminRepository;
         private IGenericRepository<Attraction>? attractionRepository;
         private IGenericRepository<AttractionCategory>? attractionCategoryRepository;
+        private IGenericRepository<AttractionLike>? attractionLikeRepository;
+        private IGenericRepository<AttractionReview>? attractionReviewRepository;
+        private IGenericRepository<AttractionReviewLike>? attractionReviewLikeRepository;
         private IGenericRepository<Booking>? bookingRepository;
         private IGenericRepository<BookingPayment>? bookingPaymentRepository;
         private IGenericRepository<Customer>? customerRepository;
         private IGenericRepository<EntityHistory>? entityHistoryRepository;
         private IGenericRepository<EntityStatusHistory>? entityStatusHistoryRepository;
-        private IGenericRepository<Event>? eventRepository;
-        private IGenericRepository<EventCategory>? eventCategoryRepository;
         private IGenericRepository<TourReview>? feedbackRepository;
         private IGenericRepository<Manager>? managerRepository;
         private IGenericRepository<Post>? postRepository;
@@ -69,6 +70,33 @@ namespace VietWay.Repository.UnitOfWork
             }
         }
 
+        public IGenericRepository<AttractionLike> AttractionLikeRepository
+        {
+            get
+            {
+                attractionLikeRepository ??= new GenericRepository<AttractionLike>(_dbContext);
+                return attractionLikeRepository;
+            }
+        }
+
+        public IGenericRepository<AttractionReview> AttractionReviewRepository
+        {
+            get
+            {
+                attractionReviewRepository ??= new GenericRepository<AttractionReview>(_dbContext);
+                return attractionReviewRepository;
+            }
+        }
+
+        public IGenericRepository<AttractionReviewLike> AttractionReviewLikeRepository
+        {
+            get
+            {
+                attractionReviewLikeRepository ??= new GenericRepository<AttractionReviewLike>(_dbContext);
+                return attractionReviewLikeRepository;
+            }
+        }
+
         public IGenericRepository<Booking> BookingRepository
         {
             get
@@ -111,24 +139,6 @@ namespace VietWay.Repository.UnitOfWork
             {
                 entityStatusHistoryRepository ??= new GenericRepository<EntityStatusHistory>(_dbContext);
                 return entityStatusHistoryRepository;
-            }
-        }
-
-        public IGenericRepository<Event> EventRepository
-        {
-            get
-            {
-                eventRepository ??= new GenericRepository<Event>(_dbContext);
-                return eventRepository;
-            }
-        }
-
-        public IGenericRepository<EventCategory> EventCategoryRepository
-        {
-            get
-            {
-                eventCategoryRepository ??= new GenericRepository<EventCategory>(_dbContext);
-                return eventCategoryRepository;
             }
         }
 

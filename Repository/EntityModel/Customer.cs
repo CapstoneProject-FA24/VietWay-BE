@@ -20,5 +20,9 @@ namespace VietWay.Repository.EntityModel
 
         public virtual Account? Account { get; set; }
         public virtual Province? Province { get; set; }
+        public virtual ICollection<Booking> Bookings { get; set; }
+        public virtual ICollection<AttractionLike> AttractionLikes { get; set; }
+        public virtual ICollection<PostLike> PostLikes { get; set; }
+        public virtual ICollection<AttractionReviewLike> AttractionReviewLikes { get;set; }
     }
 }

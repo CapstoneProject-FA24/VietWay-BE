@@ -131,7 +131,7 @@ namespace VietWay.API.Management.Controllers
         }
 
         /// <summary>
-        /// [Staff] Delete draft attraction
+        /// ❌🔐[Staff] Delete draft attraction
         /// </summary>
         /// <returns>Delete attraction message</returns>
         /// <response code="200">Return delete attraction message</response>
@@ -141,8 +141,8 @@ namespace VietWay.API.Management.Controllers
         [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status200OK)]
         public async Task<IActionResult> DeleteAttractionAsync(string attractionId)
         {
-            Attraction? attraction = null;
-            if (null == attraction)
+            AttractionDetailDTO? attraction = await _attractionService.GetAttractionWithCreateDateByIdAsync(attractionId);
+            if (null == attraction || attraction.Status != AttractionStatus.Draft)
             {
                 DefaultResponseModel<object> errorResponse = new()
                 {
@@ -161,14 +161,12 @@ namespace VietWay.API.Management.Controllers
         }
 
         /// <summary>
-        /// [Staff] Update attraction image
+        /// ✅🔐[Staff] Update attraction image
         /// </summary>
-        /// <returns>Attraction image update message</returns>
-        /// <response code="200">Return attraction image update message</response>
-        /// 
         [HttpPatch("{attractionId}/images")]
         [Produces("application/json")]
         [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status200OK)]
+        [Authorize(Roles = nameof(UserRole.Staff))]
         public async Task<IActionResult> UpdateAttractionImageAsync(string attractionId, [FromForm] UpdateImageRequest request)
         {
             if (0 == request.NewImages?.Count && 0 == request.DeletedImageIds?.Count)
@@ -190,17 +188,13 @@ namespace VietWay.API.Management.Controllers
         }
 
         /// <summary>
-        /// [Manager][Staff] {WIP} Change attraction status
+        /// ✅🔐[Manager][Staff] Change attraction status
         /// </summary>
         /// <remarks>
         /// Change attraction status. 
         /// Staff can only change status of draft attraction to pending.
         /// Manager can change status of pending attraction to approved or rejected.
         /// </remarks>
-        /// <response code="200">Status changed successfully</response>
-        /// <response code="400">Bad request</response>
-        /// <response code="404">Attraction not found</response>
-        /// <response code="403">Unauthorized status change request</response>
         [Authorize(Roles = $"{nameof(UserRole.Manager)}, ${nameof(UserRole.Staff)}")]
         [HttpPatch("{attractionId}/status")]
         public async Task<IActionResult> UpdateAttractionStatusAsync(string attractionId, UpdateAttractionStatusRequest request)

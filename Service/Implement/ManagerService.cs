@@ -72,5 +72,24 @@ namespace VietWay.Service.Management.Implement
                 throw;
             }
         }
+        public async Task ChangeManagerStatusAsync(string managerId, bool isDeleted)
+        {
+            Manager? manager = await _unitOfWork.ManagerRepository.Query()
+                .SingleOrDefaultAsync(x => x.ManagerId.Equals(managerId)) ??
+                throw new ResourceNotFoundException("Manager account not found");
+
+            manager.IsDeleted = isDeleted;
+            try
+            {
+                await _unitOfWork.BeginTransactionAsync();
+                await _unitOfWork.ManagerRepository.UpdateAsync(manager);
+                await _unitOfWork.CommitTransactionAsync();
+            }
+            catch
+            {
+                await _unitOfWork.RollbackTransactionAsync();
+                throw;
+            }
+        }
     }
 }

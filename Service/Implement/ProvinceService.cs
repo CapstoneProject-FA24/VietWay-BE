@@ -7,12 +7,17 @@ using VietWay.Repository.EntityModel.Base;
 using VietWay.Util.DateTimeUtil;
 using VietWay.Service.Management.Interface;
 using VietWay.Service.Management.DataTransferObject;
+using VietWay.Util.IdUtil;
+using VietWay.Util.CustomExceptions;
 namespace VietWay.Service.Management.Implement
 {
-    public class ProvinceService(IUnitOfWork unitOfWork, ITimeZoneHelper timeZoneHelper) : IProvinceService
+    public class ProvinceService(IUnitOfWork unitOfWork,
+        IIdGenerator idGenerator,
+        ITimeZoneHelper timeZoneHelper) : IProvinceService
     {
         private readonly IUnitOfWork _unitOfWork = unitOfWork;
         private readonly ITimeZoneHelper _timeZoneHelper = timeZoneHelper;
+        private readonly IIdGenerator _idGenerator = idGenerator;
         public async Task<List<ProvincePreviewDTO>> GetAllProvinces()
         {
             return await _unitOfWork
@@ -58,8 +63,6 @@ namespace VietWay.Service.Management.Implement
                         .Where(y => false == y.IsDeleted && AttractionStatus.Approved == y.Status).Count(),
                     PostsCount = x.Posts
                         .Where(y => false == y.IsDeleted && PostStatus.Approved == y.Status).Count(),
-                    EventsCount = x.Events
-                        .Where(y => false == y.IsDeleted && EventStatus.Approved == y.Status).Count(),
                     ToursCount = x.TourTemplateProvinces
                         .Where(y => false == y.TourTemplate.IsDeleted && TourTemplateStatus.Approved == y.TourTemplate.Status)
                         .Where(y => y.TourTemplate.Tours.Any(z => _timeZoneHelper.GetUTC7Now() <= z.StartDate && TourStatus.Opened == z.Status))
@@ -67,6 +70,47 @@ namespace VietWay.Service.Management.Implement
                 })
                 .ToListAsync();
             return (count, result);
+        }
+
+        public async Task<string> CreateProvinceAsync(Province province)
+        {
+            province.CreatedAt = DateTime.Now;
+            province.IsDeleted = false;
+            try
+            {
+                province.ProvinceId ??= _idGenerator.GenerateId();
+                await _unitOfWork.BeginTransactionAsync();
+                await _unitOfWork.ProvinceRepository.CreateAsync(province);
+                await _unitOfWork.CommitTransactionAsync();
+                return province.ProvinceId;
+            }
+            catch
+            {
+                await _unitOfWork.RollbackTransactionAsync();
+                throw;
+            }
+        }
+
+        public async Task UpdateProvinceAsync(Province newProvince)
+        {
+            Province? province = await _unitOfWork.ProvinceRepository.Query()
+                .SingleOrDefaultAsync(x => x.ProvinceId.Equals(newProvince.ProvinceId)) ??
+                throw new ResourceNotFoundException("Province not found");
+
+            province.Name = newProvince.Name;
+            province.ImageUrl = newProvince.ImageUrl;
+
+            try
+            {
+                await _unitOfWork.BeginTransactionAsync();
+                await _unitOfWork.ProvinceRepository.UpdateAsync(province);
+                await _unitOfWork.CommitTransactionAsync();
+            }
+            catch
+            {
+                await _unitOfWork.RollbackTransactionAsync();
+                throw;
+            }
         }
     }
 }

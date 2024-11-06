@@ -32,5 +32,7 @@ namespace VietWay.Repository.EntityModel
         public virtual Province? Province { get; set; }
         public virtual AttractionCategory? AttractionCategory { get; set; }
         public virtual ICollection<AttractionImage>? AttractionImages { get; set; }
+        public virtual ICollection<AttractionReview>? AttractionReviews { get; set; }
+        public virtual ICollection<AttractionLike>? AttractionLikes { get; set; }
     }
 }
