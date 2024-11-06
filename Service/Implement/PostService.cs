@@ -77,6 +77,7 @@ namespace VietWay.Service.Management.Implement
 
         public async Task<string> CreatePostAsync(Post post)
         {
+            post.CreatedAt = DateTime.Now;
             try
             {
                 post.PostId ??= _idGenerator.GenerateId();
@@ -116,9 +117,9 @@ namespace VietWay.Service.Management.Implement
         {
             Post? post = await _unitOfWork.PostRepository.Query()
                 .SingleOrDefaultAsync(x => x.PostId.Equals(newPost.PostId)) ??
-                throw new ResourceNotFoundException("Attraction not found");
+                throw new ResourceNotFoundException("Post not found");
 
-            post.Status = PostStatus.Pending;
+            post.Status = newPost.Status;
             post.Title = newPost.Title;
             post.Content = newPost.Content;
             post.PostCategoryId = newPost.PostCategoryId;

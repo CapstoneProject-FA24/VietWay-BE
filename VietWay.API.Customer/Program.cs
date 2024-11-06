@@ -129,6 +129,7 @@ namespace VietWay.API.Customer
             builder.Services.AddScoped<IAccountService, AccountService>();
             builder.Services.AddScoped<IAttractionCategoryService, AttractionCategoryService>();
             builder.Services.AddScoped<IAttractionService, AttractionService>();
+            builder.Services.AddScoped<IAttractionReviewService, AttractionReviewService>();
             builder.Services.AddScoped<IBookingPaymentService, BookingPaymentService>();
             builder.Services.AddScoped<IBookingService, BookingService>();
             builder.Services.AddScoped<ICustomerService, CustomerService>();

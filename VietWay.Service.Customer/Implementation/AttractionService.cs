@@ -38,7 +38,11 @@ namespace VietWay.Service.Customer.Implementation
                     {
                         ImageId = y.ImageId,
                         Url = y.ImageUrl
-                    }).ToList()
+                    }).ToList(),
+                    AverageRating = x.AttractionReviews!.Where(x=>false == x.IsDeleted).Average(y => y.Rating),
+                    RatingCount = x.AttractionReviews!.Where(x => false == x.IsDeleted)
+                        .GroupBy(x => x.Rating)
+                        .ToDictionary(x => x.Key, x => x.Count())
                 })
                 .SingleOrDefaultAsync();
         }
@@ -68,9 +72,10 @@ namespace VietWay.Service.Customer.Implementation
                     AttractionId = x.AttractionId,
                     Name = x.Name,
                     Address = x.Address,
-                    Province = x.Province.Name,
-                    AttractionCategory = x.AttractionCategory.Name,
-                    ImageUrl = x.AttractionImages.FirstOrDefault().ImageUrl
+                    Province = x.Province!.Name,
+                    AttractionCategory = x.AttractionCategory!.Name,
+                    ImageUrl = x.AttractionImages!.First().ImageUrl,
+                    AverageRating = x.AttractionReviews!.Where(x => false == x.IsDeleted).Average(y => y.Rating)
                 })
                 .ToListAsync();
             return (count, items);

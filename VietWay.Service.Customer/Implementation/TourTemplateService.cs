@@ -24,8 +24,7 @@ namespace VietWay.Service.Customer.Implementation
                 .TourTemplateRepository
                 .Query()
                 .Where(x => x.IsDeleted == false && TourTemplateStatus.Approved == x.Status &&
-                            x.Tours.Any(y => y.RegisterOpenDate >= _timeZoneHelper.GetUTC7Now() &&
-                                             y.Status == TourStatus.Opened));
+                            x.Tours.Any(y => y.Status == TourStatus.Opened));
             if (false == string.IsNullOrWhiteSpace(nameSearch))
             {
                 query = query.Where(x => x.TourName.Contains(nameSearch));
@@ -116,11 +115,12 @@ namespace VietWay.Service.Customer.Implementation
                         Attractions = y.AttractionSchedules.Select(z => new AttractionPreviewDTO()
                         {
                             AttractionId = z.AttractionId,
-                            Name = z.Attraction.Name,
-                            ImageUrl = z.Attraction.AttractionImages.FirstOrDefault().ImageUrl,
+                            Name = z.Attraction!.Name,
+                            ImageUrl = z.Attraction!.AttractionImages!.Select(x=>x.ImageUrl).FirstOrDefault(),
                             Address = z.Attraction.Address,
-                            AttractionCategory = z.Attraction.AttractionCategory.Name,
-                            Province = z.Attraction.Province.Name,
+                            AttractionCategory = z.Attraction!.AttractionCategory!.Name,
+                            Province = z.Attraction!.Province!.Name,
+                            AverageRating = z.Attraction!.AttractionReviews!.Where(r => false == r.IsDeleted).Average(r=>r.Rating),
                         }).ToList(),
                         Description = y.Description,
                         Events = y.EventSchedules.Select(z => new EventPreviewDTO()
@@ -151,7 +151,9 @@ namespace VietWay.Service.Customer.Implementation
         public Task<List<TourTemplatePreviewDTO>> GetTourTemplatePreviewsByAttractionId(string attractionId, int previewCount)
         {
             return _unitOfWork.TourTemplateRepository.Query()
-                .Where(x => x.TourTemplateSchedules.Any(y => y.AttractionSchedules.Any(z => z.AttractionId == attractionId)))
+                .Where(x => x.IsDeleted == false && TourTemplateStatus.Approved == x.Status &&
+                            x.Tours.Any(y => y.Status == TourStatus.Opened) &&
+                            x.TourTemplateSchedules.Any(y => y.AttractionSchedules.Any(z => z.AttractionId == attractionId)))
                 .Select(x => new TourTemplatePreviewDTO()
                 {
                     Code = x.Code,
