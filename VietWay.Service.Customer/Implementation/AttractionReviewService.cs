@@ -152,7 +152,7 @@ namespace VietWay.Service.Customer.Implementation
             {
                 await _unitOfWork.RollbackTransactionAsync();
                 AttractionReview oldReview = await _unitOfWork.AttractionReviewRepository.Query()
-                    .SingleOrDefaultAsync(x => x.ReviewId.Equals(review.ReviewId) && false == x.IsDeleted && x.CustomerId.Equals(x.CustomerId)) ??
+                    .SingleOrDefaultAsync(x => x.AttractionId.Equals(review.AttractionId) && false == x.IsDeleted && x.CustomerId.Equals(x.CustomerId)) ??
                     throw new ResourceNotFoundException(nameof(AttractionReview));
                 oldReview.Rating = review.Rating;
                 oldReview.Review = review.Review;
