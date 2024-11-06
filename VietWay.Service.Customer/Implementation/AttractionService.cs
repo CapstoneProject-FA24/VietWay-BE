@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using VietWay.Repository.EntityModel;
+using VietWay.Repository.EntityModel.Base;
 using VietWay.Repository.UnitOfWork;
 using VietWay.Service.Customer.DataTransferObject;
 using VietWay.Service.Customer.Interface;
@@ -13,7 +14,7 @@ namespace VietWay.Service.Customer.Implementation
         {
             return await _unitOfWork.AttractionRepository
                 .Query()
-                .Where(x => x.AttractionId.Equals(attractionId))
+                .Where(x => x.AttractionId.Equals(attractionId) && x.Status == AttractionStatus.Approved && x.IsDeleted == false)
                 .Select(x => new AttractionDetailDTO
                 {
                     AttractionId = x.AttractionId,
@@ -51,7 +52,8 @@ namespace VietWay.Service.Customer.Implementation
         public async Task<(int count, List<AttractionPreviewDTO>)> GetAttractionsPreviewAsync(string? nameSearch, List<string>? provinceIds, 
             List<string>? attractionTypeIds, int pageSize, int pageIndex)
         {
-            IQueryable<Attraction> query = _unitOfWork.AttractionRepository.Query();
+            IQueryable<Attraction> query = _unitOfWork.AttractionRepository.Query()
+                .Where(x => x.Status == AttractionStatus.Approved && x.IsDeleted == false);
             if (nameSearch != null)
             {
                 query = query.Where(x => x.Name.Contains(nameSearch));
