@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using VietWay.Repository.DataAccessObject;
 
@@ -11,9 +12,11 @@ using VietWay.Repository.DataAccessObject;
 namespace VietWay.Repository.Migrations
 {
     [DbContext(typeof(VietWayDbContext))]
-    partial class VietWayDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241106065324_4")]
+    partial class _4
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -223,7 +226,7 @@ namespace VietWay.Repository.Migrations
 
             modelBuilder.Entity("VietWay.Repository.EntityModel.AttractionReviewLike", b =>
                 {
-                    b.Property<string>("ReviewId")
+                    b.Property<string>("AttractionReviewId")
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
 
@@ -231,7 +234,7 @@ namespace VietWay.Repository.Migrations
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
 
-                    b.HasKey("ReviewId", "CustomerId");
+                    b.HasKey("AttractionReviewId", "CustomerId");
 
                     b.HasIndex("CustomerId");
 
@@ -1088,7 +1091,7 @@ namespace VietWay.Repository.Migrations
             modelBuilder.Entity("VietWay.Repository.EntityModel.AttractionReview", b =>
                 {
                     b.HasOne("VietWay.Repository.EntityModel.Attraction", "Attraction")
-                        .WithMany("AttractionReviews")
+                        .WithMany()
                         .HasForeignKey("AttractionId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -1106,16 +1109,16 @@ namespace VietWay.Repository.Migrations
 
             modelBuilder.Entity("VietWay.Repository.EntityModel.AttractionReviewLike", b =>
                 {
+                    b.HasOne("VietWay.Repository.EntityModel.AttractionReview", "AttractionReview")
+                        .WithMany("AttractionReviewLikes")
+                        .HasForeignKey("AttractionReviewId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("VietWay.Repository.EntityModel.Customer", "Customer")
                         .WithMany()
                         .HasForeignKey("CustomerId")
                         .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("VietWay.Repository.EntityModel.AttractionReview", "AttractionReview")
-                        .WithMany("AttractionReviewLikes")
-                        .HasForeignKey("ReviewId")
-                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("AttractionReview");
@@ -1425,8 +1428,6 @@ namespace VietWay.Repository.Migrations
             modelBuilder.Entity("VietWay.Repository.EntityModel.Attraction", b =>
                 {
                     b.Navigation("AttractionImages");
-
-                    b.Navigation("AttractionReviews");
                 });
 
             modelBuilder.Entity("VietWay.Repository.EntityModel.AttractionCategory", b =>

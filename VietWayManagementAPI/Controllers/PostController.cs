@@ -9,16 +9,23 @@ using VietWay.Util.TokenUtil;
 using AutoMapper;
 using VietWay.Service.Management.Interface;
 using VietWay.Service.Management.DataTransferObject;
+using VietWay.Service.ThirdParty.Twitter;
+using Tweetinvi.Core.Web;
 
 namespace VietWay.API.Management.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class PostController(IPostService postService, ITokenHelper tokenHelper, IMapper mapper) : ControllerBase
+    public class PostController(
+        IPostService postService, 
+        ITokenHelper tokenHelper, 
+        IMapper mapper,
+        IPublishPostService publishPostService) : ControllerBase
     {
         private readonly IPostService _postService = postService;
         private readonly ITokenHelper _tokenHelper = tokenHelper;
         private readonly IMapper _mapper = mapper;
+        private readonly IPublishPostService _publishPostService = publishPostService;
 
         /// <summary>
         /// ✅[All] Get all posts
@@ -160,6 +167,19 @@ namespace VietWay.API.Management.Controllers
                 StatusCode = StatusCodes.Status200OK
             };
             return Ok(response);
+        }
+
+        [HttpPost("upload/twitter/{postId}")]
+        [Produces("application/json")]
+        [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status200OK)]
+        public async Task<IActionResult> UploadPostTwitterAsync(string postId)
+        {
+            await _publishPostService.PostTweetWithXAsync(postId);
+            return Ok(new DefaultResponseModel<object>
+            {
+                Message = "Post tweet successfully",
+                StatusCode = StatusCodes.Status200OK
+            });
         }
     }
 }
