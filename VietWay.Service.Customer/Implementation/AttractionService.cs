@@ -75,7 +75,7 @@ namespace VietWay.Service.Customer.Implementation
                     Address = x.Address,
                     Province = x.Province.Name,
                     AttractionCategory = x.AttractionCategory.Name,
-                    ImageUrl = x.AttractionImages.Select(x=>x.ImageId).First(),
+                    ImageUrl = x.AttractionImages.Select(x=>x.ImageUrl).First(),
                     AverageRating = x.AttractionReviews.Where(x => false == x.IsDeleted).Average(y => y.Rating)
                 })
                 .ToListAsync();
