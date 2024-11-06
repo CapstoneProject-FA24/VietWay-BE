@@ -19,8 +19,8 @@ namespace VietWay.Service.Customer.DataTransferObject
 
         public required ProvincePreviewDTO Province { get; set; }
         public required AttractionCategoryPreviewDTO AttractionCategory { get; set; }
-        public required double AverageRating { get; set; }
-        public required Dictionary<int,int> RatingCount { get; set; }
+        public double? AverageRating { get; set; }
+        public required List<RatingDTO> RatingCount { get; set; }
         public required List<ImageDTO> Images { get; set; }
     }
 }
