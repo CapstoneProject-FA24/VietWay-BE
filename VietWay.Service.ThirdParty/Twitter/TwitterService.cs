@@ -25,21 +25,18 @@ namespace VietWay.Service.ThirdParty.Twitter
         {
             var client = new TwitterClient(_xApiKey, _xApiKeySecret, _xAccessToken, _xAccessTokenSecret);
 
-            // Step 1: Download the image
             byte[] imageData;
             using (var httpClient = new HttpClient())
             {
                 imageData = await httpClient.GetByteArrayAsync(postTweetRequestDTO.ImageUrl);
             }
 
-            // Step 2: Upload the image to Twitter
             var uploadedImage = await client.Upload.UploadBinaryAsync(imageData);
             if (uploadedImage == null)
                 throw new Exception("Image upload failed");
 
             string mediaId = uploadedImage.Id.ToString();
 
-            // Step 3: Post the tweet with the media_id
             var result = await client.Execute.AdvanceRequestAsync(BuildTweetRequestWithMedia(postTweetRequestDTO, mediaId, client));
             return result.Content;
         }

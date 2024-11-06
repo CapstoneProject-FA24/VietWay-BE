@@ -24,6 +24,7 @@ namespace VietWay.Repository.EntityModel
         public string? Description { get; set; }
         public required DateTime CreatedAt { get; set; }
         public required PostStatus Status { get; set; }
+        public string? XTweetId { get; set; }
 
         public virtual PostCategory? PostCategory { get; set; }
         public virtual Province? Province { get; set; }

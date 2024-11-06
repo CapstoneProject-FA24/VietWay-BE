@@ -174,12 +174,11 @@ namespace VietWay.API.Management.Controllers
         [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status200OK)]
         public async Task<IActionResult> UploadPostTwitterAsync(string postId)
         {
-            var result = await _publishPostService.PostTweetWithXAsync(postId);
-            return Ok(new DefaultResponseModel<string>
+            await _publishPostService.PostTweetWithXAsync(postId);
+            return Ok(new DefaultResponseModel<object>
             {
-                Message = "Get post successfully",
-                StatusCode = StatusCodes.Status200OK,
-                Data = result
+                Message = "Post tweet successfully",
+                StatusCode = StatusCodes.Status200OK
             });
         }
     }

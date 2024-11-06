@@ -10,6 +10,6 @@ namespace VietWay.Service.Management.Interface
 {
     public interface IPublishPostService
     {
-        public Task<string> PostTweetWithXAsync(string postId);
+        public Task PostTweetWithXAsync(string postId);
     }
 }
