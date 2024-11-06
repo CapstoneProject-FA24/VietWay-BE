@@ -141,7 +141,7 @@ namespace VietWay.API.Management.Controllers
         [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status200OK)]
         public async Task<IActionResult> DeleteAttractionAsync(string attractionId)
         {
-            Attraction? attraction = null;
+            AttractionDetailDTO? attraction = await _attractionService.GetAttractionWithCreateDateByIdAsync(attractionId);
             if (null == attraction)
             {
                 DefaultResponseModel<object> errorResponse = new()
