@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.Net;
 using VietWay.API.Customer.ResponseModel;
 using VietWay.Repository.EntityModel.Base;
+using VietWay.Service.Customer.DataTransferObject;
 using VietWay.Service.Customer.Interface;
 using VietWay.Util.TokenUtil;
 
@@ -18,33 +19,31 @@ namespace VietWay.API.Customer.Controllers
     {
         private readonly ITokenHelper _tokenHelper = tokenHelper;
         private readonly IBookingPaymentService _bookingPaymentService = bookingPaymentService;
-        /// <summary>
-        /// ✅🔐[Customer] Generate a VNPay URL for booking payment
-        /// </summary>
-        /// <return>VNPay URL for booking payment</return>
-        /// <response code="200">Get VNPay URL successfully</response>
-        /// <response code="404">Booking ID not found</response>
-        [HttpGet("{bookingId}")]
+
+        [HttpGet]
         [Produces("application/json")]
-        [Authorize(Roles = nameof(UserRole.Customer))]
-        [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status200OK)]
-        public async Task<IActionResult> GetPaymentUrl(string bookingId, PaymentMethod paymentMethod)
+        [ProducesResponseType<DefaultResponseModel<PaginatedList<BookingPaymentDTO>>>(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        public async Task<IActionResult> GetAllCustomerPaymentsAsync()
         {
             string? customerId = _tokenHelper.GetAccountIdFromToken(HttpContext);
             if (customerId == null)
             {
-                return Unauthorized(new DefaultResponseModel<object>()
-                {
-                    Message = "Unauthorized",
-                    StatusCode = StatusCodes.Status401Unauthorized
-                });
+                return Unauthorized();
             }
-            string url = await _bookingPaymentService
-                .GetBookingPaymentUrl(paymentMethod, bookingId, customerId, HttpContext.Connection.RemoteIpAddress?.ToString()??"");
-            return Ok(new DefaultResponseModel<string>()
+            int pageSize = 10;
+            int pageIndex = 1;
+            (int count, List<BookingPaymentDTO> items) = await _bookingPaymentService.GetAllCustomerBookingPaymentsAsync(customerId, pageSize, pageIndex);
+            return Ok(new DefaultResponseModel<PaginatedList<BookingPaymentDTO>>
             {
                 Message = "Success",
-                Data = url,
+                Data = new PaginatedList<BookingPaymentDTO>
+                {
+                    Items = items,
+                    Total = count,
+                    PageSize = pageSize,
+                    PageIndex = pageIndex
+                },
                 StatusCode = StatusCodes.Status200OK
             });
         }

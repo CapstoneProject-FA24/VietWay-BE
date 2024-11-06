@@ -6,7 +6,6 @@ using VietWay.Repository.EntityModel.Base;
 using VietWay.Repository.UnitOfWork;
 using VietWay.Service.Management.DataTransferObject;
 using VietWay.Service.Management.Interface;
-using VietWay.Service.Management.Jobs;
 using VietWay.Service.ThirdParty.Cloudinary;
 using VietWay.Util.CustomExceptions;
 using VietWay.Util.DateTimeUtil;

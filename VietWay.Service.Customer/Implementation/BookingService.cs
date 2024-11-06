@@ -7,14 +7,18 @@ using VietWay.Util.IdUtil;
 using VietWay.Util.CustomExceptions;
 using VietWay.Repository.EntityModel.Base;
 using VietWay.Util.DateTimeUtil;
+using Hangfire;
+using VietWay.Job.Interface;
 
 namespace VietWay.Service.Customer.Implementation
 {
-    public class BookingService(IUnitOfWork unitOfWork, IIdGenerator idGenerator, ITimeZoneHelper timeZoneHelper) : IBookingService
+    public class BookingService(IUnitOfWork unitOfWork, IIdGenerator idGenerator, ITimeZoneHelper timeZoneHelper, 
+        IBackgroundJobClient backgroundJobClient) : IBookingService
     {
         private readonly IUnitOfWork _unitOfWork = unitOfWork;
         private readonly IIdGenerator _idGenerator = idGenerator;
         private readonly ITimeZoneHelper _timeZoneHelper = timeZoneHelper;
+        private readonly IBackgroundJobClient _backgroundJobClient = backgroundJobClient;
         public async Task<string> BookTourAsync(Booking booking)
         {
             try
@@ -53,6 +57,7 @@ namespace VietWay.Service.Customer.Implementation
                 await _unitOfWork.BookingRepository.CreateAsync(booking);
                 await _unitOfWork.TourRepository.UpdateAsync(tour);
                 await _unitOfWork.CommitTransactionAsync();
+                _backgroundJobClient.Schedule<IBookingJob>(x => x.CheckBookingForExpirationJob(booking.BookingId), DateTime.Now.AddMinutes(1));
                 return booking.BookingId;
             }
             catch
@@ -125,7 +130,7 @@ namespace VietWay.Service.Customer.Implementation
                 }).SingleOrDefaultAsync();
         }
 
-        public async Task<(int count, List<BookingPreviewDTO> items)> GetCustomerBookingsAsync(string customerId, int pageSize, int pageIndex)
+        public async Task<(int count, List<BookingPreviewDTO> items)> GetCustomerBookingsAsync(string customerId,BookingStatus? bookingStatus, int pageSize, int pageIndex)
         {
             IQueryable<Booking> query = _unitOfWork
                 .BookingRepository
@@ -133,7 +138,11 @@ namespace VietWay.Service.Customer.Implementation
                 .Where(x => x.CustomerId == customerId)
                 .Include(x => x.Tour.TourTemplate.TourTemplateImages)
                 .OrderByDescending(x => x.CreatedAt);
-            int count = await query.CountAsync();
+            if (bookingStatus.HasValue)
+            {
+                query = query.Where(x => x.Status == bookingStatus);
+            }
+                int count = await query.CountAsync();
             List<BookingPreviewDTO> items = await query
                 .Skip((pageIndex - 1) * pageSize)
                 .Take(pageSize)
@@ -146,8 +155,8 @@ namespace VietWay.Service.Customer.Implementation
                     TotalPrice = x.TotalPrice,
                     Status = x.Status,
                     CreatedOn = x.CreatedAt,
-                    TourName = x.Tour.TourTemplate.TourName,
-                    ImageUrl = x.Tour.TourTemplate.TourTemplateImages.First().ImageUrl,
+                    TourName = x.Tour!.TourTemplate!.TourName,
+                    ImageUrl = x.Tour!.TourTemplate!.TourTemplateImages.Select(x=>x.ImageUrl).First(),
                     Code = x.Tour.TourTemplate.Code
                 }).ToListAsync();
             return (count, items);
