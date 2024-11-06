@@ -16,8 +16,6 @@ using VietWay.Service.Management.Implement;
 using VietWay.Service.Management.Interface;
 using VietWay.Service.ThirdParty.Cloudinary;
 using VietWay.Service.ThirdParty.VnPay;
-using VietWay.Service.Interface;
-using VietWay.Service.Implement;
 namespace VietWay.API.Management
 {
     public class Program

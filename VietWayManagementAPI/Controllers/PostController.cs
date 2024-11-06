@@ -143,7 +143,7 @@ namespace VietWay.API.Management.Controllers
         [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status200OK)]
         public async Task<IActionResult> DeletePostAsync(string postId)
         {
-            PostPreviewDTO? post = await _postService.GetPostByIdAsync(postId);
+            PostDetailDTO? post = await _postService.GetPostByIdAsync(postId);
             if (post == null)
             {
                 DefaultResponseModel<object> errorResponse = new()
