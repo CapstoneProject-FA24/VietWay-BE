@@ -15,6 +15,8 @@ namespace VietWay.Repository.UnitOfWork
         private IGenericRepository<Admin>? adminRepository;
         private IGenericRepository<Attraction>? attractionRepository;
         private IGenericRepository<AttractionCategory>? attractionCategoryRepository;
+        private IGenericRepository<AttractionReview>? attractionReviewRepository;
+        private IGenericRepository<AttractionReviewLike>? attractionReviewLikeRepository;
         private IGenericRepository<Booking>? bookingRepository;
         private IGenericRepository<BookingPayment>? bookingPaymentRepository;
         private IGenericRepository<Customer>? customerRepository;
@@ -66,6 +68,24 @@ namespace VietWay.Repository.UnitOfWork
             {
                 attractionCategoryRepository ??= new GenericRepository<AttractionCategory>(_dbContext);
                 return attractionCategoryRepository;
+            }
+        }
+
+        public IGenericRepository<AttractionReview> AttractionReviewRepository
+        {
+            get
+            {
+                attractionReviewRepository ??= new GenericRepository<AttractionReview>(_dbContext);
+                return attractionReviewRepository;
+            }
+        }
+
+        public IGenericRepository<AttractionReviewLike> AttractionReviewLikeRepository
+        {
+            get
+            {
+                attractionReviewLikeRepository ??= new GenericRepository<AttractionReviewLike>(_dbContext);
+                return attractionReviewLikeRepository;
             }
         }
 
