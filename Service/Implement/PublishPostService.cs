@@ -12,15 +12,30 @@ using VietWay.Repository.EntityModel.Base;
 using VietWay.Repository.UnitOfWork;
 using VietWay.Service.Management.DataTransferObject;
 using VietWay.Service.Management.Interface;
+using VietWay.Service.ThirdParty.Facebook;
 using VietWay.Service.ThirdParty.Twitter;
 using VietWay.Util.CustomExceptions;
 
 namespace VietWay.Service.Management.Implement
 {
-    public class PublishPostService(IUnitOfWork unitOfWork, ITwitterService twitterService) : IPublishPostService
+    public class PublishPostService(IUnitOfWork unitOfWork, ITwitterService twitterService, IFacebookService facebookService) : IPublishPostService
     {
         private readonly ITwitterService _twitterService = twitterService;
         private readonly IUnitOfWork _unitOfWork = unitOfWork;
+        private readonly IFacebookService _facebookService = facebookService;
+
+        public async Task<int> GetPublishedPostReactionAsync(string postId)
+        {
+            Post? post = await _unitOfWork.PostRepository.Query()
+                .SingleOrDefaultAsync(x => x.PostId.Equals(postId)) ??
+                throw new ResourceNotFoundException("Post not found");
+
+            if (post.FacebookPostId.IsNullOrEmpty())
+            {
+                throw new ServerErrorException("The post has not been published");
+            }
+            return await _facebookService.GetPublishedPostReactionAsync(post.FacebookPostId!);
+        }
 
         public async Task PostTweetWithXAsync(string postId)
         {
@@ -54,6 +69,36 @@ namespace VietWay.Service.Management.Implement
                 }
                 post.XTweetId = tweetId;
                 await _unitOfWork.BeginTransactionAsync();
+                await _unitOfWork.PostRepository.UpdateAsync(post);
+                await _unitOfWork.CommitTransactionAsync();
+            }
+            catch
+            {
+                await _unitOfWork.RollbackTransactionAsync();
+                throw;
+            }
+        }
+
+        public async Task PublishPostToFacebookPageAsync(string postId)
+        {
+            Post? post = await _unitOfWork.PostRepository.Query()
+                .SingleOrDefaultAsync(x => x.PostId.Equals(postId)) ??
+                throw new ResourceNotFoundException("Post not found");
+
+            if (post.Status != PostStatus.Approved)
+            {
+                throw new ServerErrorException("Post has not been approved yet");
+            }
+            if (!post.FacebookPostId.IsNullOrEmpty())
+            {
+                throw new ServerErrorException("The post has already been tweeted");
+            }
+
+            string facebookPostId = await _facebookService.PublishPostAsync(post.Description, $"https://vietway.projectpioneer.id.vn/bai-viet/{post.PostId}");
+            try
+            {
+                await _unitOfWork.BeginTransactionAsync();
+                post.FacebookPostId = facebookPostId;
                 await _unitOfWork.PostRepository.UpdateAsync(post);
                 await _unitOfWork.CommitTransactionAsync();
             }

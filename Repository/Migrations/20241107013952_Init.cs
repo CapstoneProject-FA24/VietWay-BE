@@ -96,7 +96,7 @@ namespace VietWay.Repository.Migrations
                 columns: table => new
                 {
                     ProvinceId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
-                    ProvinceName = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     ImageUrl = table.Column<string>(type: "nvarchar(2048)", maxLength: 2048, nullable: false),
                     IsDeleted = table.Column<bool>(type: "bit", nullable: false)
@@ -317,6 +317,8 @@ namespace VietWay.Repository.Migrations
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     Status = table.Column<int>(type: "int", nullable: false),
+                    XTweetId = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    FacebookPostId = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     IsDeleted = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
@@ -471,6 +473,8 @@ namespace VietWay.Repository.Migrations
                     StartLocation = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),
                     StartDate = table.Column<DateTime>(type: "datetime2", nullable: true),
                     DefaultTouristPrice = table.Column<decimal>(type: "decimal(18,2)", nullable: true),
+                    RegisterOpenDate = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    RegisterCloseDate = table.Column<DateTime>(type: "datetime2", nullable: true),
                     MaxParticipant = table.Column<int>(type: "int", nullable: true),
                     MinParticipant = table.Column<int>(type: "int", nullable: true),
                     CurrentParticipant = table.Column<int>(type: "int", nullable: false),
@@ -556,15 +560,15 @@ namespace VietWay.Repository.Migrations
                 name: "AttractionReviewLike",
                 columns: table => new
                 {
-                    AttractionReviewId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
+                    ReviewId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
                     CustomerId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_AttractionReviewLike", x => new { x.AttractionReviewId, x.CustomerId });
+                    table.PrimaryKey("PK_AttractionReviewLike", x => new { x.ReviewId, x.CustomerId });
                     table.ForeignKey(
-                        name: "FK_AttractionReviewLike_AttractionReview_AttractionReviewId",
-                        column: x => x.AttractionReviewId,
+                        name: "FK_AttractionReviewLike_AttractionReview_ReviewId",
+                        column: x => x.ReviewId,
                         principalTable: "AttractionReview",
                         principalColumn: "ReviewId",
                         onDelete: ReferentialAction.Cascade);
@@ -616,6 +620,7 @@ namespace VietWay.Repository.Migrations
                 {
                     PriceId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
                     TourId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Price = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     AgeFrom = table.Column<int>(type: "int", nullable: false),
                     AgeTo = table.Column<int>(type: "int", nullable: false)
@@ -731,21 +736,22 @@ namespace VietWay.Repository.Migrations
                 name: "BookingTourist",
                 columns: table => new
                 {
-                    ParticipantId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
-                    TourBookingId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
+                    TouristId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
+                    BookingId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
                     FullName = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     PhoneNumber = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: false),
                     Gender = table.Column<int>(type: "int", nullable: false),
                     DateOfBirth = table.Column<DateTime>(type: "datetime2", nullable: false),
                     HasAttended = table.Column<bool>(type: "bit", nullable: true),
+                    Price = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     Note = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_BookingTourist", x => x.ParticipantId);
+                    table.PrimaryKey("PK_BookingTourist", x => x.TouristId);
                     table.ForeignKey(
-                        name: "FK_BookingTourist_Booking_TourBookingId",
-                        column: x => x.TourBookingId,
+                        name: "FK_BookingTourist_Booking_BookingId",
+                        column: x => x.BookingId,
                         principalTable: "Booking",
                         principalColumn: "BookingId",
                         onDelete: ReferentialAction.Cascade);
@@ -760,6 +766,7 @@ namespace VietWay.Repository.Migrations
                     Rating = table.Column<int>(type: "int", nullable: false),
                     Content = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    IsPublic = table.Column<bool>(type: "bit", nullable: false),
                     IsDeleted = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
@@ -823,9 +830,10 @@ namespace VietWay.Repository.Migrations
                 column: "AttractionId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Booking_CustomerId",
+                name: "IX_Booking_CustomerId_TourId",
                 table: "Booking",
-                column: "CustomerId");
+                columns: new[] { "CustomerId", "TourId" },
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_Booking_TourId",
@@ -838,9 +846,9 @@ namespace VietWay.Repository.Migrations
                 column: "BookingId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_BookingTourist_TourBookingId",
+                name: "IX_BookingTourist_BookingId",
                 table: "BookingTourist",
-                column: "TourBookingId");
+                column: "BookingId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Customer_ProvinceId",

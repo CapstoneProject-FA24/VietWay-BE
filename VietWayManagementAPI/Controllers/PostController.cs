@@ -169,7 +169,7 @@ namespace VietWay.API.Management.Controllers
             return Ok(response);
         }
 
-        [HttpPost("upload/twitter/{postId}")]
+        [HttpPost("{postId}/twitter")]
         [Produces("application/json")]
         [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status200OK)]
         public async Task<IActionResult> UploadPostTwitterAsync(string postId)
@@ -179,6 +179,31 @@ namespace VietWay.API.Management.Controllers
             {
                 Message = "Post tweet successfully",
                 StatusCode = StatusCodes.Status200OK
+            });
+        }
+        [HttpPost("{postId}/facebook")]
+        [Produces("application/json")]
+        [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status200OK)]
+        public async Task<IActionResult> UploadPostFacebookAsync(string postId)
+        {
+            await _publishPostService.PublishPostToFacebookPageAsync(postId);
+            return Ok(new DefaultResponseModel<object>
+            {
+                Message = "Post facebook successfully",
+                StatusCode = StatusCodes.Status200OK
+            });
+        }
+        [HttpGet("{postId}/facebook/reactions")]
+        [Produces("application/json")]
+        [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetFacebookReactionsAsync(string postId)
+        {
+            int reactionCount = await _publishPostService.GetPublishedPostReactionAsync(postId);
+            return Ok(new DefaultResponseModel<object>
+            {
+                Message = "Get facebook reaction count successfully",
+                StatusCode = StatusCodes.Status200OK,
+                Data = reactionCount
             });
         }
     }
