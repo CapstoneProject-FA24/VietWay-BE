@@ -28,7 +28,13 @@ namespace VietWay.Service.Customer.Implementation
                     .Include(x => x.TourPrices)
                     .SingleOrDefaultAsync(x => x.TourId == booking.TourId)
                     ?? throw new ResourceNotFoundException("Tour not found");
-                
+                bool isActiveBookingExisted = await _unitOfWork.BookingRepository.Query()
+                    .AnyAsync(x => x.TourId == booking.TourId && x.CustomerId == booking.CustomerId && (x.Status == BookingStatus.Pending || x.Status == BookingStatus.Confirmed));
+
+                if (isActiveBookingExisted)
+                {
+                    throw new InvalidOperationException("Customer has already booked this tour");
+                }
                 if (tour.CurrentParticipant + booking.BookingTourists.Count > tour.MaxParticipant || TourStatus.Opened != tour.Status)
                 {
                     throw new InvalidOperationException("Tour is full or not open");
@@ -42,7 +48,7 @@ namespace VietWay.Service.Customer.Implementation
                     TourPrice? tourPrice = tour.TourPrices?.SingleOrDefault(x => x.AgeFrom <= age && age <= x.AgeTo);
                     if (tourPrice == null)
                     {
-                        tourist.Price = tour.DefaultTouristPrice ?? throw new ServerErrorException("Default tour price is null");
+                        tourist.Price = tour.DefaultTouristPrice!.Value;
                         booking.TotalPrice += tourist.Price;
                     }
                     else

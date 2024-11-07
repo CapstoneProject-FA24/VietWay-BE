@@ -26,8 +26,9 @@ namespace VietWay.Service.ThirdParty.Facebook
                 published = true
             });
             response.EnsureSuccessStatusCode();
-            PublishPostResponse? postResponse = await response.Content.ReadFromJsonAsync<PublishPostResponse>();
-            return postResponse!.Id;
+            JsonDocument jsonDocument = await JsonDocument.ParseAsync(await response.Content.ReadAsStreamAsync());
+            JsonElement root = jsonDocument.RootElement;
+            return root.GetProperty("id").GetString();
         }
         public async Task<int> GetPublishedPostReactionAsync(string facebookPostId)
         {
@@ -43,53 +44,6 @@ namespace VietWay.Service.ThirdParty.Facebook
             catch
             {
                 return 0;
-            }
-        }
-        internal class PublishPostResponse
-        {
-            [JsonPropertyName("id")]
-            public string Id { get; set; } = default!;
-        }
-        internal class ReactionResponse
-        {
-            [JsonPropertyName("reactions")]
-            public Reactions ReactionsInfo { get; set; } = new();
-            [JsonPropertyName("id")]
-            public string PostId { get; set; } = default!;
-            internal class Reactions
-            {
-                [JsonPropertyName("data")]
-                public List<ReactionData> Data { get; set; } = new();
-                [JsonPropertyName("summary")]
-                public ReactionSummary Summary { get; set; } = new();
-                [JsonPropertyName("paging")]
-                public ReactionPaging Paging { get; set; } = new();
-
-                internal class ReactionData
-                {
-                    [JsonPropertyName("id")]
-                    public string Id { get; set; } = default!;
-                    [JsonPropertyName("name")]
-                    public string Name { get; set; } = default!;
-                    [JsonPropertyName("type")]
-                    public string Type { get; set; } = default!;
-                }
-                internal class ReactionSummary
-                {
-                    [JsonPropertyName("total_count")]
-                    public int TotalCount { get; set; }
-                }
-                internal class ReactionPaging
-                {
-                    [JsonPropertyName("cursors")]
-                    public Cursor Cursors { get; set; } = new();
-
-                    internal class Cursor
-                    {
-                        public string? Before { get; set; }
-                        public string? After { get; set; }
-                    }
-                }
             }
         }
     }
