@@ -161,5 +161,25 @@ namespace VietWay.Service.Management.Implement
                 })
                 .SingleOrDefaultAsync();
         }
+
+        public async Task ChangePostStatusAsync(string postId, PostStatus postStatus)
+        {
+            Post? post = await _unitOfWork.PostRepository.Query()
+                .SingleOrDefaultAsync(x => x.PostId.Equals(postId)) ??
+                throw new ResourceNotFoundException("Post not found");
+
+            post.Status = postStatus;
+            try
+            {
+                await _unitOfWork.BeginTransactionAsync();
+                await _unitOfWork.PostRepository.UpdateAsync(post);
+                await _unitOfWork.CommitTransactionAsync();
+            }
+            catch
+            {
+                await _unitOfWork.RollbackTransactionAsync();
+                throw;
+            }
+        }
     }
 }

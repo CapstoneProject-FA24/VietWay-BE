@@ -11,6 +11,7 @@ using VietWay.Service.Management.Interface;
 using VietWay.Service.Management.DataTransferObject;
 using VietWay.Service.ThirdParty.Twitter;
 using Tweetinvi.Core.Web;
+using VietWay.Service.Management.Implement;
 
 namespace VietWay.API.Management.Controllers
 {
@@ -204,6 +205,36 @@ namespace VietWay.API.Management.Controllers
                 Message = "Get facebook reaction count successfully",
                 StatusCode = StatusCodes.Status200OK,
                 Data = reactionCount
+            });
+        }
+
+        /// <summary>
+        /// ✅🔐[Manager] Change post status
+        /// </summary>
+        /// <returns>Post status changed</returns>
+        /// <response code="200">Return post status changed</response>
+        /// <response code="400">Bad request</response>
+        [HttpPatch("change-post-status/{postId}")]
+        [Authorize(Roles = nameof(UserRole.Manager))]
+        [Produces("application/json")]
+        [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status200OK)]
+        public async Task<IActionResult> ChangePostStatusAsync(string postId, PostStatus postStatus)
+        {
+            string? managerId = _tokenHelper.GetAccountIdFromToken(HttpContext);
+            if (string.IsNullOrWhiteSpace(managerId))
+            {
+                return Unauthorized(new DefaultResponseModel<object>
+                {
+                    Message = "Unauthorized",
+                    StatusCode = StatusCodes.Status401Unauthorized
+                });
+            }
+
+            await _postService.ChangePostStatusAsync(postId, postStatus);
+            return Ok(new DefaultResponseModel<string>
+            {
+                Message = "Status change successfully",
+                StatusCode = StatusCodes.Status200OK,
             });
         }
     }
