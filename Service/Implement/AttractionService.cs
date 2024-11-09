@@ -216,7 +216,7 @@ namespace VietWay.Service.Management.Implement
                 .SingleOrDefaultAsync(x => x.AttractionId.Equals(newAttraction.AttractionId)) ??
                 throw new ResourceNotFoundException("Attraction not found");
 
-            attraction.Status = AttractionStatus.Pending;
+            attraction.Status = newAttraction.Status;
             attraction.Name = newAttraction.Name;
             attraction.Address = newAttraction.Address;
             attraction.ContactInfo = newAttraction.ContactInfo;
