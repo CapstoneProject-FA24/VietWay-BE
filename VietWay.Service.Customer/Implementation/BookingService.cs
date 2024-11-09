@@ -163,7 +163,8 @@ namespace VietWay.Service.Customer.Implementation
                     CreatedOn = x.CreatedAt,
                     TourName = x.Tour!.TourTemplate!.TourName,
                     ImageUrl = x.Tour!.TourTemplate!.TourTemplateImages.Select(x=>x.ImageUrl).First(),
-                    Code = x.Tour.TourTemplate.Code
+                    Code = x.Tour.TourTemplate.Code,
+                    StartDate = x.Tour!.StartDate!.Value
                 }).ToListAsync();
             return (count, items);
         }
