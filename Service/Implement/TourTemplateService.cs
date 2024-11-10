@@ -330,5 +330,25 @@ namespace VietWay.Service.Management.Implement
                 throw;
             }
         }
+
+        public async Task ChangeTourTemplateStatusAsync(string tourTemplateId, TourTemplateStatus tourTemplateStatus)
+        {
+            TourTemplate? tourTemplate = await _unitOfWork.TourTemplateRepository.Query()
+                .SingleOrDefaultAsync(x => x.TourTemplateId.Equals(tourTemplateId)) ??
+                throw new ResourceNotFoundException("Tour Template not found");
+
+            tourTemplate.Status = tourTemplateStatus;
+            try
+            {
+                await _unitOfWork.BeginTransactionAsync();
+                await _unitOfWork.TourTemplateRepository.UpdateAsync(tourTemplate);
+                await _unitOfWork.CommitTransactionAsync();
+            }
+            catch
+            {
+                await _unitOfWork.RollbackTransactionAsync();
+                throw;
+            }
+        }
     }
 }
