@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using VietWay.API.Management.RequestModel;
 using VietWay.API.Management.ResponseModel;
@@ -6,6 +7,7 @@ using VietWay.Repository.EntityModel;
 using VietWay.Repository.EntityModel.Base;
 using VietWay.Service.Management.DataTransferObject;
 using VietWay.Service.Management.Interface;
+using VietWay.Util.TokenUtil;
 
 namespace VietWay.API.Management.Controllers
 {
@@ -14,10 +16,13 @@ namespace VietWay.API.Management.Controllers
     /// </summary>
     [Route("api/tours")]
     [ApiController]
-    public class TourController(ITourService tourService, IMapper mapper) : ControllerBase
+    public class TourController(ITourService tourService,
+        ITokenHelper tokenHelper,
+        IMapper mapper) : ControllerBase
     {
         private readonly ITourService _tourService = tourService;
         private readonly IMapper _mapper = mapper;
+        private readonly ITokenHelper _tokenHelper = tokenHelper;
 
         /// <summary>
         /// [Manager][Staff] Get all tours
@@ -135,6 +140,36 @@ namespace VietWay.API.Management.Controllers
                 Message = "Create tour successfully",
                 StatusCode = StatusCodes.Status200OK,
                 Data = tourId
+            });
+        }
+
+        /// <summary>
+        /// ✅🔐[Manager] Change tour status
+        /// </summary>
+        /// <returns>Tour status changed</returns>
+        /// <response code="200">Return tour status changed</response>
+        /// <response code="400">Bad request</response>
+        [HttpPatch("change-tour-status/{tourId}")]
+        [Authorize(Roles = nameof(UserRole.Manager))]
+        [Produces("application/json")]
+        [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status200OK)]
+        public async Task<IActionResult> ChangeTourStatusAsync(string tourId, TourStatus tourStatus)
+        {
+            string? managerId = _tokenHelper.GetAccountIdFromToken(HttpContext);
+            if (string.IsNullOrWhiteSpace(managerId))
+            {
+                return Unauthorized(new DefaultResponseModel<object>
+                {
+                    Message = "Unauthorized",
+                    StatusCode = StatusCodes.Status401Unauthorized
+                });
+            }
+
+            await _tourService.ChangeTourStatusAsync(tourId, tourStatus);
+            return Ok(new DefaultResponseModel<string>
+            {
+                Message = "Status change successfully",
+                StatusCode = StatusCodes.Status200OK,
             });
         }
     }

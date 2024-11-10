@@ -7,6 +7,7 @@ using VietWay.Util.DateTimeUtil;
 using VietWay.Util.IdUtil;
 using VietWay.Service.Management.DataTransferObject;
 using static Org.BouncyCastle.Crypto.Engines.SM2Engine;
+using VietWay.Util.CustomExceptions;
 
 namespace VietWay.Service.Management.Implement
 {
@@ -150,6 +151,26 @@ namespace VietWay.Service.Management.Implement
                 .Include(x => x.TourTemplate)
                 .ThenInclude(x => x.TourTemplateImages)
                 .ToListAsync();
+        }
+
+        public async Task ChangeTourStatusAsync(string tourId, TourStatus tourStatus)
+        {
+            Tour? tour = await _unitOfWork.TourRepository.Query()
+                .SingleOrDefaultAsync(x => x.TourId.Equals(tourId)) ??
+                throw new ResourceNotFoundException("Tour not found");
+
+            tour.Status = tourStatus;
+            try
+            {
+                await _unitOfWork.BeginTransactionAsync();
+                await _unitOfWork.TourRepository.UpdateAsync(tour);
+                await _unitOfWork.CommitTransactionAsync();
+            }
+            catch
+            {
+                await _unitOfWork.RollbackTransactionAsync();
+                throw;
+            }
         }
     }
 }
