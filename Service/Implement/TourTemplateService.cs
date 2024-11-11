@@ -330,5 +330,45 @@ namespace VietWay.Service.Management.Implement
                 throw;
             }
         }
+
+        public async Task ChangeTourTemplateStatusAsync(string tourTemplateId, string accountId, TourTemplateStatus templateStatus, string? reason)
+        {
+            try
+            {
+                await _unitOfWork.BeginTransactionAsync();
+                Account? account = await _unitOfWork.AccountRepository.Query()
+                    .SingleOrDefaultAsync(x => x.AccountId.Equals(accountId)) ??
+                    throw new ResourceNotFoundException("Account not found");
+                TourTemplate? tourTemplate = await _unitOfWork.TourTemplateRepository.Query()
+                    .SingleOrDefaultAsync(x => x.TourTemplateId.Equals(tourTemplateId)) ??
+                    throw new ResourceNotFoundException("Tour template not found");
+
+                bool isManagerApproveOrDenyPendingTourTemplate = (TourTemplateStatus.Approved == templateStatus || TourTemplateStatus.Rejected == templateStatus) &&
+                    UserRole.Manager == account.Role && TourTemplateStatus.Pending == tourTemplate.Status;
+                bool isStaffSubmitDraftTourTemplateForPreview = (TourTemplateStatus.Pending == templateStatus) && UserRole.Staff == account.Role &&
+                    TourTemplateStatus.Draft == tourTemplate.Status;
+
+                if (isStaffSubmitDraftTourTemplateForPreview)
+                {
+                    tourTemplate.Status = TourTemplateStatus.Pending;
+                }
+                else if (isManagerApproveOrDenyPendingTourTemplate)
+                {
+                    tourTemplate.Status = templateStatus;
+                }
+                else
+                {
+                    throw new UnauthorizedException("You are not allowed to perform this action");
+                }
+
+                await _unitOfWork.TourTemplateRepository.UpdateAsync(tourTemplate);
+                await _unitOfWork.CommitTransactionAsync();
+            }
+            catch
+            {
+                await _unitOfWork.RollbackTransactionAsync();
+                throw;
+            }
+        }
     }
 }

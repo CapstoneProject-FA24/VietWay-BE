@@ -306,15 +306,20 @@ namespace VietWay.Service.Management.Implement
                 bool isStaffSubmitDraftAttractionForPreview = AttractionStatus.Pending == status && UserRole.Staff == account.Role &&
                     AttractionStatus.Draft == attraction.Status;
 
-                if (isManagerApproveOrDenyPendingAttraction || isStaffSubmitDraftAttractionForPreview)
+                if (isStaffSubmitDraftAttractionForPreview)
+                {
+                    attraction.Status = AttractionStatus.Pending;
+                }
+                else if (isManagerApproveOrDenyPendingAttraction)
                 {
                     attraction.Status = status;
-                    await _unitOfWork.AttractionRepository.UpdateAsync(attraction);
                 }
                 else
                 {
                     throw new UnauthorizedException("You are not allowed to perform this action");
                 }
+
+                await _unitOfWork.AttractionRepository.UpdateAsync(attraction);
                 await _unitOfWork.CommitTransactionAsync();
             }
             catch
