@@ -223,13 +223,13 @@ namespace VietWay.API.Management.Controllers
         /// <response code="200">Return tour template status changed</response>
         /// <response code="400">Bad request</response>
         [HttpPatch("change-tour-template-status/{tourTemplateId}")]
-        [Authorize(Roles = nameof(UserRole.Manager))]
+        [Authorize(Roles = $"{nameof(UserRole.Manager)}, {nameof(UserRole.Staff)}")]
         [Produces("application/json")]
         [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status200OK)]
-        public async Task<IActionResult> ChangePostStatusAsync(string tourTemplateId, TourTemplateStatus tourTemplateStatus)
+        public async Task<IActionResult> ChangePostStatusAsync(string tourTemplateId, ChangeTourTemplateStatusRequest request)
         {
-            string? managerId = _tokenHelper.GetAccountIdFromToken(HttpContext);
-            if (string.IsNullOrWhiteSpace(managerId))
+            string? accountId = _tokenHelper.GetAccountIdFromToken(HttpContext);
+            if (string.IsNullOrWhiteSpace(accountId))
             {
                 return Unauthorized(new DefaultResponseModel<object>
                 {
@@ -238,7 +238,7 @@ namespace VietWay.API.Management.Controllers
                 });
             }
 
-            await _tourTemplateService.ChangeTourTemplateStatusAsync(tourTemplateId, tourTemplateStatus);
+            await _tourTemplateService.ChangeTourTemplateStatusAsync(tourTemplateId, accountId, request.Status, request.Reason);
             return Ok(new DefaultResponseModel<string>
             {
                 Message = "Status change successfully",

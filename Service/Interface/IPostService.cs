@@ -22,7 +22,6 @@ namespace VietWay.Service.Management.Interface
         public Task DeletePostAsync(string postId);
         public Task UpdatePostAsync(Post newPost);
         public Task<PostDetailDTO?> GetPostByIdAsync(string postId);
-        /*public Task ChangePostStatusAsync(string postId, PostStatus postStatus);*/
         public Task ChangePostStatusAsync(string postId, string accountId, PostStatus postStatus, string? reason);
     }
 }
