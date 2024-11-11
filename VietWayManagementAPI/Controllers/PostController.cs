@@ -209,19 +209,21 @@ namespace VietWay.API.Management.Controllers
         }
 
         /// <summary>
-        /// ✅🔐[Manager] Change post status
+        /// ✅🔐[Manager][Staff] Change post status
         /// </summary>
-        /// <returns>Post status changed</returns>
-        /// <response code="200">Return post status changed</response>
-        /// <response code="400">Bad request</response>
+        /// <remarks>
+        /// Change post status. 
+        /// Staff can only change status of draft post to pending.
+        /// Manager can change status of pending post to approved or rejected.
+        /// </remarks>
         [HttpPatch("change-post-status/{postId}")]
-        [Authorize(Roles = nameof(UserRole.Manager))]
+        [Authorize(Roles = $"{nameof(UserRole.Manager)}, {nameof(UserRole.Staff)}")]
         [Produces("application/json")]
         [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status200OK)]
-        public async Task<IActionResult> ChangePostStatusAsync(string postId, PostStatus postStatus)
+        public async Task<IActionResult> ChangePostStatusAsync(string postId, ChangePostStatusRequest request)
         {
-            string? managerId = _tokenHelper.GetAccountIdFromToken(HttpContext);
-            if (string.IsNullOrWhiteSpace(managerId))
+            string? accountId = _tokenHelper.GetAccountIdFromToken(HttpContext);
+            if (string.IsNullOrWhiteSpace(accountId))
             {
                 return Unauthorized(new DefaultResponseModel<object>
                 {
@@ -230,7 +232,7 @@ namespace VietWay.API.Management.Controllers
                 });
             }
 
-            await _postService.ChangePostStatusAsync(postId, postStatus);
+            await _postService.ChangePostStatusAsync(postId, accountId, request.Status, request.Reason);
             return Ok(new DefaultResponseModel<string>
             {
                 Message = "Status change successfully",
