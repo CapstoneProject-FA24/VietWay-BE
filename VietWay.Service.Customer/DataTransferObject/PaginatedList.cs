@@ -1,5 +1,6 @@
-﻿namespace VietWay.API.Customer.ResponseModel
+﻿namespace VietWay.Service.Customer.DataTransferObject
 {
+
     public class PaginatedList<T>
     {
         public int Total { get; set; }

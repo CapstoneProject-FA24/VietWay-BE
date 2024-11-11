@@ -69,21 +69,13 @@ namespace VietWay.API.Customer.Controllers
         {
             int checkedPageSize = (null == pageSize || pageSize < 1) ? 10 : (int)pageSize;
             int checkedPageIndex = (null == pageIndex || pageIndex <1)? 1 : (int)pageIndex;
-
-            var (count,items) = await _tourTemplateService.GetTourTemplatesWithActiveToursAsync(
-                nameSearch,templateCategoryIds,provinceIds,numberOfDay,startDateFrom,
-                startDateTo,minPrice,maxPrice,checkedPageSize,checkedPageIndex);
             return Ok(new DefaultResponseModel<PaginatedList<TourTemplateWithTourInfoDTO>>()
             {
                 Message = "Get tour template successfully",
                 StatusCode = StatusCodes.Status200OK,
-                Data = new()
-                {
-                    Items = items,
-                    PageIndex = checkedPageIndex,
-                    PageSize = checkedPageSize,
-                    Total = count
-                }
+                Data = await _tourTemplateService.GetTourTemplatesWithActiveToursAsync(
+                nameSearch, templateCategoryIds, provinceIds, numberOfDay, startDateFrom,
+                startDateTo, minPrice, maxPrice, checkedPageSize, checkedPageIndex)
             });
         }
     }

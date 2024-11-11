@@ -136,7 +136,7 @@ namespace VietWay.Service.Customer.Implementation
                 }).SingleOrDefaultAsync();
         }
 
-        public async Task<(int count, List<BookingPreviewDTO> items)> GetCustomerBookingsAsync(string customerId,BookingStatus? bookingStatus, int pageSize, int pageIndex)
+        public async Task<PaginatedList<BookingPreviewDTO>> GetCustomerBookingsAsync(string customerId,BookingStatus? bookingStatus, int pageSize, int pageIndex)
         {
             IQueryable<Booking> query = _unitOfWork
                 .BookingRepository
@@ -166,7 +166,13 @@ namespace VietWay.Service.Customer.Implementation
                     Code = x.Tour.TourTemplate.Code,
                     StartDate = x.Tour!.StartDate!.Value
                 }).ToListAsync();
-            return (count, items);
+            return new PaginatedList<BookingPreviewDTO>
+            {
+                Total = count,
+                PageSize = pageSize,
+                PageIndex = pageIndex,
+                Items = items
+            };
         }
 
         private static int CalculateAge(DateTime birthDay, DateTime currentDate)

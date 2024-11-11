@@ -133,17 +133,9 @@ namespace VietWay.API.Customer.Controllers
             int checkedPageSize = (pageCount.HasValue && pageCount.Value > 0) ? pageCount.Value : 10;
             int checkedPageIndex = (pageIndex.HasValue && pageIndex.Value > 0) ? pageIndex.Value : 1;
 
-            var (count, items) = await _bookingService.GetCustomerBookingsAsync(customerId, bookingStatus, checkedPageSize, checkedPageIndex);
-
             return Ok(new DefaultResponseModel<PaginatedList<BookingPreviewDTO>>()
             {
-                Data = new()
-                {
-                    Total = count,
-                    PageSize = checkedPageSize,
-                    PageIndex = checkedPageIndex,
-                    Items = items
-                },
+                Data = await _bookingService.GetCustomerBookingsAsync(customerId, bookingStatus, checkedPageSize, checkedPageIndex),
                 Message = "Get customer bookings successfully",
                 StatusCode = StatusCodes.Status200OK
             });
@@ -214,18 +206,9 @@ namespace VietWay.API.Customer.Controllers
             }
             int checkedPageSize = (pageCount.HasValue && pageCount.Value > 0) ? pageCount.Value : 10;
             int checkedPageIndex = (pageIndex.HasValue && pageIndex.Value > 0) ? pageIndex.Value : 1;
-
-            var (count, items) = await _bookingPaymentService.GetBookingPaymentsAsync(customerId, bookingId, checkedPageSize, checkedPageIndex);
-
             return Ok(new DefaultResponseModel<PaginatedList<BookingPaymentDTO>>()
             {
-                Data = new()
-                {
-                    Total = count,
-                    PageSize = checkedPageSize,
-                    PageIndex = checkedPageIndex,
-                    Items = items
-                },
+                Data = await _bookingPaymentService.GetBookingPaymentsAsync(customerId, bookingId, checkedPageSize, checkedPageIndex),
                 Message = "Get booking payments successfully",
                 StatusCode = StatusCodes.Status200OK
             });
