@@ -153,7 +153,7 @@ namespace VietWay.API.Management.Controllers
         [Authorize(Roles = nameof(UserRole.Manager))]
         [Produces("application/json")]
         [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status200OK)]
-        public async Task<IActionResult> ChangeTourStatusAsync(string tourId, TourStatus tourStatus)
+        public async Task<IActionResult> ChangeTourStatusAsync(string tourId, ChangeTourStatusRequest request)
         {
             string? managerId = _tokenHelper.GetAccountIdFromToken(HttpContext);
             if (string.IsNullOrWhiteSpace(managerId))
@@ -165,7 +165,7 @@ namespace VietWay.API.Management.Controllers
                 });
             }
 
-            await _tourService.ChangeTourStatusAsync(tourId, tourStatus);
+            await _tourService.ChangeTourStatusAsync(tourId, managerId, request.Status, request.Reason);
             return Ok(new DefaultResponseModel<string>
             {
                 Message = "Status change successfully",

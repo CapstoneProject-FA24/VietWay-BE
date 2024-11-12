@@ -153,16 +153,30 @@ namespace VietWay.Service.Management.Implement
                 .ToListAsync();
         }
 
-        public async Task ChangeTourStatusAsync(string tourId, TourStatus tourStatus)
+        public async Task ChangeTourStatusAsync(string tourId, string accountId, TourStatus tourStatus, string? reason)
         {
-            Tour? tour = await _unitOfWork.TourRepository.Query()
-                .SingleOrDefaultAsync(x => x.TourId.Equals(tourId)) ??
-                throw new ResourceNotFoundException("Tour not found");
-
-            tour.Status = tourStatus;
             try
             {
                 await _unitOfWork.BeginTransactionAsync();
+                Account? account = await _unitOfWork.AccountRepository.Query()
+                    .SingleOrDefaultAsync(x => x.AccountId.Equals(accountId)) ??
+                    throw new ResourceNotFoundException("Account not found");
+                Tour? tour = await _unitOfWork.TourRepository.Query()
+                    .SingleOrDefaultAsync(x => x.TourId.Equals(tourId)) ??
+                    throw new ResourceNotFoundException("Tour not found");
+
+                bool isManagerAcceptedOrDenyPendingTour = (TourStatus.Accepted == tourStatus || TourStatus.Rejected == tourStatus) &&
+                    UserRole.Manager == account.Role && TourStatus.Pending == tour.Status;
+
+                if (isManagerAcceptedOrDenyPendingTour)
+                {
+                    tour.Status = tourStatus;
+                }
+                else
+                {
+                    throw new UnauthorizedException("You are not allowed to perform this action");
+                }
+
                 await _unitOfWork.TourRepository.UpdateAsync(tour);
                 await _unitOfWork.CommitTransactionAsync();
             }
