@@ -118,9 +118,13 @@ namespace VietWay.API.Management.Controllers
         [HttpPut("{provinceId}")]
         [Produces("application/json")]
         [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status200OK)]
-        public async Task<IActionResult> UpdateProvince(string provinceId)
+        public async Task<IActionResult> UpdateProvince(string provinceId, CreateProvinceRequest request)
         {
-            throw new NotImplementedException();
+            Province province = _mapper.Map<Province>(request);
+            province.ProvinceId = provinceId;
+
+            await _provinceService.UpdateProvinceAsync(province);
+            return Ok();
         }
 
         /// <summary>
