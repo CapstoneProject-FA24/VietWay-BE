@@ -6,7 +6,6 @@ namespace VietWay.Repository.UnitOfWork
     public interface IUnitOfWork : IDisposable, IAsyncDisposable
     {
         public IGenericRepository<Account> AccountRepository { get; }
-        public IGenericRepository<Admin> AdminRepository { get; }
         public IGenericRepository<Attraction> AttractionRepository { get; }
         public IGenericRepository<AttractionCategory> AttractionCategoryRepository { get; }
         public IGenericRepository<AttractionLike> AttractionLikeRepository { get; }

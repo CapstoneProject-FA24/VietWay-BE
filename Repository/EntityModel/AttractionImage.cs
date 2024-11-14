@@ -8,12 +8,15 @@ namespace VietWay.Repository.EntityModel
     {
         [Key]
         [StringLength(20)]
-        public required string ImageId { get; set; }
+        [Required]
+        public string? ImageId { get; set; }
         [ForeignKey(nameof(Attraction))]
         [StringLength(20)]
-        public required string AttractionId { get; set; }
+        [Required]
+        public string? AttractionId { get; set; }
         [StringLength(2048)]
-        public required string ImageUrl { get; set; }
+        [Required]
+        public string? ImageUrl { get; set; }
 
         public virtual Attraction? Attraction { get; set; }
     }

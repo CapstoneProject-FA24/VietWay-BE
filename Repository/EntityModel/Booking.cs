@@ -10,28 +10,38 @@ namespace VietWay.Repository.EntityModel
     {
         [Key]
         [StringLength(20)]
-        public required string BookingId { get; set; }
+        [Required]
+        public string? BookingId { get; set; }
         [ForeignKey(nameof(Tour))]
         [StringLength(20)]
-        public required string TourId { get; set; }
+        [Required]
+        public string? TourId { get; set; }
         [ForeignKey(nameof(CustomerInfo))]
         [StringLength(20)]
-        public required string CustomerId { get; set; }
+        [Required]
+        public string? CustomerId { get; set; }
         [Range(1, int.MaxValue)]
-        public required int NumberOfParticipants { get; set; }
+        [Required]
+        public int NumberOfParticipants { get; set; }
         [StringLength(100)]
-        public required string ContactFullName { get; set; }
+        [Required]
+        public string? ContactFullName { get; set; }
         [StringLength(320)]
-        public required string ContactEmail { get; set; }
+        [Required]
+        public string? ContactEmail { get; set; }
         [StringLength(10)]
-        public required string ContactPhoneNumber { get; set; }
+        [Required]
+        public string? ContactPhoneNumber { get; set; }
         [StringLength(255)]
         public string? ContactAddress { get; set; }
         [Range(0.01, 999999999999.99)]
         [Column(TypeName = "decimal(18,2)")]
-        public required decimal TotalPrice { get; set; }
-        public required BookingStatus Status { get; set; }
-        public required DateTime CreatedAt { get; set; }
+        [Required]
+        public decimal TotalPrice { get; set; }
+        [Required]
+        public BookingStatus Status { get; set; }
+        [Required]
+        public DateTime CreatedAt { get; set; }
         public string? Note { get; set; }
 
         public virtual Tour? Tour { get; set; }

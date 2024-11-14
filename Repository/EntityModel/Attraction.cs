@@ -8,7 +8,8 @@ namespace VietWay.Repository.EntityModel
     {
         [Key]
         [StringLength(20)]
-        public required string AttractionId { get; set; }
+        [Required]
+        public string? AttractionId { get; set; }
         [StringLength(255)]
         public string? Name { get; set; }
         [StringLength(255)]
@@ -26,8 +27,10 @@ namespace VietWay.Repository.EntityModel
         public string? AttractionCategoryId { get; set; }
         [StringLength(50)]
         public string? GooglePlaceId { get; set; }
-        public required AttractionStatus Status { get; set; }
-        public required DateTime CreatedAt { get; set; }
+        [Required]
+        public AttractionStatus Status { get; set; }
+        [Required]
+        public DateTime CreatedAt { get; set; }
 
         public virtual Province? Province { get; set; }
         public virtual AttractionCategory? AttractionCategory { get; set; }

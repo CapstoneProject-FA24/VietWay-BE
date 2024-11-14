@@ -8,7 +8,6 @@ namespace VietWay.Repository.DataAccessObject
     {
         #region DbSets
         public DbSet<Account> Account { get; set; }
-        public DbSet<Admin> Admin { get; set; }
         public DbSet<Attraction> Attraction { get; set; }
         public DbSet<AttractionCategory> AttractionCategory { get; set; }
         public DbSet<AttractionImage> AttractionImage { get; set; }

@@ -8,13 +8,19 @@ namespace VietWay.Repository.EntityModel
     {
         [Key]
         [StringLength(20)]
-        public required string ReviewId { get; set; }
+        [Required]
+        public string? ReviewId { get; set; }
         [ForeignKey(nameof(Booking))]
         [StringLength(20)]
-        public required string BookingId { get; set; }
-        public required int Rating { get; set; }
-        public required string Content { get; set; }
-        public required DateTime CreatedAt { get; set; }
+        [Required]
+        public string? BookingId { get; set; }
+        [Required]
+        public int Rating { get; set; }
+        [Required]
+        public string? Content { get; set; }
+        [Required]
+        public DateTime CreatedAt { get; set; }
+        [Required]
         public bool IsPublic { get; set; }
 
         public virtual Booking? Booking { get; set; }

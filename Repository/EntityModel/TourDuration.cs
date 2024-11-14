@@ -7,10 +7,14 @@ namespace VietWay.Repository.EntityModel
     {
         [Key]
         [StringLength(20)]
-        public required string DurationId { get; set; }
+        [Required]
+        public string? DurationId { get; set; }
         [StringLength(100)]
-        public required string DurationName { get; set; }
-        public required int NumberOfDay { get; set; }
-        public required DateTime CreatedAt { get; set; }
+        [Required]
+        public string? DurationName { get; set; }
+        [Required]
+        public int NumberOfDay { get; set; }
+        [Required]
+        public DateTime CreatedAt { get; set; }
     }
 }

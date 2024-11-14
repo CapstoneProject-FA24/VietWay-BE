@@ -11,10 +11,15 @@ namespace VietWay.Repository.EntityModel
     public class PostCategory : SoftDeleteEntity
     {
         [Key]
-        public required string PostCategoryId { get; set; }
-        public required string Name { get; set; }
-        public required string Description { get; set; }
-        public required DateTime CreatedAt { get; set; }
+        [Required]
+        [StringLength(20)]
+        public string? PostCategoryId { get; set; }
+        [Required]
+        public string? Name { get; set; }
+        [Required]
+        public string? Description { get; set; }
+        [Required]
+        public DateTime CreatedAt { get; set; }
 
         public virtual ICollection<Post>? Posts { get; set; }
     }

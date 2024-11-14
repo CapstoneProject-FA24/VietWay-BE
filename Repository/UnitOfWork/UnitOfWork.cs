@@ -12,7 +12,6 @@ namespace VietWay.Repository.UnitOfWork
         public IDbContextTransaction? transaction;
 
         private IGenericRepository<Account>? accountRepository;
-        private IGenericRepository<Admin>? adminRepository;
         private IGenericRepository<Attraction>? attractionRepository;
         private IGenericRepository<AttractionCategory>? attractionCategoryRepository;
         private IGenericRepository<AttractionLike>? attractionLikeRepository;
@@ -40,15 +39,6 @@ namespace VietWay.Repository.UnitOfWork
             {
                 accountRepository ??= new GenericRepository<Account>(_dbContext);
                 return accountRepository;
-            }
-        }
-
-        public IGenericRepository<Admin> AdminRepository
-        {
-            get
-            {
-                adminRepository ??= new GenericRepository<Admin>(_dbContext);
-                return adminRepository;
             }
         }
 

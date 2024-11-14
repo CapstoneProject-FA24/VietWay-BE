@@ -8,7 +8,8 @@ namespace VietWay.Repository.EntityModel
     {
         [Key]
         [StringLength(20)]
-        public required string TourTemplateId { get; set; }
+        [Required]
+        public string? TourTemplateId { get; set; }
         [StringLength(20)]
         public string? Code { get; set; }
         [StringLength(500)]
@@ -19,12 +20,14 @@ namespace VietWay.Repository.EntityModel
         [ForeignKey(nameof(TourCategory))]
         public string? TourCategoryId { get; set; }
         public string? Note { get; set; }
-        public required TourTemplateStatus Status { get; set; }
+        [Required]
+        public TourTemplateStatus Status { get; set; }
         [Column(TypeName = "decimal(18,2)")]
         public decimal? MinPrice { get; set; }
         [Column(TypeName = "decimal(18,2)")]
         public decimal? MaxPrice { get; set; }
-        public required DateTime CreatedAt { get; set; }
+        [Required]
+        public DateTime CreatedAt { get; set; }
 
         public virtual TourDuration? TourDuration { get; set; }
         public virtual TourCategory? TourCategory { get; set; }

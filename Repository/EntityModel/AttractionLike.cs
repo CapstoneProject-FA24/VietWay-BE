@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
@@ -12,9 +13,11 @@ namespace VietWay.Repository.EntityModel
     public class AttractionLike
     {
         [ForeignKey(nameof(Attraction))]
-        public required string AttractionId { get; set; }
+        [Required]
+        public string? AttractionId { get; set; }
         [ForeignKey(nameof(Customer))]
-        public required string CustomerId { get; set; }
+        [Required]
+        public string? CustomerId { get; set; }
 
         public virtual Attraction? Attraction { get; set; }
         public virtual Customer? Customer { get; set; }

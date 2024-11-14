@@ -65,7 +65,7 @@ namespace VietWay.Repository.Migrations
                 name: "PostCategory",
                 columns: table => new
                 {
-                    PostCategoryId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    PostCategoryId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
@@ -82,6 +82,7 @@ namespace VietWay.Repository.Migrations
                 {
                     ProvinceId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
                     Name = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     ImageUrl = table.Column<string>(type: "nvarchar(2048)", maxLength: 2048, nullable: false),
                     IsDeleted = table.Column<bool>(type: "bit", nullable: false)
@@ -119,24 +120,6 @@ namespace VietWay.Repository.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_TourDuration", x => x.DurationId);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Admin",
-                columns: table => new
-                {
-                    AdminId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
-                    FullName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Admin", x => x.AdminId);
-                    table.ForeignKey(
-                        name: "FK_Admin_Account_AdminId",
-                        column: x => x.AdminId,
-                        principalTable: "Account",
-                        principalColumn: "AccountId",
-                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -264,7 +247,7 @@ namespace VietWay.Repository.Migrations
                     Title = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     ImageUrl = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Content = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    PostCategoryId = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    PostCategoryId = table.Column<string>(type: "nvarchar(20)", nullable: true),
                     ProvinceId = table.Column<string>(type: "nvarchar(20)", nullable: true),
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
@@ -665,7 +648,7 @@ namespace VietWay.Repository.Migrations
                 {
                     TouristId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
                     BookingId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
-                    FullName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    FullName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     PhoneNumber = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: false),
                     Gender = table.Column<int>(type: "int", nullable: false),
                     DateOfBirth = table.Column<DateTime>(type: "datetime2", nullable: false),
@@ -847,9 +830,6 @@ namespace VietWay.Repository.Migrations
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropTable(
-                name: "Admin");
-
             migrationBuilder.DropTable(
                 name: "AttractionImage");
 

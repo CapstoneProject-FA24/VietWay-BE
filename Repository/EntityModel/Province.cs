@@ -8,12 +8,18 @@ namespace VietWay.Repository.EntityModel
     {
         [Key]
         [StringLength(20)]
-        public required string ProvinceId { get; set; }
+        [Required]
+        public string? ProvinceId { get; set; }
         [StringLength(50)]
-        public required string Name { get; set; }
-        public required DateTime CreatedAt { get; set; }
+        [Required]
+        public string? Name { get; set; }
+        [Required]
+        public string? Description { get; set; }
+        [Required]
+        public DateTime CreatedAt { get; set; }
         [StringLength(2048)]
-        public required string ImageUrl { get; set; }
+        [Required]
+        public string? ImageUrl { get; set; }
 
         public virtual ICollection<Attraction>? Attractions { get; set; }
         public virtual ICollection<Post>? Posts { get; set; }

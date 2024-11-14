@@ -11,15 +11,22 @@ namespace VietWay.Repository.EntityModel
     public class EntityHistory
     {
         [Key]
-        public required string Id { get; set; }
-        public required EntityType EntityType { get; set; }
+        [Required]
+        public string? Id { get; set; }
+        [Required]
+        public EntityType EntityType { get; set; }
         [StringLength(20)]
-        public required string EntityId { get; set; }
+        [Required]
+        public string? EntityId { get; set; }
         [StringLength(20)]
-        public required string ModifiedBy { get; set; }
+        [Required]
+        public string? ModifiedBy { get; set; }
+        [Required]
         public UserRole ModifierRole { get; set; }
         public string? Reason { get; set; }
-        public required EntityModifyAction Action { get; set; }
+        [Required]
+        public EntityModifyAction Action { get; set; }
+        [Required]
         public DateTime Timestamp { get; set; }
     }
 }

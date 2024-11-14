@@ -8,10 +8,12 @@ namespace VietWay.Repository.EntityModel
     {
         [Key]
         [StringLength(20)]
-        public required string TourId { get; set; }
+        [Required]
+        public string? TourId { get; set; }
         [ForeignKey(nameof(TourTemplate))]
         [StringLength(20)]
-        public required string TourTemplateId { get; set; }
+        [Required]
+        public string? TourTemplateId { get; set; }
         [StringLength(255)]
         public string? StartLocation { get; set; }
         public DateTime? StartDate { get; set; }
@@ -21,9 +23,12 @@ namespace VietWay.Repository.EntityModel
         public DateTime? RegisterCloseDate { get; set; }
         public int? MaxParticipant { get; set; }
         public int? MinParticipant { get; set; }
+        [Required]
         public int CurrentParticipant { get; set; }
-        public required TourStatus Status { get; set; }
-        public required DateTime CreatedAt { get; set; }
+        [Required]
+        public TourStatus Status { get; set; }
+        [Required]
+        public DateTime CreatedAt { get; set; }
 
         public virtual TourTemplate? TourTemplate { get; set; }
         public virtual ICollection<Booking>? TourBookings { get; set; }

@@ -9,16 +9,19 @@ namespace VietWay.Repository.EntityModel
     {
         [Key]
         [StringLength(20)]
-        public required string AccountId { get; set; }
+        [Required]
+        public string? AccountId { get; set; }
         [StringLength(10)]
-        //Phone number must be unique
-        public required string PhoneNumber { get; set; }
+        [Required]
+        public string? PhoneNumber { get; set; }
         [StringLength(320)]
-        //Email must be unique
         public string? Email { get; set; }
         [StringLength(60)]
-        public required string Password { get; set; }
-        public required DateTime CreatedAt { get; set; }
-        public required UserRole Role { get; set; }
+        [Required]
+        public string? Password { get; set; }
+        [Required]
+        public DateTime CreatedAt { get; set; }
+        [Required]
+        public UserRole Role { get; set; }
     }
 }
