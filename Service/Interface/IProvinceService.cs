@@ -5,7 +5,10 @@ namespace VietWay.Service.Management.Interface
 {
     public interface IProvinceService
     {
-        public Task<List<ProvincePreviewDTO>> GetAllProvinces();
+        public Task<(int totalCount, List<ProvincePreviewDTO> items)> GetAllProvinces(
+            string? nameSearch,
+            int pageSize,
+            int pageIndex);
         public Task<Province?> GetProvinceById(string id);
         public Task<(int count, List<ProvinceDetailDTO>)> GetAllProvinceDetails(string? nameSearch, string? zoneId, int pageIndex, int pageSize);
         public Task<string> CreateProvinceAsync(Province province);

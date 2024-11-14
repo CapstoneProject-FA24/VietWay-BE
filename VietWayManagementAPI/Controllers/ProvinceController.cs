@@ -32,12 +32,27 @@ namespace VietWay.API.Management.Controllers
         [HttpGet]
         [Produces("application/json")]
         [ProducesResponseType<DefaultResponseModel<List<ProvincePreviewDTO>>>(StatusCodes.Status200OK)]
-        public async Task<IActionResult> GetAllProvinces()
+        public async Task<IActionResult> GetAllProvinces(
+            string? nameSearch,
+            int? pageSize,
+            int? pageIndex)
         {
-            return Ok(new DefaultResponseModel<List<ProvincePreviewDTO>>() 
+            int checkedPageSize = pageSize ?? 10;
+            int checkedPageIndex = pageIndex ?? 1;
+
+            (int totalCount, List<ProvincePreviewDTO> items) = await _provinceService.GetAllProvinces(
+                nameSearch, checkedPageSize, checkedPageIndex);
+
+            return Ok(new DefaultResponseModel<PaginatedList<ProvincePreviewDTO>>() 
             { 
                 Message= "Get all province successfully",
-                Data = await _provinceService.GetAllProvinces(),
+                Data = new PaginatedList<ProvincePreviewDTO>
+                {
+                    Items = items,
+                    PageSize = checkedPageSize,
+                    PageIndex = checkedPageIndex,
+                    Total = totalCount
+                },
                 StatusCode = StatusCodes.Status200OK
             });
         }

@@ -18,18 +18,34 @@ namespace VietWay.Service.Management.Implement
         private readonly IUnitOfWork _unitOfWork = unitOfWork;
         private readonly ITimeZoneHelper _timeZoneHelper = timeZoneHelper;
         private readonly IIdGenerator _idGenerator = idGenerator;
-        public async Task<List<ProvincePreviewDTO>> GetAllProvinces()
+        public async Task<(int totalCount , List<ProvincePreviewDTO> items)> GetAllProvinces(
+            string? nameSearch,
+            int pageSize,
+            int pageIndex)
         {
-            return await _unitOfWork
+            var query = _unitOfWork
                 .ProvinceRepository
                 .Query()
+                .Where(x => x.IsDeleted == false);
+            if (!string.IsNullOrEmpty(nameSearch))
+            {
+                query = query.Where(x => x.Name.Contains(nameSearch));
+            }
+
+            int count = await query.CountAsync();
+            List<ProvincePreviewDTO> items = await query
+                .OrderByDescending(x => x.CreatedAt)
                 .Select(x => new ProvincePreviewDTO
                 {
                     ProvinceId = x.ProvinceId,
                     ProvinceName = x.Name,
                     ImageUrl = x.ImageUrl
                 })
+                .Skip((pageIndex - 1) * pageSize)
+                .Take(pageSize)
                 .ToListAsync();
+
+            return (count, items);
         }
 
         public async Task<Province?> GetProvinceById(string id)
