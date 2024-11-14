@@ -13,7 +13,7 @@ namespace VietWay.Repository.EntityModel
         public required string Name { get; set; }
         public required DateTime CreatedAt { get; set; }
         [StringLength(2048)]
-        public required string ImageUrl { get; set; }
+        public string ImageUrl { get; set; }
 
         public virtual ICollection<Attraction>? Attractions { get; set; }
         public virtual ICollection<Post>? Posts { get; set; }

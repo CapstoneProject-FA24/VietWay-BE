@@ -108,7 +108,7 @@ namespace VietWay.API.Management.Controllers
             });
         }
         /// <summary>
-        /// [Manager] {WIP} Update current province
+        /// [Manager]Update current province
         /// </summary>
         /// <param name="provinceId"></param>
         /// <returns> Province update message</returns>

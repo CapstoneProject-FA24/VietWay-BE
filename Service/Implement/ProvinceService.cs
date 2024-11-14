@@ -76,11 +76,10 @@ namespace VietWay.Service.Management.Implement
 
         public async Task<string> CreateProvinceAsync(Province province)
         {
-            province.CreatedAt = DateTime.Now;
-            province.IsDeleted = false;
             try
             {
                 province.ProvinceId ??= _idGenerator.GenerateId();
+                province.CreatedAt = DateTime.Now;
                 await _unitOfWork.BeginTransactionAsync();
                 await _unitOfWork.ProvinceRepository.CreateAsync(province);
                 await _unitOfWork.CommitTransactionAsync();

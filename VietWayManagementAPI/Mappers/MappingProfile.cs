@@ -138,6 +138,10 @@ namespace VietWay.API.Management.Mappers
             CreateMap<DeactivateCustomerAccountRequest, Customer>()
                 .ForMember(dest => dest.IsDeleted, opt => opt.MapFrom(src => true))
                 .ForMember(dest => dest.CustomerId, opt => opt.MapFrom(src => ""));
+
+            CreateMap<CreateProvinceRequest, Province>()
+                .ForMember(dest => dest.IsDeleted, opt => opt.MapFrom(src => false))
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name));
         }
     }
 }
