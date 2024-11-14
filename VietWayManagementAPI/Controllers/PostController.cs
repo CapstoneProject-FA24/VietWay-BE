@@ -194,6 +194,18 @@ namespace VietWay.API.Management.Controllers
                 StatusCode = StatusCodes.Status200OK
             });
         }
+        [HttpPost("{postId}/facebook")]
+        [Produces("application/json")]
+        [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status200OK)]
+        public async Task<IActionResult> UploadPostFacebookAsync(string postId)
+        {
+            await _publishPostService.PublishPostToFacebookPageAsync(postId);
+            return Ok(new DefaultResponseModel<object>
+            {
+                Message = "Post facebook successfully",
+                StatusCode = StatusCodes.Status200OK
+            });
+        }
         [HttpGet("{postId}/facebook/reactions")]
         [Produces("application/json")]
         [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status200OK)]

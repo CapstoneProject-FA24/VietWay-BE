@@ -762,9 +762,10 @@ namespace VietWay.Repository.Migrations
                 column: "AttractionId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Booking_CustomerId",
+                name: "IX_Booking_CustomerId_TourId",
                 table: "Booking",
-                column: "CustomerId");
+                columns: new[] { "CustomerId", "TourId" },
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_Booking_TourId",
