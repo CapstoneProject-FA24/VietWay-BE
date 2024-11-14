@@ -147,9 +147,9 @@ namespace VietWay.API.Customer
             builder.Services.AddScoped<ITokenHelper, TokenHelper>();
             #endregion
             builder.Services.AddSingleton<IIdGenerator, SnowflakeIdGenerator>();
-            /*builder.Services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer
+            builder.Services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer
                 .Connect(Environment.GetEnvironmentVariable("REDIS_CONNECTION_STRING") ??
-                    throw new Exception("REDIS_CONNECTION_STRING is not set in environment variables")));*/
+                    throw new Exception("REDIS_CONNECTION_STRING is not set in environment variables")));
             var app = builder.Build();
             app.UseStaticFiles();
             #region app.UseSwagger(...);
