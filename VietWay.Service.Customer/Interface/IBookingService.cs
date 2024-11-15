@@ -10,5 +10,6 @@ namespace VietWay.Service.Customer.Interface
         public Task CancelBookingAsync(string customerId, string bookingId);
         public Task<BookingDetailDTO?> GetBookingDetailAsync(string? customerId, string bookingId);
         public Task<PaginatedList<BookingPreviewDTO>> GetCustomerBookingsAsync(string customerId,BookingStatus? bookingStatus, int pageSize, int pageIndex);
+        public Task ReviewTourAsync(string customerId, TourReview tourReview);
     }
 }

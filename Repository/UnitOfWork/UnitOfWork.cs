@@ -31,6 +31,7 @@ namespace VietWay.Repository.UnitOfWork
         private IGenericRepository<Tour>? tourRepository;
         private IGenericRepository<TourCategory>? tourCategoryRepository;
         private IGenericRepository<TourDuration>? tourDurationRepository;
+        private IGenericRepository<TourReview>? tourReviewRepository;
         private IGenericRepository<TourTemplate>? tourTemplateRepository;
 
         public IGenericRepository<Account> AccountRepository
@@ -210,6 +211,15 @@ namespace VietWay.Repository.UnitOfWork
             {
                 tourDurationRepository ??= new GenericRepository<TourDuration>(_dbContext);
                 return tourDurationRepository;
+            }
+        }
+
+        public IGenericRepository<TourReview> TourReviewRepository
+        {
+            get
+            {
+                tourReviewRepository ??= new GenericRepository<TourReview>(_dbContext);
+                return tourReviewRepository;
             }
         }
 
