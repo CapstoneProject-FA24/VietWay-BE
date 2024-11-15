@@ -103,7 +103,7 @@ namespace VietWay.API.Management.Controllers
         [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status200OK)]
         public async Task<IActionResult> CreateProvince(CreateProvinceRequest request)
         {
-            string? managerId = _tokenHelper.GetAccountIdFromToken(HttpContext) ?? "2";
+            string? managerId = _tokenHelper.GetAccountIdFromToken(HttpContext);
             if (string.IsNullOrWhiteSpace(managerId))
             {
                 return Unauthorized(new DefaultResponseModel<object>
@@ -172,7 +172,7 @@ namespace VietWay.API.Management.Controllers
                     StatusCode = StatusCodes.Status401Unauthorized
                 });
             }
-            await _provinceService.UpdateProvinceImageAsync(provinceId, managerId, newImage);
+            await _provinceService.UpdateProvinceImageAsync(provinceId, newImage);
             return Ok(new DefaultResponseModel<string>()
             {
                 Message = "Success",

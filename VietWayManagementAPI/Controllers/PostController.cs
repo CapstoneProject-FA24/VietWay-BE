@@ -239,5 +239,29 @@ namespace VietWay.API.Management.Controllers
                 StatusCode = StatusCodes.Status200OK,
             });
         }
+
+        [HttpPatch("{postId}/images")]
+        [Authorize(Roles = nameof(UserRole.Staff))]
+        [Produces("application/json")]
+        public async Task<IActionResult> UpdatePostImageAsync(string postId, IFormFile? newImage)
+        {
+            string? staffId = _tokenHelper.GetAccountIdFromToken(HttpContext);
+            if (staffId == null)
+            {
+                return Unauthorized(new DefaultResponseModel<string>()
+                {
+                    Message = "Unauthorized",
+                    Data = null,
+                    StatusCode = StatusCodes.Status401Unauthorized
+                });
+            }
+            await _postService.UpdatePostImageAsync(postId, newImage);
+            return Ok(new DefaultResponseModel<string>()
+            {
+                Message = "Success",
+                Data = null,
+                StatusCode = StatusCodes.Status200OK
+            });
+        }
     }
 }
