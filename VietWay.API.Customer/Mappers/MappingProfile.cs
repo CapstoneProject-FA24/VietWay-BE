@@ -46,7 +46,8 @@ namespace VietWay.API.Customer.Mappers
                     CreatedAt = DateTime.MinValue,
                     IsDeleted = false,
                 }));
-            CreateMap<ReviewTourRequest, TourReview>();
+            CreateMap<ReviewTourRequest, TourReview>()
+                .ForMember(x=>x.Review,opt=>opt.MapFrom(src=>src.Content));
         }
     }
 }
