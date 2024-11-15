@@ -31,7 +31,7 @@ namespace VietWay.API.Customer.Controllers
         [HttpGet]
         [Produces("application/json")]
         [ProducesResponseType(StatusCodes.Status200OK,Type = typeof(DefaultResponseModel<PaginatedList<AttractionPreviewDTO>>))]
-        public async Task<IActionResult> GetAttractions(string? nameSearch, [FromQuery] List<string>? provinceIds, 
+        public async Task<IActionResult> GetAttractionsAsync(string? nameSearch, [FromQuery] List<string>? provinceIds, 
             [FromQuery] List<string>? attractionTypeIds,int? pageSize,int? pageIndex)
         {
             int checkedPageSize = pageSize ?? 10;

@@ -71,7 +71,7 @@ namespace VietWay.Service.Customer.Implementation
             }
             if (hasReviewContent.HasValue && true == hasReviewContent.Value)
             {
-                query = query.Where(x => null != hasReviewContent);
+                query = query.Where(x => null != x.Review);
             }
             if (isOrderedByLikeNumber)
             {

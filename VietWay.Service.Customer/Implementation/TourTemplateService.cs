@@ -111,10 +111,10 @@ namespace VietWay.Service.Customer.Implementation
                         Url = y.ImageUrl
                     }).ToList(),
                     Note = x.Note,
-                    Provinces = x.TourTemplateProvinces.Select(y => new ProvincePreviewDTO() 
-                    { 
-                        ProvinceId = y.ProvinceId, 
-                        Name = y.Province.Name 
+                    Provinces = x.TourTemplateProvinces.Select(y => new ProvincePreviewDTO()
+                    {
+                        ProvinceId = y.ProvinceId,
+                        Name = y.Province.Name
                     }).ToList(),
                     Schedules = x.TourTemplateSchedules.Select(y => new ScheduleDTO()
                     {
@@ -122,11 +122,11 @@ namespace VietWay.Service.Customer.Implementation
                         {
                             AttractionId = z.AttractionId,
                             Name = z.Attraction!.Name,
-                            ImageUrl = z.Attraction!.AttractionImages!.Select(x=>x.ImageUrl).FirstOrDefault(),
+                            ImageUrl = z.Attraction!.AttractionImages!.Select(x => x.ImageUrl).FirstOrDefault(),
                             Address = z.Attraction.Address,
                             AttractionCategory = z.Attraction!.AttractionCategory!.Name,
                             Province = z.Attraction!.Province!.Name,
-                            AverageRating = z.Attraction!.AttractionReviews!.Where(r => false == r.IsDeleted).Average(r=>r.Rating),
+                            AverageRating = z.Attraction!.AttractionReviews!.Where(r => false == r.IsDeleted).Average(r => r.Rating),
                         }).ToList(),
                         Description = y.Description,
                         Title = y.Title,
@@ -139,7 +139,15 @@ namespace VietWay.Service.Customer.Implementation
                         Description = x.Description
                     },
                     TourName = x.TourName,
-                    TourTemplateId = x.TourTemplateId
+                    TourTemplateId = x.TourTemplateId,
+                    AverageRating = x.Tours.Select(x => x.TourBookings.Select(x => x.TourReview).Average(x => x.Rating)).Average(),
+                    RatingCount = x.Tours.SelectMany(x=>x.TourBookings.Select(x => x.TourReview))
+                        .GroupBy(x => x.Rating)
+                        .Select(x => new RatingDTO()
+                        {
+                            Rating = x.Key,
+                            Count = x.Count()
+                        }).ToList()
                 }).SingleOrDefaultAsync();
         }
 

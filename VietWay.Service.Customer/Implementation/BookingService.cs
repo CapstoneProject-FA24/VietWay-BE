@@ -21,8 +21,6 @@ namespace VietWay.Service.Customer.Implementation
         private readonly IBackgroundJobClient _backgroundJobClient = backgroundJobClient;
         private readonly int _pendingBookingExpireAfterMinutes = int.Parse(Environment.GetEnvironmentVariable("PENDING_BOOKING_EXPIRE_AFTER_MINUTES")
             ?? throw new Exception("PENDING_BOOKING_EXPIRE_AFTER_MINUTES is not set in environment variables"));
-        private readonly int _reviewTourExpireAfterDays = int.Parse(Environment.GetEnvironmentVariable("REVIEW_TOUR_EXPIRE_AFTER_DAYS")
-            ?? throw new Exception("REVIEW_TOUR_EXPIRE_AFTER_DAYS is not set in environment variables"));
 
         public async Task<string> BookTourAsync(Booking booking)
         {
@@ -190,31 +188,6 @@ namespace VietWay.Service.Customer.Implementation
                 age--;
             }
             return age;
-        }
-
-        public async Task ReviewTourAsync(string customerId, TourReview tourReview)
-        {
-            try
-            {
-                await _unitOfWork.BeginTransactionAsync();
-                Booking booking = await _unitOfWork.BookingRepository.Query()
-                    .Include(x => x.Tour.TourTemplate.TourDuration)
-                    .SingleOrDefaultAsync(x => x.BookingId == tourReview.BookingId && x.CustomerId == customerId && x.Status == BookingStatus.Completed)
-                    ?? throw new ResourceNotFoundException("Booking not found");
-                if (booking.Tour!.StartDate!.Value.AddDays(booking.Tour!.TourTemplate!.TourDuration!.NumberOfDay).AddDays(_reviewTourExpireAfterDays) < _timeZoneHelper.GetUTC7Now())
-                {
-                    throw new InvalidOperationException("Review time is expired");
-                }
-                tourReview.ReviewId = _idGenerator.GenerateId();
-                tourReview.CreatedAt = _timeZoneHelper.GetUTC7Now();
-                await _unitOfWork.TourReviewRepository.CreateAsync(tourReview);
-                await _unitOfWork.CommitTransactionAsync();
-            } 
-            catch
-            {
-                await _unitOfWork.RollbackTransactionAsync();
-                throw;
-            }
         }
     }
 }

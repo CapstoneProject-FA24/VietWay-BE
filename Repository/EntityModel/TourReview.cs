@@ -17,7 +17,7 @@ namespace VietWay.Repository.EntityModel
         [Required]
         public int Rating { get; set; }
         [Required]
-        public string? Content { get; set; }
+        public string? Review { get; set; }
         [Required]
         public DateTime CreatedAt { get; set; }
         [Required]

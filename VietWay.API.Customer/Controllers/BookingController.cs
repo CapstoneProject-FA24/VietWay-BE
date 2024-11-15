@@ -18,13 +18,15 @@ namespace VietWay.API.Customer.Controllers
     [Route("api/bookings")]
     [ApiController]
     public class BookingController(IBookingService bookingService, ITourService tourService,
-        IMapper mapper, ITokenHelper tokenHelper, IBookingPaymentService bookingPaymentService) : ControllerBase
+        IMapper mapper, ITokenHelper tokenHelper, IBookingPaymentService bookingPaymentService,
+        ITourReviewService tourReviewService) : ControllerBase
     {
         private readonly IBookingService _bookingService = bookingService;
         private readonly ITourService _tourService = tourService;
         private readonly IMapper _mapper = mapper;
         private readonly ITokenHelper _tokenHelper = tokenHelper;
         private readonly IBookingPaymentService _bookingPaymentService = bookingPaymentService;
+        private readonly ITourReviewService _tourReviewService = tourReviewService;
 
         /// <summary>
         /// ⚠️🔐[Customer] Book a tour
@@ -261,7 +263,7 @@ namespace VietWay.API.Customer.Controllers
             }
             TourReview tourReview = _mapper.Map<TourReview>(reviewTourRequest);
             tourReview.BookingId = bookingId;
-            await _bookingService.ReviewTourAsync(customerId, tourReview);
+            await _tourReviewService.CreateTourReviewAsync(customerId, tourReview);
             return Ok(new DefaultResponseModel<object>()
             {
                 Message = "Review successfully",

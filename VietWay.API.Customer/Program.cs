@@ -141,6 +141,7 @@ namespace VietWay.API.Customer
             builder.Services.AddScoped<ITourService, TourService>();
             builder.Services.AddScoped<ITourTemplateService, TourTemplateService>();
             builder.Services.AddScoped<IVnPayService, VnPayService>();
+            builder.Services.AddScoped<ITourReviewService, TourReviewService>();
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
             builder.Services.AddScoped<ITimeZoneHelper, TimeZoneHelper>();
             builder.Services.AddScoped<IHashHelper, BCryptHashHelper>();
