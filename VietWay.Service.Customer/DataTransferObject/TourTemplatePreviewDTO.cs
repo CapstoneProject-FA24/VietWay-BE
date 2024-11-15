@@ -10,5 +10,6 @@
         public required List<string> Provinces { get; set; }
         public required decimal Price { get; set; } 
         public required string ImageUrl { get; set; }
+        public double? AverageRating { get; set; } 
     }
 }

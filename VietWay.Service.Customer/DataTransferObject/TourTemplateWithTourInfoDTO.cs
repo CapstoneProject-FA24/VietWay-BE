@@ -17,5 +17,6 @@ namespace VietWay.Service.Customer.DataTransferObject
         public required string ImageUrl { get; set; }
         public required decimal MinPrice { get; set; }
         public required List<DateTime> StartDate { get; set; }
+        public double? AverageRating { get; set; }
     }
 }
