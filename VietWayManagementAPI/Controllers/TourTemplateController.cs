@@ -122,12 +122,12 @@ namespace VietWay.API.Management.Controllers
                 };
                 return BadRequest(errorResponse);
             }
-            tourTemplate.Code = request.Code ?? "";
-            tourTemplate.TourName = request.TourName ?? "";
-            tourTemplate.Description = request.Description ?? "";
+            tourTemplate.Code = request.Code;
+            tourTemplate.TourName = request.TourName;
+            tourTemplate.Description = request.Description;
             tourTemplate.DurationId = request.DurationId;
             tourTemplate.TourCategoryId = request.TourCategoryId;
-            tourTemplate.Note = request.Note ?? "";
+            tourTemplate.Note = request.Note;
             tourTemplate.TourTemplateProvinces?.Clear();
             foreach (string provinceId in request.ProvinceIds)
             {
@@ -145,8 +145,8 @@ namespace VietWay.API.Management.Controllers
                 {
                     TourTemplateId = tourTemplateId,
                     DayNumber = schedule.DayNumber,
-                    Description = schedule.Description ?? "",
-                    Title = schedule.Title ?? "",
+                    Description = schedule.Description,
+                    Title = schedule.Title,
                     AttractionSchedules = schedule.AttractionIds.Select(x => new AttractionSchedule()
                     {
                         AttractionId = x,

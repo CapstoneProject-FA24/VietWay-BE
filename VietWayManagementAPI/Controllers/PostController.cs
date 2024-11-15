@@ -103,7 +103,7 @@ namespace VietWay.API.Management.Controllers
         [ProducesResponseType<DefaultResponseModel<string>>(StatusCodes.Status200OK)]
         public async Task<IActionResult> CreatePostAsync(CreatePostRequest request)
         {
-            string? staffId = _tokenHelper.GetAccountIdFromToken(HttpContext) ?? "1";
+            string? staffId = _tokenHelper.GetAccountIdFromToken(HttpContext);
             if (string.IsNullOrWhiteSpace(staffId))
             {
                 return Unauthorized(new DefaultResponseModel<object>

@@ -52,10 +52,10 @@ namespace VietWay.API.Management.Mappers
                 .ForMember(dest => dest.Duration, opt => opt.MapFrom(src => src.TourDuration.DurationName))
                 .ForMember(dest => dest.TourCategory, opt => opt.MapFrom(src => src.TourCategory.Name));
             CreateMap<CreateAttractionRequest, Attraction>()
-                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name ?? ""))
-                .ForMember(dest => dest.Address, opt => opt.MapFrom(src => src.Address ?? ""))
-                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description ?? ""))
-                .ForMember(dest => dest.ContactInfo, opt => opt.MapFrom(src => src.ContactInfo ?? ""))
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+                .ForMember(dest => dest.Address, opt => opt.MapFrom(src => src.Address))
+                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
+                .ForMember(dest => dest.ContactInfo, opt => opt.MapFrom(src => src.ContactInfo))
                 .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.IsDraft ? AttractionStatus.Draft : AttractionStatus.Pending));
             CreateMap<TourCategory, TourCategoryPreview>()
                 .ForMember(dest => dest.TourCategoryName, opt => opt.MapFrom(src => src.Name));
@@ -64,10 +64,10 @@ namespace VietWay.API.Management.Mappers
             CreateMap<AttractionCategory, AttractionCategoryDTO>();
             CreateMap<Tour, TourPreview>();
             CreateMap<CreateTourTemplateRequest, TourTemplate>()
-                .ForMember(dest => dest.TourName, opt => opt.MapFrom(src => src.TourName ?? ""))
-                .ForMember(dest => dest.Code, opt => opt.MapFrom(src => src.Code ?? ""))
-                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description ?? ""))
-                .ForMember(dest => dest.Note, opt => opt.MapFrom(src => src.Note ?? ""))
+                .ForMember(dest => dest.TourName, opt => opt.MapFrom(src => src.TourName))
+                .ForMember(dest => dest.Code, opt => opt.MapFrom(src => src.Code))
+                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
+                .ForMember(dest => dest.Note, opt => opt.MapFrom(src => src.Note))
                 .ForMember(dest => dest.TourTemplateProvinces, opt => opt.MapFrom(src => (src.ProvinceIds ?? new())
                     .Select(x => new TourTemplateProvince()
                     {
@@ -80,8 +80,8 @@ namespace VietWay.API.Management.Mappers
                     {
                         TourTemplateId = "",
                         DayNumber = x.DayNumber,
-                        Title = x.Title ?? "",
-                        Description = x.Description ?? "",
+                        Title = x.Title,
+                        Description = x.Description,
                         AttractionSchedules = (x.AttractionIds ?? new()).Select(y => new AttractionSchedule()
                         {
                             AttractionId = y,

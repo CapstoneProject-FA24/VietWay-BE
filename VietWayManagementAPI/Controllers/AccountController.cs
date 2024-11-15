@@ -64,7 +64,7 @@ namespace VietWay.API.Management.Controllers
         [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> CreateStaffAccountAsync([FromBody] CreateAccountRequest request)
         {
-            string? managerId = _tokenHelper.GetAccountIdFromToken(HttpContext) ?? "2";
+            string? managerId = _tokenHelper.GetAccountIdFromToken(HttpContext);
             if (string.IsNullOrWhiteSpace(managerId))
             {
                 return Unauthorized(new DefaultResponseModel<object>
@@ -92,7 +92,7 @@ namespace VietWay.API.Management.Controllers
         [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> CreateManagerAccountAsync([FromBody] CreateManagerAccountRequest request)
         {
-            string? adminId = _tokenHelper.GetAccountIdFromToken(HttpContext) ?? "3";
+            string? adminId = _tokenHelper.GetAccountIdFromToken(HttpContext);
             if (string.IsNullOrWhiteSpace(adminId))
             {
                 return Unauthorized(new DefaultResponseModel<object>
