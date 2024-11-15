@@ -59,12 +59,6 @@ namespace VietWay.Service.Customer.Implementation
             }
             int count = await query.CountAsync();
             List<TourTemplateWithTourInfoDTO> items = await query
-                .Include(x => x.TourTemplateImages)
-                .Include(x => x.TourTemplateProvinces)
-                    .ThenInclude(x => x.Province)
-                .Include(x => x.TourCategory)
-                .Include(x => x.TourDuration)
-                .Include(x => x.Tours)
                 .OrderBy(x => x.TourCategoryId)
                 .Skip((pageIndex - 1) * pageSize)
                 .Take(pageSize)
@@ -140,7 +134,7 @@ namespace VietWay.Service.Customer.Implementation
                     },
                     TourName = x.TourName,
                     TourTemplateId = x.TourTemplateId,
-                    AverageRating = x.Tours.Select(x => x.TourBookings.Select(x => x.TourReview).Average(x => x.Rating)).Average(),
+                    AverageRating = x.Tours.SelectMany(x => x.TourBookings).Select(x => x.TourReview).Average(x => x.Rating),
                     RatingCount = x.Tours.SelectMany(x=>x.TourBookings)
                         .Select(x=>x.TourReview)
                         .GroupBy(x => x.Rating)
