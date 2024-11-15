@@ -49,6 +49,20 @@ namespace VietWay.Service.Customer.Implementation
 
         }
 
+        public async Task<TourReviewDTO?> GetTourReviewByBookingIdAsync(string customerId, string bookingId)
+        {
+            return await _unitOfWork.TourReviewRepository.Query()
+                .Where(x => x.Booking.CustomerId == customerId && x.Booking.BookingId == bookingId)
+                .Select(Booking => new TourReviewDTO
+                {
+                    CreatedAt = Booking.CreatedAt,
+                    Rating = Booking.Rating,
+                    ReviewId = Booking.ReviewId,
+                    Review = Booking.Review,
+                    Reviewer = Booking.Booking.CustomerInfo.FullName,
+                }).SingleOrDefaultAsync();
+        }
+
         public async Task<PaginatedList<TourReviewDTO>> GetTourReviewsAsync(string tourTemplateId, List<int>? ratingValue, bool? hasReviewContent, int pageSize, int pageIndex)
         {
             IQueryable<TourReview> query = _unitOfWork.TourReviewRepository.Query()

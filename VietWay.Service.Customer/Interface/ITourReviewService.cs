@@ -13,5 +13,6 @@ namespace VietWay.Service.Customer.Interface
         public Task<PaginatedList<TourReviewDTO>> GetTourReviewsAsync(string tourTemplateId, List<int>? ratingValue,
             bool? hasReviewContent, int pageSize, int pageIndex);
         public Task CreateTourReviewAsync(string customerId, TourReview tourReview);
+        public Task<TourReviewDTO?> GetTourReviewByBookingIdAsync(string customerId, string bookingId);
     }
 }

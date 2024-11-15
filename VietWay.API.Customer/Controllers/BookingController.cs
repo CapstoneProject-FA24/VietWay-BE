@@ -270,5 +270,39 @@ namespace VietWay.API.Customer.Controllers
                 StatusCode = StatusCodes.Status200OK
             });
         }
+        /// <summary>
+        /// ✅🔐[Customer] Get review by booking ID
+        /// </summary>
+        [HttpGet("{bookingId}/review")]
+        [Authorize(Roles = nameof(UserRole.Customer))]
+        [Produces("application/json")]
+        [ProducesResponseType<DefaultResponseModel<TourReviewDTO>>(StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetReviewByBookingId(string bookingId)
+        {
+            string? customerId = _tokenHelper.GetAccountIdFromToken(HttpContext);
+            if (customerId == null)
+            {
+                return Unauthorized(new DefaultResponseModel<object>()
+                {
+                    Message = "Unauthorized",
+                    StatusCode = StatusCodes.Status401Unauthorized
+                });
+            }
+            TourReviewDTO? tourReviewDTO = await _tourReviewService.GetTourReviewByBookingIdAsync(customerId, bookingId);
+            if (tourReviewDTO == null)
+            {
+                return NotFound(new DefaultResponseModel<object>()
+                {
+                    Message = "Not found",
+                    StatusCode = StatusCodes.Status404NotFound
+                });
+            }
+            return Ok(new DefaultResponseModel<TourReviewDTO>()
+            {
+                Message = "Success",
+                StatusCode = StatusCodes.Status200OK,
+                Data = tourReviewDTO
+            });
+        }
     }
 }
