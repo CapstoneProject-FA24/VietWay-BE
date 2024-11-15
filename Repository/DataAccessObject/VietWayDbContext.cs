@@ -8,7 +8,6 @@ namespace VietWay.Repository.DataAccessObject
     {
         #region DbSets
         public DbSet<Account> Account { get; set; }
-        public DbSet<Admin> Admin { get; set; }
         public DbSet<Attraction> Attraction { get; set; }
         public DbSet<AttractionCategory> AttractionCategory { get; set; }
         public DbSet<AttractionImage> AttractionImage { get; set; }
@@ -21,10 +20,6 @@ namespace VietWay.Repository.DataAccessObject
         public DbSet<Customer> Customer { get; set; }
         public DbSet<EntityHistory> EntityHistory { get; set; }
         public DbSet<EntityStatusHistory> EntityStatusHistory { get; set; }
-        public DbSet<Event> Event { get; set; }
-        public DbSet<EventCategory> EventCategory { get; set; }
-        public DbSet<EventLike> EventLike { get; set; }
-        public DbSet<EventSchedule> EventSchedule { get; set; }
         public DbSet<Manager> Manager { get; set; }
         public DbSet<Post> Post { get; set; }
         public DbSet<PostCategory> PostCategory { get; set; }
@@ -65,9 +60,16 @@ namespace VietWay.Repository.DataAccessObject
                 .HasIndex(x => x.PhoneNumber)
                 .IsUnique();
             modelBuilder.Entity<AttractionReviewLike>()
+                .HasKey(x=> new {x.ReviewId, x.CustomerId });
+            modelBuilder.Entity<AttractionReviewLike>()
                 .HasOne(x => x.Customer)
-                .WithMany()
+                .WithMany(x => x.AttractionReviewLikes)
+                .HasForeignKey(x => x.CustomerId)
                 .OnDelete(DeleteBehavior.Restrict);
+            modelBuilder.Entity<AttractionReviewLike>()
+                .HasOne(x => x.AttractionReview)
+                .WithMany(x => x.AttractionReviewLikes)
+                .HasForeignKey(x => x.ReviewId);
         }
     }
 }

@@ -48,16 +48,9 @@ namespace VietWay.API.Customer.Controllers
         {
             int checkedPageSize = (pageSize == null || pageSize < 1) ? 10 : (int)pageSize;
             int checkedPageIndex = (pageIndex == null || pageIndex < 1) ? 1 : (int)pageIndex;
-            var (totalCount, items) = await _provinceService.GetProvincesDetails(nameSearch,zoneId, checkedPageIndex, checkedPageSize);
             return Ok(new DefaultResponseModel<PaginatedList<ProvinceDetailDTO>>()
             {
-                Data = new()
-                {
-                    Total = totalCount,
-                    PageSize = checkedPageSize,
-                    PageIndex = checkedPageIndex,
-                    Items = items
-                },
+                Data = await _provinceService.GetProvincesDetails(nameSearch, zoneId, checkedPageIndex, checkedPageSize),
                 Message = "Get all province successfully",
                 StatusCode = StatusCodes.Status200OK
             });

@@ -16,6 +16,7 @@ namespace VietWay.Service.Customer.DataTransferObject
         public required decimal TotalPrice { get; set; }
         public required BookingStatus Status { get; set; }
         public required DateTime CreatedOn { get; set; }
+        public required DateTime StartDate { get; set; }
         public required string TourName { get; set; }
         public required string ImageUrl { get; set; }
         public required string Code { get; set; }

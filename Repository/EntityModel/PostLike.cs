@@ -14,10 +14,12 @@ namespace VietWay.Repository.EntityModel
     {
         [StringLength(20)]
         [ForeignKey(nameof(Post))]
-        public required string PostId { get; set; }
+        [Required]
+        public string? PostId { get; set; }
         [StringLength(20)]
         [ForeignKey(nameof(Customer))]
-        public required string CustomerId { get; set; }
+        [Required]
+        public string? CustomerId { get; set; }
 
 
         public virtual Post? Post { get; set; }

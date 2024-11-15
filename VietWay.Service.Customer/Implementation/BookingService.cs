@@ -19,6 +19,9 @@ namespace VietWay.Service.Customer.Implementation
         private readonly IIdGenerator _idGenerator = idGenerator;
         private readonly ITimeZoneHelper _timeZoneHelper = timeZoneHelper;
         private readonly IBackgroundJobClient _backgroundJobClient = backgroundJobClient;
+        private readonly int _pendingBookingExpireAfterMinutes = int.Parse(Environment.GetEnvironmentVariable("PENDING_BOOKING_EXPIRE_AFTER_MINUTES")
+            ?? throw new Exception("PENDING_BOOKING_EXPIRE_AFTER_MINUTES is not set in environment variables"));
+
         public async Task<string> BookTourAsync(Booking booking)
         {
             try
@@ -63,7 +66,9 @@ namespace VietWay.Service.Customer.Implementation
                 await _unitOfWork.BookingRepository.CreateAsync(booking);
                 await _unitOfWork.TourRepository.UpdateAsync(tour);
                 await _unitOfWork.CommitTransactionAsync();
-                _backgroundJobClient.Schedule<IBookingJob>(x => x.CheckBookingForExpirationJob(booking.BookingId), DateTime.Now.AddMinutes(1));
+                _backgroundJobClient.Schedule<IBookingJob>(
+                    x => x.CheckBookingForExpirationJob(booking.BookingId), 
+                    DateTime.Now.AddMinutes(_pendingBookingExpireAfterMinutes));
                 return booking.BookingId;
             }
             catch
@@ -136,7 +141,7 @@ namespace VietWay.Service.Customer.Implementation
                 }).SingleOrDefaultAsync();
         }
 
-        public async Task<(int count, List<BookingPreviewDTO> items)> GetCustomerBookingsAsync(string customerId,BookingStatus? bookingStatus, int pageSize, int pageIndex)
+        public async Task<PaginatedList<BookingPreviewDTO>> GetCustomerBookingsAsync(string customerId,BookingStatus? bookingStatus, int pageSize, int pageIndex)
         {
             IQueryable<Booking> query = _unitOfWork
                 .BookingRepository
@@ -163,9 +168,16 @@ namespace VietWay.Service.Customer.Implementation
                     CreatedOn = x.CreatedAt,
                     TourName = x.Tour!.TourTemplate!.TourName,
                     ImageUrl = x.Tour!.TourTemplate!.TourTemplateImages.Select(x=>x.ImageUrl).First(),
-                    Code = x.Tour.TourTemplate.Code
+                    Code = x.Tour.TourTemplate.Code,
+                    StartDate = x.Tour!.StartDate!.Value
                 }).ToListAsync();
-            return (count, items);
+            return new PaginatedList<BookingPreviewDTO>
+            {
+                Total = count,
+                PageSize = pageSize,
+                PageIndex = pageIndex,
+                Items = items
+            };
         }
 
         private static int CalculateAge(DateTime birthDay, DateTime currentDate)

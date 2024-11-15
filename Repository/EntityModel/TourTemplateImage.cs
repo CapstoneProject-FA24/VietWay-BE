@@ -9,12 +9,15 @@ namespace VietWay.Repository.EntityModel
     {
         [Key]
         [ForeignKey(nameof(Image))]
-        public required string ImageId { get; set; }
+        [Required]
+        public string? ImageId { get; set; }
         [ForeignKey(nameof(TourTemplate))]
-        public required string TourTemplateId { get; set; }
+        [Required]
+        public string? TourTemplateId { get; set; }
         [Required]
         [StringLength(2048)]
-        public required string ImageUrl { get; set; }
+        public string? ImageUrl { get; set; }
+
         public virtual TourTemplate? TourTemplate { get; set; }
     }
 }

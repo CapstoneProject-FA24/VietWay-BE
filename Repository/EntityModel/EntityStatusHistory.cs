@@ -12,8 +12,11 @@ namespace VietWay.Repository.EntityModel
     {
         [Key]
         [ForeignKey(nameof(EntityHistory))]
-        public required string Id { get; set; }
+        [Required]
+        public string? Id { get; set; }
+        [Required]
         public int OldStatus { get; set; }
+        [Required]
         public int NewStatus { get; set; }
 
         public virtual EntityHistory? EntityHistory { get; set; }

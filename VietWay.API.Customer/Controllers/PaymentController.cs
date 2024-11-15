@@ -33,17 +33,10 @@ namespace VietWay.API.Customer.Controllers
             }
             int pageSize = 10;
             int pageIndex = 1;
-            (int count, List<BookingPaymentDTO> items) = await _bookingPaymentService.GetAllCustomerBookingPaymentsAsync(customerId, pageSize, pageIndex);
             return Ok(new DefaultResponseModel<PaginatedList<BookingPaymentDTO>>
             {
                 Message = "Success",
-                Data = new PaginatedList<BookingPaymentDTO>
-                {
-                    Items = items,
-                    Total = count,
-                    PageSize = pageSize,
-                    PageIndex = pageIndex
-                },
+                Data = await _bookingPaymentService.GetAllCustomerBookingPaymentsAsync(customerId, pageSize, pageIndex),
                 StatusCode = StatusCodes.Status200OK
             });
         }

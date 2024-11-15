@@ -16,6 +16,7 @@ namespace VietWay.Service.Customer.DataTransferObject
         public string? Website { get; set; }
         public string? Description { get; set; }
         public string? GooglePlaceId { get; set; }
+        public int? LikeCount { get; set; }
 
         public required ProvincePreviewDTO Province { get; set; }
         public required AttractionCategoryPreviewDTO AttractionCategory { get; set; }

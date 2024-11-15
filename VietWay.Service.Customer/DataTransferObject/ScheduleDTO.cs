@@ -12,6 +12,5 @@ namespace VietWay.Service.Customer.DataTransferObject
         public required string Title { get; set; }
         public required string Description { get; set; }
         public required List<AttractionPreviewDTO> Attractions { get; set; }
-        public required List<EventPreviewDTO> Events { get; set; }
     }
 }

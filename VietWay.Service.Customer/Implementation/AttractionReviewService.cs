@@ -60,7 +60,7 @@ namespace VietWay.Service.Customer.Implementation
             }
         }
 
-        public async Task<(int count, List<AttractionReviewDTO>)> GetOtherAttractionReviewsAsync(string attractionId, string? customerId, 
+        public async Task<PaginatedList<AttractionReviewDTO>> GetOtherAttractionReviewsAsync(string attractionId, string? customerId, 
             bool isOrderedByLikeNumber,  List<int>? ratingValue, bool? hasReviewContent, int pageSize, int pageIndex)
         {
             IQueryable<AttractionReview> query = _unitOfWork.AttractionReviewRepository.Query()
@@ -71,7 +71,7 @@ namespace VietWay.Service.Customer.Implementation
             }
             if (hasReviewContent.HasValue && true == hasReviewContent.Value)
             {
-                query = query.Where(x => null != hasReviewContent);
+                query = query.Where(x => null != x.Review);
             }
             if (isOrderedByLikeNumber)
             {
@@ -96,7 +96,13 @@ namespace VietWay.Service.Customer.Implementation
                     LikeCount = x.AttractionReviewLikes!.Count
                 })
                 .ToListAsync();
-            return (count, items);
+            return new PaginatedList<AttractionReviewDTO>
+            {
+                Items = items,
+                PageIndex = pageIndex,
+                PageSize = pageSize,
+                Total = count
+            };
         }
 
         public async Task<AttractionReviewDTO?> GetUserAttractionReviewAsync(string attractionId, string customerId)

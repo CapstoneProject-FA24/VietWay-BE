@@ -40,16 +40,17 @@ namespace VietWay.Service.Customer.Implementation
                         ImageId = y.ImageId,
                         Url = y.ImageUrl
                     }).ToList(),
-                    AverageRating = x.AttractionReviews.Where(x=>false == x.IsDeleted).Average(y => y.Rating),
+                    AverageRating = x.AttractionReviews.Where(x => false == x.IsDeleted).Average(y => y.Rating),
                     RatingCount = x.AttractionReviews.Where(x => false == x.IsDeleted)
                         .GroupBy(g => g.Rating)
-                        .Select(s=> new RatingDTO { Rating = s.Key, Count = s.Count()})
-                        .ToList()
+                        .Select(s => new RatingDTO { Rating = s.Key, Count = s.Count() })
+                        .ToList(),
+                    LikeCount = x.AttractionLikes.Count()
                 })
                 .SingleOrDefaultAsync();
         }
 
-        public async Task<(int count, List<AttractionPreviewDTO>)> GetAttractionsPreviewAsync(string? nameSearch, List<string>? provinceIds, 
+        public async Task<PaginatedList<AttractionPreviewDTO>> GetAttractionsPreviewAsync(string? nameSearch, List<string>? provinceIds, 
             List<string>? attractionTypeIds, int pageSize, int pageIndex)
         {
             IQueryable<Attraction> query = _unitOfWork.AttractionRepository.Query()
@@ -68,7 +69,7 @@ namespace VietWay.Service.Customer.Implementation
             }
             int count = await query.CountAsync();
             List<AttractionPreviewDTO> items = await query
-                .Skip(pageSize * (pageIndex-1))
+                .Skip(pageSize * (pageIndex - 1))
                 .Take(pageSize)
                 .Select(x => new AttractionPreviewDTO
                 {
@@ -77,11 +78,79 @@ namespace VietWay.Service.Customer.Implementation
                     Address = x.Address,
                     Province = x.Province.Name,
                     AttractionCategory = x.AttractionCategory.Name,
-                    ImageUrl = x.AttractionImages.Select(x=>x.ImageUrl).First(),
-                    AverageRating = x.AttractionReviews.Where(x => false == x.IsDeleted).Average(y => y.Rating)
+                    ImageUrl = x.AttractionImages.Select(x => x.ImageUrl).First(),
+                    AverageRating = x.AttractionReviews.Where(x => false == x.IsDeleted).Average(y => y.Rating),
+                    LikeCount = x.AttractionLikes.Count()
                 })
                 .ToListAsync();
-            return (count, items);
+            return new PaginatedList<AttractionPreviewDTO>
+            {
+                Total = count,
+                PageSize = pageSize,
+                PageIndex = pageIndex,
+                Items = items
+            };
+        }
+
+        public async Task<PaginatedList<AttractionPreviewDTO>> GetCustomerLikedAttractionsAsync(string customerId, int pageSize, int pageIndex)
+        {
+            IQueryable<Attraction> query = _unitOfWork.AttractionRepository.Query()
+                .Where(x => x.AttractionLikes.Any(x => x.CustomerId.Equals(customerId)));
+            int count = query.Count();
+            List<AttractionPreviewDTO> items = await query
+                .Skip(pageSize * (pageIndex - 1))
+                .Take(pageSize)
+                .Select(x => new AttractionPreviewDTO
+                {
+                    AttractionId = x.AttractionId,
+                    Name = x.Name,
+                    Address = x.Address,
+                    Province = x.Province.Name,
+                    AttractionCategory = x.AttractionCategory.Name,
+                    ImageUrl = x.AttractionImages.Select(x => x.ImageUrl).First(),
+                    AverageRating = x.AttractionReviews.Where(x => false == x.IsDeleted).Average(y => y.Rating),
+                    LikeCount = x.AttractionLikes.Count(),
+                })
+                .ToListAsync();
+            return new PaginatedList<AttractionPreviewDTO>
+            {
+                Items = items,
+                PageIndex = pageIndex,
+                PageSize = pageSize,
+                Total = count
+            };
+        }
+
+        public async Task ToggleAttractionLikeAsync(string attractionId, string customerId, bool isLike)
+        {
+            try
+            {
+                await _unitOfWork.BeginTransactionAsync();
+                AttractionLike? attractionLike = await _unitOfWork.AttractionLikeRepository.Query()
+                    .SingleOrDefaultAsync(x => x.AttractionId.Equals(attractionId) && x.CustomerId.Equals(customerId));
+                if (null == attractionLike && isLike)
+                {
+                    await _unitOfWork.AttractionLikeRepository.CreateAsync(new AttractionLike
+                    {
+                        CustomerId = customerId,
+                        AttractionId = attractionId
+                    });
+                }
+                else if (null != attractionLike && false == isLike)
+                {
+                    await _unitOfWork.AttractionLikeRepository.DeleteAsync(attractionLike);
+                }
+                else
+                {
+                    throw new InvalidOperationException(nameof(AttractionLike));
+                }
+                await _unitOfWork.CommitTransactionAsync();
+            }
+            catch
+            {
+                await _unitOfWork.RollbackTransactionAsync();
+                throw;
+            }
         }
     }
 }
