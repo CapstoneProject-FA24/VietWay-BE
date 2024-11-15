@@ -87,7 +87,7 @@ namespace VietWay.API.Customer.Controllers
         [HttpGet("{tourTemplateId}/reviews")]
         [Produces("application/json")]
         [ProducesResponseType<DefaultResponseModel<PaginatedList<TourReviewDTO>>>(StatusCodes.Status200OK)]
-        public async Task<IActionResult> GetTourReviewByTourTemplateAsync(string tourTemplateId, List<int>? ratingValue, 
+        public async Task<IActionResult> GetTourReviewByTourTemplateAsync(string tourTemplateId, [FromQuery] List<int>? ratingValue, 
             bool? hasReviewContent, int? pageSize, int? pageIndex)
         {
             int checkedPageSize = (pageSize.HasValue && pageSize.Value > 0) ? pageSize.Value : 10;
