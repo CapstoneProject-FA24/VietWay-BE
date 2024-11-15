@@ -133,8 +133,6 @@ namespace VietWay.API.Customer
             builder.Services.AddScoped<IBookingPaymentService, BookingPaymentService>();
             builder.Services.AddScoped<IBookingService, BookingService>();
             builder.Services.AddScoped<ICustomerService, CustomerService>();
-            builder.Services.AddScoped<IEventCategoryService, EventCategoryService>();
-            builder.Services.AddScoped<IEventService, EventService>();
             builder.Services.AddScoped<IPostCategoryService, PostCategoryService>();
             builder.Services.AddScoped<IPostService,PostService>();
             builder.Services.AddScoped<IProvinceService, ProvinceService>();
@@ -143,15 +141,16 @@ namespace VietWay.API.Customer
             builder.Services.AddScoped<ITourService, TourService>();
             builder.Services.AddScoped<ITourTemplateService, TourTemplateService>();
             builder.Services.AddScoped<IVnPayService, VnPayService>();
+            builder.Services.AddScoped<ITourReviewService, TourReviewService>();
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
             builder.Services.AddScoped<ITimeZoneHelper, TimeZoneHelper>();
             builder.Services.AddScoped<IHashHelper, BCryptHashHelper>();
             builder.Services.AddScoped<ITokenHelper, TokenHelper>();
             #endregion
             builder.Services.AddSingleton<IIdGenerator, SnowflakeIdGenerator>();
-            /*builder.Services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer
+            builder.Services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer
                 .Connect(Environment.GetEnvironmentVariable("REDIS_CONNECTION_STRING") ??
-                    throw new Exception("REDIS_CONNECTION_STRING is not set in environment variables")));*/
+                    throw new Exception("REDIS_CONNECTION_STRING is not set in environment variables")));
             var app = builder.Build();
             app.UseStaticFiles();
             #region app.UseSwagger(...);

@@ -18,13 +18,15 @@ namespace VietWay.API.Customer.Controllers
     [Route("api/bookings")]
     [ApiController]
     public class BookingController(IBookingService bookingService, ITourService tourService,
-        IMapper mapper, ITokenHelper tokenHelper, IBookingPaymentService bookingPaymentService) : ControllerBase
+        IMapper mapper, ITokenHelper tokenHelper, IBookingPaymentService bookingPaymentService,
+        ITourReviewService tourReviewService) : ControllerBase
     {
         private readonly IBookingService _bookingService = bookingService;
         private readonly ITourService _tourService = tourService;
         private readonly IMapper _mapper = mapper;
         private readonly ITokenHelper _tokenHelper = tokenHelper;
         private readonly IBookingPaymentService _bookingPaymentService = bookingPaymentService;
+        private readonly ITourReviewService _tourReviewService = tourReviewService;
 
         /// <summary>
         /// ⚠️🔐[Customer] Book a tour
@@ -133,17 +135,9 @@ namespace VietWay.API.Customer.Controllers
             int checkedPageSize = (pageCount.HasValue && pageCount.Value > 0) ? pageCount.Value : 10;
             int checkedPageIndex = (pageIndex.HasValue && pageIndex.Value > 0) ? pageIndex.Value : 1;
 
-            var (count, items) = await _bookingService.GetCustomerBookingsAsync(customerId, bookingStatus, checkedPageSize, checkedPageIndex);
-
             return Ok(new DefaultResponseModel<PaginatedList<BookingPreviewDTO>>()
             {
-                Data = new()
-                {
-                    Total = count,
-                    PageSize = checkedPageSize,
-                    PageIndex = checkedPageIndex,
-                    Items = items
-                },
+                Data = await _bookingService.GetCustomerBookingsAsync(customerId, bookingStatus, checkedPageSize, checkedPageIndex),
                 Message = "Get customer bookings successfully",
                 StatusCode = StatusCodes.Status200OK
             });
@@ -214,18 +208,9 @@ namespace VietWay.API.Customer.Controllers
             }
             int checkedPageSize = (pageCount.HasValue && pageCount.Value > 0) ? pageCount.Value : 10;
             int checkedPageIndex = (pageIndex.HasValue && pageIndex.Value > 0) ? pageIndex.Value : 1;
-
-            var (count, items) = await _bookingPaymentService.GetBookingPaymentsAsync(customerId, bookingId, checkedPageSize, checkedPageIndex);
-
             return Ok(new DefaultResponseModel<PaginatedList<BookingPaymentDTO>>()
             {
-                Data = new()
-                {
-                    Total = count,
-                    PageSize = checkedPageSize,
-                    PageIndex = checkedPageIndex,
-                    Items = items
-                },
+                Data = await _bookingPaymentService.GetBookingPaymentsAsync(customerId, bookingId, checkedPageSize, checkedPageIndex),
                 Message = "Get booking payments successfully",
                 StatusCode = StatusCodes.Status200OK
             });
@@ -255,6 +240,33 @@ namespace VietWay.API.Customer.Controllers
             {
                 Message = "Success",
                 Data = url,
+                StatusCode = StatusCodes.Status200OK
+            });
+        }
+        /// <summary>
+        /// ✅🔐[Customer] Review a tour by booking ID
+        /// </summary>
+        [HttpPost("{bookingId}/review")]
+        [Produces("application/json")]
+        [Authorize(Roles = nameof(UserRole.Customer))]
+        [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status200OK)]
+        public async Task<IActionResult> ReviewBookingAsync(string bookingId, ReviewTourRequest reviewTourRequest)
+        {
+            string? customerId = _tokenHelper.GetAccountIdFromToken(HttpContext);
+            if (customerId == null)
+            {
+                return Unauthorized(new DefaultResponseModel<object>()
+                {
+                    Message = "Unauthorized",
+                    StatusCode = StatusCodes.Status401Unauthorized
+                });
+            }
+            TourReview tourReview = _mapper.Map<TourReview>(reviewTourRequest);
+            tourReview.BookingId = bookingId;
+            await _tourReviewService.CreateTourReviewAsync(customerId, tourReview);
+            return Ok(new DefaultResponseModel<object>()
+            {
+                Message = "Review successfully",
                 StatusCode = StatusCodes.Status200OK
             });
         }

@@ -9,17 +9,17 @@ using System.Threading.Tasks;
 
 namespace VietWay.Repository.EntityModel
 {
-    [PrimaryKey(nameof(EventId),nameof(CustomerId))]
-    public class EventLike
+    [PrimaryKey(nameof(AttractionId), nameof(CustomerId))]
+    public class AttractionLike
     {
-        [StringLength(20)]
-        [ForeignKey(nameof(Event))]
-        public required string EventId { get; set; }
-        [StringLength(20)]
+        [ForeignKey(nameof(Attraction))]
+        [Required]
+        public string? AttractionId { get; set; }
         [ForeignKey(nameof(Customer))]
-        public required string CustomerId { get; set; }
+        [Required]
+        public string? CustomerId { get; set; }
 
-        public virtual Event? Event { get; set; }
+        public virtual Attraction? Attraction { get; set; }
         public virtual Customer? Customer { get; set; }
     }
 }

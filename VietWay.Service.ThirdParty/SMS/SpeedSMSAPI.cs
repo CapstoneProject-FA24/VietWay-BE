@@ -2,7 +2,7 @@
 using System.Text;
 using System.Text.Json;
 
-namespace VietWay.Service.ThirdParty.SpeedSMS
+namespace VietWay.Service.ThirdParty.SMS
 {
     internal class SpeedSMSAPI(string token)
     {
@@ -51,15 +51,13 @@ namespace VietWay.Service.ThirdParty.SpeedSMS
             string responseBody = await response.Content.ReadAsStringAsync();
             return responseBody;
         }
-
-
         public async Task<string> SendSMSAsync(string[] phones, string content, int type, string sender)
         {
             string url = $"{_rootUrl}/sms/send";
 
             if (phones.Length <= 0 ||
                 string.IsNullOrWhiteSpace(content) ||
-                (type == TYPE_BRANDNAME && string.IsNullOrWhiteSpace(sender)))
+                type == TYPE_BRANDNAME && string.IsNullOrWhiteSpace(sender))
             {
                 return string.Empty;
             }

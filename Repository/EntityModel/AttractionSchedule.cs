@@ -8,11 +8,14 @@ namespace VietWay.Repository.EntityModel
     public class AttractionSchedule
     {
         [StringLength(20)]
-        public required string TourTemplateId { get; set; }
-        public required int DayNumber { get; set; }
+        [Required]
+        public string? TourTemplateId { get; set; }
+        [Required]
+        public int DayNumber { get; set; }
         [ForeignKey(nameof(Attraction))]
         [StringLength(20)]
-        public required string AttractionId { get; set; }
+        [Required]
+        public string? AttractionId { get; set; }
 
         public virtual Attraction? Attraction { get; set; }
         public virtual TourTemplateSchedule? TourTemplateSchedule { get; set; }

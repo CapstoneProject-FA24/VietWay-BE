@@ -18,7 +18,7 @@ namespace VietWay.Service.Customer.Implementation
         private readonly IIdGenerator _idGenerator = idGenerator;
         private readonly ITimeZoneHelper _timeZoneHelper = timeZoneHelper;
 
-        public async Task<(int count, List<BookingPaymentDTO> items)> GetAllCustomerBookingPaymentsAsync(string customerId, int pageSize, int pageIndex)
+        public async Task<PaginatedList<BookingPaymentDTO>> GetAllCustomerBookingPaymentsAsync(string customerId, int pageSize, int pageIndex)
         {
             IQueryable<BookingPayment> query = _unitOfWork.BookingPaymentRepository.Query()
                 .Where(x => x.Booking!.CustomerId.Equals(customerId));
@@ -37,10 +37,16 @@ namespace VietWay.Service.Customer.Implementation
                     PayTime = x.PayTime,
                     ThirdPartyTransactionNumber = x.ThirdPartyTransactionNumber
                 }).Skip((pageIndex-1)*pageSize).Take(pageSize).ToListAsync();
-            return (count, items);
+            return new PaginatedList<BookingPaymentDTO>
+            {
+                PageSize = pageSize,
+                Total = count,
+                PageIndex = pageIndex,
+                Items = items
+            };
         }
 
-        public async Task<(int count, List<BookingPaymentDTO> items)> GetBookingPaymentsAsync(string customerId, string bookingId, int pageSize, int pageIndex)
+        public async Task<PaginatedList<BookingPaymentDTO>> GetBookingPaymentsAsync(string customerId, string bookingId, int pageSize, int pageIndex)
         {
             IQueryable<BookingPayment> query = _unitOfWork.BookingPaymentRepository.Query()
                 .Where(x => x.BookingId.Equals(bookingId) && x.Booking!.CustomerId.Equals(customerId));
@@ -61,7 +67,13 @@ namespace VietWay.Service.Customer.Implementation
                     ThirdPartyTransactionNumber = x.ThirdPartyTransactionNumber
                 })
                 .ToListAsync();
-            return (count, items);
+            return new PaginatedList<BookingPaymentDTO>
+            {
+                Total = count,
+                PageSize = pageSize,
+                PageIndex = pageIndex,
+                Items = items
+            };
         }
 
         public async Task<string> GetBookingPaymentUrl(PaymentMethod paymentMethod, string bookingId, string customerId, string ipAddress)

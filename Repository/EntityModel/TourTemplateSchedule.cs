@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace VietWay.Repository.EntityModel
@@ -7,13 +8,16 @@ namespace VietWay.Repository.EntityModel
     public class TourTemplateSchedule
     {
         [ForeignKey(nameof(TourTemplate))]
-        public required string TourTemplateId { get; set; }
+        [Required]
+        public string? TourTemplateId { get; set; }
+        [Required]
         public int DayNumber { get; set; }
-        public required string Title { get; set; }
-        public required string Description { get; set; }
+        [Required]
+        public string? Title { get; set; }
+        [Required]
+        public string? Description { get; set; }
 
         public virtual TourTemplate? TourTemplate { get; set; }
         public virtual ICollection<AttractionSchedule>? AttractionSchedules { get; set; }
-        public virtual ICollection<EventSchedule>? EventSchedules { get; set; }
     }
 }

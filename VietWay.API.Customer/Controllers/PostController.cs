@@ -26,17 +26,10 @@ namespace VietWay.API.Customer.Controllers
         {
             int checkedPageSize = (pageSize.HasValue || pageSize > 0) ? pageSize.Value : 10;
             int checkedPageIndex = (pageIndex.HasValue || pageIndex > 0) ? pageIndex.Value : 1;
-            var (count, items) = await _postService.GetPostPreviewsAsync(nameSearch, provinceIds, postCategoryIds, checkedPageSize, checkedPageIndex);
             return Ok(new DefaultResponseModel<PaginatedList<PostPreviewDTO>>()
             {
                 Message = "Success",
-                Data = new PaginatedList<PostPreviewDTO>()
-                {
-                    Items = items,
-                    PageIndex = checkedPageIndex,
-                    PageSize = checkedPageSize,
-                    Total = count
-                },
+                Data = await _postService.GetPostPreviewsAsync(nameSearch, provinceIds, postCategoryIds, checkedPageSize, checkedPageIndex),
                 StatusCode = StatusCodes.Status200OK
             });
         }

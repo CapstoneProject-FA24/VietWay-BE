@@ -62,25 +62,10 @@ namespace VietWay.Repository.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "EventCategory",
-                columns: table => new
-                {
-                    EventCategoryId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    IsDeleted = table.Column<bool>(type: "bit", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_EventCategory", x => x.EventCategoryId);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "PostCategory",
                 columns: table => new
                 {
-                    PostCategoryId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    PostCategoryId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
@@ -97,6 +82,7 @@ namespace VietWay.Repository.Migrations
                 {
                     ProvinceId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
                     Name = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     ImageUrl = table.Column<string>(type: "nvarchar(2048)", maxLength: 2048, nullable: false),
                     IsDeleted = table.Column<bool>(type: "bit", nullable: false)
@@ -134,24 +120,6 @@ namespace VietWay.Repository.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_TourDuration", x => x.DurationId);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Admin",
-                columns: table => new
-                {
-                    AdminId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
-                    FullName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Admin", x => x.AdminId);
-                    table.ForeignKey(
-                        name: "FK_Admin_Account_AdminId",
-                        column: x => x.AdminId,
-                        principalTable: "Account",
-                        principalColumn: "AccountId",
-                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -272,39 +240,6 @@ namespace VietWay.Repository.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Event",
-                columns: table => new
-                {
-                    EventId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
-                    Title = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    ImageUrl = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Content = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    EventCategoryId = table.Column<string>(type: "nvarchar(450)", nullable: true),
-                    StartDate = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    EndDate = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    ProvinceId = table.Column<string>(type: "nvarchar(20)", nullable: true),
-                    Address = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Status = table.Column<int>(type: "int", nullable: false),
-                    IsDeleted = table.Column<bool>(type: "bit", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Event", x => x.EventId);
-                    table.ForeignKey(
-                        name: "FK_Event_EventCategory_EventCategoryId",
-                        column: x => x.EventCategoryId,
-                        principalTable: "EventCategory",
-                        principalColumn: "EventCategoryId");
-                    table.ForeignKey(
-                        name: "FK_Event_Province_ProvinceId",
-                        column: x => x.ProvinceId,
-                        principalTable: "Province",
-                        principalColumn: "ProvinceId");
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Post",
                 columns: table => new
                 {
@@ -312,7 +247,7 @@ namespace VietWay.Repository.Migrations
                     Title = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     ImageUrl = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Content = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    PostCategoryId = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    PostCategoryId = table.Column<string>(type: "nvarchar(20)", nullable: true),
                     ProvinceId = table.Column<string>(type: "nvarchar(20)", nullable: true),
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
@@ -388,6 +323,30 @@ namespace VietWay.Repository.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "AttractionLike",
+                columns: table => new
+                {
+                    AttractionId = table.Column<string>(type: "nvarchar(20)", nullable: false),
+                    CustomerId = table.Column<string>(type: "nvarchar(20)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_AttractionLike", x => new { x.AttractionId, x.CustomerId });
+                    table.ForeignKey(
+                        name: "FK_AttractionLike_Attraction_AttractionId",
+                        column: x => x.AttractionId,
+                        principalTable: "Attraction",
+                        principalColumn: "AttractionId",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_AttractionLike_Customer_CustomerId",
+                        column: x => x.CustomerId,
+                        principalTable: "Customer",
+                        principalColumn: "CustomerId",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "AttractionReview",
                 columns: table => new
                 {
@@ -413,30 +372,6 @@ namespace VietWay.Repository.Migrations
                         column: x => x.CustomerId,
                         principalTable: "Customer",
                         principalColumn: "CustomerId",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "EventLike",
-                columns: table => new
-                {
-                    EventId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
-                    CustomerId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_EventLike", x => new { x.EventId, x.CustomerId });
-                    table.ForeignKey(
-                        name: "FK_EventLike_Customer_CustomerId",
-                        column: x => x.CustomerId,
-                        principalTable: "Customer",
-                        principalColumn: "CustomerId",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_EventLike_Event_EventId",
-                        column: x => x.EventId,
-                        principalTable: "Event",
-                        principalColumn: "EventId",
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -682,31 +617,6 @@ namespace VietWay.Repository.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "EventSchedule",
-                columns: table => new
-                {
-                    TourTemplateId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
-                    DayNumber = table.Column<int>(type: "int", nullable: false),
-                    EventId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_EventSchedule", x => new { x.TourTemplateId, x.DayNumber, x.EventId });
-                    table.ForeignKey(
-                        name: "FK_EventSchedule_Event_EventId",
-                        column: x => x.EventId,
-                        principalTable: "Event",
-                        principalColumn: "EventId",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_EventSchedule_TourTemplateSchedule_TourTemplateId_DayNumber",
-                        columns: x => new { x.TourTemplateId, x.DayNumber },
-                        principalTable: "TourTemplateSchedule",
-                        principalColumns: new[] { "TourTemplateId", "DayNumber" },
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "BookingPayment",
                 columns: table => new
                 {
@@ -738,7 +648,7 @@ namespace VietWay.Repository.Migrations
                 {
                     TouristId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
                     BookingId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
-                    FullName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    FullName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     PhoneNumber = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: false),
                     Gender = table.Column<int>(type: "int", nullable: false),
                     DateOfBirth = table.Column<DateTime>(type: "datetime2", nullable: false),
@@ -809,6 +719,11 @@ namespace VietWay.Repository.Migrations
                 column: "AttractionId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_AttractionLike_CustomerId",
+                table: "AttractionLike",
+                column: "CustomerId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_AttractionReview_AttractionId_CustomerId",
                 table: "AttractionReview",
                 columns: new[] { "AttractionId", "CustomerId" },
@@ -854,26 +769,6 @@ namespace VietWay.Repository.Migrations
                 name: "IX_Customer_ProvinceId",
                 table: "Customer",
                 column: "ProvinceId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Event_EventCategoryId",
-                table: "Event",
-                column: "EventCategoryId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Event_ProvinceId",
-                table: "Event",
-                column: "ProvinceId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_EventLike_CustomerId",
-                table: "EventLike",
-                column: "CustomerId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_EventSchedule_EventId",
-                table: "EventSchedule",
-                column: "EventId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Post_PostCategoryId",
@@ -936,10 +831,10 @@ namespace VietWay.Repository.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "Admin");
+                name: "AttractionImage");
 
             migrationBuilder.DropTable(
-                name: "AttractionImage");
+                name: "AttractionLike");
 
             migrationBuilder.DropTable(
                 name: "AttractionReviewLike");
@@ -955,12 +850,6 @@ namespace VietWay.Repository.Migrations
 
             migrationBuilder.DropTable(
                 name: "EntityStatusHistory");
-
-            migrationBuilder.DropTable(
-                name: "EventLike");
-
-            migrationBuilder.DropTable(
-                name: "EventSchedule");
 
             migrationBuilder.DropTable(
                 name: "Manager");
@@ -990,13 +879,10 @@ namespace VietWay.Repository.Migrations
                 name: "AttractionReview");
 
             migrationBuilder.DropTable(
-                name: "EntityHistory");
-
-            migrationBuilder.DropTable(
-                name: "Event");
-
-            migrationBuilder.DropTable(
                 name: "TourTemplateSchedule");
+
+            migrationBuilder.DropTable(
+                name: "EntityHistory");
 
             migrationBuilder.DropTable(
                 name: "Post");
@@ -1006,9 +892,6 @@ namespace VietWay.Repository.Migrations
 
             migrationBuilder.DropTable(
                 name: "Attraction");
-
-            migrationBuilder.DropTable(
-                name: "EventCategory");
 
             migrationBuilder.DropTable(
                 name: "PostCategory");

@@ -141,16 +141,6 @@ namespace VietWay.API.Management.Controllers
         [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status200OK)]
         public async Task<IActionResult> DeleteAttractionAsync(string attractionId)
         {
-            AttractionDetailDTO? attraction = await _attractionService.GetAttractionWithCreateDateByIdAsync(attractionId);
-            if (null == attraction || attraction.Status != AttractionStatus.Draft)
-            {
-                DefaultResponseModel<object> errorResponse = new()
-                {
-                    Message = "Attraction not found",
-                    StatusCode = StatusCodes.Status404NotFound
-                };
-                return NotFound(errorResponse);
-            }
             await _attractionService.DeleteAttractionAsync(attractionId);
             DefaultResponseModel<object> response = new()
             {
