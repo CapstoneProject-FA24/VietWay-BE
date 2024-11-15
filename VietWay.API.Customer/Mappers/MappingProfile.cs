@@ -51,6 +51,23 @@ namespace VietWay.API.Customer.Mappers
                     CreatedAt = DateTime.MinValue,
                     IsDeleted = false,
                 }));
+
+            CreateMap<CreateAccountWithGoogleRequest, Account>();
+            CreateMap<CreateAccountWithGoogleRequest, Repository.EntityModel.Customer>()
+                .ForMember(dest => dest.ProvinceId, opt => opt.MapFrom(src => src.ProvinceId))
+                .ForMember(dest => dest.DateOfBirth, opt => opt.MapFrom(src => src.DateOfBirth))
+                .ForMember(dest => dest.FullName, opt => opt.MapFrom(src => src.FullName))
+                .ForMember(dest => dest.Gender, opt => opt.MapFrom(src => src.Gender))
+                .ForMember(dest => dest.IsDeleted, opt => opt.MapFrom(src => false))
+                .ForMember(dest => dest.CustomerId, opt => opt.MapFrom(src => ""))
+                .ForMember(dest => dest.Account, opt => opt.MapFrom(src => new Account()
+                {
+                    AccountId = "",
+                    PhoneNumber = src.PhoneNumber,
+                    Role = UserRole.Customer,
+                    CreatedAt = DateTime.MinValue,
+                    IsDeleted = false,
+                }));
         }
     }
 }

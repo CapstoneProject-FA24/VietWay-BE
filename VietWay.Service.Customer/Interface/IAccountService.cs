@@ -10,5 +10,6 @@ namespace VietWay.Service.Customer.Interface
     public interface IAccountService
     {
         public Task<Account?> LoginAsync(string emailOrPhone, string password);
+        public Task<Account?> LoginWithGoogleAsync(string idToken);
     }
 }
