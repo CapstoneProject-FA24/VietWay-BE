@@ -9,27 +9,47 @@ using VietWay.Service.Management.Interface;
 using VietWay.Service.Management.DataTransferObject;
 using VietWay.Util.IdUtil;
 using VietWay.Util.CustomExceptions;
+using Microsoft.AspNetCore.Http;
+using VietWay.Service.ThirdParty.Cloudinary;
 namespace VietWay.Service.Management.Implement
 {
     public class ProvinceService(IUnitOfWork unitOfWork,
         IIdGenerator idGenerator,
+        ICloudinaryService cloudinaryService,
         ITimeZoneHelper timeZoneHelper) : IProvinceService
     {
         private readonly IUnitOfWork _unitOfWork = unitOfWork;
         private readonly ITimeZoneHelper _timeZoneHelper = timeZoneHelper;
         private readonly IIdGenerator _idGenerator = idGenerator;
-        public async Task<List<ProvincePreviewDTO>> GetAllProvinces()
+        private readonly ICloudinaryService _cloudinaryService = cloudinaryService;
+        public async Task<(int totalCount , List<ProvincePreviewDTO> items)> GetAllProvinces(
+            string? nameSearch,
+            int pageSize,
+            int pageIndex)
         {
-            return await _unitOfWork
+            var query = _unitOfWork
                 .ProvinceRepository
                 .Query()
+                .Where(x => x.IsDeleted == false);
+            if (!string.IsNullOrEmpty(nameSearch))
+            {
+                query = query.Where(x => x.Name.Contains(nameSearch));
+            }
+
+            int count = await query.CountAsync();
+            List<ProvincePreviewDTO> items = await query
+                .OrderByDescending(x => x.CreatedAt)
                 .Select(x => new ProvincePreviewDTO
                 {
                     ProvinceId = x.ProvinceId,
                     ProvinceName = x.Name,
                     ImageUrl = x.ImageUrl
                 })
+                .Skip((pageIndex - 1) * pageSize)
+                .Take(pageSize)
                 .ToListAsync();
+
+            return (count, items);
         }
 
         public async Task<Province?> GetProvinceById(string id)
@@ -74,11 +94,10 @@ namespace VietWay.Service.Management.Implement
 
         public async Task<string> CreateProvinceAsync(Province province)
         {
-            province.CreatedAt = DateTime.Now;
-            province.IsDeleted = false;
             try
             {
                 province.ProvinceId ??= _idGenerator.GenerateId();
+                province.CreatedAt = DateTime.Now;
                 await _unitOfWork.BeginTransactionAsync();
                 await _unitOfWork.ProvinceRepository.CreateAsync(province);
                 await _unitOfWork.CommitTransactionAsync();
@@ -103,6 +122,34 @@ namespace VietWay.Service.Management.Implement
             try
             {
                 await _unitOfWork.BeginTransactionAsync();
+                await _unitOfWork.ProvinceRepository.UpdateAsync(province);
+                await _unitOfWork.CommitTransactionAsync();
+            }
+            catch
+            {
+                await _unitOfWork.RollbackTransactionAsync();
+                throw;
+            }
+        }
+
+        public async Task UpdateProvinceImageAsync(string provinceId, string managerId, IFormFile newImages)
+        {
+            Province province = await _unitOfWork.ProvinceRepository.Query()
+                .SingleOrDefaultAsync(x => x.ProvinceId.Equals(provinceId))
+                ?? throw new ResourceNotFoundException("Province not found");
+            try
+            {
+                await _unitOfWork.BeginTransactionAsync();
+                if (newImages != null)
+                {
+                    string imageId = provinceId;
+                    using MemoryStream memoryStream = new();
+                    using Stream stream = newImages.OpenReadStream();
+                    await stream.CopyToAsync(memoryStream);
+                    await _cloudinaryService.UploadImageAsync(imageId, newImages.FileName, memoryStream.ToArray());
+                    province.ImageUrl = _cloudinaryService.GetImage(imageId);
+                }
+
                 await _unitOfWork.ProvinceRepository.UpdateAsync(province);
                 await _unitOfWork.CommitTransactionAsync();
             }
