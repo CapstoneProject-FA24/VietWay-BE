@@ -141,7 +141,8 @@ namespace VietWay.Service.Customer.Implementation
                     TourName = x.TourName,
                     TourTemplateId = x.TourTemplateId,
                     AverageRating = x.Tours.Select(x => x.TourBookings.Select(x => x.TourReview).Average(x => x.Rating)).Average(),
-                    RatingCount = x.Tours.SelectMany(x=>x.TourBookings.Select(x => x.TourReview))
+                    RatingCount = x.Tours.SelectMany(x=>x.TourBookings)
+                        .Select(x=>x.TourReview)
                         .GroupBy(x => x.Rating)
                         .Select(x => new RatingDTO()
                         {
