@@ -1,5 +1,8 @@
+using FirebaseAdmin;
+using Google.Apis.Auth.OAuth2;
 using Hangfire;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using StackExchange.Redis;
@@ -10,6 +13,7 @@ using VietWay.Middleware;
 using VietWay.Repository.UnitOfWork;
 using VietWay.Service.Customer.Implementation;
 using VietWay.Service.Customer.Interface;
+using VietWay.Service.ThirdParty.Firebase;
 using VietWay.Service.ThirdParty.VnPay;
 using VietWay.Util;
 using VietWay.Util.DateTimeUtil;
@@ -24,10 +28,17 @@ namespace VietWay.API.Customer
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
+
             if (builder.Environment.IsDevelopment())
             {
                 DotEnv.Load(".env");
             }
+
+            FirebaseApp.Create(new AppOptions()
+            {
+                Credential = GoogleCredential.FromJson(FirebaseConfigBuilder.BuildConfig())
+            });
+
             #region builder.Services.AddHangfire(...);
             builder.Services.AddHangfire(option =>
             {
@@ -146,6 +157,7 @@ namespace VietWay.API.Customer
             builder.Services.AddScoped<ITimeZoneHelper, TimeZoneHelper>();
             builder.Services.AddScoped<IHashHelper, BCryptHashHelper>();
             builder.Services.AddScoped<ITokenHelper, TokenHelper>();
+            builder.Services.AddScoped<IFirebaseService, FirebaseService>();
             #endregion
             builder.Services.AddSingleton<IIdGenerator, SnowflakeIdGenerator>();
             builder.Services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer

@@ -63,5 +63,43 @@ namespace VietWay.API.Customer.Controllers
                 StatusCode = StatusCodes.Status200OK
             });
         }
+
+        [HttpPost("register-with-google")]
+        [Produces("application/json")]
+        [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status200OK)]
+        [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> RegisterWithGoogleAsync([FromBody] CreateAccountWithGoogleRequest request)
+        {
+            Repository.EntityModel.Customer account = _mapper.Map<Repository.EntityModel.Customer>(request);
+            await _customerService.RegisterAccountWithGoogleAsync(account, request.IdToken);
+            return Ok(new DefaultResponseModel<object>()
+            {
+                Message = "Success",
+                StatusCode = StatusCodes.Status200OK
+            });
+        }
+
+        [HttpPost("login-with-google")]
+        [Produces("application/json")]
+        [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status200OK)]
+        [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> LoginWithGoogle([FromBody] string idToken)
+        {
+            Account? account = await _accountService.LoginWithGoogleAsync(idToken);
+            if (account == null || account.Role != UserRole.Customer)
+            {
+                return Unauthorized(new DefaultResponseModel<object>()
+                {
+                    StatusCode = StatusCodes.Status401Unauthorized,
+                    Message = "Unauthorized"
+                });
+            }
+            return Ok(new DefaultResponseModel<string>()
+            {
+                Message = "Success",
+                StatusCode = StatusCodes.Status200OK,
+                Data = _tokenHelper.GenerateAuthenticationToken(account.AccountId, account.Role.ToString())
+            });
+        }
     }
 }

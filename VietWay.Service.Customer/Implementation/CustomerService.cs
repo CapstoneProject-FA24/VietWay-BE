@@ -4,6 +4,7 @@ using VietWay.Repository.EntityModel.Base;
 using VietWay.Repository.UnitOfWork;
 using VietWay.Service.Customer.DataTransferObject;
 using VietWay.Service.Customer.Interface;
+using VietWay.Service.ThirdParty.Firebase;
 using VietWay.Util.CustomExceptions;
 using VietWay.Util.DateTimeUtil;
 using VietWay.Util.HashUtil;
@@ -11,12 +12,14 @@ using VietWay.Util.IdUtil;
 
 namespace VietWay.Service.Customer.Implementation
 {
-    public class CustomerService(IUnitOfWork unitOfWork, IIdGenerator idGenerator, IHashHelper hashHelper, ITimeZoneHelper timeZoneHelper) : ICustomerService
+    public class CustomerService(IUnitOfWork unitOfWork, IIdGenerator idGenerator, IHashHelper hashHelper, ITimeZoneHelper timeZoneHelper, IFirebaseService firebaseService) : ICustomerService
     {
         private readonly IUnitOfWork _unitOfWork = unitOfWork;
         private readonly IIdGenerator _idGenerator = idGenerator;
         private readonly IHashHelper _hashHelper = hashHelper;
         private readonly ITimeZoneHelper _timeZoneHelper = timeZoneHelper;
+        private readonly IFirebaseService _firebaseService = firebaseService;
+
         public async Task<CustomerDetailDTO?> GetCustomerDetailAsync(string customerId)
         {
             return await _unitOfWork.CustomerRepository
@@ -31,17 +34,23 @@ namespace VietWay.Service.Customer.Implementation
                     DateOfBirth = x.DateOfBirth,
                     Email = x.Account.Email,
                     Gender = x.Gender,
+                    LoginWithGoogle = x.Account.Password == string.Empty
                 }).SingleOrDefaultAsync();
         }
 
         public async Task RegisterAccountAsync(Repository.EntityModel.Customer customer)
         {
             Province? province = await _unitOfWork.ProvinceRepository.Query()
-                .Where(x => x.ProvinceId.Equals(customer.ProvinceId) && false == x.IsDeleted)
-                .SingleOrDefaultAsync();
+                .SingleOrDefaultAsync(x => x.ProvinceId.Equals(customer.ProvinceId) && false == x.IsDeleted) ??
+                throw new ResourceNotFoundException("Province not found");
+
             Account? account = await _unitOfWork.AccountRepository.Query()
-                .Where(x => x.PhoneNumber.Equals(customer.Account.PhoneNumber) || x.Email.Equals(customer.Account.Email))
-                .SingleOrDefaultAsync();
+                .SingleOrDefaultAsync(x => x.PhoneNumber.Equals(customer.Account.PhoneNumber) || x.Email.Equals(customer.Account.Email));
+            if (account != null)
+            {
+                throw new InvalidOperationException("Phone number or Email has already been used");
+            }
+
             try
             {
                 await _unitOfWork.BeginTransactionAsync();
@@ -49,6 +58,39 @@ namespace VietWay.Service.Customer.Implementation
                 customer.CustomerId = accountId;
                 customer.Account.AccountId = accountId;
                 customer.Account.Password = _hashHelper.Hash(customer.Account.Password);
+                customer.Account.CreatedAt = _timeZoneHelper.GetUTC7Now();
+                await _unitOfWork.CustomerRepository.CreateAsync(customer);
+                await _unitOfWork.CommitTransactionAsync();
+            }
+            catch
+            {
+                await _unitOfWork.RollbackTransactionAsync();
+                throw;
+            }
+        }
+
+        public async Task RegisterAccountWithGoogleAsync(Repository.EntityModel.Customer customer, string idToken)
+        {
+            string email = await _firebaseService.GetEmailFromIdToken(idToken);
+            Province? province = await _unitOfWork.ProvinceRepository.Query()
+                .SingleOrDefaultAsync(x => x.ProvinceId.Equals(customer.ProvinceId) && false == x.IsDeleted) ??
+                throw new ResourceNotFoundException("Province not found");
+
+            Account? account = await _unitOfWork.AccountRepository.Query()
+                .SingleOrDefaultAsync(x => x.PhoneNumber.Equals(customer.Account.PhoneNumber) || x.Email.Equals(email));
+            if (account != null)
+            {
+                throw new InvalidOperationException("Phone number or Email has already been used");
+            }
+
+            try
+            {
+                await _unitOfWork.BeginTransactionAsync();
+                string accountId = _idGenerator.GenerateId();
+                customer.Account.Email = email;
+                customer.CustomerId = accountId;
+                customer.Account.AccountId = accountId;
+                customer.Account.Password = string.Empty;
                 customer.Account.CreatedAt = _timeZoneHelper.GetUTC7Now();
                 await _unitOfWork.CustomerRepository.CreateAsync(customer);
                 await _unitOfWork.CommitTransactionAsync();
