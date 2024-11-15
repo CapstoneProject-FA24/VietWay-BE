@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using VietWay.API.Management.RequestModel;
 using VietWay.API.Management.ResponseModel;
@@ -154,6 +155,30 @@ namespace VietWay.API.Management.Controllers
         public async Task<IActionResult> DeleteProvince(string provinceId)
         {
             throw new NotImplementedException();
+        }
+
+        [HttpPatch("{provinceId}/images")]
+        [Authorize(Roles = nameof(UserRole.Manager))]
+        [Produces("application/json")]
+        public async Task<IActionResult> UpdateProvinceImageAsync(string provinceId, IFormFile? newImage)
+        {
+            string? managerId = _tokenHelper.GetAccountIdFromToken(HttpContext);
+            if (managerId == null)
+            {
+                return Unauthorized(new DefaultResponseModel<string>()
+                {
+                    Message = "Unauthorized",
+                    Data = null,
+                    StatusCode = StatusCodes.Status401Unauthorized
+                });
+            }
+            await _provinceService.UpdateProvinceImageAsync(provinceId, managerId, newImage);
+            return Ok(new DefaultResponseModel<string>()
+            {
+                Message = "Success",
+                Data = null,
+                StatusCode = StatusCodes.Status200OK
+            });
         }
     }
 }
