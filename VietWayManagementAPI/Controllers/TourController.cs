@@ -172,5 +172,25 @@ namespace VietWay.API.Management.Controllers
                 StatusCode = StatusCodes.Status200OK,
             });
         }
+
+        /// <summary>
+        /// [Manager][Staff] Get tour by tour template id
+        /// </summary>
+        /// <response code="200">Success</response>
+        [HttpGet("get-by-template-id/{tourTemplateId}")]
+        [Produces("application/json")]
+        [ProducesResponseType<DefaultResponseModel<List<TourPreviewDTO>>>(StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetAllToursByTemplateIdsAsync(string tourTemplateId)
+        {
+            List<TourPreviewDTO> tours = await _tourService.GetAllToursByTemplateIdsAsync(tourTemplateId);
+
+            DefaultResponseModel<List<TourPreviewDTO>> response = new()
+            {
+                Data = tours,
+                Message = "Get all tour successfully",
+                StatusCode = StatusCodes.Status200OK
+            };
+            return Ok(response);
+        }
     }
 }
