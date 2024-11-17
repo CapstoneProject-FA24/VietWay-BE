@@ -67,6 +67,10 @@ namespace VietWay.API.Customer.Controllers
                 Data = postDetail
             });
         }
+
+        /// <summary>
+        /// ✅🔐[Customer] Like or unlike a post
+        /// </summary>
         [HttpPatch("{postId}/like")]
         [Produces("application/json")]
         [Authorize(Roles = nameof(UserRole.Customer))]
@@ -81,11 +85,15 @@ namespace VietWay.API.Customer.Controllers
                 StatusCode = StatusCodes.Status200OK
             });
         }
+
+        /// <summary>
+        /// ✅🔐[Customer] Get all posts that customer liked
+        /// </summary>
         [HttpGet("liked")]
         [Produces("application/json")]
         [Authorize(Roles = nameof(UserRole.Customer))]
         [ProducesResponseType<DefaultResponseModel<PaginatedList<PostPreviewDTO>>>(StatusCodes.Status200OK)]
-        async Task<IActionResult> GetCustomerLikedPostPreviewsAsync([FromQuery] int? pageSize, [FromQuery] int? pageIndex)
+        public async Task<IActionResult> GetCustomerLikedPostPreviewsAsync([FromQuery] int? pageSize, [FromQuery] int? pageIndex)
         {
             int checkedPageSize = (pageSize.HasValue || pageSize > 0) ? pageSize.Value : 10;
             int checkedPageIndex = (pageIndex.HasValue || pageIndex > 0) ? pageIndex.Value : 1;
