@@ -81,5 +81,29 @@ namespace VietWay.API.Customer.Controllers
                 StatusCode = StatusCodes.Status200OK
             });
         }
+        [HttpGet("liked")]
+        [Produces("application/json")]
+        [Authorize(Roles = nameof(UserRole.Customer))]
+        [ProducesResponseType<DefaultResponseModel<PaginatedList<PostPreviewDTO>>(StatusCodes.Status200OK)]
+        async Task<IActionResult> GetCustomerLikedPostPreviewsAsync([FromQuery] int? pageSize, [FromQuery] int? pageIndex)
+        {
+            int checkedPageSize = (pageSize.HasValue || pageSize > 0) ? pageSize.Value : 10;
+            int checkedPageIndex = (pageIndex.HasValue || pageIndex > 0) ? pageIndex.Value : 1;
+            string? customerId = _tokenHelper.GetAccountIdFromToken(HttpContext);
+            if (customerId == null)
+            {
+                return Unauthorized(new DefaultResponseModel<object>()
+                {
+                    Message = "Unauthorized",
+                    StatusCode = StatusCodes.Status400BadRequest
+                });
+            }
+            return Ok(new DefaultResponseModel<PaginatedList<PostPreviewDTO>>()
+            {
+                Message = "Success",
+                Data = await _postService.GetCustomerLikedPostPreviewsAsync(customerId, checkedPageSize, checkedPageIndex),
+                StatusCode = StatusCodes.Status200OK
+            });
+        }
     }
 }
