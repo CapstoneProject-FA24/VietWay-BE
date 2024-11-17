@@ -84,7 +84,7 @@ namespace VietWay.API.Customer.Controllers
         [HttpGet("liked")]
         [Produces("application/json")]
         [Authorize(Roles = nameof(UserRole.Customer))]
-        [ProducesResponseType<DefaultResponseModel<PaginatedList<PostPreviewDTO>>(StatusCodes.Status200OK)]
+        [ProducesResponseType<DefaultResponseModel<PaginatedList<PostPreviewDTO>>>(StatusCodes.Status200OK)]
         async Task<IActionResult> GetCustomerLikedPostPreviewsAsync([FromQuery] int? pageSize, [FromQuery] int? pageIndex)
         {
             int checkedPageSize = (pageSize.HasValue || pageSize > 0) ? pageSize.Value : 10;
