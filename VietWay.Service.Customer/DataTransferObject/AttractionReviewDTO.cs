@@ -8,5 +8,6 @@
         public required DateTime CreatedAt { get; set; } = default;
         public required string Reviewer { get; set; } = default!;
         public required int LikeCount { get; set; } = default!;
+        public bool IsLiked { get; set; } = default;
     }
 }

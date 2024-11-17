@@ -93,7 +93,8 @@ namespace VietWay.Service.Customer.Implementation
                     Review = x.Review,
                     CreatedAt = x.CreatedAt,
                     Reviewer = x.Customer!.FullName,
-                    LikeCount = x.AttractionReviewLikes!.Count
+                    LikeCount = x.AttractionReviewLikes!.Count,
+                    IsLiked = x.AttractionReviewLikes.Any(y => y.CustomerId.Equals(customerId))
                 })
                 .ToListAsync();
             return new PaginatedList<AttractionReviewDTO>
@@ -109,14 +110,15 @@ namespace VietWay.Service.Customer.Implementation
         {
             return await _unitOfWork.AttractionReviewRepository.Query()
                 .Where(x => x.AttractionId.Equals(attractionId) && x.CustomerId.Equals(customerId) && false == x.IsDeleted)
-                .Select(x=> new AttractionReviewDTO
+                .Select(x => new AttractionReviewDTO
                 {
                     ReviewId = x.ReviewId,
                     Rating = x.Rating,
                     Review = x.Review,
                     CreatedAt = x.CreatedAt,
                     Reviewer = x.Customer!.FullName,
-                    LikeCount = x.AttractionReviewLikes!.Count
+                    LikeCount = x.AttractionReviewLikes!.Count,
+                    IsLiked = x.AttractionReviewLikes.Any(y => y.CustomerId.Equals(customerId))
                 }).SingleOrDefaultAsync();
         }
 
@@ -124,6 +126,8 @@ namespace VietWay.Service.Customer.Implementation
         {
             try
             {
+#warning TODO: Customer can not like their own review
+
                 await _unitOfWork.BeginTransactionAsync();
                 AttractionReviewLike? attractionReviewLike = await _unitOfWork.AttractionReviewLikeRepository.Query()
                     .SingleOrDefaultAsync(x => x.ReviewId.Equals(reviewId) && x.CustomerId.Equals(customerId) && false == x.AttractionReview!.IsDeleted);
