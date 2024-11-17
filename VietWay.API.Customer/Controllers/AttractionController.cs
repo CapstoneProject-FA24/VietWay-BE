@@ -26,8 +26,6 @@ namespace VietWay.API.Customer.Controllers
         /// <summary>
         /// ✅[🔐][All]/[Customer] Get all attractions, and get if customer liked each attraction
         /// </summary>
-        /// <returns> List of attractions</returns>
-        /// <response code="200">Return list of attractions</response>
         [HttpGet]
         [Produces("application/json")]
         [ProducesResponseType(StatusCodes.Status200OK,Type = typeof(DefaultResponseModel<PaginatedList<AttractionPreviewDTO>>))]
@@ -76,9 +74,6 @@ namespace VietWay.API.Customer.Controllers
         /// <summary>
         /// ✅[All] Get tour templates related to attraction
         /// </summary>
-        /// <returns> List of tour templates related to this attraction </returns>
-        /// <response code="200">Return list of tour templates</response>
-        /// <response code="404">Attraction not found</response>
         [HttpGet("{attractionId}/tour-templates")]
         [Produces("application/json")]
         [ProducesResponseType<DefaultResponseModel<List<TourTemplatePreviewDTO>>>(StatusCodes.Status200OK)]
@@ -150,9 +145,6 @@ namespace VietWay.API.Customer.Controllers
         /// <summary>
         /// ✅🔐[Customer] Add attraction review
         /// </summary>
-        /// <param name="attractionId"></param>
-        /// <param name="request"></param>
-        /// <returns></returns>
         [HttpPost("{attractionId}/customer-reviews")]
         [Produces("application/json")]
         [Authorize(Roles = nameof(UserRole.Customer))]

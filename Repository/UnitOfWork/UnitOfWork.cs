@@ -26,6 +26,7 @@ namespace VietWay.Repository.UnitOfWork
         private IGenericRepository<Manager>? managerRepository;
         private IGenericRepository<Post>? postRepository;
         private IGenericRepository<PostCategory>? postCategoryRepository;
+        private IGenericRepository<PostLike>? postLikeRepository;
         private IGenericRepository<Province>? provinceRepository;
         private IGenericRepository<Staff>? staffRepository;
         private IGenericRepository<Tour>? tourRepository;
@@ -168,7 +169,14 @@ namespace VietWay.Repository.UnitOfWork
                 return postCategoryRepository;
             }
         }
-
+        public IGenericRepository<PostLike> PostLikeRepository
+        {
+            get
+            {
+                postLikeRepository ??= new GenericRepository<PostLike>(_dbContext);
+                return postLikeRepository;
+            }
+        }
         public IGenericRepository<Province> ProvinceRepository
         {
             get

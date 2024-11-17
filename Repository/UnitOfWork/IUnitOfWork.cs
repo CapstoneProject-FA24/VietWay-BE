@@ -20,6 +20,7 @@ namespace VietWay.Repository.UnitOfWork
         public IGenericRepository<Manager> ManagerRepository { get; }
         public IGenericRepository<Post> PostRepository { get; }
         public IGenericRepository<PostCategory> PostCategoryRepository { get; }
+        public IGenericRepository<PostLike> PostLikeRepository { get; }
         public IGenericRepository<Province> ProvinceRepository { get; }
         public IGenericRepository<Staff> StaffRepository { get; }
         public IGenericRepository<Tour> TourRepository { get; }

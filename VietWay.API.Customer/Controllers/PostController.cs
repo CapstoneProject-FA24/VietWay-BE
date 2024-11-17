@@ -1,6 +1,9 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using VietWay.API.Customer.RequestModel;
 using VietWay.API.Customer.ResponseModel;
+using VietWay.Repository.EntityModel.Base;
 using VietWay.Service.Customer.DataTransferObject;
 using VietWay.Service.Customer.Interface;
 using VietWay.Util.TokenUtil;
@@ -62,6 +65,20 @@ namespace VietWay.API.Customer.Controllers
                 Message = "Success",
                 StatusCode = StatusCodes.Status200OK,
                 Data = postDetail
+            });
+        }
+        [HttpPatch("{postId}/like")]
+        [Produces("application/json")]
+        [Authorize(Roles = nameof(UserRole.Customer))]
+        [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status200OK)]
+        public async Task<IActionResult> LikePostAsync(string postId,ToggleLikeRequest request)
+        {
+            string? customerId = _tokenHelper.GetAccountIdFromToken(HttpContext);
+            await _postService.TogglePostLikeAsync(postId, customerId, request.IsLike);
+            return Ok(new DefaultResponseModel<object>()
+            {
+                Message = "Success",
+                StatusCode = StatusCodes.Status200OK
             });
         }
     }

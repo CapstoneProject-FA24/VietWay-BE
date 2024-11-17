@@ -46,7 +46,7 @@ namespace VietWay.Service.Customer.Implementation
                         .Select(s => new RatingDTO { Rating = s.Key, Count = s.Count() })
                         .ToList(),
                     LikeCount = x.AttractionLikes.Count(),
-                    Liked = x.AttractionLikes.Any(x => x.CustomerId.Equals(customerId))
+                    IsLiked = customerId != null && x.AttractionLikes.Any(x => x.CustomerId.Equals(customerId))
                 })
                 .SingleOrDefaultAsync();
         }
@@ -82,7 +82,7 @@ namespace VietWay.Service.Customer.Implementation
                     ImageUrl = x.AttractionImages.Select(x => x.ImageUrl).First(),
                     AverageRating = x.AttractionReviews.Where(x => false == x.IsDeleted).Average(y => y.Rating),
                     LikeCount = x.AttractionLikes.Count(),
-                    Liked = x.AttractionLikes.Any(x => x.CustomerId.Equals(customerId))
+                    IsLiked = customerId != null && x.AttractionLikes.Any(x => x.CustomerId.Equals(customerId))
                 })
                 .ToListAsync();
             return new PaginatedList<AttractionPreviewDTO>
@@ -112,6 +112,7 @@ namespace VietWay.Service.Customer.Implementation
                     ImageUrl = x.AttractionImages.Select(x => x.ImageUrl).First(),
                     AverageRating = x.AttractionReviews.Where(x => false == x.IsDeleted).Average(y => y.Rating),
                     LikeCount = x.AttractionLikes.Count(),
+                    IsLiked = true
                 })
                 .ToListAsync();
             return new PaginatedList<AttractionPreviewDTO>
