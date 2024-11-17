@@ -20,5 +20,7 @@ namespace VietWay.Service.Management.DataTransferObject
         public string? PostCategoryName { get; set; }
         public DateTime CreateAt { get; set; }
         public PostStatus Status { get; set; }
+        public string? XTweetId { get; set; }
+        public string? FacebookPostId { get; set; }
     }
 }

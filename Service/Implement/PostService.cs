@@ -158,6 +158,8 @@ namespace VietWay.Service.Management.Implement
                     ProvinceName = x.Province.Name,
                     Description = x.Description,
                     Status = x.Status,
+                    XTweetId = x.XTweetId,
+                    FacebookPostId = x.FacebookPostId
                 })
                 .SingleOrDefaultAsync();
         }

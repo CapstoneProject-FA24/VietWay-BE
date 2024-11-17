@@ -141,16 +141,31 @@ namespace VietWay.Service.Management.Implement
                 .ToListAsync();
             return (count, items);
         }
-        public async Task<List<Tour>> GetAllToursByTemplateIdsAsync(
+        public async Task<List<TourPreviewDTO>> GetAllToursByTemplateIdsAsync(
             string tourTemplateId)
         {
-            return await _unitOfWork
-                .TourRepository
-                .Query()
-                .Where(x => x.IsDeleted == false && x.TourTemplateId.Equals(tourTemplateId) && x.Status == TourStatus.Opened)
+            List<TourPreviewDTO> items = await _unitOfWork.TourRepository.Query()
                 .Include(x => x.TourTemplate)
                 .ThenInclude(x => x.TourTemplateImages)
+                .Where(x => x.TourTemplateId.Equals(tourTemplateId) && x.IsDeleted == false)
+                .Select(x => new TourPreviewDTO
+                {
+                    TourId = x.TourId,
+                    TourTemplateId = x.TourTemplateId,
+                    Code = x.TourTemplate.Code,
+                    TourName = x.TourTemplate.TourName,
+                    Duration = x.TourTemplate.TourDuration.DurationName,
+                    ImageUrl = x.TourTemplate.TourTemplateImages.FirstOrDefault().ImageUrl,
+                    StartLocation = x.StartLocation,
+                    StartDate = x.StartDate,
+                    DefaultTouristPrice = x.DefaultTouristPrice,
+                    MaxParticipant = x.MaxParticipant,
+                    MinParticipant = x.MinParticipant,
+                    CurrentParticipant = x.CurrentParticipant,
+                    Status = x.Status
+                })
                 .ToListAsync();
+            return items;
         }
 
         public async Task ChangeTourStatusAsync(string tourId, string accountId, TourStatus tourStatus, string? reason)

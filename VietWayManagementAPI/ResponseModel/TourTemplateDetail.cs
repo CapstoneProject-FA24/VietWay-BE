@@ -12,10 +12,9 @@ namespace VietWay.API.Management.ResponseModel
         public required string Description { get; set; }
         public required DurationDetail Duration { get; set; }
         public required TourCategoryPreview TourCategory { get; set; }
-        public required string Policy { get; set; }
         public required string Note { get; set; }
         public TourTemplateStatus Status { get; set; }
-        public required DateTime CreatedDate { get; set; }
+        public required DateTime CreatedAt { get; set; }
         public required string CreatorName { get; set; }
         public required List<ProvinceBriefPreviewDTO> Provinces { get; set; }
         public required List<ScheduleDetail> Schedules { get; set; }
