@@ -32,5 +32,6 @@ namespace VietWay.Repository.EntityModel
 
         public virtual PostCategory? PostCategory { get; set; }
         public virtual Province? Province { get; set; }
+        public virtual ICollection<PostLike>? PostLikes { get; set; }
     }
 }

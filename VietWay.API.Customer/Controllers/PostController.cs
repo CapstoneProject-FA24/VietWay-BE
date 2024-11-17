@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using VietWay.API.Customer.ResponseModel;
 using VietWay.Service.Customer.DataTransferObject;
 using VietWay.Service.Customer.Interface;
+using VietWay.Util.TokenUtil;
 
 namespace VietWay.API.Customer.Controllers
 {
@@ -11,12 +12,13 @@ namespace VietWay.API.Customer.Controllers
     /// </summary>
     [Route("api/post")]
     [ApiController]
-    public class PostController(IPostService postService) : ControllerBase
+    public class PostController(IPostService postService, ITokenHelper tokenHelper) : ControllerBase
     {
         private readonly IPostService _postService = postService;
+        private readonly ITokenHelper _tokenHelper = tokenHelper;
 
         /// <summary>
-        /// ✅[All] Get posts
+        /// ✅[🔐][All]/[Customer] Get all posts, and get if customer liked each post
         /// </summary>
         [HttpGet]
         [Produces("application/json")]
@@ -26,23 +28,26 @@ namespace VietWay.API.Customer.Controllers
         {
             int checkedPageSize = (pageSize.HasValue || pageSize > 0) ? pageSize.Value : 10;
             int checkedPageIndex = (pageIndex.HasValue || pageIndex > 0) ? pageIndex.Value : 1;
+            string? customerId = _tokenHelper.GetAccountIdFromToken(HttpContext);
             return Ok(new DefaultResponseModel<PaginatedList<PostPreviewDTO>>()
             {
                 Message = "Success",
-                Data = await _postService.GetPostPreviewsAsync(nameSearch, provinceIds, postCategoryIds, checkedPageSize, checkedPageIndex),
+                Data = await _postService.GetPostPreviewsAsync(nameSearch, provinceIds, postCategoryIds, customerId,
+                    checkedPageSize, checkedPageIndex),
                 StatusCode = StatusCodes.Status200OK
             });
         }
 
         /// <summary>
-        /// ✅[All] Get post detail
+        /// ✅[🔐][All]/[Customer] Get post detail, and get if customer liked this post
         /// </summary>
         [HttpGet("{postId}")]
         [Produces("application/json")]
         [ProducesResponseType<DefaultResponseModel<PostDetailDTO>>(StatusCodes.Status200OK)]
         public async Task<IActionResult> GetPostDetailAsync(string postId)
         {
-            PostDetailDTO? postDetail = await _postService.GetPostDetailAsync(postId);
+            string? customerId = _tokenHelper.GetAccountIdFromToken(HttpContext);
+            PostDetailDTO? postDetail = await _postService.GetPostDetailAsync(postId,customerId);
             if (postDetail == null)
             {
                 return NotFound(new DefaultResponseModel<object>()

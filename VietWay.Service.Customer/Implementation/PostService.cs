@@ -15,7 +15,7 @@ namespace VietWay.Service.Customer.Implementation
     public class PostService(IUnitOfWork unitOfWork) : IPostService
     {
         private readonly IUnitOfWork _unitOfWork = unitOfWork;
-        public async Task<PostDetailDTO?> GetPostDetailAsync(string postId)
+        public async Task<PostDetailDTO?> GetPostDetailAsync(string postId, string? customerId)
         {
             return await _unitOfWork.PostRepository.Query()
                 .Select(x => new PostDetailDTO
@@ -30,12 +30,13 @@ namespace VietWay.Service.Customer.Implementation
                     PostCategoryId = x.PostCategoryId,
                     ProvinceId = x.ProvinceId,
                     CreatedAt = x.CreatedAt,
+                    IsLiked = x.PostLikes.Any(y => y.CustomerId.Equals(customerId))
                 })
                 .SingleOrDefaultAsync(x => x.PostId.Equals(postId));
         }
 
         public async Task<PaginatedList<PostPreviewDTO>> GetPostPreviewsAsync(string? nameSearch, List<string>? provinceIds, 
-            List<string>? postCategoryIds, int pageSize, int pageIndex)
+            List<string>? postCategoryIds,string? customerId, int pageSize, int pageIndex)
         {
             IQueryable<Post> query = _unitOfWork.PostRepository.Query()
                 .Where(x => x.Status == PostStatus.Approved && x.IsDeleted == false);
@@ -65,6 +66,7 @@ namespace VietWay.Service.Customer.Implementation
                     ProvinceName = x.Province.Name,
                     Description = x.Description,
                     CreatedAt = x.CreatedAt,
+                    IsLiked = x.PostLikes.Any(y => y.CustomerId.Equals(customerId)),
                 }).ToListAsync();
             return new PaginatedList<PostPreviewDTO>
             {

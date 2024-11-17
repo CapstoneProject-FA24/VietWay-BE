@@ -9,8 +9,8 @@ namespace VietWay.Service.Customer.Interface
 {
     public interface IPostService
     {
-        Task<PostDetailDTO?> GetPostDetailAsync(string postId);
+        Task<PostDetailDTO?> GetPostDetailAsync(string postId,string? customerId);
         public Task<PaginatedList<PostPreviewDTO>> GetPostPreviewsAsync(string? nameSearch, List<string>? provinceIds, 
-            List<string>? postCategoryIds, int pageSize, int pageIndex);
+            List<string>? postCategoryIds, string? customerId, int pageSize, int pageIndex);
     }
 }
