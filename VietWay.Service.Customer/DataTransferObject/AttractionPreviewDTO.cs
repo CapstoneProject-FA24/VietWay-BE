@@ -16,6 +16,7 @@ namespace VietWay.Service.Customer.DataTransferObject
         public string? AttractionCategory { get; set; }
         public string? ImageUrl { get; set; }
         public double? AverageRating { get; set; }
-        public int? LikeCount { get; set; }
+        public int LikeCount { get; set; }
+        public bool Liked { get; set; }
     }
 }

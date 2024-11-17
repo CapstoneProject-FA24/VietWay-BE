@@ -24,7 +24,7 @@ namespace VietWay.API.Customer.Controllers
         private readonly IAttractionReviewService _attractionReviewService = attractionReviewService;
         private readonly ITokenHelper _tokenHelper = tokenHelper;
         /// <summary>
-        /// ✅[All] Get all attractions
+        /// ✅[🔐][All]/[Customer] Get all attractions, and get if customer liked each attraction
         /// </summary>
         /// <returns> List of attractions</returns>
         /// <response code="200">Return list of attractions</response>
@@ -36,29 +36,27 @@ namespace VietWay.API.Customer.Controllers
         {
             int checkedPageSize = pageSize ?? 10;
             int checkedPageIndex = pageIndex ?? 1;
+            string? customerId = _tokenHelper.GetAccountIdFromToken(HttpContext);
             return Ok(new DefaultResponseModel<PaginatedList<AttractionPreviewDTO>>()
             {
                 Message = "Success",
                 Data = await _attractionService.GetAttractionsPreviewAsync(
-                    nameSearch, provinceIds, attractionTypeIds, checkedPageSize, checkedPageIndex),
+                    nameSearch, provinceIds, attractionTypeIds, customerId, checkedPageSize, checkedPageIndex),
                 StatusCode = StatusCodes.Status200OK
             });
         }
 
         /// <summary>
-        /// ✅[All] Get attraction by ID
+        /// ✅[🔐][All]/[Customer] Get attraction by ID, and get if customer liked this attraction
         /// </summary>
-        /// <param name="attractionId"></param>
-        /// <returns> Attraction details</returns>
-        /// <response code="200">Return attraction details</response>
-        /// <response code="404">Attraction not found</response>
         [HttpGet("{attractionId}")]
         [Produces("application/json")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(DefaultResponseModel<object>))]
         [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(DefaultResponseModel<object>))]
         public async Task<IActionResult> GetAttractionById(string attractionId)
         {
-            AttractionDetailDTO? attractionDetailDTO = await _attractionService.GetAttractionDetailByIdAsync(attractionId);
+            string? customerId = _tokenHelper.GetAccountIdFromToken(HttpContext);
+            AttractionDetailDTO? attractionDetailDTO = await _attractionService.GetAttractionDetailByIdAsync(attractionId,customerId);
             if (attractionDetailDTO == null)
             {
                 return NotFound(new DefaultResponseModel<object>

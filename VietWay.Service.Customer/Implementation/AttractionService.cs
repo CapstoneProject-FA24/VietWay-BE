@@ -10,7 +10,7 @@ namespace VietWay.Service.Customer.Implementation
     public class AttractionService(IUnitOfWork unitOfWork) : IAttractionService
     {
         private readonly IUnitOfWork _unitOfWork = unitOfWork;
-        public async Task<AttractionDetailDTO?> GetAttractionDetailByIdAsync(string attractionId)
+        public async Task<AttractionDetailDTO?> GetAttractionDetailByIdAsync(string attractionId, string? customerId)
         {
             return await _unitOfWork.AttractionRepository
                 .Query()
@@ -45,13 +45,14 @@ namespace VietWay.Service.Customer.Implementation
                         .GroupBy(g => g.Rating)
                         .Select(s => new RatingDTO { Rating = s.Key, Count = s.Count() })
                         .ToList(),
-                    LikeCount = x.AttractionLikes.Count()
+                    LikeCount = x.AttractionLikes.Count(),
+                    Liked = x.AttractionLikes.Any(x => x.CustomerId.Equals(customerId))
                 })
                 .SingleOrDefaultAsync();
         }
 
         public async Task<PaginatedList<AttractionPreviewDTO>> GetAttractionsPreviewAsync(string? nameSearch, List<string>? provinceIds, 
-            List<string>? attractionTypeIds, int pageSize, int pageIndex)
+            List<string>? attractionTypeIds, string? customerId , int pageSize, int pageIndex)
         {
             IQueryable<Attraction> query = _unitOfWork.AttractionRepository.Query()
                 .Where(x => x.Status == AttractionStatus.Approved && x.IsDeleted == false);
@@ -80,7 +81,8 @@ namespace VietWay.Service.Customer.Implementation
                     AttractionCategory = x.AttractionCategory.Name,
                     ImageUrl = x.AttractionImages.Select(x => x.ImageUrl).First(),
                     AverageRating = x.AttractionReviews.Where(x => false == x.IsDeleted).Average(y => y.Rating),
-                    LikeCount = x.AttractionLikes.Count()
+                    LikeCount = x.AttractionLikes.Count(),
+                    Liked = x.AttractionLikes.Any(x => x.CustomerId.Equals(customerId))
                 })
                 .ToListAsync();
             return new PaginatedList<AttractionPreviewDTO>
