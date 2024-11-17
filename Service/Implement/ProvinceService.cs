@@ -132,7 +132,7 @@ namespace VietWay.Service.Management.Implement
             }
         }
 
-        public async Task UpdateProvinceImageAsync(string provinceId, string managerId, IFormFile newImages)
+        public async Task UpdateProvinceImageAsync(string provinceId, IFormFile newImages)
         {
             Province province = await _unitOfWork.ProvinceRepository.Query()
                 .SingleOrDefaultAsync(x => x.ProvinceId.Equals(provinceId))

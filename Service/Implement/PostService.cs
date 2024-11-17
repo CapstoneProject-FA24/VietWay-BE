@@ -203,5 +203,33 @@ namespace VietWay.Service.Management.Implement
                 throw;
             }
         }
+
+        public async Task UpdatePostImageAsync(string postId, IFormFile newImages)
+        {
+            Post post = await _unitOfWork.PostRepository.Query()
+                .SingleOrDefaultAsync(x => x.PostId.Equals(postId))
+                ?? throw new ResourceNotFoundException("Post not found");
+            try
+            {
+                await _unitOfWork.BeginTransactionAsync();
+                if (newImages != null)
+                {
+                    string imageId = postId;
+                    using MemoryStream memoryStream = new();
+                    using Stream stream = newImages.OpenReadStream();
+                    await stream.CopyToAsync(memoryStream);
+                    await _cloudinaryService.UploadImageAsync(imageId, newImages.FileName, memoryStream.ToArray());
+                    post.ImageUrl = _cloudinaryService.GetImage(imageId);
+                }
+
+                await _unitOfWork.PostRepository.UpdateAsync(post);
+                await _unitOfWork.CommitTransactionAsync();
+            }
+            catch
+            {
+                await _unitOfWork.RollbackTransactionAsync();
+                throw;
+            }
+        }
     }
 }

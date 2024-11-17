@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Http;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -23,5 +24,6 @@ namespace VietWay.Service.Management.Interface
         public Task UpdatePostAsync(Post newPost);
         public Task<PostDetailDTO?> GetPostByIdAsync(string postId);
         public Task ChangePostStatusAsync(string postId, string accountId, PostStatus postStatus, string? reason);
+        public Task UpdatePostImageAsync(string postId, IFormFile newImages);
     }
 }

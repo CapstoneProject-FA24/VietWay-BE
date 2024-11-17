@@ -172,7 +172,7 @@ namespace VietWay.API.Management.Controllers
                     StatusCode = StatusCodes.Status401Unauthorized
                 });
             }
-            await _provinceService.UpdateProvinceImageAsync(provinceId, managerId, newImage);
+            await _provinceService.UpdateProvinceImageAsync(provinceId, newImage);
             return Ok(new DefaultResponseModel<string>()
             {
                 Message = "Success",
