@@ -25,10 +25,11 @@ namespace VietWay.Service.ThirdParty.GoogleGemini
                         Parts =
                         [
                             new() { Text = content }
-                        ]
+                        ],
+                        Role = "user"
                     }
                 },
-            }, options: new JsonSerializerOptions { DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull });
+            });
             response.EnsureSuccessStatusCode();
             JsonDocument jsonDocument = await JsonDocument.ParseAsync(await response.Content.ReadAsStreamAsync());
             JsonElement root = jsonDocument.RootElement;
@@ -37,7 +38,7 @@ namespace VietWay.Service.ThirdParty.GoogleGemini
         }
         public async Task<string> ChatAsync(List<Content> contents)
         {
-            using HttpClient httpClient = new HttpClient();
+            using HttpClient httpClient = new();
             HttpResponseMessage response = await httpClient.PostAsJsonAsync($"{_apiEndpoint}:generateContent?key={_apiKey}", new
             {
                 Contents = contents
