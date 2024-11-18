@@ -10,6 +10,7 @@ namespace VietWay.Service.Management.DataTransferObject
     {
         public required string ProvinceId { get; set; }
         public required string ProvinceName { get; set; }
+        public required string Description { get; set; }
         public required string ImageUrl { get; set; }
         public required int AttractionsCount { get; set; }
         public required int PostsCount { get; set; }

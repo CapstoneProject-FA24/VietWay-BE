@@ -1150,7 +1150,7 @@ namespace VietWay.Repository.Migrations
                         .IsRequired();
 
                     b.HasOne("VietWay.Repository.EntityModel.Post", "Post")
-                        .WithMany()
+                        .WithMany("PostLikes")
                         .HasForeignKey("PostId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -1307,6 +1307,11 @@ namespace VietWay.Repository.Migrations
 
                     b.Navigation("Bookings");
 
+                    b.Navigation("PostLikes");
+                });
+
+            modelBuilder.Entity("VietWay.Repository.EntityModel.Post", b =>
+                {
                     b.Navigation("PostLikes");
                 });
 
