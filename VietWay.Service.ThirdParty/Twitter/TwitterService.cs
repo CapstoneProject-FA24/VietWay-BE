@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
 using Tweetinvi;
@@ -20,6 +21,8 @@ namespace VietWay.Service.ThirdParty.Twitter
             ?? throw new Exception("X_ACCESS_TOKEN is not set in environment variables");
         private readonly string _xAccessTokenSecret = Environment.GetEnvironmentVariable("X_ACCESS_TOKEN_SECRET")
             ?? throw new Exception("X_ACCESS_TOKEN_SECRET is not set in environment variables");
+        private readonly string _bearerToken = Environment.GetEnvironmentVariable("X_BEARER_TOKEN")
+            ?? throw new Exception("X_BEARER_TOKEN is not set in environment variables");
 
         public async Task<string> PostTweetAsync(PostTweetRequestDTO postTweetRequestDTO)
         {
@@ -60,6 +63,38 @@ namespace VietWay.Service.ThirdParty.Twitter
                 request.Query.HttpMethod = Tweetinvi.Models.HttpMethod.POST;
                 request.Query.HttpContent = content;
             };
+        }
+
+        public async Task<string> GetTweetsAsync(string tweetIds)
+        {
+            using (var httpClient = new HttpClient())
+            {
+                httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _bearerToken);
+                var response = await httpClient.GetAsync($"https://api.twitter.com/2/tweets?ids={tweetIds}&tweet.fields=public_metrics");
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    throw new Exception($"Failed to fetch tweets: {response.ReasonPhrase}");
+                }
+
+                return await response.Content.ReadAsStringAsync();
+            }
+        }
+
+        public async Task<string> GetTweetByIdAsync(string tweetId)
+        {
+            using (var httpClient = new HttpClient())
+            {
+                httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _bearerToken);
+                var response = await httpClient.GetAsync($"https://api.twitter.com/2/tweets/{tweetId}?tweet.fields=public_metrics");
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    throw new Exception($"Failed to fetch tweets: {response.ReasonPhrase}");
+                }
+
+                return await response.Content.ReadAsStringAsync();
+            }
         }
     }
 }
