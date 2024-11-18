@@ -194,17 +194,17 @@ namespace VietWay.API.Management.Controllers
                 StatusCode = StatusCodes.Status200OK
             });
         }
-        [HttpGet("{postId}/facebook/reactions")]
+        [HttpGet("{postId}/facebook/metrics")]
         [Produces("application/json")]
-        [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status200OK)]
+        [ProducesResponseType<DefaultResponseModel<FacebookMetricsDTO>>(StatusCodes.Status200OK)]
         public async Task<IActionResult> GetFacebookReactionsAsync(string postId)
         {
-            int reactionCount = await _publishPostService.GetPublishedPostReactionAsync(postId);
-            return Ok(new DefaultResponseModel<object>
+
+            return Ok(new DefaultResponseModel<FacebookMetricsDTO>
             {
                 Message = "Get facebook reaction count successfully",
                 StatusCode = StatusCodes.Status200OK,
-                Data = reactionCount
+                Data = await _publishPostService.GetFacebookPostMetricsAsync(postId)
             });
         }
 

@@ -17,14 +17,15 @@ namespace VietWay.Service.ThirdParty.Facebook
                 throw new Exception("FACEBOOK_PAGE_ACCESS_TOKEN is not set in environment variables");
             _facebookClient = new FacebookClient(pageId, pageToken);
         }
-        public async Task<int> GetPublishedPostReactionAsync(string facebookPostId)
-        {
-            return await _facebookClient.GetPublishedPostReactionAsync(facebookPostId);
-        }
 
-        public Task<string> PublishPostAsync(string content, string? url)
-        {
-            return _facebookClient.PublishPostAsync(content, url);
-        }
+        public async Task<int> GetPostCommentCountAsync(string facebookPostId) => await _facebookClient.GetPostCommentCountAsync(facebookPostId);
+
+        public async Task<int> GetPostImpressionCountAsync(string facebookPostId) => await _facebookClient.GetPostImpressionCountAsync(facebookPostId);
+
+        public async Task<PostReaction> GetPostReactionCountByTypeAsync(string facebookPostId) => await _facebookClient.GetPostReactionCountByTypeAsync(facebookPostId);
+
+        public async Task<int> GetPostShareCountAsync(string facebookPostId) => await _facebookClient.GetPostShareCountAsync(facebookPostId);
+
+        public Task<string> PublishPostAsync(string content, string? url) => _facebookClient.PublishPostAsync(content, url);
     }
 }

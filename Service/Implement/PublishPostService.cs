@@ -31,17 +31,27 @@ namespace VietWay.Service.Management.Implement
         private readonly ITweetJob _tweetJob = tweetJob;
         private readonly IRedisCacheService _redisCacheService = redisCacheService;
 
-        public async Task<int> GetPublishedPostReactionAsync(string postId)
+        public async Task<FacebookMetricsDTO> GetFacebookPostMetricsAsync(string postId)
         {
             Post? post = await _unitOfWork.PostRepository.Query()
                 .SingleOrDefaultAsync(x => x.PostId.Equals(postId)) ??
                 throw new ResourceNotFoundException("Post not found");
-
             if (post.FacebookPostId.IsNullOrEmpty())
             {
-                throw new ServerErrorException("The post has not been published");
+                throw new InvalidOperationException("The post has not been published");
             }
-            return await _facebookService.GetPublishedPostReactionAsync(post.FacebookPostId!);
+            Task<int> countCommentTask = _facebookService.GetPostCommentCountAsync(post.FacebookPostId!);
+            Task<int> countShareTask = _facebookService.GetPostShareCountAsync(post.FacebookPostId!);
+            Task<int> countImpressionTask = _facebookService.GetPostImpressionCountAsync(post.FacebookPostId!);
+            Task<PostReaction> getReactionsTask = _facebookService.GetPostReactionCountByTypeAsync(post.FacebookPostId!);
+            await Task.WhenAll(countCommentTask, countImpressionTask, countShareTask, getReactionsTask);
+            return new FacebookMetricsDTO
+            {
+                CommentCount = countCommentTask.Result,
+                ImpressionCount = countImpressionTask.Result,
+                PostReactions = getReactionsTask.Result,
+                ShareCount = countShareTask.Result
+            };
         }
 
         public async Task<List<TweetDTO>> GetPublishedTweetsAsync()

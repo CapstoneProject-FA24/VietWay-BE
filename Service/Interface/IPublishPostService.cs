@@ -10,7 +10,7 @@ namespace VietWay.Service.Management.Interface
 {
     public interface IPublishPostService
     {
-        Task<int> GetPublishedPostReactionAsync(string postId);
+        public Task<FacebookMetricsDTO> GetFacebookPostMetricsAsync(string postId);
         public Task PostTweetWithXAsync(string postId);
         Task PublishPostToFacebookPageAsync(string postId);
         public Task<List<TweetDTO>> GetPublishedTweetsAsync();

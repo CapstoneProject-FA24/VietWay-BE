@@ -7,6 +7,7 @@ using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace VietWay.Service.ThirdParty.Facebook
 {
@@ -30,20 +31,69 @@ namespace VietWay.Service.ThirdParty.Facebook
             JsonElement root = jsonDocument.RootElement;
             return root.GetProperty("id").GetString();
         }
-        public async Task<int> GetPublishedPostReactionAsync(string facebookPostId)
+        public async Task<int> GetPostCommentCountAsync(string facebookPostId)
         {
-            using HttpClient httpClient = new();
-            HttpResponseMessage response = await httpClient.GetAsync($"{BASEURL}/{facebookPostId}?fields=reactions.summary(total_count)&access_token={_pageToken}");
-            response.EnsureSuccessStatusCode();
-            JsonDocument jsonDocument = await JsonDocument.ParseAsync(await response.Content.ReadAsStreamAsync());
-            JsonElement root = jsonDocument.RootElement;
             try
             {
-                return root.GetProperty("reactions").GetProperty("summary").GetProperty("total_count").GetInt32();
+                using HttpClient httpClient = new();
+                HttpResponseMessage response = await httpClient.GetAsync($"{BASEURL}/{facebookPostId}?fields=comments.summary(total_count)&access_token={_pageToken}");
+                response.EnsureSuccessStatusCode();
+                JsonDocument jsonDocument = await JsonDocument.ParseAsync(await response.Content.ReadAsStreamAsync());
+                JsonElement root = jsonDocument.RootElement;
+                return root.GetProperty("comments").GetProperty("summary").GetProperty("total_count").GetInt32();
             }
             catch
             {
                 return 0;
+            }
+        }
+        public async Task<int> GetPostShareCountAsync(string facebookPostId)
+        {
+            try 
+            {
+                using HttpClient httpClient = new();
+                HttpResponseMessage response = await httpClient.GetAsync($"{BASEURL}/{facebookPostId}?fields=shares&access_token={_pageToken}");
+                response.EnsureSuccessStatusCode();
+                JsonDocument jsonDocument = await JsonDocument.ParseAsync(await response.Content.ReadAsStreamAsync());
+                JsonElement root = jsonDocument.RootElement;
+                return root.GetProperty("shares").GetProperty("count").GetInt32();
+            }
+            catch
+            {
+                return 0;
+            }
+        }
+        public async Task<int> GetPostImpressionCountAsync(string facebookPostId)
+        {
+            try
+            {
+                using HttpClient httpClient = new();
+                HttpResponseMessage response = await httpClient.GetAsync($"{BASEURL}/{facebookPostId}?fields=insights.metric(post_impressions_unique)&access_token={_pageToken}");
+                response.EnsureSuccessStatusCode();
+                JsonDocument jsonDocument = await JsonDocument.ParseAsync(await response.Content.ReadAsStreamAsync());
+                JsonElement root = jsonDocument.RootElement;
+                return root.GetProperty("insights").GetProperty("data")[0].GetProperty("values")[0].GetProperty("value").GetInt32();
+            }
+            catch
+            {
+                return 0;
+            }
+        }
+        public async Task<PostReaction> GetPostReactionCountByTypeAsync(string facebookPostId)
+        {
+            try
+            {
+                using HttpClient httpClient = new();
+                HttpResponseMessage response = await httpClient.GetAsync($"{BASEURL}/{facebookPostId}/insights?metric=post_reactions_by_type_total&access_token={_pageToken}");
+                response.EnsureSuccessStatusCode();
+                JsonDocument jsonDocument = await JsonDocument.ParseAsync(await response.Content.ReadAsStreamAsync());
+                JsonElement root = jsonDocument.RootElement;
+                string value = root.GetProperty("data")[0].GetProperty("values")[0].GetProperty("value").GetRawText();
+                return JsonSerializer.Deserialize<PostReaction>(value);
+            }
+            catch
+            {
+                return new PostReaction();
             }
         }
     }
