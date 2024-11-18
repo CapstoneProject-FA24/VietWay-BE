@@ -14,6 +14,7 @@ using VietWay.Repository.UnitOfWork;
 using VietWay.Service.Customer.Implementation;
 using VietWay.Service.Customer.Interface;
 using VietWay.Service.ThirdParty.Firebase;
+using VietWay.Service.ThirdParty.GoogleGemini;
 using VietWay.Service.ThirdParty.VnPay;
 using VietWay.Util;
 using VietWay.Util.DateTimeUtil;
@@ -158,6 +159,7 @@ namespace VietWay.API.Customer
             builder.Services.AddScoped<IHashHelper, BCryptHashHelper>();
             builder.Services.AddScoped<ITokenHelper, TokenHelper>();
             builder.Services.AddScoped<IFirebaseService, FirebaseService>();
+            builder.Services.AddScoped<IGeminiService, GeminiService>();
             #endregion
             builder.Services.AddSingleton<IIdGenerator, SnowflakeIdGenerator>();
             builder.Services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer

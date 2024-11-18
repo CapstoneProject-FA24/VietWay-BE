@@ -3,6 +3,7 @@ using AutoMapper;
 using VietWay.API.Customer.ResponseModel;
 using VietWay.API.Customer.RequestModel;
 using VietWay.Repository.EntityModel.Base;
+using VietWay.Service.ThirdParty.GoogleGemini;
 namespace VietWay.API.Customer.Mappers
 {
     public class MappingProfile : Profile
@@ -47,7 +48,10 @@ namespace VietWay.API.Customer.Mappers
                     IsDeleted = false,
                 }));
             CreateMap<ReviewTourRequest, TourReview>()
-                .ForMember(x=>x.Review,opt=>opt.MapFrom(src=>src.Content));
+                .ForMember(dest=>dest.Review,opt=>opt.MapFrom(src=>src.Content));
+            CreateMap<ChatRequest,Content>()
+                .ForMember(dest => dest.Role, opt => opt.MapFrom(src=>src.IsUser ? "user" : "model"))
+                .ForMember(dest => dest.Parts, opt => opt.MapFrom(src => new List<Part> { new() { Text = src.Text } }));
         }
     }
 }
