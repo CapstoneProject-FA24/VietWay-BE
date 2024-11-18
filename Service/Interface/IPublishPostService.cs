@@ -15,5 +15,6 @@ namespace VietWay.Service.Management.Interface
         Task PublishPostToFacebookPageAsync(string postId);
         public Task<List<TweetDTO>> GetPublishedTweetsAsync();
         public Task<TweetDTO> GetPublishedTweetByIdAsync(string postId);
+        public Task DeleteTweetWithXAsync(string postId);
     }
 }

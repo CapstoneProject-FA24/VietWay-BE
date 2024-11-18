@@ -291,5 +291,18 @@ namespace VietWay.API.Management.Controllers
                 Data = result
             });
         }
+
+        [HttpDelete("{postId}/twitter")]
+        [Produces("application/json")]
+        [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status200OK)]
+        public async Task<IActionResult> DeleteTwitterPostsAsync(string postId)
+        {
+            await _publishPostService.DeleteTweetWithXAsync(postId);
+            return Ok(new DefaultResponseModel<object>
+            {
+                Message = "Get twitter posts successfully",
+                StatusCode = StatusCodes.Status200OK
+            });
+        }
     }
 }

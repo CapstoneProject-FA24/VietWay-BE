@@ -96,5 +96,21 @@ namespace VietWay.Service.ThirdParty.Twitter
                 return await response.Content.ReadAsStringAsync();
             }
         }
+
+        public async Task DeleteTweetAsync(string tweetId)
+        {
+            var client = new TwitterClient(_xApiKey, _xApiKeySecret, _xAccessToken, _xAccessTokenSecret);
+
+            var result = await client.Execute.AdvanceRequestAsync(request =>
+            {
+                request.Query.Url = $"https://api.twitter.com/2/tweets/{tweetId}";
+                request.Query.HttpMethod = Tweetinvi.Models.HttpMethod.DELETE;
+            });
+
+            if (!result.Response.IsSuccessStatusCode)
+            {
+                throw new Exception($"Failed to delete tweet {tweetId}: {result.Response.ReasonPhrase}");
+            }
+        }
     }
 }

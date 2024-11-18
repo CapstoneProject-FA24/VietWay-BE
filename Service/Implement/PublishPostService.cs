@@ -142,5 +142,31 @@ namespace VietWay.Service.Management.Implement
                 throw;
             }
         }
+
+        public async Task DeleteTweetWithXAsync(string postId)
+        {
+            Post? post = await _unitOfWork.PostRepository.Query()
+                .SingleOrDefaultAsync(x => x.PostId.Equals(postId)) ??
+                throw new ResourceNotFoundException("Post not found");
+
+            if (post.XTweetId.IsNullOrEmpty())
+            {
+                throw new ServerErrorException("The post has not been tweeted yet");
+            }
+
+            try
+            {
+                await _twitterService.DeleteTweetAsync(post.XTweetId);
+                post.XTweetId = null;
+                await _unitOfWork.BeginTransactionAsync();
+                await _unitOfWork.PostRepository.UpdateAsync(post);
+                await _unitOfWork.CommitTransactionAsync();
+            }
+            catch
+            {
+                await _unitOfWork.RollbackTransactionAsync();
+                throw;
+            }
+        }
     }
 }
