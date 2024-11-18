@@ -20,6 +20,9 @@ using VietWay.Service.ThirdParty.Twitter;
 using VietWay.Job.Interface;
 using VietWay.Job.Implementation;
 using VietWay.Service.ThirdParty.Facebook;
+using VietWay.Service.ThirdParty.Redis;
+using Autofac.Core;
+using StackExchange.Redis;
 namespace VietWay.API.Management
 {
     public class Program
@@ -143,9 +146,15 @@ namespace VietWay.API.Management
             builder.Services.AddScoped<ITwitterService, TwitterService>();
             builder.Services.AddScoped<IPublishPostService, PublishPostService>();
             builder.Services.AddScoped<IBookingJob, BookingJob>();
+            builder.Services.AddScoped<ITweetJob, TweetJob>();
             builder.Services.AddScoped<IFacebookService, FacebookService>();
+            builder.Services.AddScoped<IRedisCacheService, RedisCacheService>();
             #endregion
             builder.Services.AddSingleton<IIdGenerator, SnowflakeIdGenerator>();
+            builder.Services.AddSingleton<IRecurringJobManager, RecurringJobManager>();
+            builder.Services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer
+                .Connect(Environment.GetEnvironmentVariable("REDIS_CONNECTION_STRING") ??
+                    throw new Exception("REDIS_CONNECTION_STRING is not set in environment variables")));
             var app = builder.Build();
             app.UseStaticFiles();
             #region app.UseSwagger(...);
