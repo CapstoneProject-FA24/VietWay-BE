@@ -2,9 +2,9 @@
 using System.Text;
 using System.Text.Json;
 
-namespace VietWay.Service.ThirdParty.SMS
+namespace VietWay.Service.ThirdParty.Sms
 {
-    internal class SpeedSMSAPI(string token)
+    internal class SpeedSmsApi(string token)
     {
         public const int TYPE_QC = 1;
         public const int TYPE_CSKH = 2;

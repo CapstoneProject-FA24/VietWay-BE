@@ -11,18 +11,13 @@ using VietWay.Repository.EntityModel;
 
 namespace VietWay.Service.ThirdParty.Twitter
 {
-    public class TwitterService : ITwitterService
+    public class TwitterService(TwitterServiceConfiguration config) : ITwitterService
     {
-        private readonly string _xApiKey = Environment.GetEnvironmentVariable("X_API_KEY")
-            ?? throw new Exception("X_API_KEY is not set in environment variables");
-        private readonly string _xApiKeySecret = Environment.GetEnvironmentVariable("X_API_KEY_SECRET")
-            ?? throw new Exception("X_API_KEY_SECRET is not set in environment variables");
-        private readonly string _xAccessToken = Environment.GetEnvironmentVariable("X_ACCESS_TOKEN")
-            ?? throw new Exception("X_ACCESS_TOKEN is not set in environment variables");
-        private readonly string _xAccessTokenSecret = Environment.GetEnvironmentVariable("X_ACCESS_TOKEN_SECRET")
-            ?? throw new Exception("X_ACCESS_TOKEN_SECRET is not set in environment variables");
-        private readonly string _bearerToken = Environment.GetEnvironmentVariable("X_BEARER_TOKEN")
-            ?? throw new Exception("X_BEARER_TOKEN is not set in environment variables");
+        private readonly string _xApiKey = config.XApiKey;
+        private readonly string _xApiKeySecret = config.XApiKeySecret;
+        private readonly string _xAccessToken = config.XAccessToken;
+        private readonly string _xAccessTokenSecret = config.XAccessTokenSecret;
+        private readonly string _bearerToken = config.BearerToken;
 
         public async Task<string> PostTweetAsync(PostTweetRequestDTO postTweetRequestDTO)
         {
@@ -34,10 +29,7 @@ namespace VietWay.Service.ThirdParty.Twitter
                 imageData = await httpClient.GetByteArrayAsync(postTweetRequestDTO.ImageUrl);
             }
 
-            var uploadedImage = await client.Upload.UploadBinaryAsync(imageData);
-            if (uploadedImage == null)
-                throw new Exception("Image upload failed");
-
+            var uploadedImage = await client.Upload.UploadBinaryAsync(imageData) ?? throw new Exception("Image upload failed");
             string mediaId = uploadedImage.Id.ToString();
 
             var result = await client.Execute.AdvanceRequestAsync(BuildTweetRequestWithMedia(postTweetRequestDTO, mediaId, client));

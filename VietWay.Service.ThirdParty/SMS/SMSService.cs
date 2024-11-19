@@ -1,22 +1,19 @@
 ﻿using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
-namespace VietWay.Service.ThirdParty.SMS
+namespace VietWay.Service.ThirdParty.Sms
 {
-    public class SMSService : ISMSService
+    public class SmsService(SmsConfiguration config) : ISmsService
     {
-        private readonly string _token = Environment.GetEnvironmentVariable("SPEEDSMS_TOKEN")
-            ?? throw new Exception("SPEEDSMS_TOKEN is not set in environment variables");
-        private readonly string _deviceId = Environment.GetEnvironmentVariable("SPEEDSMS_DEVICE_ID")
-            ?? throw new Exception("SPEEDSMS_DEVICE_ID is not set in environment variables");
-        private readonly string _smsSendTokenMessage = Environment.GetEnvironmentVariable("SMS_SEND_TOKEN_MESSAGE")
-            ?? throw new Exception("SMS_SEND_TOKEN_MESSAGE is not set in environment variables");
+        private readonly string _token = config.Token;
+        private readonly string _deviceId = config.DeviceId;
+        private readonly string _smsSendTokenMessage = config.SendTokenMessage;
         public async Task<bool> SendOTP(string otp, string phoneNumber)
         {
-            SpeedSMSAPI api = new(_token);
+            SpeedSmsApi api = new(_token);
             string message = string.Format(_smsSendTokenMessage, otp);
             string[] phones = [phoneNumber];
-            string result = await api.SendSMSAsync(phones, message, SpeedSMSAPI.TYPE_GATEWAY, _deviceId);
+            string result = await api.SendSMSAsync(phones, message, SpeedSmsApi.TYPE_GATEWAY, _deviceId);
             if (result.Contains("\"status\":\"success\""))
             {
                 return true;

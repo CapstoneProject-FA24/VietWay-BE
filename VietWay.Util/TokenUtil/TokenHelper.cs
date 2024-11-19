@@ -6,14 +6,11 @@ using System.Text;
 
 namespace VietWay.Util.TokenUtil
 {
-    public class TokenHelper : ITokenHelper
+    public class TokenHelper(TokenConfig config) : ITokenHelper
     {
-        private readonly string _issuer = Environment.GetEnvironmentVariable("JWT_ISSUER")
-            ?? throw new Exception("JWT_ISSUER is not set in environment variables");
-        private readonly string _audience = Environment.GetEnvironmentVariable("JWT_AUDIENCE")
-            ?? throw new Exception("JWT_ISSUER is not set in environment variables");
-        private readonly string _secret = Environment.GetEnvironmentVariable("JWT_KEY")
-            ?? throw new Exception("JWT_KEY is not set in environment variables");
+        private readonly string _issuer = config.Issuer;
+        private readonly string _audience = config.Audience;
+        private readonly string _secret = config.Secret;
 
         public string GenerateAuthenticationToken(string accountId, string role)
         {

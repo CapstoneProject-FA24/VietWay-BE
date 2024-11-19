@@ -60,7 +60,7 @@ namespace VietWay.Repository.Migrations
                     b.HasIndex("PhoneNumber")
                         .IsUnique();
 
-                    b.ToTable("Account");
+                    b.ToTable("Account", (string)null);
                 });
 
             modelBuilder.Entity("VietWay.Repository.EntityModel.Attraction", b =>
@@ -115,7 +115,7 @@ namespace VietWay.Repository.Migrations
 
                     b.HasIndex("ProvinceId");
 
-                    b.ToTable("Attraction");
+                    b.ToTable("Attraction", (string)null);
                 });
 
             modelBuilder.Entity("VietWay.Repository.EntityModel.AttractionCategory", b =>
@@ -141,7 +141,7 @@ namespace VietWay.Repository.Migrations
 
                     b.HasKey("AttractionCategoryId");
 
-                    b.ToTable("AttractionCategory");
+                    b.ToTable("AttractionCategory", (string)null);
                 });
 
             modelBuilder.Entity("VietWay.Repository.EntityModel.AttractionImage", b =>
@@ -164,7 +164,7 @@ namespace VietWay.Repository.Migrations
 
                     b.HasIndex("AttractionId");
 
-                    b.ToTable("AttractionImage");
+                    b.ToTable("AttractionImage", (string)null);
                 });
 
             modelBuilder.Entity("VietWay.Repository.EntityModel.AttractionLike", b =>
@@ -179,7 +179,7 @@ namespace VietWay.Repository.Migrations
 
                     b.HasIndex("CustomerId");
 
-                    b.ToTable("AttractionLike");
+                    b.ToTable("AttractionLike", (string)null);
                 });
 
             modelBuilder.Entity("VietWay.Repository.EntityModel.AttractionReview", b =>
@@ -217,7 +217,7 @@ namespace VietWay.Repository.Migrations
                     b.HasIndex("AttractionId", "CustomerId")
                         .IsUnique();
 
-                    b.ToTable("AttractionReview");
+                    b.ToTable("AttractionReview", (string)null);
                 });
 
             modelBuilder.Entity("VietWay.Repository.EntityModel.AttractionReviewLike", b =>
@@ -234,7 +234,7 @@ namespace VietWay.Repository.Migrations
 
                     b.HasIndex("CustomerId");
 
-                    b.ToTable("AttractionReviewLike");
+                    b.ToTable("AttractionReviewLike", (string)null);
                 });
 
             modelBuilder.Entity("VietWay.Repository.EntityModel.AttractionSchedule", b =>
@@ -254,7 +254,7 @@ namespace VietWay.Repository.Migrations
 
                     b.HasIndex("AttractionId");
 
-                    b.ToTable("AttractionSchedule");
+                    b.ToTable("AttractionSchedule", (string)null);
                 });
 
             modelBuilder.Entity("VietWay.Repository.EntityModel.Booking", b =>
@@ -313,7 +313,7 @@ namespace VietWay.Repository.Migrations
 
                     b.HasIndex("TourId");
 
-                    b.ToTable("Booking");
+                    b.ToTable("Booking", (string)null);
                 });
 
             modelBuilder.Entity("VietWay.Repository.EntityModel.BookingPayment", b =>
@@ -355,7 +355,7 @@ namespace VietWay.Repository.Migrations
 
                     b.HasIndex("BookingId");
 
-                    b.ToTable("BookingPayment");
+                    b.ToTable("BookingPayment", (string)null);
                 });
 
             modelBuilder.Entity("VietWay.Repository.EntityModel.BookingTourist", b =>
@@ -398,7 +398,7 @@ namespace VietWay.Repository.Migrations
 
                     b.HasIndex("BookingId");
 
-                    b.ToTable("BookingTourist");
+                    b.ToTable("BookingTourist", (string)null);
                 });
 
             modelBuilder.Entity("VietWay.Repository.EntityModel.Customer", b =>
@@ -430,7 +430,7 @@ namespace VietWay.Repository.Migrations
 
                     b.HasIndex("ProvinceId");
 
-                    b.ToTable("Customer");
+                    b.ToTable("Customer", (string)null);
                 });
 
             modelBuilder.Entity("VietWay.Repository.EntityModel.EntityHistory", b =>
@@ -465,7 +465,7 @@ namespace VietWay.Repository.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("EntityHistory");
+                    b.ToTable("EntityHistory", (string)null);
                 });
 
             modelBuilder.Entity("VietWay.Repository.EntityModel.EntityStatusHistory", b =>
@@ -481,7 +481,7 @@ namespace VietWay.Repository.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("EntityStatusHistory");
+                    b.ToTable("EntityStatusHistory", (string)null);
                 });
 
             modelBuilder.Entity("VietWay.Repository.EntityModel.Manager", b =>
@@ -500,7 +500,7 @@ namespace VietWay.Repository.Migrations
 
                     b.HasKey("ManagerId");
 
-                    b.ToTable("Manager");
+                    b.ToTable("Manager", (string)null);
                 });
 
             modelBuilder.Entity("VietWay.Repository.EntityModel.Post", b =>
@@ -548,7 +548,7 @@ namespace VietWay.Repository.Migrations
 
                     b.HasIndex("ProvinceId");
 
-                    b.ToTable("Post");
+                    b.ToTable("Post", (string)null);
                 });
 
             modelBuilder.Entity("VietWay.Repository.EntityModel.PostCategory", b =>
@@ -573,7 +573,7 @@ namespace VietWay.Repository.Migrations
 
                     b.HasKey("PostCategoryId");
 
-                    b.ToTable("PostCategory");
+                    b.ToTable("PostCategory", (string)null);
                 });
 
             modelBuilder.Entity("VietWay.Repository.EntityModel.PostLike", b =>
@@ -590,7 +590,7 @@ namespace VietWay.Repository.Migrations
 
                     b.HasIndex("CustomerId");
 
-                    b.ToTable("PostLike");
+                    b.ToTable("PostLike", (string)null);
                 });
 
             modelBuilder.Entity("VietWay.Repository.EntityModel.Province", b =>
@@ -621,7 +621,7 @@ namespace VietWay.Repository.Migrations
 
                     b.HasKey("ProvinceId");
 
-                    b.ToTable("Province");
+                    b.ToTable("Province", (string)null);
                 });
 
             modelBuilder.Entity("VietWay.Repository.EntityModel.Staff", b =>
@@ -640,7 +640,7 @@ namespace VietWay.Repository.Migrations
 
                     b.HasKey("StaffId");
 
-                    b.ToTable("Staff");
+                    b.ToTable("Staff", (string)null);
                 });
 
             modelBuilder.Entity("VietWay.Repository.EntityModel.Tour", b =>
@@ -692,7 +692,7 @@ namespace VietWay.Repository.Migrations
 
                     b.HasIndex("TourTemplateId");
 
-                    b.ToTable("Tour");
+                    b.ToTable("Tour", (string)null);
                 });
 
             modelBuilder.Entity("VietWay.Repository.EntityModel.TourCategory", b =>
@@ -718,7 +718,7 @@ namespace VietWay.Repository.Migrations
 
                     b.HasKey("TourCategoryId");
 
-                    b.ToTable("TourCategory");
+                    b.ToTable("TourCategory", (string)null);
                 });
 
             modelBuilder.Entity("VietWay.Repository.EntityModel.TourDuration", b =>
@@ -743,7 +743,7 @@ namespace VietWay.Repository.Migrations
 
                     b.HasKey("DurationId");
 
-                    b.ToTable("TourDuration");
+                    b.ToTable("TourDuration", (string)null);
                 });
 
             modelBuilder.Entity("VietWay.Repository.EntityModel.TourPrice", b =>
@@ -774,7 +774,7 @@ namespace VietWay.Repository.Migrations
 
                     b.HasIndex("TourId");
 
-                    b.ToTable("TourPrice");
+                    b.ToTable("TourPrice", (string)null);
                 });
 
             modelBuilder.Entity("VietWay.Repository.EntityModel.TourRefundPolicy", b =>
@@ -798,7 +798,7 @@ namespace VietWay.Repository.Migrations
 
                     b.HasIndex("TourId");
 
-                    b.ToTable("TourRefundPolicy");
+                    b.ToTable("TourRefundPolicy", (string)null);
                 });
 
             modelBuilder.Entity("VietWay.Repository.EntityModel.TourReview", b =>
@@ -832,7 +832,7 @@ namespace VietWay.Repository.Migrations
                     b.HasIndex("BookingId")
                         .IsUnique();
 
-                    b.ToTable("TourReview");
+                    b.ToTable("TourReview", (string)null);
                 });
 
             modelBuilder.Entity("VietWay.Repository.EntityModel.TourTemplate", b =>
@@ -882,7 +882,7 @@ namespace VietWay.Repository.Migrations
 
                     b.HasIndex("TourCategoryId");
 
-                    b.ToTable("TourTemplate");
+                    b.ToTable("TourTemplate", (string)null);
                 });
 
             modelBuilder.Entity("VietWay.Repository.EntityModel.TourTemplateImage", b =>
@@ -903,7 +903,7 @@ namespace VietWay.Repository.Migrations
 
                     b.HasIndex("TourTemplateId");
 
-                    b.ToTable("TourTemplateImage");
+                    b.ToTable("TourTemplateImage", (string)null);
                 });
 
             modelBuilder.Entity("VietWay.Repository.EntityModel.TourTemplateProvince", b =>
@@ -918,7 +918,7 @@ namespace VietWay.Repository.Migrations
 
                     b.HasIndex("ProvinceId");
 
-                    b.ToTable("TourTemplateProvince");
+                    b.ToTable("TourTemplateProvince", (string)null);
                 });
 
             modelBuilder.Entity("VietWay.Repository.EntityModel.TourTemplateSchedule", b =>
@@ -939,7 +939,7 @@ namespace VietWay.Repository.Migrations
 
                     b.HasKey("TourTemplateId", "DayNumber");
 
-                    b.ToTable("TourTemplateSchedule");
+                    b.ToTable("TourTemplateSchedule", (string)null);
                 });
 
             modelBuilder.Entity("VietWay.Repository.EntityModel.Attraction", b =>

@@ -10,15 +10,15 @@ using System.Threading.Tasks;
 
 namespace VietWay.Service.ThirdParty.GoogleGemini
 {
-    public class GeminiClient(string apiKey, string apiEndpoint, string? systemPrompt = null)
+    public class GeminiClient(string apiKey, HttpClient httpClient)
     {
         private readonly string _apiKey = apiKey;
-        private readonly string _apiEndpoint = apiEndpoint;
-        private readonly string? _systemPrompt = systemPrompt;
+        private readonly HttpClient _httpClient = httpClient;
+
+        public string? SystemPrompt { get; set; }
 
         public async Task<string> QueryAsync(string content)
         {
-            using HttpClient httpClient = new();
             GeminiChatRequest chatRequest = new()
             {
                 Contents =
@@ -33,11 +33,11 @@ namespace VietWay.Service.ThirdParty.GoogleGemini
                         }
                 ],
             };
-            if (_systemPrompt != null)
+            if (SystemPrompt != null)
             {
-                chatRequest.SystemInstruction = new SystemInstruction { Parts = new Part() { Text = _systemPrompt } };
+                chatRequest.SystemInstruction = new SystemInstruction { Parts = new Part() { Text = SystemPrompt } };
             }
-            HttpResponseMessage response = await httpClient.PostAsJsonAsync($"{_apiEndpoint}:generateContent?key={_apiKey}", chatRequest);
+            HttpResponseMessage response = await _httpClient.PostAsJsonAsync($":generateContent?key={_apiKey}", chatRequest);
             response.EnsureSuccessStatusCode();
             JsonDocument jsonDocument = await JsonDocument.ParseAsync(await response.Content.ReadAsStreamAsync());
             JsonElement root = jsonDocument.RootElement;
@@ -46,16 +46,16 @@ namespace VietWay.Service.ThirdParty.GoogleGemini
 
         public async Task<string> ChatAsync(List<Content> contents)
         {
-            using HttpClient httpClient = new();
+            
             GeminiChatRequest chatRequest = new()
             {
                 Contents = contents
             };
-            if (_systemPrompt != null)
+            if (SystemPrompt != null)
             {
-                chatRequest.SystemInstruction = new SystemInstruction { Parts = new Part() { Text = _systemPrompt } };
+                chatRequest.SystemInstruction = new SystemInstruction { Parts = new Part() { Text = SystemPrompt } };
             }
-            HttpResponseMessage response = await httpClient.PostAsJsonAsync($"{_apiEndpoint}:generateContent?key={_apiKey}",chatRequest);
+            HttpResponseMessage response = await _httpClient.PostAsJsonAsync($":generateContent?key={_apiKey}",chatRequest);
             response.EnsureSuccessStatusCode();
             JsonDocument jsonDocument = await JsonDocument.ParseAsync(await response.Content.ReadAsStreamAsync());
             JsonElement root = jsonDocument.RootElement;

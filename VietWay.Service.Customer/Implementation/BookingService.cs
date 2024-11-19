@@ -9,18 +9,18 @@ using VietWay.Repository.EntityModel.Base;
 using VietWay.Util.DateTimeUtil;
 using Hangfire;
 using VietWay.Job.Interface;
+using VietWay.Service.Customer.Configuration;
 
 namespace VietWay.Service.Customer.Implementation
 {
     public class BookingService(IUnitOfWork unitOfWork, IIdGenerator idGenerator, ITimeZoneHelper timeZoneHelper, 
-        IBackgroundJobClient backgroundJobClient) : IBookingService
+        IBackgroundJobClient backgroundJobClient, BookingServiceConfiguration config) : IBookingService
     {
         private readonly IUnitOfWork _unitOfWork = unitOfWork;
         private readonly IIdGenerator _idGenerator = idGenerator;
         private readonly ITimeZoneHelper _timeZoneHelper = timeZoneHelper;
         private readonly IBackgroundJobClient _backgroundJobClient = backgroundJobClient;
-        private readonly int _pendingBookingExpireAfterMinutes = int.Parse(Environment.GetEnvironmentVariable("PENDING_BOOKING_EXPIRE_AFTER_MINUTES")
-            ?? throw new Exception("PENDING_BOOKING_EXPIRE_AFTER_MINUTES is not set in environment variables"));
+        private readonly int _pendingBookingExpireAfterMinutes = config.PendingBookingExpireAfterMinutes;
 
         public async Task<string> BookTourAsync(Booking booking)
         {

@@ -1,26 +1,17 @@
-﻿using Microsoft.AspNetCore.Http;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http.Json;
-using System.Text;
+﻿using System.Net.Http.Json;
 using System.Text.Json;
-using System.Text.Json.Serialization;
-using System.Threading.Tasks;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace VietWay.Service.ThirdParty.Facebook
 {
-    public class FacebookClient(string pageId, string pageToken)
+    public class FacebookClient(string pageId, string pageToken, HttpClient httpClient)
     {
         private readonly string _pageId = pageId;
         private readonly string _pageToken = pageToken;
-        private const string BASEURL = "https://graph.facebook.com/v21.0";
+        private readonly HttpClient _httpClient = httpClient;
 
         public async Task<string> PublishPostAsync(string content, string? url)
         {
-            using HttpClient httpClient = new();
-            HttpResponseMessage response = await httpClient.PostAsJsonAsync($"{BASEURL}/{_pageId}/feed?access_token={_pageToken}", new
+            HttpResponseMessage response = await _httpClient.PostAsJsonAsync($"{_pageId}/feed?access_token={_pageToken}", new
             {
                 message = content,
                 link = url,
@@ -35,8 +26,7 @@ namespace VietWay.Service.ThirdParty.Facebook
         {
             try
             {
-                using HttpClient httpClient = new();
-                HttpResponseMessage response = await httpClient.GetAsync($"{BASEURL}/{facebookPostId}?fields=comments.summary(total_count)&access_token={_pageToken}");
+                HttpResponseMessage response = await _httpClient.GetAsync($"{facebookPostId}?fields=comments.summary(total_count)&access_token={_pageToken}");
                 response.EnsureSuccessStatusCode();
                 JsonDocument jsonDocument = await JsonDocument.ParseAsync(await response.Content.ReadAsStreamAsync());
                 JsonElement root = jsonDocument.RootElement;
@@ -51,8 +41,7 @@ namespace VietWay.Service.ThirdParty.Facebook
         {
             try 
             {
-                using HttpClient httpClient = new();
-                HttpResponseMessage response = await httpClient.GetAsync($"{BASEURL}/{facebookPostId}?fields=shares&access_token={_pageToken}");
+                HttpResponseMessage response = await _httpClient.GetAsync($"{facebookPostId}?fields=shares&access_token={_pageToken}");
                 response.EnsureSuccessStatusCode();
                 JsonDocument jsonDocument = await JsonDocument.ParseAsync(await response.Content.ReadAsStreamAsync());
                 JsonElement root = jsonDocument.RootElement;
@@ -67,8 +56,7 @@ namespace VietWay.Service.ThirdParty.Facebook
         {
             try
             {
-                using HttpClient httpClient = new();
-                HttpResponseMessage response = await httpClient.GetAsync($"{BASEURL}/{facebookPostId}?fields=insights.metric(post_impressions_unique)&access_token={_pageToken}");
+                HttpResponseMessage response = await _httpClient.GetAsync($"{facebookPostId}?fields=insights.metric(post_impressions_unique)&access_token={_pageToken}");
                 response.EnsureSuccessStatusCode();
                 JsonDocument jsonDocument = await JsonDocument.ParseAsync(await response.Content.ReadAsStreamAsync());
                 JsonElement root = jsonDocument.RootElement;
@@ -83,8 +71,7 @@ namespace VietWay.Service.ThirdParty.Facebook
         {
             try
             {
-                using HttpClient httpClient = new();
-                HttpResponseMessage response = await httpClient.GetAsync($"{BASEURL}/{facebookPostId}/insights?metric=post_reactions_by_type_total&access_token={_pageToken}");
+                HttpResponseMessage response = await _httpClient.GetAsync($"{facebookPostId}/insights?metric=post_reactions_by_type_total&access_token={_pageToken}");
                 response.EnsureSuccessStatusCode();
                 JsonDocument jsonDocument = await JsonDocument.ParseAsync(await response.Content.ReadAsStreamAsync());
                 JsonElement root = jsonDocument.RootElement;

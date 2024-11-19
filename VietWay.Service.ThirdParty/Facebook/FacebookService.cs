@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Extensions.Configuration;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,17 +7,9 @@ using System.Threading.Tasks;
 
 namespace VietWay.Service.ThirdParty.Facebook
 {
-    public class FacebookService : IFacebookService
+    public class FacebookService(HttpClient httpClient, FacebookApiConfig config) : IFacebookService
     {
-        private readonly FacebookClient _facebookClient;
-        public FacebookService()
-        {
-            string pageId = Environment.GetEnvironmentVariable("FACEBOOK_PAGE_ID") ?? 
-                throw new Exception("FACEBOOK_PAGE_ID is not set in environment variables");
-            string pageToken = Environment.GetEnvironmentVariable("FACEBOOK_PAGE_ACCESS_TOKEN") ??
-                throw new Exception("FACEBOOK_PAGE_ACCESS_TOKEN is not set in environment variables");
-            _facebookClient = new FacebookClient(pageId, pageToken);
-        }
+        private readonly FacebookClient _facebookClient = new(config.PageId, config.PageAccessToken, httpClient);
 
         public async Task<int> GetPostCommentCountAsync(string facebookPostId) => await _facebookClient.GetPostCommentCountAsync(facebookPostId);
 
