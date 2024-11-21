@@ -148,6 +148,8 @@ namespace VietWay.API.Management
             builder.Services.AddScoped<IBookingJob, BookingJob>();
             builder.Services.AddScoped<ITweetJob, TweetJob>();
             builder.Services.AddScoped<IRedisCacheService, RedisCacheService>();
+            builder.Services.AddScoped<IAttractionReviewService, AttractionReviewService>();
+            builder.Services.AddScoped<ITourReviewService, TourReviewService>();
             #endregion
             builder.Services.AddSingleton<IIdGenerator, SnowflakeIdGenerator>();
             builder.Services.AddSingleton<IRecurringJobManager, RecurringJobManager>();

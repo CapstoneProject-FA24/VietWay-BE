@@ -16,11 +16,12 @@ namespace VietWay.API.Management.Controllers
     /// </summary>
     [Route("api/attractions")]
     [ApiController]
-    public class AttractionController(IAttractionService attractionService, IMapper mapper, ITokenHelper tokenHelper) : ControllerBase
+    public class AttractionController(IAttractionService attractionService, IMapper mapper, ITokenHelper tokenHelper, IAttractionReviewService attractionReviewService) : ControllerBase
     {
         private readonly IAttractionService _attractionService = attractionService;
         private readonly IMapper _mapper = mapper;
         private readonly ITokenHelper _tokenHelper = tokenHelper;
+        private readonly IAttractionReviewService _attractionReviewService = attractionReviewService;
 
         /// <summary>
         /// ✅🔐[Manager][Staff] Get attraction list with filter and paging
@@ -36,7 +37,7 @@ namespace VietWay.API.Management.Controllers
             int checkedPageSize = (pageSize == null || pageSize < 1) ? 10 : (int)pageSize;
             int checkedPageIndex = (pageIndex == null || pageIndex < 1) ? 1 : (int)pageIndex;
             var (totalCount, items) = await _attractionService.GetAllAttractionsWithCreatorAsync(nameSearch, provinceIds, attractionTypeIds, status, checkedPageSize, checkedPageIndex);
-            
+
             return Ok(new DefaultResponseModel<PaginatedList<AttractionPreviewDTO>>
             {
                 Data = new()
@@ -121,7 +122,7 @@ namespace VietWay.API.Management.Controllers
         [HttpPut("{attractionId}")]
         [Produces("application/json")]
         [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status200OK)]
-        public async Task<IActionResult> UpdateAttractionAsync(string attractionId,CreateAttractionRequest request)
+        public async Task<IActionResult> UpdateAttractionAsync(string attractionId, CreateAttractionRequest request)
         {
             Attraction attraction = _mapper.Map<Attraction>(request);
             attraction.AttractionId = attractionId;
@@ -199,6 +200,48 @@ namespace VietWay.API.Management.Controllers
                 });
             }
             await _attractionService.UpdateAttractionStatusAsync(attractionId, accountId, request.Status, request.Reason);
+            return Ok();
+        }
+
+        [HttpGet("{attractionId}/reviews")]
+        [Produces("application/json")]
+        [Authorize(Roles = $"{nameof(UserRole.Manager)}, ${nameof(UserRole.Staff)}")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(DefaultResponseModel<PaginatedList<AttractionReviewDTO>>))]
+        public async Task<IActionResult> GetAttractionReviewAsync(string attractionId, bool isOrderedByLikeNumber, [FromQuery] List<int> ratingValue,
+            bool? hasReviewContent, int? pageSize, int? pageIndex, bool? isDeleted)
+        {
+            int checkedPageSize = (pageSize == null || pageSize < 1) ? 10 : (int)pageSize;
+            int checkedPageIndex = (pageIndex == null || pageIndex < 1) ? 1 : (int)pageIndex;
+            var (totalCount, items) = await _attractionReviewService.GetAttractionReviewsAsync(attractionId, isOrderedByLikeNumber, ratingValue, hasReviewContent, checkedPageSize, checkedPageIndex, isDeleted);
+
+            return Ok(new DefaultResponseModel<PaginatedList<AttractionReviewDTO>>
+            {
+                Data = new()
+                {
+                    Total = totalCount,
+                    PageSize = checkedPageSize,
+                    PageIndex = checkedPageIndex,
+                    Items = items
+                },
+                Message = "Success",
+                StatusCode = StatusCodes.Status200OK
+            });
+        }
+
+        [Authorize(Roles = $"{nameof(UserRole.Manager)}")]
+        [HttpPatch("reviews/{reviewId}/hide")]
+        public async Task<IActionResult> ToggleReviewVisibilityAsync(string reviewId, [FromBody] HideReviewRequest request)
+        {
+            string? accountId = _tokenHelper.GetAccountIdFromToken(HttpContext);
+            if (string.IsNullOrWhiteSpace(accountId))
+            {
+                return Unauthorized(new DefaultResponseModel<object>
+                {
+                    Message = "Unauthorized",
+                    StatusCode = StatusCodes.Status401Unauthorized
+                });
+            }
+            await _attractionReviewService.ToggleAttractionReviewVisibilityAsync(accountId, reviewId, request.IsHided, request.Reason);
             return Ok();
         }
     }
