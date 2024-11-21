@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace VietWay.API.Management.RequestModel
 {
@@ -13,6 +14,8 @@ namespace VietWay.API.Management.RequestModel
         public required string TourCategoryId { get; set; }
         public string? Policy { get; set; }
         public string? Note { get; set; }
+        public required decimal? MinPrice { get; set; }
+        public required decimal? MaxPrice { get; set; }
         public List<string>? ProvinceIds { get; set; }
         public List<TemplateSchedule>? Schedules { get; set; }
         [Required]

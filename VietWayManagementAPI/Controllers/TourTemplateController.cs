@@ -18,6 +18,7 @@ namespace VietWay.API.Management.Controllers
         private readonly IMapper _mapper = mapper;
         private readonly ITokenHelper _tokenHelper = tokenHelper;
         [HttpGet]
+        [Authorize(Roles = $"{nameof(UserRole.Manager)}, {nameof(UserRole.Staff)}")]
         [Produces("application/json")]
         [ProducesResponseType<DefaultResponseModel<PaginatedList<TourTemplatePreview>>>(StatusCodes.Status200OK)]
         public async Task<IActionResult> GetAllTemplatesAsync(
@@ -29,6 +30,16 @@ namespace VietWay.API.Management.Controllers
             int? pageSize,
             int? pageIndex)
         {
+            string? accountId = _tokenHelper.GetAccountIdFromToken(HttpContext);
+            if (string.IsNullOrWhiteSpace(accountId))
+            {
+                return Unauthorized(new DefaultResponseModel<object>
+                {
+                    Message = "Unauthorized",
+                    StatusCode = StatusCodes.Status401Unauthorized
+                });
+            }
+
             int checkedPageSize = (pageSize == null || pageSize < 1) ? 10 : (int)pageSize;
             int checkedPageIndex = (pageIndex == null || pageIndex < 1) ? 1 : (int)pageIndex;
 
@@ -50,11 +61,22 @@ namespace VietWay.API.Management.Controllers
             return Ok(response);
         }
         [HttpGet("{tourTemplateId}")]
+        [Authorize(Roles = $"{nameof(UserRole.Manager)}, {nameof(UserRole.Staff)}")]
         [Produces("application/json")]
         [ProducesResponseType<DefaultResponseModel<DefaultResponseModel<TourTemplateDetail>>>(StatusCodes.Status200OK)]
         [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetTourTemplateById(string tourTemplateId)
         {
+            string? accountId = _tokenHelper.GetAccountIdFromToken(HttpContext);
+            if (string.IsNullOrWhiteSpace(accountId))
+            {
+                return Unauthorized(new DefaultResponseModel<object>
+                {
+                    Message = "Unauthorized",
+                    StatusCode = StatusCodes.Status401Unauthorized
+                });
+            }
+
             TourTemplate? tourTemplate = await _tourTemplateService
                 .GetTemplateByIdAsync(tourTemplateId);
             if (tourTemplate == null)
@@ -78,10 +100,21 @@ namespace VietWay.API.Management.Controllers
             }
         }
         [HttpPost]
+        [Authorize(Roles = $"{nameof(UserRole.Staff)}")]
         [Produces("application/json")]
         [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status200OK)]
         public async Task<IActionResult> CreateTourTemplate([FromBody] CreateTourTemplateRequest request)
         {
+            string? accountId = _tokenHelper.GetAccountIdFromToken(HttpContext);
+            if (string.IsNullOrWhiteSpace(accountId))
+            {
+                return Unauthorized(new DefaultResponseModel<object>
+                {
+                    Message = "Unauthorized",
+                    StatusCode = StatusCodes.Status401Unauthorized
+                });
+            }
+
             TourTemplate tourTemplate = _mapper.Map<TourTemplate>(request);
 #warning replace createdby with current user id in token
             await _tourTemplateService.CreateTemplateAsync(tourTemplate);
@@ -92,10 +125,21 @@ namespace VietWay.API.Management.Controllers
             });
         }
         [HttpPut("{tourTemplateId}")]
+        [Authorize(Roles = $"{nameof(UserRole.Staff)}")]
         [Produces("application/json")]
         [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status200OK)]
         public async Task<IActionResult> UpdateTourTemplate(string tourTemplateId, CreateTourTemplateRequest request)
         {
+            string? accountId = _tokenHelper.GetAccountIdFromToken(HttpContext);
+            if (string.IsNullOrWhiteSpace(accountId))
+            {
+                return Unauthorized(new DefaultResponseModel<object>
+                {
+                    Message = "Unauthorized",
+                    StatusCode = StatusCodes.Status401Unauthorized
+                });
+            }
+
             TourTemplate? tourTemplate = await _tourTemplateService.GetTemplateByIdAsync(tourTemplateId);
             if (tourTemplate == null)
             {
@@ -163,11 +207,23 @@ namespace VietWay.API.Management.Controllers
                 StatusCode = StatusCodes.Status200OK
             });
         }
+
         [HttpDelete("{tourTemplateId}")]
+        [Authorize(Roles = $"{nameof(UserRole.Manager)}")]
         [Produces("application/json")]
         [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status200OK)]
         public async Task<IActionResult> DeleteTourTemplate(string tourTemplateId)
         {
+            string? accountId = _tokenHelper.GetAccountIdFromToken(HttpContext);
+            if (string.IsNullOrWhiteSpace(accountId))
+            {
+                return Unauthorized(new DefaultResponseModel<object>
+                {
+                    Message = "Unauthorized",
+                    StatusCode = StatusCodes.Status401Unauthorized
+                });
+            }
+
             TourTemplate? tourTemplate = await _tourTemplateService.GetTemplateByIdAsync(tourTemplateId);
             if (tourTemplate == null)
             {
@@ -184,12 +240,14 @@ namespace VietWay.API.Management.Controllers
                 StatusCode = StatusCodes.Status200OK
             });
         }
+
         [HttpPatch("{tourTemplateId}/images")]
+        [Authorize(Roles = $"{nameof(UserRole.Staff)}")]
         [Produces("application/json")]
         public async Task<IActionResult> UpdateTourTemplateImageAsync(string tourTemplateId, UpdateImageRequest request)
         {
-            string? staffId = _tokenHelper.GetAccountIdFromToken(HttpContext);
-            if (staffId == null)
+            string? accountId = _tokenHelper.GetAccountIdFromToken(HttpContext);
+            if (accountId == null)
             {
                 return Unauthorized(new DefaultResponseModel<string>()
                 {
@@ -207,7 +265,7 @@ namespace VietWay.API.Management.Controllers
                 };
                 return BadRequest(errorResponse);
             }
-            await _tourTemplateService.UpdateTourTemplateImageAsync(tourTemplateId, staffId, request.NewImages, request.DeletedImageIds);
+            await _tourTemplateService.UpdateTourTemplateImageAsync(tourTemplateId, accountId, request.NewImages, request.DeletedImageIds);
             return Ok(new DefaultResponseModel<string>()
             {
                 Message = "Success",
