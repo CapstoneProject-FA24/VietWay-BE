@@ -5,6 +5,7 @@ using VietWay.API.Management.RequestModel;
 using VietWay.API.Management.ResponseModel;
 using VietWay.Repository.EntityModel;
 using VietWay.Repository.EntityModel.Base;
+using VietWay.Service.Management.DataTransferObject;
 using VietWay.Service.Management.Interface;
 using VietWay.Util.TokenUtil;
 
@@ -12,11 +13,13 @@ namespace VietWay.API.Management.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class TourTemplateController(ITourTemplateService tourTemplateService, IMapper mapper, ITokenHelper tokenHelper) : ControllerBase
+    public class TourTemplateController(ITourTemplateService tourTemplateService, IMapper mapper, ITokenHelper tokenHelper, ITourReviewService tourReviewService) : ControllerBase
     {
         private readonly ITourTemplateService _tourTemplateService = tourTemplateService;
         private readonly IMapper _mapper = mapper;
         private readonly ITokenHelper _tokenHelper = tokenHelper;
+        private readonly ITourReviewService _tourReviewService = tourReviewService;
+
         [HttpGet]
         [Produces("application/json")]
         [ProducesResponseType<DefaultResponseModel<PaginatedList<TourTemplatePreview>>>(StatusCodes.Status200OK)]
@@ -244,6 +247,48 @@ namespace VietWay.API.Management.Controllers
                 Message = "Status change successfully",
                 StatusCode = StatusCodes.Status200OK,
             });
+        }
+
+        [HttpGet("{tourTemplateId}/reviews")]
+        [Produces("application/json")]
+        [Authorize(Roles = $"{nameof(UserRole.Manager)}, ${nameof(UserRole.Staff)}")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(DefaultResponseModel<PaginatedList<TourReviewDTO>>))]
+        public async Task<IActionResult> GetAttractionReviewAsync(string tourTemplateId, [FromQuery] List<int> ratingValue,
+            bool? hasReviewContent, int? pageSize, int? pageIndex, bool? isDeleted)
+        {
+            int checkedPageSize = (pageSize == null || pageSize < 1) ? 10 : (int)pageSize;
+            int checkedPageIndex = (pageIndex == null || pageIndex < 1) ? 1 : (int)pageIndex;
+            var (totalCount, items) = await _tourReviewService.GetTourReviewsAsync(tourTemplateId, ratingValue, hasReviewContent, checkedPageSize, checkedPageIndex, isDeleted);
+
+            return Ok(new DefaultResponseModel<PaginatedList<TourReviewDTO>>
+            {
+                Data = new()
+                {
+                    Total = totalCount,
+                    PageSize = checkedPageSize,
+                    PageIndex = checkedPageIndex,
+                    Items = items
+                },
+                Message = "Success",
+                StatusCode = StatusCodes.Status200OK
+            });
+        }
+
+        [Authorize(Roles = $"{nameof(UserRole.Manager)}")]
+        [HttpPatch("reviews/{reviewId}/hide")]
+        public async Task<IActionResult> ToggleReviewVisibilityAsync(string reviewId, [FromBody] HideReviewRequest request)
+        {
+            string? accountId = _tokenHelper.GetAccountIdFromToken(HttpContext);
+            if (string.IsNullOrWhiteSpace(accountId))
+            {
+                return Unauthorized(new DefaultResponseModel<object>
+                {
+                    Message = "Unauthorized",
+                    StatusCode = StatusCodes.Status401Unauthorized
+                });
+            }
+            await _tourReviewService.ToggleTourReviewVisibilityAsync(accountId, reviewId, request.IsHided, request.Reason);
+            return Ok();
         }
     }
 }
