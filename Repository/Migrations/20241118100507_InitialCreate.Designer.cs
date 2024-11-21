@@ -12,8 +12,8 @@ using VietWay.Repository.DataAccessObject;
 namespace VietWay.Repository.Migrations
 {
     [DbContext(typeof(VietWayDbContext))]
-    [Migration("20241115093245_1")]
-    partial class _1
+    [Migration("20241118100507_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -828,7 +828,6 @@ namespace VietWay.Repository.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("Review")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("ReviewId");
@@ -1154,7 +1153,7 @@ namespace VietWay.Repository.Migrations
                         .IsRequired();
 
                     b.HasOne("VietWay.Repository.EntityModel.Post", "Post")
-                        .WithMany()
+                        .WithMany("PostLikes")
                         .HasForeignKey("PostId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -1311,6 +1310,11 @@ namespace VietWay.Repository.Migrations
 
                     b.Navigation("Bookings");
 
+                    b.Navigation("PostLikes");
+                });
+
+            modelBuilder.Entity("VietWay.Repository.EntityModel.Post", b =>
+                {
                     b.Navigation("PostLikes");
                 });
 

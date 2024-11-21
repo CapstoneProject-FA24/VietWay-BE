@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace VietWay.Repository.Migrations
 {
     /// <inheritdoc />
-    public partial class Init : Migration
+    public partial class InitialCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -674,7 +674,7 @@ namespace VietWay.Repository.Migrations
                     ReviewId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
                     BookingId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
                     Rating = table.Column<int>(type: "int", nullable: false),
-                    Content = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Review = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     IsPublic = table.Column<bool>(type: "bit", nullable: false),
                     IsDeleted = table.Column<bool>(type: "bit", nullable: false)
@@ -745,10 +745,9 @@ namespace VietWay.Repository.Migrations
                 column: "AttractionId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Booking_CustomerId_TourId",
+                name: "IX_Booking_CustomerId",
                 table: "Booking",
-                columns: new[] { "CustomerId", "TourId" },
-                unique: true);
+                column: "CustomerId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Booking_TourId",

@@ -29,8 +29,8 @@ namespace VietWay.Service.Customer.Implementation
                 await _unitOfWork.BeginTransactionAsync();
                 Tour? tour = await _unitOfWork.TourRepository.Query()
                     .Include(x => x.TourPrices)
-                    .SingleOrDefaultAsync(x => x.TourId == booking.TourId)
-                    ?? throw new ResourceNotFoundException("Tour not found");
+                    .SingleOrDefaultAsync(x => x.TourId == booking.TourId && x.Status == TourStatus.Opened && x.IsDeleted == false)
+                    ?? throw new ResourceNotFoundException("Can not find any tour");
                 bool isActiveBookingExisted = await _unitOfWork.BookingRepository.Query()
                     .AnyAsync(x => x.TourId == booking.TourId && x.CustomerId == booking.CustomerId && (x.Status == BookingStatus.Pending || x.Status == BookingStatus.Confirmed));
 
@@ -38,9 +38,9 @@ namespace VietWay.Service.Customer.Implementation
                 {
                     throw new InvalidOperationException("Customer has already booked this tour");
                 }
-                if (tour.CurrentParticipant + booking.BookingTourists.Count > tour.MaxParticipant || TourStatus.Opened != tour.Status)
+                if (tour.CurrentParticipant + booking.BookingTourists.Count > tour.MaxParticipant)
                 {
-                    throw new InvalidOperationException("Tour is full or not open");
+                    throw new InvalidOperationException("Tour is full");
                 }
                 booking.BookingId = _idGenerator.GenerateId();
                 foreach (BookingTourist tourist in booking.BookingTourists)

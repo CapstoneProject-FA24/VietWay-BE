@@ -68,6 +68,8 @@ namespace VietWay.API.Management.Mappers
                 .ForMember(dest => dest.Code, opt => opt.MapFrom(src => src.Code))
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
                 .ForMember(dest => dest.Note, opt => opt.MapFrom(src => src.Note))
+                .ForMember(dest => dest.MinPrice, opt => opt.MapFrom(src => src.MinPrice))
+                .ForMember(dest => dest.MaxPrice, opt => opt.MapFrom(src => src.MaxPrice))
                 .ForMember(dest => dest.TourTemplateProvinces, opt => opt.MapFrom(src => (src.ProvinceIds ?? new())
                     .Select(x => new TourTemplateProvince()
                     {
@@ -141,7 +143,8 @@ namespace VietWay.API.Management.Mappers
 
             CreateMap<CreateProvinceRequest, Province>()
                 .ForMember(dest => dest.IsDeleted, opt => opt.MapFrom(src => false))
-                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name));
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description));
         }
     }
 }

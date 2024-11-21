@@ -214,7 +214,7 @@ namespace VietWay.Service.Management.Implement
                 await _unitOfWork.BeginTransactionAsync();
                 if (newImages != null)
                 {
-                    string imageId = postId;
+                    string imageId = $"{postId}-image-{_idGenerator.GenerateId()}";
                     using MemoryStream memoryStream = new();
                     using Stream stream = newImages.OpenReadStream();
                     await stream.CopyToAsync(memoryStream);

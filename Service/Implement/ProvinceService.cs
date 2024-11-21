@@ -43,6 +43,7 @@ namespace VietWay.Service.Management.Implement
                 {
                     ProvinceId = x.ProvinceId,
                     ProvinceName = x.Name,
+                    Description = x.Description,
                     ImageUrl = x.ImageUrl
                 })
                 .Skip((pageIndex - 1) * pageSize)
@@ -78,6 +79,7 @@ namespace VietWay.Service.Management.Implement
                 {
                     ProvinceId = x.ProvinceId,
                     ProvinceName = x.Name,
+                    Description = x.Description,
                     ImageUrl = x.ImageUrl,
                     AttractionsCount = x.Attractions
                         .Where(y => false == y.IsDeleted && AttractionStatus.Approved == y.Status).Count(),
@@ -98,6 +100,7 @@ namespace VietWay.Service.Management.Implement
             {
                 province.ProvinceId ??= _idGenerator.GenerateId();
                 province.CreatedAt = DateTime.Now;
+                province.ImageUrl = "";
                 await _unitOfWork.BeginTransactionAsync();
                 await _unitOfWork.ProvinceRepository.CreateAsync(province);
                 await _unitOfWork.CommitTransactionAsync();
@@ -142,7 +145,7 @@ namespace VietWay.Service.Management.Implement
                 await _unitOfWork.BeginTransactionAsync();
                 if (newImages != null)
                 {
-                    string imageId = provinceId;
+                    string imageId = $"{provinceId}-image-{_idGenerator.GenerateId()}";
                     using MemoryStream memoryStream = new();
                     using Stream stream = newImages.OpenReadStream();
                     await stream.CopyToAsync(memoryStream);

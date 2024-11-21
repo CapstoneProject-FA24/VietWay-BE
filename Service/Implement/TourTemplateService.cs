@@ -23,6 +23,16 @@ namespace VietWay.Service.Management.Implement
         {
             tourTemplate.TourTemplateId = _idGenerator.GenerateId();
             tourTemplate.CreatedAt = DateTime.UtcNow;
+
+            if (tourTemplate.MinPrice == 0 || tourTemplate.MaxPrice == 0)
+            {
+                throw new Exception("Price can not be left 0");
+            }
+            else if(tourTemplate.MinPrice > tourTemplate.MaxPrice)
+            {
+                throw new Exception("Min Price must be lower than Max Price");
+            }
+
 #warning use utc+7 now
             foreach (var province in tourTemplate.TourTemplateProvinces ?? [])
             {
