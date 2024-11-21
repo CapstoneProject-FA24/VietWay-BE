@@ -205,7 +205,7 @@ namespace VietWay.API.Management.Controllers
 
         [HttpGet("{attractionId}/reviews")]
         [Produces("application/json")]
-        [Authorize(Roles = $"{nameof(UserRole.Manager)}, ${nameof(UserRole.Staff)}")]
+        [Authorize(Roles = $"{nameof(UserRole.Manager)}, {nameof(UserRole.Staff)}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(DefaultResponseModel<PaginatedList<AttractionReviewDTO>>))]
         public async Task<IActionResult> GetAttractionReviewAsync(string attractionId, bool isOrderedByLikeNumber, [FromQuery] List<int> ratingValue,
             bool? hasReviewContent, int? pageSize, int? pageIndex, bool? isDeleted)
