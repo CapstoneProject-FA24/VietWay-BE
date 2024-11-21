@@ -251,9 +251,9 @@ namespace VietWay.API.Management.Controllers
 
         [HttpGet("{tourTemplateId}/reviews")]
         [Produces("application/json")]
-        [Authorize(Roles = $"{nameof(UserRole.Manager)}, ${nameof(UserRole.Staff)}")]
+        [Authorize(Roles = $"{nameof(UserRole.Manager)}, {nameof(UserRole.Staff)}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(DefaultResponseModel<PaginatedList<TourReviewDTO>>))]
-        public async Task<IActionResult> GetAttractionReviewAsync(string tourTemplateId, [FromQuery] List<int> ratingValue,
+        public async Task<IActionResult> GetTourTemplateReviewAsync(string tourTemplateId, [FromQuery] List<int> ratingValue,
             bool? hasReviewContent, int? pageSize, int? pageIndex, bool? isDeleted)
         {
             int checkedPageSize = (pageSize == null || pageSize < 1) ? 10 : (int)pageSize;
