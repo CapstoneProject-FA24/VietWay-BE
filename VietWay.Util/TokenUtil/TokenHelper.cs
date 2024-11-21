@@ -33,6 +33,27 @@ namespace VietWay.Util.TokenUtil
             return new JsonWebTokenHandler().CreateToken(descriptor);
         }
 
+        public string GenerateResetPasswordToken(string accountId, DateTime tokenExpireTime)
+        {
+            SymmetricSecurityKey securityKey = new(Encoding.UTF8.GetBytes(_secret));
+            SigningCredentials credentials = new(securityKey, SecurityAlgorithms.HmacSha384);
+            Dictionary<string, object> claims = new()
+            {
+                { CustomClaimType.AccountId, accountId},
+                {ClaimTypes.Role, nameof(CustomRole.ResettingPasswordCustomer) }
+            };
+            SecurityTokenDescriptor descriptor = new()
+            {
+                Issuer = _issuer,
+                Audience = _audience,
+                Claims = claims,
+                NotBefore = DateTime.Now,
+                Expires = tokenExpireTime,
+                SigningCredentials = credentials
+            };
+            return new JsonWebTokenHandler().CreateToken(descriptor);
+        }
+
         public string? GetAccountIdFromToken(HttpContext httpContext)
         {
             string? authorizationString = httpContext.Request.Headers["Authorization"];

@@ -16,11 +16,14 @@ using VietWay.Service.Customer.Implementation;
 using VietWay.Service.Customer.Interface;
 using VietWay.Service.ThirdParty.Firebase;
 using VietWay.Service.ThirdParty.GoogleGemini;
+using VietWay.Service.ThirdParty.Redis;
+using VietWay.Service.ThirdParty.Sms;
 using VietWay.Service.ThirdParty.VnPay;
 using VietWay.Util;
 using VietWay.Util.DateTimeUtil;
 using VietWay.Util.HashUtil;
 using VietWay.Util.IdUtil;
+using VietWay.Util.OtpUtil;
 using VietWay.Util.TokenUtil;
 
 namespace VietWay.API.Customer
@@ -161,6 +164,9 @@ namespace VietWay.API.Customer
             builder.Services.AddScoped<IHashHelper, BCryptHashHelper>();
             builder.Services.AddScoped<ITokenHelper, TokenHelper>();
             builder.Services.AddScoped<IFirebaseService, FirebaseService>();
+            builder.Services.AddScoped<IOtpGenerator, OtpGenerator>();
+            builder.Services.AddScoped<ISmsService, SmsService>();
+            builder.Services.AddScoped<IRedisCacheService, RedisCacheService>();
             #endregion
             builder.Services.AddSingleton<IIdGenerator, SnowflakeIdGenerator>();
             builder.Services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer
@@ -202,6 +208,22 @@ namespace VietWay.API.Customer
                     throw new Exception("VNP_HASH_SECRET is not set in environment variables"),
                 VnpTmnCode = Environment.GetEnvironmentVariable("VNP_TMN_CODE") ??
                     throw new Exception("VNP_TMN_CODE is not set in environment variables")
+            });
+            builder.Services.AddSingleton(s => new OtpGeneratorConfiguration
+            {
+                Length = int.Parse(Environment.GetEnvironmentVariable("SMS_OTP_LENGTH") ??
+                    throw new Exception("SMS_OTP_LENGTH is not set in environment variables")),
+                ExpiryTimeInMinute = int.Parse(Environment.GetEnvironmentVariable("SMS_OTP_EXPIRE_AFTER_MINUTES") ??
+                    throw new Exception("SMS_OTP_EXPIRE_AFTER_MINUTES is not set in environment variables")),
+            });
+            builder.Services.AddSingleton(s => new SmsConfiguration
+            {
+                DeviceId = Environment.GetEnvironmentVariable("SPEEDSMS_DEVICE_ID") ??
+                    throw new Exception("SPEEDSMS_DEVICE_ID is not set in environment variables"),
+                SendTokenMessage = Environment.GetEnvironmentVariable("SMS_SEND_TOKEN_MESSAGE") ??
+                    throw new Exception("SMS_SEND_TOKEN_MESSAGE is not set in environment variables"),
+                Token = Environment.GetEnvironmentVariable("SPEEDSMS_TOKEN") ??
+                    throw new Exception("SPEEDSMS_TOKEN is not set in environment variables")
             });
             builder.Services.AddHttpClient<IGeminiService,GeminiService>(HttpClient =>
             {
