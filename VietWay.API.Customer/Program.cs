@@ -2,7 +2,6 @@ using FirebaseAdmin;
 using Google.Apis.Auth.OAuth2;
 using Hangfire;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using StackExchange.Redis;
@@ -10,16 +9,21 @@ using System.Reflection;
 using System.Text;
 using VietWay.API.Customer.Mappers;
 using VietWay.Middleware;
+using VietWay.Repository.DataAccessObject;
 using VietWay.Repository.UnitOfWork;
+using VietWay.Service.Customer.Configuration;
 using VietWay.Service.Customer.Implementation;
 using VietWay.Service.Customer.Interface;
 using VietWay.Service.ThirdParty.Firebase;
 using VietWay.Service.ThirdParty.GoogleGemini;
+using VietWay.Service.ThirdParty.Redis;
+using VietWay.Service.ThirdParty.Sms;
 using VietWay.Service.ThirdParty.VnPay;
 using VietWay.Util;
 using VietWay.Util.DateTimeUtil;
 using VietWay.Util.HashUtil;
 using VietWay.Util.IdUtil;
+using VietWay.Util.OtpUtil;
 using VietWay.Util.TokenUtil;
 
 namespace VietWay.API.Customer
@@ -37,7 +41,8 @@ namespace VietWay.API.Customer
 
             FirebaseApp.Create(new AppOptions()
             {
-                Credential = GoogleCredential.FromJson(FirebaseConfigBuilder.BuildConfig())
+                Credential = GoogleCredential.FromJson(Environment.GetEnvironmentVariable("FIREBASE_CREDENTIAL") ??
+                    throw new Exception("FIREBASE_CREDENTIAL is not set in environment variables"))
             });
 
             #region builder.Services.AddHangfire(...);
@@ -146,7 +151,7 @@ namespace VietWay.API.Customer
             builder.Services.AddScoped<IBookingService, BookingService>();
             builder.Services.AddScoped<ICustomerService, CustomerService>();
             builder.Services.AddScoped<IPostCategoryService, PostCategoryService>();
-            builder.Services.AddScoped<IPostService,PostService>();
+            builder.Services.AddScoped<IPostService, PostService>();
             builder.Services.AddScoped<IProvinceService, ProvinceService>();
             builder.Services.AddScoped<ITourCategoryService, TourCategoryService>();
             builder.Services.AddScoped<ITourDurationService, TourDurationService>();
@@ -159,12 +164,73 @@ namespace VietWay.API.Customer
             builder.Services.AddScoped<IHashHelper, BCryptHashHelper>();
             builder.Services.AddScoped<ITokenHelper, TokenHelper>();
             builder.Services.AddScoped<IFirebaseService, FirebaseService>();
-            builder.Services.AddScoped<IGeminiService, GeminiService>();
+            builder.Services.AddScoped<IOtpGenerator, OtpGenerator>();
+            builder.Services.AddScoped<ISmsService, SmsService>();
+            builder.Services.AddScoped<IRedisCacheService, RedisCacheService>();
             #endregion
             builder.Services.AddSingleton<IIdGenerator, SnowflakeIdGenerator>();
             builder.Services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer
                 .Connect(Environment.GetEnvironmentVariable("REDIS_CONNECTION_STRING") ??
                     throw new Exception("REDIS_CONNECTION_STRING is not set in environment variables")));
+            builder.Services.AddSingleton(s => new GeminiApiConfig
+            {
+                ApiKey = Environment.GetEnvironmentVariable("GEMINI_AI_API_KEY") ??
+                    throw new Exception("GEMINI_AI_API_KEY is not set in environment variables"),
+                SystemPrompt = Environment.GetEnvironmentVariable("GEMINI_AI_SYSTEM_PROMPT")
+            });
+            builder.Services.AddSingleton(s => new DatabaseConfig
+            {
+                ConnectionString = Environment.GetEnvironmentVariable("SQL_CONNECTION_STRING") ??
+                    throw new Exception("SQL_CONNECTION_STRING is not set in environment variables")
+            });
+            builder.Services.AddSingleton(s => new TokenConfig
+            {
+                Audience = Environment.GetEnvironmentVariable("JWT_AUDIENCE") ??
+                    throw new Exception("JWT_AUDIENCE is not set in environment variables"),
+                Issuer = Environment.GetEnvironmentVariable("JWT_ISSUER") ??
+                    throw new Exception("JWT_ISSUER is not set in environment variables"),
+                Secret = Environment.GetEnvironmentVariable("JWT_KEY") ??
+                    throw new Exception("JWT_KEY is not set in environment variables")
+            });
+            builder.Services.AddSingleton(s => new BookingServiceConfiguration
+            {
+                PendingBookingExpireAfterMinutes = int.Parse(Environment.GetEnvironmentVariable("PENDING_BOOKING_EXPIRE_AFTER_MINUTES") ??
+                    throw new Exception("PENDING_BOOKING_EXPIRE_AFTER_MINUTES is not set in environment variables"))
+            });
+            builder.Services.AddSingleton(s => new TourReviewServiceConfiguration
+            {
+                ReviewTourExpireAfterDays = int.Parse(Environment.GetEnvironmentVariable("REVIEW_TOUR_EXPIRE_AFTER_DAYS") ??
+                    throw new Exception("REVIEW_TOUR_EXPIRE_AFTER_DAYS is not set in environment variables"))
+            });
+            builder.Services.AddSingleton(s => new VnPayConfiguration
+            {
+                VnpHashSecret = Environment.GetEnvironmentVariable("VNP_HASH_SECRET") ??
+                    throw new Exception("VNP_HASH_SECRET is not set in environment variables"),
+                VnpTmnCode = Environment.GetEnvironmentVariable("VNP_TMN_CODE") ??
+                    throw new Exception("VNP_TMN_CODE is not set in environment variables")
+            });
+            builder.Services.AddSingleton(s => new OtpGeneratorConfiguration
+            {
+                Length = int.Parse(Environment.GetEnvironmentVariable("SMS_OTP_LENGTH") ??
+                    throw new Exception("SMS_OTP_LENGTH is not set in environment variables")),
+                ExpiryTimeInMinute = int.Parse(Environment.GetEnvironmentVariable("SMS_OTP_EXPIRE_AFTER_MINUTES") ??
+                    throw new Exception("SMS_OTP_EXPIRE_AFTER_MINUTES is not set in environment variables")),
+            });
+            builder.Services.AddSingleton(s => new SmsConfiguration
+            {
+                DeviceId = Environment.GetEnvironmentVariable("SPEEDSMS_DEVICE_ID") ??
+                    throw new Exception("SPEEDSMS_DEVICE_ID is not set in environment variables"),
+                SendTokenMessage = Environment.GetEnvironmentVariable("SMS_SEND_TOKEN_MESSAGE") ??
+                    throw new Exception("SMS_SEND_TOKEN_MESSAGE is not set in environment variables"),
+                Token = Environment.GetEnvironmentVariable("SPEEDSMS_TOKEN") ??
+                    throw new Exception("SPEEDSMS_TOKEN is not set in environment variables")
+            });
+            builder.Services.AddHttpClient<IGeminiService,GeminiService>(HttpClient =>
+            {
+                string baseUrl = Environment.GetEnvironmentVariable("GEMINI_AI_API_ENDPOINT") ??
+                    throw new Exception("GEMINI_AI_API_ENDPOINT is not set in environment variables");
+                HttpClient.BaseAddress = new Uri(baseUrl);
+            });
             var app = builder.Build();
             app.UseStaticFiles();
             #region app.UseSwagger(...);

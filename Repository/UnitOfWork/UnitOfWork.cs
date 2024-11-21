@@ -5,9 +5,9 @@ using VietWay.Repository.GenericRepository;
 
 namespace VietWay.Repository.UnitOfWork
 {
-    public class UnitOfWork : IUnitOfWork
+    public class UnitOfWork(DatabaseConfig config) : IUnitOfWork
     {
-        private readonly VietWayDbContext _dbContext = new();
+        private readonly VietWayDbContext _dbContext = new(config);
 
         public IDbContextTransaction? transaction;
 

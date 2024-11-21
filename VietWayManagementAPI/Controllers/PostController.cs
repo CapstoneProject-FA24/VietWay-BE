@@ -194,17 +194,17 @@ namespace VietWay.API.Management.Controllers
                 StatusCode = StatusCodes.Status200OK
             });
         }
-        [HttpGet("{postId}/facebook/reactions")]
+        [HttpGet("{postId}/facebook/metrics")]
         [Produces("application/json")]
-        [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status200OK)]
+        [ProducesResponseType<DefaultResponseModel<FacebookMetricsDTO>>(StatusCodes.Status200OK)]
         public async Task<IActionResult> GetFacebookReactionsAsync(string postId)
         {
-            int reactionCount = await _publishPostService.GetPublishedPostReactionAsync(postId);
-            return Ok(new DefaultResponseModel<object>
+
+            return Ok(new DefaultResponseModel<FacebookMetricsDTO>
             {
                 Message = "Get facebook reaction count successfully",
                 StatusCode = StatusCodes.Status200OK,
-                Data = reactionCount
+                Data = await _publishPostService.GetFacebookPostMetricsAsync(postId)
             });
         }
 
@@ -260,6 +260,47 @@ namespace VietWay.API.Management.Controllers
             {
                 Message = "Success",
                 Data = null,
+                StatusCode = StatusCodes.Status200OK
+            });
+        }
+
+        [HttpGet("{postId}/twitter/reactions-by-post-id")]
+        [Produces("application/json")]
+        [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetTwitterPostByPostIdAsync(string postId)
+        {
+            TweetDTO result = await _publishPostService.GetPublishedTweetByIdAsync(postId);
+            return Ok(new DefaultResponseModel<object>
+            {
+                Message = "Get twitter post successfully",
+                StatusCode = StatusCodes.Status200OK,
+                Data = result
+            });
+        }
+
+        [HttpGet("twitter/reactions")]
+        [Produces("application/json")]
+        [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetTwitterPostsAsync()
+        {
+            List<TweetDTO> result = await _publishPostService.GetPublishedTweetsAsync();
+            return Ok(new DefaultResponseModel<object>
+            {
+                Message = "Get twitter posts successfully",
+                StatusCode = StatusCodes.Status200OK,
+                Data = result
+            });
+        }
+
+        [HttpDelete("{postId}/twitter")]
+        [Produces("application/json")]
+        [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status200OK)]
+        public async Task<IActionResult> DeleteTwitterPostsAsync(string postId)
+        {
+            await _publishPostService.DeleteTweetWithXAsync(postId);
+            return Ok(new DefaultResponseModel<object>
+            {
+                Message = "Get twitter posts successfully",
                 StatusCode = StatusCodes.Status200OK
             });
         }

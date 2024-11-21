@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using VietWay.Repository.EntityModel;
 using VietWay.Repository.EntityModel.Base;
 using VietWay.Repository.UnitOfWork;
+using VietWay.Service.Customer.Configuration;
 using VietWay.Service.Customer.DataTransferObject;
 using VietWay.Service.Customer.Interface;
 using VietWay.Util.CustomExceptions;
@@ -15,13 +16,13 @@ using VietWay.Util.IdUtil;
 
 namespace VietWay.Service.Customer.Implementation
 {
-    public class TourReviewService(IUnitOfWork unitOfWork, IIdGenerator idGenerator, ITimeZoneHelper timeZoneHelper) : ITourReviewService
+    public class TourReviewService(IUnitOfWork unitOfWork, IIdGenerator idGenerator, ITimeZoneHelper timeZoneHelper,
+        TourReviewServiceConfiguration config) : ITourReviewService
     {
         private readonly IUnitOfWork _unitOfWork = unitOfWork;
         private readonly IIdGenerator _idGenerator = idGenerator;
         private readonly ITimeZoneHelper _timeZoneHelper = timeZoneHelper;
-        private readonly int _reviewTourExpireAfterDays = int.Parse(Environment.GetEnvironmentVariable("REVIEW_TOUR_EXPIRE_AFTER_DAYS")
-            ?? throw new Exception("REVIEW_TOUR_EXPIRE_AFTER_DAYS is not set in environment variables"));
+        private readonly int _reviewTourExpireAfterDays = config.ReviewTourExpireAfterDays;
 
         public async Task CreateTourReviewAsync(string customerId, TourReview tourReview)
         {

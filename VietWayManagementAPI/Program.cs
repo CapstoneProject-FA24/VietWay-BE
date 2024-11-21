@@ -20,6 +20,9 @@ using VietWay.Service.ThirdParty.Twitter;
 using VietWay.Job.Interface;
 using VietWay.Job.Implementation;
 using VietWay.Service.ThirdParty.Facebook;
+using VietWay.Service.ThirdParty.Redis;
+using StackExchange.Redis;
+using VietWay.Repository.DataAccessObject;
 namespace VietWay.API.Management
 {
     public class Program
@@ -143,9 +146,72 @@ namespace VietWay.API.Management
             builder.Services.AddScoped<ITwitterService, TwitterService>();
             builder.Services.AddScoped<IPublishPostService, PublishPostService>();
             builder.Services.AddScoped<IBookingJob, BookingJob>();
-            builder.Services.AddScoped<IFacebookService, FacebookService>();
+            builder.Services.AddScoped<ITweetJob, TweetJob>();
+            builder.Services.AddScoped<IRedisCacheService, RedisCacheService>();
+            builder.Services.AddScoped<IAttractionReviewService, AttractionReviewService>();
+            builder.Services.AddScoped<ITourReviewService, TourReviewService>();
             #endregion
             builder.Services.AddSingleton<IIdGenerator, SnowflakeIdGenerator>();
+            builder.Services.AddSingleton<IRecurringJobManager, RecurringJobManager>();
+            builder.Services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer
+                .Connect(Environment.GetEnvironmentVariable("REDIS_CONNECTION_STRING") ??
+                    throw new Exception("REDIS_CONNECTION_STRING is not set in environment variables")));
+            builder.Services.AddSingleton(config => new FacebookApiConfig
+            {
+                PageId = Environment.GetEnvironmentVariable("FACEBOOK_PAGE_ID") ??
+                    throw new Exception("FACEBOOK_PAGE_ID is not set in environment variables"),
+                PageAccessToken = Environment.GetEnvironmentVariable("FACEBOOK_PAGE_ACCESS_TOKEN") ??
+                    throw new Exception("FACEBOOK_PAGE_ACCESS_TOKEN is not set in environment variables")
+            });
+            builder.Services.AddSingleton(s => new CloudinaryApiConfig { 
+                ApiKey = Environment.GetEnvironmentVariable("CLOUDINARY_API_KEY") ??
+                    throw new Exception("CLOUDINARY_API_KEY is not set in environment variables"),
+                ApiSecret = Environment.GetEnvironmentVariable("CLOUDINARY_API_SECRET") ??
+                    throw new Exception("CLOUDINARY_API_SECRET is not set in environment variables"),
+                CloudName = Environment.GetEnvironmentVariable("CLOUDINARY_CLOUD_NAME") ??
+                    throw new Exception("CLOUDINARY_CLOUD_NAME is not set in environment variables")
+            });
+            builder.Services.AddSingleton(s=>new DatabaseConfig
+            {
+                ConnectionString = Environment.GetEnvironmentVariable("SQL_CONNECTION_STRING") ??
+                    throw new Exception("SQL_CONNECTION_STRING is not set in environment variables")
+            });
+            builder.Services.AddSingleton(s => new TokenConfig
+            {
+                Audience = Environment.GetEnvironmentVariable("JWT_AUDIENCE") ??
+                    throw new Exception("JWT_AUDIENCE is not set in environment variables"),
+                Issuer = Environment.GetEnvironmentVariable("JWT_ISSUER") ??
+                    throw new Exception("JWT_ISSUER is not set in environment variables"),
+                Secret = Environment.GetEnvironmentVariable("JWT_KEY") ??
+                    throw new Exception("JWT_KEY is not set in environment variables")
+            });
+            builder.Services.AddSingleton(s => new TwitterServiceConfiguration
+            {
+                XApiKey = Environment.GetEnvironmentVariable("X_API_KEY") ??
+                    throw new Exception("X_API_KEY is not set in environment variables"),
+                XApiKeySecret = Environment.GetEnvironmentVariable("X_API_KEY_SECRET") ??
+                    throw new Exception("X_API_KEY_SECRET is not set in environment variables"),
+                XAccessToken = Environment.GetEnvironmentVariable("X_ACCESS_TOKEN") ??
+                    throw new Exception("X_ACCESS_TOKEN is not set in environment variables"),
+                XAccessTokenSecret = Environment.GetEnvironmentVariable("X_ACCESS_TOKEN_SECRET") ??
+                    throw new Exception("X_ACCESS_TOKEN_SECRET is not set in environment variables"),
+                BearerToken = Environment.GetEnvironmentVariable("X_BEARER_TOKEN") ??
+                    throw new Exception("X_BEARER_TOKEN is not set in environment variables")
+            });
+            builder.Services.AddSingleton(s => new VnPayConfiguration
+            {
+                VnpHashSecret = Environment.GetEnvironmentVariable("VNP_HASH_SECRET") ??
+                    throw new Exception("VNP_HASH_SECRET is not set in environment variables"),
+                VnpTmnCode = Environment.GetEnvironmentVariable("VNP_TMN_CODE") ??
+                    throw new Exception("VNP_TMN_CODE is not set in environment variables")
+            });
+            builder.Services.AddHttpClient<IFacebookService, FacebookService>(HttpClient =>
+            {
+
+                string graphApiBaseUrl = Environment.GetEnvironmentVariable("FACEBOOK_GRAPH_API_BASE_URL") ??
+                    throw new Exception("FACEBOOK_GRAPH_API_BASE_URL is not set in environment variables");
+                HttpClient.BaseAddress = new Uri(graphApiBaseUrl);
+            });
             var app = builder.Build();
             app.UseStaticFiles();
             #region app.UseSwagger(...);

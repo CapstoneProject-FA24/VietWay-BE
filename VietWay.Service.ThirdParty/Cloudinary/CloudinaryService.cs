@@ -8,15 +8,9 @@ namespace VietWay.Service.ThirdParty.Cloudinary
     public class CloudinaryService : ICloudinaryService
     {
         private readonly CloudinaryClient _cloudinary;
-        public CloudinaryService()
+        public CloudinaryService(CloudinaryApiConfig config)
         {
-            string apiKey = Environment.GetEnvironmentVariable("CLOUDINARY_API_KEY")
-                ?? throw new Exception("CLOUDINARY_API_KEY is not set in environment variables");
-            string apiSecret = Environment.GetEnvironmentVariable("CLOUDINARY_API_SECRET")
-                ?? throw new Exception("CLOUDINARY_API_SECRET is not set in environment variables");
-            string cloudName = Environment.GetEnvironmentVariable("CLOUDINARY_CLOUD_NAME")
-                ?? throw new Exception("CLOUDINARY_CLOUD_NAME is not set in environment variables");
-            _cloudinary = new($"cloudinary://{apiKey}:{apiSecret}@{cloudName}");
+            _cloudinary = new($"cloudinary://{config.ApiKey}:{config.ApiSecret}@{config.CloudName}");
             _cloudinary.Api.Secure = true;
         }
         public string GetImage(string publicId)

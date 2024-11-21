@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace VietWay.Service.ThirdParty.SMS
+namespace VietWay.Service.ThirdParty.Sms
 {
-    public interface ISMSService
+    public interface ISmsService
     {
         public Task<bool> SendOTP(string otp, string phoneNumber);
     }
