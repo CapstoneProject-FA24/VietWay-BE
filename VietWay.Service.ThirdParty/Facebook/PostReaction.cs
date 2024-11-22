@@ -18,7 +18,7 @@ namespace VietWay.Service.ThirdParty.Facebook
         public int WowCount { get; set; } = 0;
         [JsonPropertyName("haha")]
         public int HahaCount { get; set; } = 0;
-        [JsonPropertyName("sad")]
+        [JsonPropertyName("sorry")]
         public int SadCount { get; set; } = 0;
         [JsonPropertyName("anger")]
         public int AngryCount { get; set; } = 0; 
