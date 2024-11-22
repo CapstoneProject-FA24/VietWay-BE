@@ -1,31 +1,123 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using VietWay.API.Management.RequestModel;
 using VietWay.API.Management.ResponseModel;
+using VietWay.Repository.EntityModel;
+using VietWay.Repository.EntityModel.Base;
 using VietWay.Service.Management.DataTransferObject;
 using VietWay.Service.Management.Interface;
+using VietWay.Util.TokenUtil;
 
 namespace VietWay.API.Management.Controllers
 {
     [Route("api/tour-categories")]
     [ApiController]
-    public class TourCategoryController(ITourCategoryService tourCategoryService, IMapper mapper) : ControllerBase
+    public class TourCategoryController(ITourCategoryService tourCategoryService,
+        ITokenHelper tokenHelper,
+        IMapper mapper) : ControllerBase
     {
         private readonly IMapper _mapper = mapper;
         private readonly ITourCategoryService _tourCategoryService = tourCategoryService;
+        private readonly ITokenHelper _tokenHelper = tokenHelper;
 
         [HttpGet]
         [Produces("application/json")]
-        [ProducesResponseType<DefaultResponseModel<TourCategoryDTO>>(StatusCodes.Status200OK)]
-        public async Task<IActionResult> GetAllTourCategoryAsync()
+        [Authorize(Roles = $"{nameof(UserRole.Manager)}, {nameof(UserRole.Staff)}")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(DefaultResponseModel<PaginatedList<TourCategoryDTO>>))]
+        public async Task<IActionResult> GetAllTourCategoryAsync(
+            string? nameSearch,
+            int? pageSize,
+            int? pageIndex)
         {
-            var result = await _tourCategoryService.GetAllTourCategory();
-            DefaultResponseModel<List<TourCategoryDTO>> response = new()
+            string? accountId = _tokenHelper.GetAccountIdFromToken(HttpContext);
+            if (string.IsNullOrWhiteSpace(accountId))
             {
-                Data = result,
-                Message = "Get all tour category successfully",
+                return Unauthorized(new DefaultResponseModel<object>
+                {
+                    Message = "Unauthorized",
+                    StatusCode = StatusCodes.Status401Unauthorized
+                });
+            }
+
+            int checkedPageIndex = pageIndex ?? 1;
+            int checkedPageSize = pageSize ?? 10;
+
+            (int totalCount, List<TourCategoryDTO> items) = await _tourCategoryService.GetAllTourCategoryAsync(
+                nameSearch, checkedPageSize, checkedPageIndex);
+
+            return Ok(new DefaultResponseModel<PaginatedList<TourCategoryDTO>>()
+            {
+                Message = "Success",
+                Data = new PaginatedList<TourCategoryDTO>
+                {
+                    Items = items,
+                    PageSize = checkedPageSize,
+                    PageIndex = checkedPageIndex,
+                    Total = totalCount
+                },
                 StatusCode = StatusCodes.Status200OK
-            };
-            return Ok(response);
+            });
+        }
+
+        [HttpGet("{tourCategoryId}")]
+        [Produces("application/json")]
+        [Authorize(Roles = $"{nameof(UserRole.Manager)}, {nameof(UserRole.Staff)}")]
+        [ProducesResponseType<DefaultResponseModel<PostDetailDTO>>(StatusCodes.Status200OK)]
+        [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> GetTourCategoryById(string tourCategoryId)
+        {
+            string? accountId = _tokenHelper.GetAccountIdFromToken(HttpContext);
+            if (string.IsNullOrWhiteSpace(accountId))
+            {
+                return Unauthorized(new DefaultResponseModel<object>
+                {
+                    Message = "Unauthorized",
+                    StatusCode = StatusCodes.Status401Unauthorized
+                });
+            }
+
+            TourCategoryDTO? tourCategory = await _tourCategoryService.GetTourCategoryByIdAsync(tourCategoryId);
+            if (null == tourCategory)
+            {
+                return NotFound(new DefaultResponseModel<object>
+                {
+                    Message = "Not found",
+                    StatusCode = StatusCodes.Status404NotFound
+                });
+            }
+            return Ok(new DefaultResponseModel<TourCategoryDTO>
+            {
+                Message = "Get tour category successfully",
+                StatusCode = StatusCodes.Status200OK,
+                Data = tourCategory
+            });
+        }
+
+        [HttpPost]
+        [Authorize(Roles = nameof(UserRole.Manager))]
+        [Produces("application/json")]
+        [ProducesResponseType<DefaultResponseModel<string>>(StatusCodes.Status200OK)]
+        public async Task<IActionResult> CreateTourCategoryAsync(CreateTourCategoryRequest request)
+        {
+            string? accountId = _tokenHelper.GetAccountIdFromToken(HttpContext);
+            if (string.IsNullOrWhiteSpace(accountId))
+            {
+                return Unauthorized(new DefaultResponseModel<object>
+                {
+                    Message = "Unauthorized",
+                    StatusCode = StatusCodes.Status401Unauthorized
+                });
+            }
+
+            TourCategory tourCategory = _mapper.Map<TourCategory>(request);
+            string tourCategoryId = await _tourCategoryService.CreateTourCategoryAsync(tourCategory);
+            return Ok(new DefaultResponseModel<string>
+            {
+                Message = "Create post successfully",
+                StatusCode = StatusCodes.Status200OK,
+                Data = tourCategoryId
+            });
         }
     }
 }
