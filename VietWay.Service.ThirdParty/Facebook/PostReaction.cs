@@ -20,7 +20,7 @@ namespace VietWay.Service.ThirdParty.Facebook
         public int HahaCount { get; set; } = 0;
         [JsonPropertyName("sad")]
         public int SadCount { get; set; } = 0;
-        [JsonPropertyName("angry")]
+        [JsonPropertyName("anger")]
         public int AngryCount { get; set; } = 0; 
 
     }
