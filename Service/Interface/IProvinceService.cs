@@ -15,5 +15,6 @@ namespace VietWay.Service.Management.Interface
         public Task<string> CreateProvinceAsync(Province province);
         public Task UpdateProvinceAsync(Province newProvince);
         public Task UpdateProvinceImageAsync(string provinceId, IFormFile newImages);
+        public Task DeleteProvinceAsync(string provinceId);
     }
 }
