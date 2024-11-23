@@ -28,6 +28,7 @@ namespace VietWay.Repository.UnitOfWork
         public IGenericRepository<TourDuration> TourDurationRepository { get; }
         public IGenericRepository<TourReview> TourReviewRepository { get; }
         public IGenericRepository<TourTemplate> TourTemplateRepository { get; }
+        public IGenericRepository<TourTemplateProvince> TourTemplateProvinceRepository { get; }
 
         public Task BeginTransactionAsync();
         public Task CommitTransactionAsync();

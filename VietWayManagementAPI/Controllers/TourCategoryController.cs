@@ -24,11 +24,9 @@ namespace VietWay.API.Management.Controllers
         [HttpGet]
         [Produces("application/json")]
         [Authorize(Roles = $"{nameof(UserRole.Manager)}, {nameof(UserRole.Staff)}")]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(DefaultResponseModel<PaginatedList<TourCategoryDTO>>))]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(DefaultResponseModel<TourCategoryDTO>))]
         public async Task<IActionResult> GetAllTourCategoryAsync(
-            string? nameSearch,
-            int? pageSize,
-            int? pageIndex)
+            string? nameSearch)
         {
             string? accountId = _tokenHelper.GetAccountIdFromToken(HttpContext);
             if (string.IsNullOrWhiteSpace(accountId))
@@ -40,22 +38,12 @@ namespace VietWay.API.Management.Controllers
                 });
             }
 
-            int checkedPageIndex = pageIndex ?? 1;
-            int checkedPageSize = pageSize ?? 10;
+            List<TourCategoryDTO> items = await _tourCategoryService.GetAllTourCategoryAsync(nameSearch);
 
-            (int totalCount, List<TourCategoryDTO> items) = await _tourCategoryService.GetAllTourCategoryAsync(
-                nameSearch, checkedPageSize, checkedPageIndex);
-
-            return Ok(new DefaultResponseModel<PaginatedList<TourCategoryDTO>>()
+            return Ok(new DefaultResponseModel<List<TourCategoryDTO>>()
             {
                 Message = "Success",
-                Data = new PaginatedList<TourCategoryDTO>
-                {
-                    Items = items,
-                    PageSize = checkedPageSize,
-                    PageIndex = checkedPageIndex,
-                    Total = totalCount
-                },
+                Data = items,
                 StatusCode = StatusCodes.Status200OK
             });
         }

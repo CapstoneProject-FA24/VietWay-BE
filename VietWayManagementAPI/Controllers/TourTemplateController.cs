@@ -123,8 +123,9 @@ namespace VietWay.API.Management.Controllers
             await _tourTemplateService.CreateTemplateAsync(tourTemplate);
             return Ok(new DefaultResponseModel<object>()
             {
-                Message = "Tour created successfully",
-                StatusCode = StatusCodes.Status200OK
+                Message = "Tour template created successfully",
+                StatusCode = StatusCodes.Status200OK,
+                Data = tourTemplate.TourTemplateId
             });
         }
         [HttpPut("{tourTemplateId}")]

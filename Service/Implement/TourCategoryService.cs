@@ -15,10 +15,8 @@ namespace VietWay.Service.Management.Implement
         private readonly IUnitOfWork _unitOfWork = unitOfWork;
         private readonly IIdGenerator _idGenerator = idGenerator;
 
-        public async Task<(int totalCount, List<TourCategoryDTO> items)> GetAllTourCategoryAsync(
-            string? nameSearch,
-            int pageSize,
-            int pageIndex)
+        public async Task<List<TourCategoryDTO>> GetAllTourCategoryAsync(
+            string? nameSearch)
         {
             var query = _unitOfWork
                 .TourCategoryRepository
@@ -29,7 +27,6 @@ namespace VietWay.Service.Management.Implement
             {
                 query = query.Where(x => x.Name.Contains(nameSearch));
             }
-            int count = await query.CountAsync();
 
             List<TourCategoryDTO> items = await query
                 .OrderByDescending(x => x.CreatedAt)
@@ -40,11 +37,9 @@ namespace VietWay.Service.Management.Implement
                     Description = x.Description,
                     CreatedAt = x.CreatedAt
                 })
-                .Skip((pageIndex - 1) * pageSize)
-                .Take(pageSize)
                 .ToListAsync();
 
-            return (count, items);
+            return items;
         }
 
         public async Task<string> CreateTourCategoryAsync(TourCategory tourCategory)
