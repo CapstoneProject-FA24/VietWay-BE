@@ -120,7 +120,7 @@ namespace VietWay.Service.Management.Implement
                 throw new ResourceNotFoundException("Province not found");
 
             province.Name = newProvince.Name;
-            province.ImageUrl = newProvince.ImageUrl;
+            province.Description = newProvince.Description;
 
             try
             {
