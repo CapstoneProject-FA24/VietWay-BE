@@ -6,14 +6,11 @@ using System.Text;
 
 namespace VietWay.Util.TokenUtil
 {
-    public class TokenHelper : ITokenHelper
+    public class TokenHelper(TokenConfig config) : ITokenHelper
     {
-        private readonly string _issuer = Environment.GetEnvironmentVariable("JWT_ISSUER")
-            ?? throw new Exception("JWT_ISSUER is not set in environment variables");
-        private readonly string _audience = Environment.GetEnvironmentVariable("JWT_AUDIENCE")
-            ?? throw new Exception("JWT_ISSUER is not set in environment variables");
-        private readonly string _secret = Environment.GetEnvironmentVariable("JWT_KEY")
-            ?? throw new Exception("JWT_KEY is not set in environment variables");
+        private readonly string _issuer = config.Issuer;
+        private readonly string _audience = config.Audience;
+        private readonly string _secret = config.Secret;
 
         public string GenerateAuthenticationToken(string accountId, string role)
         {
@@ -31,6 +28,27 @@ namespace VietWay.Util.TokenUtil
                 Claims = claims,
                 NotBefore = DateTime.Now,
                 Expires = DateTime.Now.AddDays(30),
+                SigningCredentials = credentials
+            };
+            return new JsonWebTokenHandler().CreateToken(descriptor);
+        }
+
+        public string GenerateResetPasswordToken(string accountId, DateTime tokenExpireTime)
+        {
+            SymmetricSecurityKey securityKey = new(Encoding.UTF8.GetBytes(_secret));
+            SigningCredentials credentials = new(securityKey, SecurityAlgorithms.HmacSha384);
+            Dictionary<string, object> claims = new()
+            {
+                { CustomClaimType.AccountId, accountId},
+                {ClaimTypes.Role, nameof(CustomRole.ResettingPasswordCustomer) }
+            };
+            SecurityTokenDescriptor descriptor = new()
+            {
+                Issuer = _issuer,
+                Audience = _audience,
+                Claims = claims,
+                NotBefore = DateTime.Now,
+                Expires = tokenExpireTime,
                 SigningCredentials = credentials
             };
             return new JsonWebTokenHandler().CreateToken(descriptor);

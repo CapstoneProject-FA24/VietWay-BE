@@ -16,7 +16,7 @@ namespace VietWay.Service.Customer.Implementation
     {
         private readonly IUnitOfWork _unitOfWork = unitOfWork;
         private readonly ITimeZoneHelper _timeZoneHelper = timeZoneHelper;
-        public async Task<(int count, List<TourTemplateWithTourInfoDTO> items)> GetTourTemplatesWithActiveToursAsync(string? nameSearch, 
+        public async Task<PaginatedList<TourTemplateWithTourInfoDTO>> GetTourTemplatesWithActiveToursAsync(string? nameSearch, 
             List<string>? templateCategoryIds,  List<string>? provinceIds, List<int>? numberOfDay, DateTime? startDateFrom, DateTime? startDateTo, 
             decimal? minPrice, decimal? maxPrice, int pageSize, int pageIndex)
         {
@@ -59,12 +59,6 @@ namespace VietWay.Service.Customer.Implementation
             }
             int count = await query.CountAsync();
             List<TourTemplateWithTourInfoDTO> items = await query
-                .Include(x => x.TourTemplateImages)
-                .Include(x => x.TourTemplateProvinces)
-                    .ThenInclude(x => x.Province)
-                .Include(x => x.TourCategory)
-                .Include(x => x.TourDuration)
-                .Include(x => x.Tours)
                 .OrderBy(x => x.TourCategoryId)
                 .Skip((pageIndex - 1) * pageSize)
                 .Take(pageSize)
@@ -80,9 +74,16 @@ namespace VietWay.Service.Customer.Implementation
                     Provinces = x.TourTemplateProvinces.Select(y => y.Province.Name).ToList(),
                     StartDate = x.Tours.Where(x => x.Status == TourStatus.Opened).Select(y => (DateTime)y.StartDate).ToList(),
                     TourName = x.TourName,
+                    AverageRating = x.Tours.SelectMany(x => x.TourBookings).Select(x => x.TourReview).Average(x => x.Rating)
                 })
                 .ToListAsync();
-            return (count, items);
+            return new PaginatedList<TourTemplateWithTourInfoDTO>
+            {
+                Items = items,
+                Total = count,
+                PageIndex = pageIndex,
+                PageSize = pageSize
+            };
         }
 
         public async Task<TourTemplateDetailDTO?> GetTemplateByIdAsync(string tourTemplateId)
@@ -105,34 +106,24 @@ namespace VietWay.Service.Customer.Implementation
                         Url = y.ImageUrl
                     }).ToList(),
                     Note = x.Note,
-                    Provinces = x.TourTemplateProvinces.Select(y => new ProvincePreviewDTO() 
-                    { 
-                        ProvinceId = y.ProvinceId, 
-                        Name = y.Province.Name 
+                    Provinces = x.TourTemplateProvinces.Select(y => new ProvincePreviewDTO()
+                    {
+                        ProvinceId = y.ProvinceId,
+                        Name = y.Province.Name
                     }).ToList(),
                     Schedules = x.TourTemplateSchedules.Select(y => new ScheduleDTO()
                     {
                         Attractions = y.AttractionSchedules.Select(z => new AttractionPreviewDTO()
                         {
                             AttractionId = z.AttractionId,
-                            Name = z.Attraction.Name,
-                            ImageUrl = z.Attraction.AttractionImages.FirstOrDefault().ImageUrl,
+                            Name = z.Attraction!.Name,
+                            ImageUrl = z.Attraction!.AttractionImages!.Select(x => x.ImageUrl).FirstOrDefault(),
                             Address = z.Attraction.Address,
-                            AttractionCategory = z.Attraction.AttractionCategory.Name,
-                            Province = z.Attraction.Province.Name,
+                            AttractionCategory = z.Attraction!.AttractionCategory!.Name,
+                            Province = z.Attraction!.Province!.Name,
+                            AverageRating = z.Attraction!.AttractionReviews!.Where(r => false == r.IsDeleted).Average(r => r.Rating),
                         }).ToList(),
                         Description = y.Description,
-                        Events = y.EventSchedules.Select(z => new EventPreviewDTO()
-                        {
-                            EventId = z.EventId,
-                            Description = z.Event.Description,
-                            EndDate = z.Event.EndDate,
-                            EventCategory = z.Event.EventCategory.Name,
-                            ImageUrl = z.Event.ImageUrl,
-                            ProvinceName = z.Event.Province.Name,
-                            StartDate = z.Event.StartDate,
-                            Title = z.Event.Title,
-                        }).ToList(),
                         Title = y.Title,
                         DayNumber = y.DayNumber
                     }).ToList(),
@@ -143,10 +134,18 @@ namespace VietWay.Service.Customer.Implementation
                         Description = x.Description
                     },
                     TourName = x.TourName,
-                    TourTemplateId = x.TourTemplateId
+                    TourTemplateId = x.TourTemplateId,
+                    AverageRating = x.Tours.SelectMany(x => x.TourBookings).Select(x => x.TourReview).Average(x => x.Rating),
+                    RatingCount = x.Tours.SelectMany(x=>x.TourBookings)
+                        .Select(x=>x.TourReview)
+                        .GroupBy(x => x.Rating)
+                        .Select(x => new RatingDTO()
+                        {
+                            Rating = x.Key,
+                            Count = x.Count()
+                        }).ToList()
                 }).SingleOrDefaultAsync();
         }
-
         public Task<List<TourTemplatePreviewDTO>> GetTourTemplatePreviewsByAttractionId(string attractionId, int previewCount)
         {
             return _unitOfWork.TourTemplateRepository.Query()
@@ -162,7 +161,8 @@ namespace VietWay.Service.Customer.Implementation
                     TourTemplateId = x.TourTemplateId,
                     Provinces = x.TourTemplateProvinces.Select(y => y.Province.Name).ToList(),
                     TourCategory = x.TourCategory.Name,
-                    Price = x.Tours.Where(y => y.Status == TourStatus.Opened).Select(y => (decimal)y.DefaultTouristPrice).Min()
+                    Price = x.Tours.Where(y => y.Status == TourStatus.Opened).Select(y => (decimal)y.DefaultTouristPrice).Min(),
+                    AverageRating = x.Tours.SelectMany(y => y.TourBookings).Select(y => y.TourReview).Average(y => y.Rating)
                 }).Take(previewCount)
                 .ToListAsync();
         }

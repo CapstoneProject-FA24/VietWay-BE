@@ -16,5 +16,6 @@ namespace VietWay.Service.Customer.DataTransferObject
         public required string ProvinceId { get; set; }
         public required string ProvinceName { get; set; }
         public Gender Gender { get; set; }
+        public required bool LoginWithGoogle { get; set; }
     }
 }

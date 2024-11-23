@@ -158,8 +158,78 @@ namespace VietWay.Service.Management.Implement
                     ProvinceName = x.Province.Name,
                     Description = x.Description,
                     Status = x.Status,
+                    XTweetId = x.XTweetId,
+                    FacebookPostId = x.FacebookPostId
                 })
                 .SingleOrDefaultAsync();
+        }
+
+        public async Task ChangePostStatusAsync(string postId, string accountId, PostStatus postStatus, string? reason)
+        {
+            try
+            {
+                await _unitOfWork.BeginTransactionAsync();
+                Account? account = await _unitOfWork.AccountRepository.Query()
+                    .SingleOrDefaultAsync(x => x.AccountId.Equals(accountId)) ??
+                    throw new ResourceNotFoundException("Account not found");
+                Post? post = await _unitOfWork.PostRepository.Query()
+                    .SingleOrDefaultAsync(x => x.PostId.Equals(postId)) ??
+                    throw new ResourceNotFoundException("Post not found");
+
+                bool isManagerApproveOrDenyPendingPost = (PostStatus.Approved == postStatus || PostStatus.Rejected == postStatus) &&
+                    UserRole.Manager == account.Role && PostStatus.Pending == post.Status;
+                bool isStaffSubmitDraftPostForPreview = (PostStatus.Pending == postStatus) && UserRole.Staff == account.Role &&
+                    PostStatus.Draft == post.Status;
+
+                if (isStaffSubmitDraftPostForPreview)
+                {
+                    post.Status = PostStatus.Pending;
+                }
+                else if (isManagerApproveOrDenyPendingPost)
+                {
+                    post.Status = postStatus;
+                }
+                else
+                {
+                    throw new UnauthorizedException("You are not allowed to perform this action");
+                }
+
+                await _unitOfWork.PostRepository.UpdateAsync(post);
+                await _unitOfWork.CommitTransactionAsync();
+            }
+            catch
+            {
+                await _unitOfWork.RollbackTransactionAsync();
+                throw;
+            }
+        }
+
+        public async Task UpdatePostImageAsync(string postId, IFormFile newImages)
+        {
+            Post post = await _unitOfWork.PostRepository.Query()
+                .SingleOrDefaultAsync(x => x.PostId.Equals(postId))
+                ?? throw new ResourceNotFoundException("Post not found");
+            try
+            {
+                await _unitOfWork.BeginTransactionAsync();
+                if (newImages != null)
+                {
+                    string imageId = $"{postId}-image-{_idGenerator.GenerateId()}";
+                    using MemoryStream memoryStream = new();
+                    using Stream stream = newImages.OpenReadStream();
+                    await stream.CopyToAsync(memoryStream);
+                    await _cloudinaryService.UploadImageAsync(imageId, newImages.FileName, memoryStream.ToArray());
+                    post.ImageUrl = _cloudinaryService.GetImage(imageId);
+                }
+
+                await _unitOfWork.PostRepository.UpdateAsync(post);
+                await _unitOfWork.CommitTransactionAsync();
+            }
+            catch
+            {
+                await _unitOfWork.RollbackTransactionAsync();
+                throw;
+            }
         }
     }
 }

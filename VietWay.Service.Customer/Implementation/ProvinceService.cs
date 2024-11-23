@@ -58,7 +58,7 @@ namespace VietWay.Service.Customer.Implementation
                 }).ToListAsync();
         }
 
-        public async Task<(int count, List<ProvinceDetailDTO> items)> GetProvincesDetails(string? nameSearch, string? zoneId, int pageIndex, int pageSize)
+        public async Task<PaginatedList<ProvinceDetailDTO>> GetProvincesDetails(string? nameSearch, string? zoneId, int pageIndex, int pageSize)
         {
             IQueryable<Province> query = _unitOfWork.ProvinceRepository.Query()
                 .Where(x => x.IsDeleted == false);
@@ -80,15 +80,19 @@ namespace VietWay.Service.Customer.Implementation
                         .Where(y => false == y.IsDeleted && AttractionStatus.Approved == y.Status).Count(),
                     PostsCount = x.Posts
                         .Where(y => false == y.IsDeleted && PostStatus.Approved == y.Status).Count(),
-                    EventsCount = x.Events
-                        .Where(y => false == y.IsDeleted && EventStatus.Approved == y.Status).Count(),
                     ToursCount = x.TourTemplateProvinces
                         .Where(y => false == y.TourTemplate.IsDeleted && TourTemplateStatus.Approved == y.TourTemplate.Status)
                         .Where(y => y.TourTemplate.Tours.Any(z => _timeZoneHelper.GetUTC7Now() <= z.StartDate && TourStatus.Opened == z.Status))
                         .Count()
                 })
                 .ToListAsync();
-            return (count, result);
+            return new PaginatedList<ProvinceDetailDTO>
+            {
+                Total = count,
+                PageSize = pageSize,
+                PageIndex = pageIndex,
+                Items = result
+            };
         }
     }
 }

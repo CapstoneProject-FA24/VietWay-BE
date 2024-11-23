@@ -4,16 +4,16 @@ using VietWay.Repository.EntityModel;
 
 namespace VietWay.Repository.DataAccessObject
 {
-    public class VietWayDbContext : DbContext
+    public class VietWayDbContext(DatabaseConfig config) : DbContext()
     {
+        private readonly DatabaseConfig _config = config;
         #region DbSets
         public DbSet<Account> Account { get; set; }
-        public DbSet<Admin> Admin { get; set; }
         public DbSet<Attraction> Attraction { get; set; }
         public DbSet<AttractionCategory> AttractionCategory { get; set; }
         public DbSet<AttractionImage> AttractionImage { get; set; }
         public DbSet<AttractionReview> AttractionReview { get; set; }
-        public DbSet<AttractionReviewLike> AttractionReviewLike { get; set; }    
+        public DbSet<AttractionReviewLike> AttractionReviewLike { get; set; }
         public DbSet<AttractionSchedule> AttractionSchedule { get; set; }
         public DbSet<Booking> Booking { get; set; }
         public DbSet<BookingPayment> BookingPayment { get; set; }
@@ -21,10 +21,6 @@ namespace VietWay.Repository.DataAccessObject
         public DbSet<Customer> Customer { get; set; }
         public DbSet<EntityHistory> EntityHistory { get; set; }
         public DbSet<EntityStatusHistory> EntityStatusHistory { get; set; }
-        public DbSet<Event> Event { get; set; }
-        public DbSet<EventCategory> EventCategory { get; set; }
-        public DbSet<EventLike> EventLike { get; set; }
-        public DbSet<EventSchedule> EventSchedule { get; set; }
         public DbSet<Manager> Manager { get; set; }
         public DbSet<Post> Post { get; set; }
         public DbSet<PostCategory> PostCategory { get; set; }
@@ -46,14 +42,8 @@ namespace VietWay.Repository.DataAccessObject
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             optionsBuilder
-                .UseSqlServer(GetConnectionString())
+                .UseSqlServer(_config.ConnectionString)
                 .LogTo(Console.WriteLine, LogLevel.Information);
-        }
-        public static string GetConnectionString()
-        {
-            string connectionString = Environment.GetEnvironmentVariable("SQL_CONNECTION_STRING")
-                ?? throw new Exception("SQL_CONNECTION_STRING is not set in environment variables");
-            return connectionString;
         }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -65,9 +55,16 @@ namespace VietWay.Repository.DataAccessObject
                 .HasIndex(x => x.PhoneNumber)
                 .IsUnique();
             modelBuilder.Entity<AttractionReviewLike>()
+                .HasKey(x => new { x.ReviewId, x.CustomerId });
+            modelBuilder.Entity<AttractionReviewLike>()
                 .HasOne(x => x.Customer)
-                .WithMany()
+                .WithMany(x => x.AttractionReviewLikes)
+                .HasForeignKey(x => x.CustomerId)
                 .OnDelete(DeleteBehavior.Restrict);
+            modelBuilder.Entity<AttractionReviewLike>()
+                .HasOne(x => x.AttractionReview)
+                .WithMany(x => x.AttractionReviewLikes)
+                .HasForeignKey(x => x.ReviewId);
         }
     }
 }

@@ -6,7 +6,6 @@ using VietWay.Repository.EntityModel.Base;
 using VietWay.Repository.UnitOfWork;
 using VietWay.Service.Management.DataTransferObject;
 using VietWay.Service.Management.Interface;
-using VietWay.Service.Management.Jobs;
 using VietWay.Service.ThirdParty.Cloudinary;
 using VietWay.Util.CustomExceptions;
 using VietWay.Util.DateTimeUtil;
@@ -217,7 +216,7 @@ namespace VietWay.Service.Management.Implement
                 .SingleOrDefaultAsync(x => x.AttractionId.Equals(newAttraction.AttractionId)) ??
                 throw new ResourceNotFoundException("Attraction not found");
 
-            attraction.Status = AttractionStatus.Pending;
+            attraction.Status = newAttraction.Status;
             attraction.Name = newAttraction.Name;
             attraction.Address = newAttraction.Address;
             attraction.ContactInfo = newAttraction.ContactInfo;
@@ -307,15 +306,20 @@ namespace VietWay.Service.Management.Implement
                 bool isStaffSubmitDraftAttractionForPreview = AttractionStatus.Pending == status && UserRole.Staff == account.Role &&
                     AttractionStatus.Draft == attraction.Status;
 
-                if (isManagerApproveOrDenyPendingAttraction || isStaffSubmitDraftAttractionForPreview)
+                if (isStaffSubmitDraftAttractionForPreview)
+                {
+                    attraction.Status = AttractionStatus.Pending;
+                }
+                else if (isManagerApproveOrDenyPendingAttraction)
                 {
                     attraction.Status = status;
-                    await _unitOfWork.AttractionRepository.UpdateAsync(attraction);
                 }
                 else
                 {
                     throw new UnauthorizedException("You are not allowed to perform this action");
                 }
+
+                await _unitOfWork.AttractionRepository.UpdateAsync(attraction);
                 await _unitOfWork.CommitTransactionAsync();
             }
             catch

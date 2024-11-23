@@ -9,26 +9,20 @@ using System.Threading.Tasks;
 
 namespace VietWay.Middleware
 {
-    public class RequestLoggingMiddleware
+    public class RequestLoggingMiddleware(RequestDelegate next, ILogger<RequestLoggingMiddleware> logger)
     {
-        private readonly RequestDelegate _next;
-        private readonly ILogger<RequestLoggingMiddleware> _logger;
-
-        public RequestLoggingMiddleware(RequestDelegate next, ILogger<RequestLoggingMiddleware> logger)
-        {
-            _next = next;
-            _logger = logger;
-        }
+        private readonly RequestDelegate _next = next;
+        private readonly ILogger<RequestLoggingMiddleware> _logger = logger;
 
         public async Task InvokeAsync(HttpContext context)
         {
             var stopwatch = Stopwatch.StartNew();
-            _logger.LogInformation($"Incoming request: {context.Request.Method} {context.Request.Path}");
+            _logger.LogInformation("Incoming request: [{requestMethod}] {requestPath}", context.Request.Method, context.Request.Path);
 
             await _next(context);
 
             stopwatch.Stop();
-            _logger.LogInformation($"Outgoing response: {context.Response.StatusCode} - Time taken: {stopwatch.ElapsedMilliseconds}ms");
+            _logger.LogInformation("Outgoing response: {responseStatusCode} - Time taken: {elapsedMilliseconds}ms", context.Response.StatusCode, stopwatch.ElapsedMilliseconds);
         }
     }
 }

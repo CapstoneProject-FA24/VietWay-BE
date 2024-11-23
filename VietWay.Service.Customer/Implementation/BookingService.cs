@@ -7,14 +7,21 @@ using VietWay.Util.IdUtil;
 using VietWay.Util.CustomExceptions;
 using VietWay.Repository.EntityModel.Base;
 using VietWay.Util.DateTimeUtil;
+using Hangfire;
+using VietWay.Job.Interface;
+using VietWay.Service.Customer.Configuration;
 
 namespace VietWay.Service.Customer.Implementation
 {
-    public class BookingService(IUnitOfWork unitOfWork, IIdGenerator idGenerator, ITimeZoneHelper timeZoneHelper) : IBookingService
+    public class BookingService(IUnitOfWork unitOfWork, IIdGenerator idGenerator, ITimeZoneHelper timeZoneHelper, 
+        IBackgroundJobClient backgroundJobClient, BookingServiceConfiguration config) : IBookingService
     {
         private readonly IUnitOfWork _unitOfWork = unitOfWork;
         private readonly IIdGenerator _idGenerator = idGenerator;
         private readonly ITimeZoneHelper _timeZoneHelper = timeZoneHelper;
+        private readonly IBackgroundJobClient _backgroundJobClient = backgroundJobClient;
+        private readonly int _pendingBookingExpireAfterMinutes = config.PendingBookingExpireAfterMinutes;
+
         public async Task<string> BookTourAsync(Booking booking)
         {
             try
@@ -22,12 +29,18 @@ namespace VietWay.Service.Customer.Implementation
                 await _unitOfWork.BeginTransactionAsync();
                 Tour? tour = await _unitOfWork.TourRepository.Query()
                     .Include(x => x.TourPrices)
-                    .SingleOrDefaultAsync(x => x.TourId == booking.TourId)
-                    ?? throw new ResourceNotFoundException("Tour not found");
-                
-                if (tour.CurrentParticipant + booking.BookingTourists.Count > tour.MaxParticipant || TourStatus.Opened != tour.Status)
+                    .SingleOrDefaultAsync(x => x.TourId == booking.TourId && x.Status == TourStatus.Opened && x.IsDeleted == false)
+                    ?? throw new ResourceNotFoundException("Can not find any tour");
+                bool isActiveBookingExisted = await _unitOfWork.BookingRepository.Query()
+                    .AnyAsync(x => x.TourId == booking.TourId && x.CustomerId == booking.CustomerId && (x.Status == BookingStatus.Pending || x.Status == BookingStatus.Confirmed));
+
+                if (isActiveBookingExisted)
                 {
-                    throw new InvalidOperationException("Tour is full or not open");
+                    throw new InvalidOperationException("Customer has already booked this tour");
+                }
+                if (tour.CurrentParticipant + booking.BookingTourists.Count > tour.MaxParticipant)
+                {
+                    throw new InvalidOperationException("Tour is full");
                 }
                 booking.BookingId = _idGenerator.GenerateId();
                 foreach (BookingTourist tourist in booking.BookingTourists)
@@ -38,7 +51,7 @@ namespace VietWay.Service.Customer.Implementation
                     TourPrice? tourPrice = tour.TourPrices?.SingleOrDefault(x => x.AgeFrom <= age && age <= x.AgeTo);
                     if (tourPrice == null)
                     {
-                        tourist.Price = tour.DefaultTouristPrice ?? throw new ServerErrorException("Default tour price is null");
+                        tourist.Price = tour.DefaultTouristPrice!.Value;
                         booking.TotalPrice += tourist.Price;
                     }
                     else
@@ -53,6 +66,9 @@ namespace VietWay.Service.Customer.Implementation
                 await _unitOfWork.BookingRepository.CreateAsync(booking);
                 await _unitOfWork.TourRepository.UpdateAsync(tour);
                 await _unitOfWork.CommitTransactionAsync();
+                _backgroundJobClient.Schedule<IBookingJob>(
+                    x => x.CheckBookingForExpirationJob(booking.BookingId), 
+                    DateTime.Now.AddMinutes(_pendingBookingExpireAfterMinutes));
                 return booking.BookingId;
             }
             catch
@@ -125,7 +141,7 @@ namespace VietWay.Service.Customer.Implementation
                 }).SingleOrDefaultAsync();
         }
 
-        public async Task<(int count, List<BookingPreviewDTO> items)> GetCustomerBookingsAsync(string customerId, int pageSize, int pageIndex)
+        public async Task<PaginatedList<BookingPreviewDTO>> GetCustomerBookingsAsync(string customerId,BookingStatus? bookingStatus, int pageSize, int pageIndex)
         {
             IQueryable<Booking> query = _unitOfWork
                 .BookingRepository
@@ -133,7 +149,11 @@ namespace VietWay.Service.Customer.Implementation
                 .Where(x => x.CustomerId == customerId)
                 .Include(x => x.Tour.TourTemplate.TourTemplateImages)
                 .OrderByDescending(x => x.CreatedAt);
-            int count = await query.CountAsync();
+            if (bookingStatus.HasValue)
+            {
+                query = query.Where(x => x.Status == bookingStatus);
+            }
+                int count = await query.CountAsync();
             List<BookingPreviewDTO> items = await query
                 .Skip((pageIndex - 1) * pageSize)
                 .Take(pageSize)
@@ -146,11 +166,18 @@ namespace VietWay.Service.Customer.Implementation
                     TotalPrice = x.TotalPrice,
                     Status = x.Status,
                     CreatedOn = x.CreatedAt,
-                    TourName = x.Tour.TourTemplate.TourName,
-                    ImageUrl = x.Tour.TourTemplate.TourTemplateImages.First().ImageUrl,
-                    Code = x.Tour.TourTemplate.Code
+                    TourName = x.Tour!.TourTemplate!.TourName,
+                    ImageUrl = x.Tour!.TourTemplate!.TourTemplateImages.Select(x=>x.ImageUrl).First(),
+                    Code = x.Tour.TourTemplate.Code,
+                    StartDate = x.Tour!.StartDate!.Value
                 }).ToListAsync();
-            return (count, items);
+            return new PaginatedList<BookingPreviewDTO>
+            {
+                Total = count,
+                PageSize = pageSize,
+                PageIndex = pageIndex,
+                Items = items
+            };
         }
 
         private static int CalculateAge(DateTime birthDay, DateTime currentDate)

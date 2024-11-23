@@ -13,7 +13,8 @@ namespace VietWay.Repository.EntityModel
     {
         [Key]
         [StringLength(20)]
-        public required string PostId { get; set; }
+        [Required]
+        public string? PostId { get; set; }
         public string? Title { get; set; }
         public string? ImageUrl { get; set; }
         public string? Content { get; set; }
@@ -22,10 +23,15 @@ namespace VietWay.Repository.EntityModel
         [ForeignKey(nameof(Province))]
         public string? ProvinceId { get; set; }
         public string? Description { get; set; }
-        public required DateTime CreatedAt { get; set; }
-        public required PostStatus Status { get; set; }
+        [Required]
+        public DateTime CreatedAt { get; set; }
+        [Required]  
+        public PostStatus Status { get; set; }
+        public string? XTweetId { get; set; }
+        public string? FacebookPostId { get; set; }
 
         public virtual PostCategory? PostCategory { get; set; }
         public virtual Province? Province { get; set; }
+        public virtual ICollection<PostLike>? PostLikes { get; set; }
     }
 }

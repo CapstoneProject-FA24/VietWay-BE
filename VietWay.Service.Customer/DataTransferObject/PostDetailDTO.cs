@@ -12,5 +12,6 @@
         public required string ProvinceName { get; set; }
         public required string Description { get; set; }
         public required DateTime CreatedAt { get; set; }
+        public bool IsLiked { get; set; }
     }
 }
