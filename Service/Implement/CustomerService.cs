@@ -28,24 +28,41 @@ namespace VietWay.Service.Management.Implement
                 .FirstOrDefaultAsync();
         }
 
-        public async Task<(int totalCount, List<Customer> items)> GetAllCustomers(
+        public async Task<(int totalCount, List<CustomerPreviewDTO> items)> GetAllCustomers(
             string? nameSearch,
             int pageSize,
             int pageIndex)
         {
-            IQueryable<Customer> query = _unitOfWork.CustomerRepository.Query();
-            if (false == string.IsNullOrEmpty(nameSearch))
+            var query = _unitOfWork
+                .CustomerRepository
+                .Query()
+                .Where(x => x.IsDeleted == false);
+            if (!string.IsNullOrEmpty(nameSearch))
             {
                 query = query.Where(x => x.FullName.Contains(nameSearch));
             }
+
             int count = await query.CountAsync();
-            List<Customer> customers = await query
+
+            List<CustomerPreviewDTO> items = await query
                 .Include(x => x.Account)
                 .Include(x => x.Province)
+                .OrderByDescending(x => x.Account.CreatedAt)
+                .Select(x => new CustomerPreviewDTO
+                {
+                    CustomerId = x.CustomerId,
+                    PhoneNumber = x.Account.PhoneNumber,
+                    Email = x.Account.Email,
+                    FullName = x.FullName,
+                    DateOfBirth = x.DateOfBirth,
+                    Province = x.Province.Name,
+                    Gender = x.Gender,
+                    CreatedAt = x.Account.CreatedAt
+                })
                 .Skip(pageSize * (pageIndex - 1))
                 .Take(pageSize)
                 .ToListAsync();
-            return (count, customers);
+            return (count, items);
         }
 
         public async Task<CustomerInfoDTO?> GetCustomerProfileInfo(string customerId)

@@ -7,7 +7,7 @@ namespace VietWay.Service.Management.Interface
     public interface ICustomerService
     {
         public Task<Customer?> GetCustomerById(string id);
-        public Task<(int totalCount, List<Customer> items)> GetAllCustomers(
+        public Task<(int totalCount, List<CustomerPreviewDTO> items)> GetAllCustomers(
             string? nameSearch,
             int pageSize,
             int pageIndex);
