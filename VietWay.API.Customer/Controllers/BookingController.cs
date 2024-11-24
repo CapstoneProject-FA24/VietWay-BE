@@ -166,7 +166,7 @@ namespace VietWay.API.Customer.Controllers
             }
             try
             {
-                await _bookingService.CancelBookingAsync(customerId, bookingId);
+                await _bookingService.CancelBookingAsync(customerId, bookingId, cancelBookingRequest.Reason);
                 return Ok(new DefaultResponseModel<object>()
                 {
                     Message = "Booking cancelled successfully",

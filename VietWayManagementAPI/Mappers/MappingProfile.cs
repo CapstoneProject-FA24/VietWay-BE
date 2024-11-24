@@ -149,6 +149,8 @@ namespace VietWay.API.Management.Mappers
             CreateMap<CreateTourCategoryRequest, TourCategory>()
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description));
+
+            CreateMap<RefundRequest, BookingPayment>();
         }
     }
 }
