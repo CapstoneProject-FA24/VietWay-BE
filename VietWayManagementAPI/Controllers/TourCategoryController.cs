@@ -107,5 +107,17 @@ namespace VietWay.API.Management.Controllers
                 Data = tourCategoryId
             });
         }
+
+        [HttpPut("{tourCategoryId}")]
+        [Produces("application/json")]
+        [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status200OK)]
+        public async Task<IActionResult> UpdateTourCategory(string tourCategoryId, CreateTourCategoryRequest request)
+        {
+            TourCategory tourCategory = _mapper.Map<TourCategory>(request);
+            tourCategory.TourCategoryId = tourCategoryId;
+
+            await _tourCategoryService.UpdateTourCategoryAsync(tourCategory);
+            return Ok();
+        }
     }
 }
