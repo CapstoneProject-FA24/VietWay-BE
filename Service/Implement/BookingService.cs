@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using System.Security.Cryptography.X509Certificates;
 using VietWay.Repository.EntityModel;
 using VietWay.Repository.EntityModel.Base;
 using VietWay.Repository.UnitOfWork;
@@ -91,6 +92,8 @@ namespace VietWay.Service.Management.Implement
             return (count, items);
         }
 
+
+
         public async Task<TourBookingInfoDTO?> GetTourBookingInfoAsync(string bookingId, string customerId)
         {
             return await _unitOfWork
@@ -126,6 +129,52 @@ namespace VietWay.Service.Management.Implement
                     }).ToList(),
                     Code = x.Tour.TourTemplate.Code
                 }).SingleOrDefaultAsync();
+        }
+
+        public async Task<(int count, List<BookingPreviewDTO>)> GetBookingsAsync(BookingStatus? bookingStatus, int pageCount, int pageIndex, string? bookingIdSearch, string? contactNameSearch, string? contactPhoneSearc)
+        {
+            IQueryable<Booking> query = _unitOfWork
+                .BookingRepository
+                .Query()
+                .Include(x => x.Tour)
+                .ThenInclude(x => x.TourTemplate)
+                .OrderByDescending(x => x.CreatedAt);
+            if (bookingStatus.HasValue)
+            {
+                query = query.Where(x => x.Status == bookingStatus);
+            }
+            if (!string.IsNullOrWhiteSpace(bookingIdSearch))
+            {
+                query = query.Where(x => x.BookingId.Contains(bookingIdSearch));
+            }
+            if (!string.IsNullOrWhiteSpace(contactNameSearch))
+            {
+                query = query.Where(x => x.ContactFullName.Contains(contactNameSearch));
+            }
+            if (!string.IsNullOrWhiteSpace(contactPhoneSearc))
+            {
+                query = query.Where(x => x.ContactPhoneNumber.Contains(contactPhoneSearc));
+            }
+            int count = await query.CountAsync();
+            List<BookingPreviewDTO> items = await query
+                .Skip((pageIndex - 1) * pageCount)
+                .Take(pageCount)
+                .Select(x => new BookingPreviewDTO()
+                {
+                    BookingId = x.BookingId,
+                    TourName = x.Tour.TourTemplate.TourName,
+                    TourCode = x.Tour.TourTemplate.Code,
+                    StartDate = x.Tour.StartDate,
+                    StartLocation = x.Tour.StartLocation,
+                    CreatedAt = x.CreatedAt,
+                    ContactFullName = x.ContactFullName,
+                    ContactEmail = x.ContactEmail,
+                    ContactPhoneNumber = x.ContactPhoneNumber,
+                    TotalPrice = x.TotalPrice,
+                    NumberOfParticipants = x.NumberOfParticipants,
+                    Status = x.Status
+                }).ToListAsync();
+            return (count, items);
         }
 
         public async Task CreateRefundTransactionAsync(string managerId, string bookingId, BookingPayment bookingPayment)

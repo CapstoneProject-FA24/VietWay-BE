@@ -204,10 +204,10 @@ namespace VietWay.API.Customer
             });
             builder.Services.AddSingleton(s => new VnPayConfiguration
             {
-                VnpHashSecret = Environment.GetEnvironmentVariable("VNPAY_HASH_SECRET") ??
-                    throw new Exception("VNPAY_HASH_SECRET is not set in environment variables"),
-                VnpTmnCode = Environment.GetEnvironmentVariable("VNPAY_TMN_CODE") ??
-                    throw new Exception("VNPAY_TMN_CODE is not set in environment variables")
+                VnpHashSecret = Environment.GetEnvironmentVariable("VNP_HASH_SECRET") ??
+                    throw new Exception("VNP_HASH_SECRET is not set in environment variables"),
+                VnpTmnCode = Environment.GetEnvironmentVariable("VNP_TMN_CODE") ??
+                    throw new Exception("VNP_TMN_CODE is not set in environment variables")
             });
             builder.Services.AddSingleton(s => new OtpGeneratorConfiguration
             {

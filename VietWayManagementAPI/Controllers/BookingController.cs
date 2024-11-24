@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using VietWay.API.Management.RequestModel;
 using VietWay.API.Management.ResponseModel;
 using VietWay.Repository.EntityModel;
+using VietWay.Repository.EntityModel.Base;
 using VietWay.Service.Management.DataTransferObject;
 using VietWay.Service.Management.Interface;
 using VietWay.Util.TokenUtil;
@@ -22,7 +23,35 @@ namespace VietWay.API.Management.Controllers
         private readonly IBookingService _bookingService = bookingService;
         private readonly IMapper _mapper = mapper;
         private readonly ITokenHelper _tokenHelper = tokenHelper;
-          
+
+        [HttpGet]
+        [Produces("application/json")]
+        [Authorize(Roles = nameof(UserRole.Manager))]
+        [ProducesResponseType<DefaultResponseModel<PaginatedList<BookingPreviewDTO>>>(StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetCustomerBookings(
+            BookingStatus? bookingStatus,
+            int? pageCount, int? pageIndex,
+            string? bookingIdSearch, string? contactNameSearch, string? contactPhoneSearch)
+        {
+            int checkedPageSize = (pageCount.HasValue && pageCount.Value > 0) ? pageCount.Value : 10;
+            int checkedPageIndex = (pageIndex.HasValue && pageIndex.Value > 0) ? pageIndex.Value : 1;
+
+            var (totalCount, items) = await _bookingService.GetBookingsAsync(bookingStatus, checkedPageSize, checkedPageIndex, bookingIdSearch, contactNameSearch, contactPhoneSearch);
+
+            return Ok(new DefaultResponseModel<PaginatedList<BookingPreviewDTO>>()
+            {
+                Data = new()
+                {
+                    Total = totalCount,
+                    PageSize = checkedPageSize,
+                    PageIndex = checkedPageIndex,
+                    Items = items
+                },
+                Message = "Get bookings successfully",
+                StatusCode = StatusCodes.Status200OK,
+            });
+        }
+
         [HttpPost("{bookingId}/create-refund-transaction")]
         [Authorize(Roles = nameof(UserRole.Manager))]
         [Produces("application/json")]
