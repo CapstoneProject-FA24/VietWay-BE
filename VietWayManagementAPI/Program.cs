@@ -215,7 +215,7 @@ namespace VietWay.API.Management
             var app = builder.Build();
 
             app.Services.GetRequiredService<IRecurringJobManager>()
-                .AddOrUpdate<ITweetJob>("getTweetsDetail", (x) => x.GetPublishedTweetsJob(), () => "*/1 * * * *");
+                .AddOrUpdate<ITweetJob>("getTweetsDetail", (x) => x.GetPublishedTweetsJob(), () => "*/16 * * * *");
 
             app.UseStaticFiles();
             #region app.UseSwagger(...);
