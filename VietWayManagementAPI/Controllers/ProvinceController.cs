@@ -144,7 +144,7 @@ namespace VietWay.API.Management.Controllers
         }
 
         /// <summary>
-        /// [Manager] {WIP} Delete province
+        /// [Manager] Delete province
         /// </summary>
         /// <returns> Province delete message </returns>
         /// <response code="200">Return province delete message</response>

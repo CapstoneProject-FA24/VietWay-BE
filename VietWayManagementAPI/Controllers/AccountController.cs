@@ -62,7 +62,7 @@ namespace VietWay.API.Management.Controllers
         [Produces("application/json")]
         [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status200OK)]
         [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> CreateStaffAccountAsync([FromBody] CreateAccountRequest request)
+        public async Task<IActionResult> CreateStaffAccountAsync([FromBody] CreateStaffAccountRequest request)
         {
             string? managerId = _tokenHelper.GetAccountIdFromToken(HttpContext);
             if (string.IsNullOrWhiteSpace(managerId))

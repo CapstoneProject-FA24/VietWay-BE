@@ -62,7 +62,7 @@ namespace VietWay.Service.Management.Implement
                 string accountId = _idGenerator.GenerateId();
                 staff.StaffId = accountId;
                 staff.Account.AccountId = accountId;
-                staff.Account.Password = _hashHelper.Hash(staff.Account.Password);
+                staff.Account.Password = _hashHelper.Hash("VietWay@12345");
                 staff.Account.CreatedAt = _timeZoneHelper.GetUTC7Now();
                 await _unitOfWork.StaffRepository.CreateAsync(staff);
                 await _unitOfWork.CommitTransactionAsync();
