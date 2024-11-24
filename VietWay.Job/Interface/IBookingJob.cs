@@ -4,10 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace VietWay.Job.Customer.Interface
+namespace VietWay.Job.Interface
 {
     public interface IBookingJob
     {
-        public Task CheckBookingForExpirationJob(string bookingId);
+        public Task CheckBookingForExpirationAsync(string bookingId);
     }
 }

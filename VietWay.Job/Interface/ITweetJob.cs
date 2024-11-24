@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace VietWay.Job.Management.Interface
+namespace VietWay.Job.Interface
 {
     public interface ITweetJob
     {

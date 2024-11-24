@@ -25,6 +25,7 @@ using VietWay.Util.HashUtil;
 using VietWay.Util.IdUtil;
 using VietWay.Util.OtpUtil;
 using VietWay.Util.TokenUtil;
+using VietWay.Service.ThirdParty.Email;
 
 namespace VietWay.API.Customer
 {
@@ -38,13 +39,11 @@ namespace VietWay.API.Customer
             {
                 DotEnv.Load(".env");
             }
-
             FirebaseApp.Create(new AppOptions()
             {
                 Credential = GoogleCredential.FromJson(Environment.GetEnvironmentVariable("FIREBASE_CREDENTIAL") ??
                     throw new Exception("FIREBASE_CREDENTIAL is not set in environment variables"))
             });
-
             #region builder.Services.AddHangfire(...);
             builder.Services.AddHangfire(option =>
             {

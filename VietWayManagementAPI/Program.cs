@@ -21,8 +21,10 @@ using VietWay.Service.ThirdParty.Facebook;
 using VietWay.Service.ThirdParty.Redis;
 using StackExchange.Redis;
 using VietWay.Repository.DataAccessObject;
-using VietWay.Job.Management.Interface;
-using VietWay.Job.Management.Implementation;
+using VietWay.Job.Implementation;
+using VietWay.Job.Interface;
+using VietWay.Job.Configuration;
+using VietWay.Service.ThirdParty.Email;
 namespace VietWay.API.Management
 {
     public class Program
@@ -149,6 +151,8 @@ namespace VietWay.API.Management
             builder.Services.AddScoped<IRedisCacheService, RedisCacheService>();
             builder.Services.AddScoped<IAttractionReviewService, AttractionReviewService>();
             builder.Services.AddScoped<ITourReviewService, TourReviewService>();
+            builder.Services.AddScoped<IEmailService, GmailService>();
+            builder.Services.AddScoped<IEmailJob, EmailJob>();
             #endregion
             builder.Services.AddSingleton<IIdGenerator, SnowflakeIdGenerator>();
             builder.Services.AddSingleton<IRecurringJobManager, RecurringJobManager>();
@@ -204,6 +208,24 @@ namespace VietWay.API.Management
                 VnpTmnCode = Environment.GetEnvironmentVariable("VNPAY_TMN_CODE") ??
                     throw new Exception("VNPAY_TMN_CODE is not set in environment variables")
             });
+            builder.Services.AddSingleton(s => new EmailJobConfiguration
+            {
+                CancelBookingTemplate = Environment.GetEnvironmentVariable("MAIL_SEND_CANCEL_TOUR_MESSAGE") ??
+                    throw new Exception("MAIL_SEND_CANCEL_TOUR_MESSAGE is not set in environment variables"),
+                ConfirmBookingTemplate = Environment.GetEnvironmentVariable("MAIL_SEND_CONFIRM_TOUR_MESSAGE") ??
+                    throw new Exception("MAIL_SEND_CONFIRM_TOUR_MESSAGE is not set in environment variables"),
+            });
+            builder.Services.AddSingleton(s => new EmailClientConfig
+            {
+                AppPassword = Environment.GetEnvironmentVariable("GOOGLE_APP_PASSWORD") ??
+                    throw new Exception("GOOGLE_APP_PASSWORD is not set in environment variables"),
+                SenderEmail = Environment.GetEnvironmentVariable("GOOGLE_SENDER_EMAIL") ??
+                    throw new Exception("GOOGLE_SENDER_EMAIL is not set in environment variables"),
+                SmtpHost = Environment.GetEnvironmentVariable("GOOGLE_SMTP_HOST") ??
+                    throw new Exception("GOOGLE_SMTP_HOST is not set in environment variables"),
+                SmtpPort = int.Parse(Environment.GetEnvironmentVariable("GOOGLE_SMTP_PORT") ??
+                    throw new Exception("GOOGLE_SMTP_PORT is not set in environment variables")),
+            });
             builder.Services.AddHttpClient<IFacebookService, FacebookService>(HttpClient =>
             {
 
@@ -215,7 +237,6 @@ namespace VietWay.API.Management
 
             app.Services.GetRequiredService<IRecurringJobManager>()
                 .AddOrUpdate<ITweetJob>("getTweetsDetail", (x) => x.GetPublishedTweetsJob(), () => "*/16 * * * *");
-
             app.UseStaticFiles();
             #region app.UseSwagger(...);
             if (app.Environment.IsDevelopment())

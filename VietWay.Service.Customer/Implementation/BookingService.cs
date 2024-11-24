@@ -9,7 +9,7 @@ using VietWay.Repository.EntityModel.Base;
 using VietWay.Util.DateTimeUtil;
 using Hangfire;
 using VietWay.Service.Customer.Configuration;
-using VietWay.Job.Customer.Interface;
+using VietWay.Job.Interface;
 
 namespace VietWay.Service.Customer.Implementation
 {
@@ -67,8 +67,10 @@ namespace VietWay.Service.Customer.Implementation
                 await _unitOfWork.TourRepository.UpdateAsync(tour);
                 await _unitOfWork.CommitTransactionAsync();
                 _backgroundJobClient.Schedule<IBookingJob>(
-                    x => x.CheckBookingForExpirationJob(booking.BookingId), 
+                    x => x.CheckBookingForExpirationAsync(booking.BookingId), 
                     DateTime.Now.AddMinutes(_pendingBookingExpireAfterMinutes));
+                _backgroundJobClient.Enqueue<IEmailJob>( x => 
+                    x.SendBookingConfirmationEmail(booking.BookingId, booking.CreatedAt.AddMinutes(_pendingBookingExpireAfterMinutes)));
                 return booking.BookingId;
             }
             catch
