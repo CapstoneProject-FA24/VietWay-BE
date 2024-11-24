@@ -153,6 +153,9 @@ namespace VietWay.API.Management
             builder.Services.AddScoped<ITourReviewService, TourReviewService>();
             builder.Services.AddScoped<IEmailService, GmailService>();
             builder.Services.AddScoped<IEmailJob, EmailJob>();
+            builder.Services.AddScoped<IProvinceJob, ProvinceJob>();
+            builder.Services.AddScoped<ITourCategoryJob, TourCategoryJob>();
+            builder.Services.AddScoped<ITourDurationJob, TourDurationJob>();
             #endregion
             builder.Services.AddSingleton<IIdGenerator, SnowflakeIdGenerator>();
             builder.Services.AddSingleton<IRecurringJobManager, RecurringJobManager>();
@@ -236,8 +239,16 @@ namespace VietWay.API.Management
             });
             var app = builder.Build();
 
-            app.Services.GetRequiredService<IRecurringJobManager>()
+            IRecurringJobManager recurringJobManager = app.Services.GetRequiredService<IRecurringJobManager>();
+            recurringJobManager
                 .AddOrUpdate<ITweetJob>("getTweetsDetail", (x) => x.GetPublishedTweetsJob(), () => "*/16 * * * *");
+            recurringJobManager
+                .AddOrUpdate<IProvinceJob>("cacheProvinces", (x) => x.CacheProvinceJob(), () => "0 17 * * *");
+            recurringJobManager
+                .AddOrUpdate<ITourCategoryJob>("cacheTourCategories", (x) => x.CacheTourCategoryJob(), () => "0 17 * * *");
+            recurringJobManager
+                .AddOrUpdate<ITourDurationJob>("cacheTourDurations", (x) => x.CacheTourDurationJob(), () => "0 17 * * *");
+
             app.UseStaticFiles();
             #region app.UseSwagger(...);
             if (app.Environment.IsDevelopment())
