@@ -13,10 +13,5 @@ namespace VietWay.API.Management.RequestModel
         public required string Password { get; set; }
         [Required]
         public required string FullName { get; set; }
-        [Required]
-        public DateTime DateOfBirth { get; set; }
-        [Required]
-        public Gender Gender { get; set; }
-        public string ProvinceId { get; set; }
     }
 }
