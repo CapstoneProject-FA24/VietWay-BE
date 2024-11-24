@@ -12,7 +12,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Repository\VietWay.Repository.csproj" />
-    <ProjectReference Include="..\VietWay.Job\VietWay.Job.csproj" />
+    <ProjectReference Include="..\VietWay.Job\VietWay.Job.Customer.csproj" />
     <ProjectReference Include="..\VietWay.Service.ThirdParty\VietWay.Service.ThirdParty.csproj" />
   </ItemGroup>
 

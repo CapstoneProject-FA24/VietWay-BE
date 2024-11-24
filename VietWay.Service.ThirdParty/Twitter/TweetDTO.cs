@@ -4,12 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace VietWay.Job.DataTransferObject
+namespace VietWay.Service.ThirdParty.Twitter
 {
     public class TweetDTO
     {
-        public string PostId { get; set; }
-        public string XTweetId { get; set; }
+        public string? XTweetId { get; set; }
         public int RetweetCount { get; set; }
         public int ReplyCount { get; set; }
         public int LikeCount { get; set; }

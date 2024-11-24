@@ -18,7 +18,7 @@ namespace VietWay.Service.ThirdParty.Facebook
                 published = true
             });
             response.EnsureSuccessStatusCode();
-            JsonDocument jsonDocument = await JsonDocument.ParseAsync(await response.Content.ReadAsStreamAsync());
+            using JsonDocument jsonDocument = await JsonDocument.ParseAsync(await response.Content.ReadAsStreamAsync());
             JsonElement root = jsonDocument.RootElement;
             return root.GetProperty("id").GetString();
         }
@@ -28,7 +28,7 @@ namespace VietWay.Service.ThirdParty.Facebook
             {
                 HttpResponseMessage response = await _httpClient.GetAsync($"{facebookPostId}?fields=comments.summary(total_count)&access_token={_pageToken}");
                 response.EnsureSuccessStatusCode();
-                JsonDocument jsonDocument = await JsonDocument.ParseAsync(await response.Content.ReadAsStreamAsync());
+                using JsonDocument jsonDocument = await JsonDocument.ParseAsync(await response.Content.ReadAsStreamAsync());
                 JsonElement root = jsonDocument.RootElement;
                 return root.GetProperty("comments").GetProperty("summary").GetProperty("total_count").GetInt32();
             }
@@ -43,7 +43,7 @@ namespace VietWay.Service.ThirdParty.Facebook
             {
                 HttpResponseMessage response = await _httpClient.GetAsync($"{facebookPostId}?fields=shares&access_token={_pageToken}");
                 response.EnsureSuccessStatusCode();
-                JsonDocument jsonDocument = await JsonDocument.ParseAsync(await response.Content.ReadAsStreamAsync());
+                using JsonDocument jsonDocument = await JsonDocument.ParseAsync(await response.Content.ReadAsStreamAsync());
                 JsonElement root = jsonDocument.RootElement;
                 return root.GetProperty("shares").GetProperty("count").GetInt32();
             }
@@ -58,7 +58,7 @@ namespace VietWay.Service.ThirdParty.Facebook
             {
                 HttpResponseMessage response = await _httpClient.GetAsync($"{facebookPostId}?fields=insights.metric(post_impressions_unique)&access_token={_pageToken}");
                 response.EnsureSuccessStatusCode();
-                JsonDocument jsonDocument = await JsonDocument.ParseAsync(await response.Content.ReadAsStreamAsync());
+                using JsonDocument jsonDocument = await JsonDocument.ParseAsync(await response.Content.ReadAsStreamAsync());
                 JsonElement root = jsonDocument.RootElement;
                 return root.GetProperty("insights").GetProperty("data")[0].GetProperty("values")[0].GetProperty("value").GetInt32();
             }
@@ -73,7 +73,7 @@ namespace VietWay.Service.ThirdParty.Facebook
             {
                 HttpResponseMessage response = await _httpClient.GetAsync($"{facebookPostId}/insights?metric=post_reactions_by_type_total&access_token={_pageToken}");
                 response.EnsureSuccessStatusCode();
-                JsonDocument jsonDocument = await JsonDocument.ParseAsync(await response.Content.ReadAsStreamAsync());
+                using JsonDocument jsonDocument = await JsonDocument.ParseAsync(await response.Content.ReadAsStreamAsync());
                 JsonElement root = jsonDocument.RootElement;
                 string value = root.GetProperty("data")[0].GetProperty("values")[0].GetProperty("value").GetRawText();
                 return JsonSerializer.Deserialize<PostReaction>(value);

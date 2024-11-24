@@ -7,6 +7,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Folder Include="Configuration\" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\Repository\VietWay.Repository.csproj" />
     <ProjectReference Include="..\VietWay.Service.ThirdParty\VietWay.Service.ThirdParty.csproj" />
   </ItemGroup>
