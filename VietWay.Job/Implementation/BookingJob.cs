@@ -1,15 +1,10 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using VietWay.Job.Interface;
+using VietWay.Job.Customer.Interface;
 using VietWay.Repository.EntityModel;
 using VietWay.Repository.EntityModel.Base;
 using VietWay.Repository.UnitOfWork;
 
-namespace VietWay.Job.Implementation
+namespace VietWay.Job.Customer.Implementation
 {
     public class BookingJob(IUnitOfWork unitOfWork) : IBookingJob
     {

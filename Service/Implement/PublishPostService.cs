@@ -1,15 +1,6 @@
-﻿using Hangfire;
-using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using Microsoft.EntityFrameworkCore;
 using System.Text.Json;
-using System.Threading.Tasks;
 using Tweetinvi.Core.Extensions;
-using Tweetinvi.Core.Models;
-using Tweetinvi.Core.Web;
-using VietWay.Job.Interface;
 using VietWay.Repository.EntityModel;
 using VietWay.Repository.EntityModel.Base;
 using VietWay.Repository.UnitOfWork;
@@ -22,7 +13,8 @@ using VietWay.Util.CustomExceptions;
 
 namespace VietWay.Service.Management.Implement
 {
-    public class PublishPostService(IUnitOfWork unitOfWork, ITwitterService twitterService, IFacebookService facebookService, IRedisCacheService redisCacheService) : IPublishPostService
+    public class PublishPostService(IUnitOfWork unitOfWork, ITwitterService twitterService, IFacebookService facebookService, 
+        IRedisCacheService redisCacheService) : IPublishPostService
     {
         private readonly ITwitterService _twitterService = twitterService;
         private readonly IUnitOfWork _unitOfWork = unitOfWork;
@@ -52,30 +44,14 @@ namespace VietWay.Service.Management.Implement
             };
         }
 
-        public async Task<List<TweetDTO>> GetPublishedTweetsAsync()
-        {
-            List<Post>? posts = await _unitOfWork.PostRepository.Query().Where(x => x.XTweetId != null).ToListAsync() ??
-                throw new ResourceNotFoundException("No posts have been posted on X yet.");
-
-            var tweetDTOs = new List<TweetDTO>();
-            tweetDTOs = await _redisCacheService.GetAsync<List<TweetDTO>>("tweetsDetail") ?? new List<TweetDTO>();
-            return tweetDTOs;
-        }
-
         public async Task<TweetDTO> GetPublishedTweetByIdAsync(string postId)
         {
-            Post? post = await _unitOfWork.PostRepository.Query()
-                .SingleOrDefaultAsync(x => x.PostId.Equals(postId)) ??
-                throw new ResourceNotFoundException("Post not found");
-
-            if (post.XTweetId.IsNullOrEmpty())
+            TweetDTO? tweetDto = await _redisCacheService.GetAsync<TweetDTO>(postId);
+            if (null == tweetDto)
             {
-                throw new ServerErrorException("The post has not been published");
+                throw new ResourceNotFoundException("The post has not been published");
             }
-            var tweetDTOs = new List<TweetDTO>();
-            tweetDTOs = await _redisCacheService.GetAsync<List<TweetDTO>>("tweetsDetail") ?? new List<TweetDTO>();
-
-            return tweetDTOs.SingleOrDefault(x => x.PostId == postId);
+            return tweetDto;
         }
 
         public async Task PostTweetWithXAsync(string postId)

@@ -3,11 +3,13 @@ using System.IO;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 using Tweetinvi;
 using Tweetinvi.Models;
 using Tweetinvi.Models.V2;
 using VietWay.Repository.EntityModel;
+using static Google.Apis.Requests.BatchRequest;
 
 namespace VietWay.Service.ThirdParty.Twitter
 {
@@ -57,20 +59,34 @@ namespace VietWay.Service.ThirdParty.Twitter
             };
         }
 
-        public async Task<string> GetTweetsAsync(string tweetIds)
+        public async Task<List<TweetDTO>> GetTweetsAsync(List<string> tweetIds)
         {
-            using (var httpClient = new HttpClient())
+            using var httpClient = new HttpClient();
+            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _bearerToken);
+            var response = await httpClient.GetAsync($"https://api.twitter.com/2/tweets?ids={tweetIds}&tweet.fields=public_metrics");
+
+            if (!response.IsSuccessStatusCode)
             {
-                httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _bearerToken);
-                var response = await httpClient.GetAsync($"https://api.twitter.com/2/tweets?ids={tweetIds}&tweet.fields=public_metrics");
-
-                if (!response.IsSuccessStatusCode)
-                {
-                    throw new Exception($"Failed to fetch tweets: {response.ReasonPhrase}");
-                }
-
-                return await response.Content.ReadAsStringAsync();
+                throw new Exception($"Failed to fetch tweets: {response.ReasonPhrase}");
             }
+            using JsonDocument document = await JsonDocument.ParseAsync(await response.Content.ReadAsStreamAsync());
+            JsonElement tweetData = document.RootElement.GetProperty("data");
+            List<TweetDTO> tweetDTOs = [];
+            foreach (var tweet in tweetData.EnumerateArray())
+            {
+                var tweetDTO = new TweetDTO
+                {
+                    XTweetId = tweet.GetProperty("id").GetString(),
+                    RetweetCount = tweet.GetProperty("public_metrics").GetProperty("retweet_count").GetInt32(),
+                    ReplyCount = tweet.GetProperty("public_metrics").GetProperty("reply_count").GetInt32(),
+                    LikeCount = tweet.GetProperty("public_metrics").GetProperty("like_count").GetInt32(),
+                    QuoteCount = tweet.GetProperty("public_metrics").GetProperty("quote_count").GetInt32(),
+                    BookmarkCount = tweet.GetProperty("public_metrics").GetProperty("bookmark_count").GetInt32(),
+                    ImpressionCount = tweet.GetProperty("public_metrics").GetProperty("impression_count").GetInt32()
+                };
+                tweetDTOs.Add(tweetDTO);
+            }
+            return tweetDTOs;
         }
 
         public async Task<string> GetTweetByIdAsync(string tweetId)

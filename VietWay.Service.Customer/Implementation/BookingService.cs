@@ -8,8 +8,8 @@ using VietWay.Util.CustomExceptions;
 using VietWay.Repository.EntityModel.Base;
 using VietWay.Util.DateTimeUtil;
 using Hangfire;
-using VietWay.Job.Interface;
 using VietWay.Service.Customer.Configuration;
+using VietWay.Job.Customer.Interface;
 
 namespace VietWay.Service.Customer.Implementation
 {

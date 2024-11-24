@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace VietWay.Job.Interface
+namespace VietWay.Job.Customer.Interface
 {
     public interface IBookingJob
     {

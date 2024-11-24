@@ -17,12 +17,12 @@ using VietWay.Service.Management.Interface;
 using VietWay.Service.ThirdParty.Cloudinary;
 using VietWay.Service.ThirdParty.VnPay;
 using VietWay.Service.ThirdParty.Twitter;
-using VietWay.Job.Interface;
-using VietWay.Job.Implementation;
 using VietWay.Service.ThirdParty.Facebook;
 using VietWay.Service.ThirdParty.Redis;
 using StackExchange.Redis;
 using VietWay.Repository.DataAccessObject;
+using VietWay.Job.Management.Interface;
+using VietWay.Job.Management.Implementation;
 namespace VietWay.API.Management
 {
     public class Program
@@ -145,7 +145,6 @@ namespace VietWay.API.Management
             builder.Services.AddScoped<ICloudinaryService, CloudinaryService>();
             builder.Services.AddScoped<ITwitterService, TwitterService>();
             builder.Services.AddScoped<IPublishPostService, PublishPostService>();
-            builder.Services.AddScoped<IBookingJob, BookingJob>();
             builder.Services.AddScoped<ITweetJob, TweetJob>();
             builder.Services.AddScoped<IRedisCacheService, RedisCacheService>();
             builder.Services.AddScoped<IAttractionReviewService, AttractionReviewService>();
