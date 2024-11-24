@@ -213,6 +213,10 @@ namespace VietWay.API.Management
                 HttpClient.BaseAddress = new Uri(graphApiBaseUrl);
             });
             var app = builder.Build();
+
+            app.Services.GetRequiredService<IRecurringJobManager>()
+                .AddOrUpdate<ITweetJob>("getTweetsDetail", (x) => x.GetPublishedTweetsJob(), () => "*/1 * * * *");
+
             app.UseStaticFiles();
             #region app.UseSwagger(...);
             if (app.Environment.IsDevelopment())

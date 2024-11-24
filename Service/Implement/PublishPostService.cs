@@ -22,13 +22,11 @@ using VietWay.Util.CustomExceptions;
 
 namespace VietWay.Service.Management.Implement
 {
-    public class PublishPostService(IUnitOfWork unitOfWork, ITwitterService twitterService, IFacebookService facebookService, IRecurringJobManager recurringJobManager, ITweetJob tweetJob, IRedisCacheService redisCacheService) : IPublishPostService
+    public class PublishPostService(IUnitOfWork unitOfWork, ITwitterService twitterService, IFacebookService facebookService, IRedisCacheService redisCacheService) : IPublishPostService
     {
         private readonly ITwitterService _twitterService = twitterService;
         private readonly IUnitOfWork _unitOfWork = unitOfWork;
         private readonly IFacebookService _facebookService = facebookService;
-        private readonly IRecurringJobManager _recurringJobManager = recurringJobManager;
-        private readonly ITweetJob _tweetJob = tweetJob;
         private readonly IRedisCacheService _redisCacheService = redisCacheService;
 
         public async Task<FacebookMetricsDTO> GetFacebookPostMetricsAsync(string postId)
@@ -114,7 +112,6 @@ namespace VietWay.Service.Management.Implement
                 await _unitOfWork.BeginTransactionAsync();
                 await _unitOfWork.PostRepository.UpdateAsync(post);
                 await _unitOfWork.CommitTransactionAsync();
-                _recurringJobManager.AddOrUpdate("getTweetsDetail", () => _tweetJob.GetPublishedTweetsJob(), "*/16 * * * *");
             }
             catch
             {
