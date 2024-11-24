@@ -15,6 +15,6 @@ namespace VietWay.Service.Management.Interface
         public Task<CustomerInfoDTO?> GetCustomerProfileInfo(string customerId);
         public Task UpdateCustomerProfileAsync(string customerId, string? fullName, DateTime?
             dateOfBirth, string? provinceId, Gender? gender, string? email);
-        public Task ChangeCustomerStatus(string customerId, string managerId, bool isDeleted);
+        public Task ChangeCustomerStatus(string customerId, bool isDeleted);
     }
 }

@@ -54,15 +54,27 @@ namespace VietWay.API.Management.Controllers
         }
 
         [HttpPatch("{customerId}")]
+        [Produces("application/json")]
+        [Authorize(Roles = nameof(UserRole.Manager))]
+        [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status200OK)]
         public async Task<IActionResult> ChangeCustomerStatus(string customerId, bool isDeleted)
         {
             string? managerId = _tokenHelper.GetAccountIdFromToken(HttpContext);
             if (managerId == null)
             {
-                return Unauthorized();
+                return Unauthorized(new DefaultResponseModel<object>
+                {
+                    Message = "Unauthorized",
+                    StatusCode = StatusCodes.Status401Unauthorized
+                });
             }
-            await _customerService.ChangeCustomerStatus(customerId, managerId, isDeleted);
-            return Ok();
+            await _customerService.ChangeCustomerStatus(customerId, isDeleted);
+            DefaultResponseModel<object> response = new()
+            {
+                Message = "Change status successfully",
+                StatusCode = StatusCodes.Status200OK
+            };
+            return Ok(response);
         }
     }
 }
