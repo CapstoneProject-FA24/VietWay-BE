@@ -125,7 +125,7 @@ namespace VietWay.API.Management.Controllers
         [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status200OK)]
         public async Task<IActionResult> DeleteTourCategory(string tourCategoryId)
         {
-            await _provinceService.DeleteProvinceAsync(provinceId);
+            await _tourCategoryService.DeleteTourCategory(tourCategoryId);
             return Ok(new DefaultResponseModel<string>()
             {
                 Message = "Success",
