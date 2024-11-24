@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using VietWay.Repository.EntityModel;
 using VietWay.Repository.UnitOfWork;
+using VietWay.Service.Management.DataTransferObject;
 using VietWay.Service.Management.Interface;
 using VietWay.Util.CustomExceptions;
 using VietWay.Util.DateTimeUtil;
@@ -31,16 +32,32 @@ namespace VietWay.Service.Management.Implement
             return staffInfo;
         }
 
-        public async Task<(int totalCount, List<Staff> items)> GetAllStaffInfos(int pageSize, int pageIndex)
+        public async Task<(int totalCount, List<StaffPreviewDTO> items)> GetAllStaffInfos(
+            string? nameSearch,
+            int pageSize, 
+            int pageIndex)
         {
             var query = _unitOfWork
                 .StaffRepository
-                .Query();
+                .Query()
+                .Where(x => x.IsDeleted == false);
+            if (!string.IsNullOrEmpty(nameSearch))
+            {
+                query = query.Where(x => x.FullName.Contains(nameSearch));
+            }
             int count = await query.CountAsync();
-            List<Staff> items = await query
+            List<StaffPreviewDTO> items = await query
+                .Include(x => x.Account)
+                .Select(x => new StaffPreviewDTO
+                {
+                    StaffId = x.StaffId,
+                    PhoneNumber = x.Account.PhoneNumber,
+                    Email = x.Account.Email,
+                    FullName = x.FullName,
+                    CreatedAt = x.Account.CreatedAt
+                })
                 .Skip((pageIndex - 1) * pageSize)
                 .Take(pageSize)
-                .Include(x => x.Account)
                 .ToListAsync();
             return (count, items);
         }

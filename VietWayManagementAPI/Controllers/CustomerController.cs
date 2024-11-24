@@ -59,8 +59,8 @@ namespace VietWay.API.Management.Controllers
         [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status200OK)]
         public async Task<IActionResult> ChangeCustomerStatus(string customerId, bool isDeleted)
         {
-            string? managerId = _tokenHelper.GetAccountIdFromToken(HttpContext);
-            if (managerId == null)
+            string? accountId = _tokenHelper.GetAccountIdFromToken(HttpContext);
+            if (accountId == null)
             {
                 return Unauthorized(new DefaultResponseModel<object>
                 {
