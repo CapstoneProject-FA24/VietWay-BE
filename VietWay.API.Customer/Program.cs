@@ -204,10 +204,10 @@ namespace VietWay.API.Customer
             });
             builder.Services.AddSingleton(s => new VnPayConfiguration
             {
-                VnpHashSecret = Environment.GetEnvironmentVariable("VNP_HASH_SECRET") ??
-                    throw new Exception("VNP_HASH_SECRET is not set in environment variables"),
-                VnpTmnCode = Environment.GetEnvironmentVariable("VNP_TMN_CODE") ??
-                    throw new Exception("VNP_TMN_CODE is not set in environment variables")
+                VnpHashSecret = Environment.GetEnvironmentVariable("VNPAY_HASH_SECRET") ??
+                    throw new Exception("VNPAY_HASH_SECRET is not set in environment variables"),
+                VnpTmnCode = Environment.GetEnvironmentVariable("VNPAY_TMN_CODE") ??
+                    throw new Exception("VNPAY_TMN_CODE is not set in environment variables")
             });
             builder.Services.AddSingleton(s => new OtpGeneratorConfiguration
             {
@@ -225,7 +225,7 @@ namespace VietWay.API.Customer
                 Token = Environment.GetEnvironmentVariable("SPEEDSMS_TOKEN") ??
                     throw new Exception("SPEEDSMS_TOKEN is not set in environment variables")
             });
-            builder.Services.AddHttpClient<IGeminiService,GeminiService>(HttpClient =>
+            builder.Services.AddHttpClient<IGeminiService, GeminiService>(HttpClient =>
             {
                 string baseUrl = Environment.GetEnvironmentVariable("GEMINI_AI_API_ENDPOINT") ??
                     throw new Exception("GEMINI_AI_API_ENDPOINT is not set in environment variables");

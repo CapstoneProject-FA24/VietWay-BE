@@ -37,7 +37,7 @@ namespace VietWay.API.Management
             #region builder.Services.AddHangfire(...);
             builder.Services.AddHangfire(option =>
             {
-                string connectionString = Environment.GetEnvironmentVariable("SQL_CONNECTION_STRING") 
+                string connectionString = Environment.GetEnvironmentVariable("SQL_CONNECTION_STRING")
                     ?? throw new Exception("SQL_CONNECTION_STRING is not set in environment variables");
                 option.UseSqlServerStorage(connectionString);
             });
@@ -121,7 +121,7 @@ namespace VietWay.API.Management
             #region builder.Services.AddScoped(...);
             builder.Services.AddScoped<IAccountService, AccountService>();
             builder.Services.AddScoped<IAttractionService, AttractionService>();
-            builder.Services.AddScoped<IAttractionTypeService , AttractionTypeService>();
+            builder.Services.AddScoped<IAttractionTypeService, AttractionTypeService>();
             builder.Services.AddScoped<IBookingPaymentService, BookingPaymentService>();
             builder.Services.AddScoped<IBookingService, BookingService>();
             builder.Services.AddScoped<ICustomerFeedbackService, CustomerFeedbackService>();
@@ -162,7 +162,8 @@ namespace VietWay.API.Management
                 PageAccessToken = Environment.GetEnvironmentVariable("FACEBOOK_PAGE_ACCESS_TOKEN") ??
                     throw new Exception("FACEBOOK_PAGE_ACCESS_TOKEN is not set in environment variables")
             });
-            builder.Services.AddSingleton(s => new CloudinaryApiConfig { 
+            builder.Services.AddSingleton(s => new CloudinaryApiConfig
+            {
                 ApiKey = Environment.GetEnvironmentVariable("CLOUDINARY_API_KEY") ??
                     throw new Exception("CLOUDINARY_API_KEY is not set in environment variables"),
                 ApiSecret = Environment.GetEnvironmentVariable("CLOUDINARY_API_SECRET") ??
@@ -170,7 +171,7 @@ namespace VietWay.API.Management
                 CloudName = Environment.GetEnvironmentVariable("CLOUDINARY_CLOUD_NAME") ??
                     throw new Exception("CLOUDINARY_CLOUD_NAME is not set in environment variables")
             });
-            builder.Services.AddSingleton(s=>new DatabaseConfig
+            builder.Services.AddSingleton(s => new DatabaseConfig
             {
                 ConnectionString = Environment.GetEnvironmentVariable("SQL_CONNECTION_STRING") ??
                     throw new Exception("SQL_CONNECTION_STRING is not set in environment variables")
