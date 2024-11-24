@@ -131,6 +131,96 @@ namespace VietWay.Service.Management.Implement
                 }).SingleOrDefaultAsync();
         }
 
+        public async Task<BookingDetailDTO?> GetBookingByIdAsync(string bookingId)
+        {
+            BookingDetailDTO result = await _unitOfWork
+                .BookingRepository
+                .Query()
+                .Where(x => x.BookingId == bookingId)
+                .Include(x => x.Tour)
+                .ThenInclude(x => x.TourTemplate)
+                .Include(x => x.Tour)
+                .ThenInclude(x => x.TourRefundPolicies)
+                .Include(x => x.BookingPayments)
+                .Include(x => x.BookingTourists)
+                .Select(x => new BookingDetailDTO
+                {
+                    BookingId = x.BookingId,
+                    TourId = x.TourId,
+                    TourName = x.Tour.TourTemplate.TourName,
+                    TourCode = x.Tour.TourTemplate.Code,
+                    StartDate = x.Tour.StartDate,
+                    StartLocation = x.Tour.StartLocation,
+                    CreatedAt = x.CreatedAt,
+                    ContactFullName = x.ContactFullName,
+                    ContactEmail = x.ContactEmail,
+                    ContactPhoneNumber = x.ContactPhoneNumber,
+                    ContactAddress = x.ContactAddress,
+                    TotalPrice = x.TotalPrice,
+                    NumberOfParticipants = x.NumberOfParticipants,
+                    Status = x.Status,
+                    Note = x.Note,
+                    Tourists = x.BookingTourists.Select(y => new BookingTouristDetailDTO
+                    {
+                        TouristId = y.TouristId,
+                        FullName = y.FullName,
+                        Gender = y.Gender,
+                        PhoneNumber = y.PhoneNumber,
+                        DateOfBirth = y.DateOfBirth,
+                        Price = y.Price
+                    }).ToList(),
+                    Payments = x.BookingPayments.Select(y => new BookingPaymentDetailDTO
+                    {
+                        PaymentId = y.PaymentId,
+                        Amount = y.Amount,
+                        Note = y.Note,
+                        CreateAt = y.CreateAt,
+                        BankCode = y.BankCode,
+                        BankTransactionNumber = y.BankTransactionNumber,
+                        PayTime = y.PayTime,
+                        ThirdPartyTransactionNumber = y.ThirdPartyTransactionNumber,
+                        Status = y.Status
+                    }).ToList(),
+                    TourPolicies = x.Tour.TourRefundPolicies.Select(y => new TourPolicyPreview
+                    {
+                        CancelBefore = y.CancelBefore,
+                        RefundPercent = y.RefundPercent
+                    }).ToList()
+                }).SingleOrDefaultAsync();
+
+            EntityStatusHistory entityStatusHistory = await _unitOfWork.EntityStatusHistoryRepository.Query()
+                .Include(x => x.EntityHistory)
+                .SingleOrDefaultAsync(x => x.EntityHistory.EntityId == bookingId && x.EntityHistory.Action == EntityModifyAction.ChangeStatus && x.NewStatus == (int)BookingStatus.PendingRefund);
+            if (entityStatusHistory != null)
+            {
+                result.CancelAt = entityStatusHistory.EntityHistory.Timestamp;
+                result.CancelBy = entityStatusHistory.EntityHistory.ModifierRole;
+                decimal refundAmount = 0;
+
+                if (entityStatusHistory.EntityHistory.ModifierRole == UserRole.Manager)
+                {
+                    refundAmount = result.TotalPrice;
+                }
+                else
+                {
+                    DateTime cancelTime = entityStatusHistory.EntityHistory.Timestamp;
+
+                    TourRefundPolicy tourRefundPolicy = await _unitOfWork.TourRefundPolicyRepository.Query()
+                        .OrderBy(x => x.CancelBefore)
+                        .FirstOrDefaultAsync(x => x.CancelBefore > cancelTime && x.TourId == result.TourId);
+
+                    if (tourRefundPolicy != null)
+                    {
+                        refundAmount = tourRefundPolicy.RefundPercent * result.TotalPrice / 100;
+                    }
+                }
+
+                result.RefundAmount = refundAmount;
+            }
+            
+            return result;
+        }
+
         public async Task<(int count, List<BookingPreviewDTO>)> GetBookingsAsync(BookingStatus? bookingStatus, int pageCount, int pageIndex, string? bookingIdSearch, string? contactNameSearch, string? contactPhoneSearc)
         {
             IQueryable<Booking> query = _unitOfWork
