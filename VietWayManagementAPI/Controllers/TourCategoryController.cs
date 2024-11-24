@@ -119,5 +119,19 @@ namespace VietWay.API.Management.Controllers
             await _tourCategoryService.UpdateTourCategoryAsync(tourCategory);
             return Ok();
         }
+
+        [HttpDelete("{tourCategoryId}")]
+        [Produces("application/json")]
+        [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status200OK)]
+        public async Task<IActionResult> DeleteTourCategory(string tourCategoryId)
+        {
+            await _provinceService.DeleteProvinceAsync(provinceId);
+            return Ok(new DefaultResponseModel<string>()
+            {
+                Message = "Success",
+                Data = null,
+                StatusCode = StatusCodes.Status200OK
+            });
+        }
     }
 }
