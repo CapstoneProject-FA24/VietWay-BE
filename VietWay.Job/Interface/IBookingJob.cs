@@ -8,6 +8,6 @@ namespace VietWay.Job.Interface
 {
     public interface IBookingJob
     {
-        public Task CheckBookingForExpirationJob(string bookingId);
+        public Task CheckBookingForExpirationAsync(string bookingId);
     }
 }

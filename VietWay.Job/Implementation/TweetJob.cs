@@ -1,7 +1,7 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Hangfire;
+using Microsoft.EntityFrameworkCore;
 using System.Text.Json;
 using Tweetinvi.Core.Extensions;
-using VietWay.Job.DataTransferObject;
 using VietWay.Job.Interface;
 using VietWay.Repository.EntityModel;
 using VietWay.Repository.UnitOfWork;
@@ -16,46 +16,27 @@ namespace VietWay.Job.Implementation
         private readonly IUnitOfWork _unitOfWork = unitOfWork;
         private readonly ITwitterService _twitterService = twitterService;
         private readonly IRedisCacheService _redisCacheService = redisCacheService;
-
+        [AutomaticRetry(Attempts = 0)]
         public async Task GetPublishedTweetsJob()
         {
-            List<Post>? posts = await _unitOfWork.PostRepository.Query().Where(x => x.XTweetId != null).ToListAsync();
-            if (posts.IsNullOrEmpty())
+            Dictionary<string, string> postTweetId = await _unitOfWork.PostRepository.Query()
+                .Where(x => x.XTweetId != null)
+                .ToDictionaryAsync(x => x.PostId!, x => x.XTweetId!);
+
+            if (postTweetId.IsNullOrEmpty())
             {
                 return;
             }
 
-            string tweetIds = string.Join(',', posts.Where(x => !x.XTweetId.IsNullOrEmpty()).Select(x => x.XTweetId));
+            List<TweetDTO> tweetsDetails = await _twitterService.GetTweetsAsync([.. postTweetId.Values]);
 
-            string jsonResponse = await _twitterService.GetTweetsAsync(tweetIds);
-
-            var tweetData = JsonSerializer.Deserialize<JsonElement>(jsonResponse).GetProperty("data");
-
-            var tweetDTOs = new List<TweetDTO>();
-
-            foreach (var tweet in tweetData.EnumerateArray())
-            {
-                var tweetDTO = new TweetDTO
-                {
-                    XTweetId = tweet.GetProperty("id").GetString(),
-                    RetweetCount = tweet.GetProperty("public_metrics").GetProperty("retweet_count").GetInt32(),
-                    ReplyCount = tweet.GetProperty("public_metrics").GetProperty("reply_count").GetInt32(),
-                    LikeCount = tweet.GetProperty("public_metrics").GetProperty("like_count").GetInt32(),
-                    QuoteCount = tweet.GetProperty("public_metrics").GetProperty("quote_count").GetInt32(),
-                    BookmarkCount = tweet.GetProperty("public_metrics").GetProperty("bookmark_count").GetInt32(),
-                    ImpressionCount = tweet.GetProperty("public_metrics").GetProperty("impression_count").GetInt32()
-                };
-
-                var post = posts.SingleOrDefault(p => p.XTweetId == tweetDTO.XTweetId);
-                if (post != null)
-                {
-                    tweetDTO.PostId = post.PostId;
-                }
-
-                tweetDTOs.Add(tweetDTO);
-            }
-
-            await _redisCacheService.SetAsync<List<TweetDTO>>("tweetsDetail", tweetDTOs);
+            Dictionary<string, TweetDTO> keyValuePairs = postTweetId
+            .Where(pair => tweetsDetails.Any(tweet => tweet.XTweetId == pair.Value)) // Only valid matches
+            .ToDictionary(
+                pair => pair.Key,
+                pair => tweetsDetails.First(tweet => tweet.XTweetId == pair.Value)
+            );
+            await _redisCacheService.SetMultipleAsync(keyValuePairs);
         }
     }
 }

@@ -1,9 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using VietWay.Job.Interface;
 using VietWay.Repository.EntityModel;
 using VietWay.Repository.EntityModel.Base;
@@ -15,7 +10,7 @@ namespace VietWay.Job.Implementation
     {
         private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
-        public async Task CheckBookingForExpirationJob(string bookingId)
+        public async Task CheckBookingForExpirationAsync(string bookingId)
         {
             Booking? booking = await _unitOfWork.BookingRepository
                 .Query()

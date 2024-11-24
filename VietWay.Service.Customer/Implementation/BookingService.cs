@@ -8,8 +8,8 @@ using VietWay.Util.CustomExceptions;
 using VietWay.Repository.EntityModel.Base;
 using VietWay.Util.DateTimeUtil;
 using Hangfire;
-using VietWay.Job.Interface;
 using VietWay.Service.Customer.Configuration;
+using VietWay.Job.Interface;
 
 namespace VietWay.Service.Customer.Implementation
 {
@@ -67,8 +67,10 @@ namespace VietWay.Service.Customer.Implementation
                 await _unitOfWork.TourRepository.UpdateAsync(tour);
                 await _unitOfWork.CommitTransactionAsync();
                 _backgroundJobClient.Schedule<IBookingJob>(
-                    x => x.CheckBookingForExpirationJob(booking.BookingId), 
+                    x => x.CheckBookingForExpirationAsync(booking.BookingId), 
                     DateTime.Now.AddMinutes(_pendingBookingExpireAfterMinutes));
+                _backgroundJobClient.Enqueue<IEmailJob>( x => 
+                    x.SendBookingConfirmationEmail(booking.BookingId, booking.CreatedAt.AddMinutes(_pendingBookingExpireAfterMinutes)));
                 return booking.BookingId;
             }
             catch
@@ -78,7 +80,7 @@ namespace VietWay.Service.Customer.Implementation
             }
         }
 
-        public async Task CancelBookingAsync(string customerId, string bookingId)
+        public async Task CancelBookingAsync(string customerId, string bookingId, string? reason)
         {
             try
             {
@@ -87,12 +89,34 @@ namespace VietWay.Service.Customer.Implementation
                     .Include(x => x.Tour)
                     .SingleOrDefault(x => x.BookingId.Equals(bookingId) && x.CustomerId.Equals(customerId))
                     ?? throw new ResourceNotFoundException("Booking not found");
-                if (booking.Status != BookingStatus.Pending)
+                if (booking.Status != BookingStatus.Pending && booking.Status != BookingStatus.Confirmed)
                 {
-                    throw new InvalidOperationException("Booking is not pending");
+                    throw new InvalidOperationException("You cannot cancel this booking");
                 }
-                booking.Status = BookingStatus.Cancelled;
+                int oldStatus = (int)booking.Status;
+                if (booking.Status == BookingStatus.Pending) booking.Status = BookingStatus.Cancelled;
+                if (booking.Status == BookingStatus.Confirmed) booking.Status = BookingStatus.PendingRefund;
+
                 booking.Tour.CurrentParticipant -= booking.NumberOfParticipants;
+                string entityHistoryId = _idGenerator.GenerateId();
+                await _unitOfWork.EntityStatusHistoryRepository.CreateAsync(new EntityStatusHistory()
+                {
+                    Id = entityHistoryId,
+                    OldStatus = oldStatus,
+                    NewStatus = (int)booking.Status,
+                    EntityHistory = new EntityHistory()
+                    {
+                        Id = entityHistoryId,
+                        Action = EntityModifyAction.ChangeStatus,
+                        EntityId = bookingId,
+                        EntityType = EntityType.Booking,
+                        Timestamp = _timeZoneHelper.GetUTC7Now(),
+                        ModifiedBy = customerId,
+                        ModifierRole = UserRole.Customer,
+                        Reason = reason,
+                    }
+                });
+
                 await _unitOfWork.BookingRepository.UpdateAsync(booking);
                 await _unitOfWork.CommitTransactionAsync();
             }

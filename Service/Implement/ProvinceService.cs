@@ -162,5 +162,35 @@ namespace VietWay.Service.Management.Implement
                 throw;
             }
         }
+
+        public async Task DeleteProvinceAsync(string provinceId)
+        {
+            Province province = await _unitOfWork.ProvinceRepository.Query()
+                .SingleOrDefaultAsync(x => x.ProvinceId.Equals(provinceId))
+                ?? throw new ResourceNotFoundException("Province not found");
+            bool hasRelatedData = await _unitOfWork.PostRepository.Query().AnyAsync(x => x.ProvinceId.Equals(provinceId))
+                || await _unitOfWork.CustomerRepository.Query().AnyAsync(x => x.CustomerId.Equals(provinceId))
+                || await _unitOfWork.AttractionRepository.Query().AnyAsync(x => x.ProvinceId.Equals(provinceId))
+                || await _unitOfWork.TourTemplateProvinceRepository.Query().AnyAsync(x => x.ProvinceId.Equals(provinceId));
+            try
+            {
+                await _unitOfWork.BeginTransactionAsync();
+                if (hasRelatedData)
+                {
+                    await _unitOfWork.ProvinceRepository.SoftDeleteAsync(province);
+                }
+                else
+                {
+                    await _unitOfWork.ProvinceRepository.DeleteAsync(province);
+                }
+
+                await _unitOfWork.CommitTransactionAsync();
+            }
+            catch
+            {
+                await _unitOfWork.RollbackTransactionAsync();
+                throw;
+            }
+        }
     }
 }

@@ -6,16 +6,18 @@ using VietWay.Service.Management.Interface;
 using VietWay.Util.DateTimeUtil;
 using VietWay.Util.IdUtil;
 using VietWay.Service.Management.DataTransferObject;
-using static Org.BouncyCastle.Crypto.Engines.SM2Engine;
 using VietWay.Util.CustomExceptions;
+using Hangfire;
+using VietWay.Job.Interface;
 
 namespace VietWay.Service.Management.Implement
 {
-    public class TourService(IUnitOfWork unitOfWork, IIdGenerator idGenerator, ITimeZoneHelper timeZoneHelper) : ITourService
+    public class TourService(IUnitOfWork unitOfWork, IIdGenerator idGenerator, ITimeZoneHelper timeZoneHelper, IBackgroundJobClient backgroundJobClient) : ITourService
     {
         private readonly IUnitOfWork _unitOfWork = unitOfWork;
         private readonly ITimeZoneHelper _timeZoneHelper = timeZoneHelper;
         private readonly IIdGenerator _idGenerator = idGenerator;
+        private readonly IBackgroundJobClient _backgroundJobClient = backgroundJobClient;
         public async Task<string> CreateTour(Tour tour)
         {
             try
@@ -194,6 +196,10 @@ namespace VietWay.Service.Management.Implement
 
                 await _unitOfWork.TourRepository.UpdateAsync(tour);
                 await _unitOfWork.CommitTransactionAsync();
+                if (tour.Status == TourStatus.Accepted)
+                {
+                    _backgroundJobClient.Schedule<ITourJob>(x=>x.OpenTourAsync(tourId),_timeZoneHelper.GetLocalTimeFromUTC7(tour.RegisterOpenDate!.Value));
+                }
             }
             catch
             {

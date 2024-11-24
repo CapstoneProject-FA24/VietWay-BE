@@ -278,20 +278,6 @@ namespace VietWay.API.Management.Controllers
             });
         }
 
-        [HttpGet("twitter/reactions")]
-        [Produces("application/json")]
-        [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status200OK)]
-        public async Task<IActionResult> GetTwitterPostsAsync()
-        {
-            List<TweetDTO> result = await _publishPostService.GetPublishedTweetsAsync();
-            return Ok(new DefaultResponseModel<object>
-            {
-                Message = "Get twitter posts successfully",
-                StatusCode = StatusCodes.Status200OK,
-                Data = result
-            });
-        }
-
         [HttpDelete("{postId}/twitter")]
         [Produces("application/json")]
         [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status200OK)]

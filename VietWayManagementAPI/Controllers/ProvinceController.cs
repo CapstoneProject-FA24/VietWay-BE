@@ -144,7 +144,7 @@ namespace VietWay.API.Management.Controllers
         }
 
         /// <summary>
-        /// [Manager] {WIP} Delete province
+        /// [Manager] Delete province
         /// </summary>
         /// <returns> Province delete message </returns>
         /// <response code="200">Return province delete message</response>
@@ -154,7 +154,13 @@ namespace VietWay.API.Management.Controllers
         [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status200OK)]
         public async Task<IActionResult> DeleteProvince(string provinceId)
         {
-            throw new NotImplementedException();
+            await _provinceService.DeleteProvinceAsync(provinceId);
+            return Ok(new DefaultResponseModel<string>()
+            {
+                Message = "Success",
+                Data = null,
+                StatusCode = StatusCodes.Status200OK
+            });
         }
 
         [HttpPatch("{provinceId}/images")]
