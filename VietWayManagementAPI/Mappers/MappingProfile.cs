@@ -120,7 +120,6 @@ namespace VietWay.API.Management.Mappers
                 {
                     AccountId = "",
                     Email = src.Email,
-                    Password = src.Password,
                     PhoneNumber = src.PhoneNumber,
                     Role = UserRole.Manager,
                     CreatedAt = DateTime.MinValue,

@@ -9,8 +9,6 @@ namespace VietWay.API.Management.RequestModel
         public string? Email { get; set; }
         [RegularExpression(@"^0\d{9}$")]
         public required string PhoneNumber { get; set; }
-        [RegularExpression(@"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$")]
-        public required string Password { get; set; }
         [Required]
         public required string FullName { get; set; }
     }

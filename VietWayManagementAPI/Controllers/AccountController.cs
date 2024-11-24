@@ -58,13 +58,13 @@ namespace VietWay.API.Management.Controllers
         /// ✅ Create new staff account
         /// </summary>
         [HttpPost("create-staff-account")]
-        //[Authorize(Roles = nameof(UserRole.Manager))]
+        [Authorize(Roles = nameof(UserRole.Manager))]
         [Produces("application/json")]
         [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status200OK)]
         [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> CreateStaffAccountAsync([FromBody] CreateStaffAccountRequest request)
         {
-            /*string? managerId = _tokenHelper.GetAccountIdFromToken(HttpContext);
+            string? managerId = _tokenHelper.GetAccountIdFromToken(HttpContext);
             if (string.IsNullOrWhiteSpace(managerId))
             {
                 return Unauthorized(new DefaultResponseModel<object>
@@ -72,7 +72,7 @@ namespace VietWay.API.Management.Controllers
                     Message = "Unauthorized",
                     StatusCode = StatusCodes.Status401Unauthorized
                 });
-            }*/
+            }
             Staff account = _mapper.Map<Staff>(request);
             await _staffService.RegisterAccountAsync(account);
             return Ok(new DefaultResponseModel<object>()
