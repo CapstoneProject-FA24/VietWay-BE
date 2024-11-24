@@ -5,6 +5,7 @@ using VietWay.API.Management.ResponseModel;
 using VietWay.Repository.EntityModel.Base;
 using VietWay.Util.TokenUtil;
 using VietWay.Service.Management.Interface;
+using VietWay.Service.Management.DataTransferObject;
 
 namespace VietWay.API.Management.Controllers
 {
@@ -20,25 +21,39 @@ namespace VietWay.API.Management.Controllers
 
         [HttpGet]
         [Produces("application/json")]
-        [ProducesResponseType<DefaultResponseModel<PaginatedList<StaffInfoPreview>>>(StatusCodes.Status200OK)]
-        public async Task<IActionResult> GetAllStaffInfosAsync(int pageSize, int pageIndex)
+        [Authorize(Roles = nameof(UserRole.Manager))]
+        [ProducesResponseType<DefaultResponseModel<PaginatedList<StaffPreviewDTO>>>(StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetAllStaffInfosAsync(string? nameSearch,
+            int? pageSize,
+            int? pageIndex)
         {
-            var (totalCount, items) = await _staffService.GetAllStaffInfos(pageSize, pageIndex);
-            List<StaffInfoPreview> staffInfoPreviews = _mapper.Map<List<StaffInfoPreview>>(items);
-            PaginatedList<StaffInfoPreview> pagedResponse = new()
+            string? accountId = _tokenHelper.GetAccountIdFromToken(HttpContext);
+            if (string.IsNullOrWhiteSpace(accountId))
             {
-                Total = totalCount,
-                PageSize = pageSize,
-                PageIndex = pageIndex,
-                Items = staffInfoPreviews
-            };
-            DefaultResponseModel<PaginatedList<StaffInfoPreview>> response = new()
+                return Unauthorized(new DefaultResponseModel<object>
+                {
+                    Message = "Unauthorized",
+                    StatusCode = StatusCodes.Status401Unauthorized
+                });
+            }
+
+            int checkedPageSize = pageSize ?? 10;
+            int checkedPageIndex = pageIndex ?? 1;
+
+            (int totalCount, List<StaffPreviewDTO> items) = await _staffService.GetAllStaffInfos(
+                nameSearch, checkedPageSize, checkedPageIndex);
+            return Ok(new DefaultResponseModel<PaginatedList<StaffPreviewDTO>>()
             {
-                Data = pagedResponse,
-                Message = "Get all staff info successfully",
+                Message = "Success",
+                Data = new PaginatedList<StaffPreviewDTO>
+                {
+                    Items = items,
+                    PageSize = checkedPageSize,
+                    PageIndex = checkedPageIndex,
+                    Total = totalCount
+                },
                 StatusCode = StatusCodes.Status200OK
-            };
-            return Ok(response);
+            });
         }
 
         /// <summary>
@@ -53,8 +68,8 @@ namespace VietWay.API.Management.Controllers
         [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status200OK)]
         public async Task<IActionResult> ChangeStaffAccountStatusAsync(string staffId, bool isDeleted)
         {
-            string? managerId = _tokenHelper.GetAccountIdFromToken(HttpContext);
-            if (string.IsNullOrWhiteSpace(managerId))
+            string? accountId = _tokenHelper.GetAccountIdFromToken(HttpContext);
+            if (string.IsNullOrWhiteSpace(accountId))
             {
                 return Unauthorized(new DefaultResponseModel<object>
                 {
@@ -64,6 +79,26 @@ namespace VietWay.API.Management.Controllers
             }
 
             await _staffService.ChangeStaffStatusAsync(staffId, isDeleted);
+            return Ok();
+        }
+
+        [HttpPatch("change-staff-password")]
+        [Authorize(Roles = nameof(UserRole.Staff))]
+        [Produces("application/json")]
+        [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status200OK)]
+        public async Task<IActionResult> ChangeStaffPasswordAsync(string oldPassword, string newPassword)
+        {
+            string? accountId = _tokenHelper.GetAccountIdFromToken(HttpContext);
+            if (string.IsNullOrWhiteSpace(accountId))
+            {
+                return Unauthorized(new DefaultResponseModel<object>
+                {
+                    Message = "Unauthorized",
+                    StatusCode = StatusCodes.Status401Unauthorized
+                });
+            }
+
+            await _staffService.StaffChangePassword(accountId, oldPassword, newPassword);
             return Ok();
         }
     }

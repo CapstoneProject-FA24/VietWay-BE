@@ -120,7 +120,6 @@ namespace VietWay.API.Management.Mappers
                 {
                     AccountId = "",
                     Email = src.Email,
-                    Password = src.Password,
                     PhoneNumber = src.PhoneNumber,
                     Role = UserRole.Manager,
                     CreatedAt = DateTime.MinValue,
@@ -149,6 +148,22 @@ namespace VietWay.API.Management.Mappers
             CreateMap<CreateTourCategoryRequest, TourCategory>()
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description));
+
+            CreateMap<RefundRequest, BookingPayment>();
+            
+            CreateMap<CreateStaffAccountRequest, Staff>()
+                .ForMember(dest => dest.FullName, opt => opt.MapFrom(src => src.FullName))
+                .ForMember(dest => dest.IsDeleted, opt => opt.MapFrom(src => false))
+                .ForMember(dest => dest.StaffId, opt => opt.MapFrom(src => ""))
+                .ForMember(dest => dest.Account, opt => opt.MapFrom(src => new Account()
+                {
+                    AccountId = "",
+                    Email = src.Email,
+                    PhoneNumber = src.PhoneNumber,
+                    Role = UserRole.Staff,
+                    CreatedAt = DateTime.MinValue,
+                    IsDeleted = false,
+                }));
         }
     }
 }

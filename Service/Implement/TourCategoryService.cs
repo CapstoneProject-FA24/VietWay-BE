@@ -101,10 +101,19 @@ namespace VietWay.Service.Management.Implement
                 .SingleOrDefaultAsync(x => x.TourCategoryId.Equals(tourCategoryId)) ??
                 throw new ResourceNotFoundException("Tour Category not found");
 
+            bool hasRelatedData = await _unitOfWork.TourTemplateRepository.Query().AnyAsync(x => x.TourCategoryId.Equals(tourCategoryId));
+
             try
             {
                 await _unitOfWork.BeginTransactionAsync();
-                await _unitOfWork.TourCategoryRepository.DeleteAsync(tourCategory);
+                if (hasRelatedData)
+                {
+                    await _unitOfWork.TourCategoryRepository.SoftDeleteAsync(tourCategory);
+                }
+                else
+                {
+                    await _unitOfWork.TourCategoryRepository.DeleteAsync(tourCategory);
+                }
                 await _unitOfWork.CommitTransactionAsync();
             }
             catch
