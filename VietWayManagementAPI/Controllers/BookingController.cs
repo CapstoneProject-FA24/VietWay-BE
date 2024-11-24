@@ -28,7 +28,7 @@ namespace VietWay.API.Management.Controllers
         [Produces("application/json")]
         [Authorize(Roles = nameof(UserRole.Manager))]
         [ProducesResponseType<DefaultResponseModel<PaginatedList<BookingPreviewDTO>>>(StatusCodes.Status200OK)]
-        public async Task<IActionResult> GetCustomerBookings(
+        public async Task<IActionResult> GetBookings(
             BookingStatus? bookingStatus,
             int? pageCount, int? pageIndex,
             string? bookingIdSearch, string? contactNameSearch, string? contactPhoneSearch)
@@ -47,6 +47,29 @@ namespace VietWay.API.Management.Controllers
                     PageIndex = checkedPageIndex,
                     Items = items
                 },
+                Message = "Get bookings successfully",
+                StatusCode = StatusCodes.Status200OK,
+            });
+        }
+
+        [HttpGet("{bookingId}")]
+        [Produces("application/json")]
+        [Authorize(Roles = nameof(UserRole.Manager))]
+        [ProducesResponseType<DefaultResponseModel<BookingDetailDTO>>(StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetBookingById(string bookingId)
+        {
+            BookingDetailDTO result = await _bookingService.GetBookingByIdAsync(bookingId);
+            if (null == result)
+            {
+                return NotFound(new DefaultResponseModel<object>
+                {
+                    Message = "Not found",
+                    StatusCode = StatusCodes.Status404NotFound
+                });
+            }
+            return Ok(new DefaultResponseModel<BookingDetailDTO>()
+            {
+                Data = result,
                 Message = "Get bookings successfully",
                 StatusCode = StatusCodes.Status200OK,
             });
