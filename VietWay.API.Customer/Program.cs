@@ -225,7 +225,7 @@ namespace VietWay.API.Customer
                 Token = Environment.GetEnvironmentVariable("SPEEDSMS_TOKEN") ??
                     throw new Exception("SPEEDSMS_TOKEN is not set in environment variables")
             });
-            builder.Services.AddHttpClient<IGeminiService,GeminiService>(HttpClient =>
+            builder.Services.AddHttpClient<IGeminiService, GeminiService>(HttpClient =>
             {
                 string baseUrl = Environment.GetEnvironmentVariable("GEMINI_AI_API_ENDPOINT") ??
                     throw new Exception("GEMINI_AI_API_ENDPOINT is not set in environment variables");
