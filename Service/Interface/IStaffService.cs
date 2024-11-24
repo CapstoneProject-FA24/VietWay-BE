@@ -10,7 +10,7 @@ namespace VietWay.Service.Management.Interface
             int pageSize,
             int pageIndex);
         public Task<Staff?> GetStaffInfoById(string id);
-        public Task<Staff> EditStaffInfo(Staff staffInfo);
+        public Task StaffChangePassword(string staffId, string oldPassword, string newPassword);
         public Task<Staff> AddStaff(Staff staffInfo);
         public Task RegisterAccountAsync(Staff staff);
         public Task ChangeStaffStatusAsync(string staffId, bool isDeleted);

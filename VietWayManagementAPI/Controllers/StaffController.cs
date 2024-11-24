@@ -81,5 +81,25 @@ namespace VietWay.API.Management.Controllers
             await _staffService.ChangeStaffStatusAsync(staffId, isDeleted);
             return Ok();
         }
+
+        [HttpPatch("change-staff-password")]
+        [Authorize(Roles = nameof(UserRole.Staff))]
+        [Produces("application/json")]
+        [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status200OK)]
+        public async Task<IActionResult> ChangeStaffPasswordAsync(string oldPassword, string newPassword)
+        {
+            string? accountId = _tokenHelper.GetAccountIdFromToken(HttpContext);
+            if (string.IsNullOrWhiteSpace(accountId))
+            {
+                return Unauthorized(new DefaultResponseModel<object>
+                {
+                    Message = "Unauthorized",
+                    StatusCode = StatusCodes.Status401Unauthorized
+                });
+            }
+
+            await _staffService.StaffChangePassword(accountId, oldPassword, newPassword);
+            return Ok();
+        }
     }
 }

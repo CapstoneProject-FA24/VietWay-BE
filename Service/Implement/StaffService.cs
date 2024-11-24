@@ -25,11 +25,33 @@ namespace VietWay.Service.Management.Implement
             return staffInfo;
         }
 
-        public async Task<Staff> EditStaffInfo(Staff staffInfo)
+        public async Task StaffChangePassword(string staffId, string oldPassword, string newPassword)
         {
-            await _unitOfWork.StaffRepository
-                .UpdateAsync(staffInfo);
-            return staffInfo;
+            Staff? staff = await _unitOfWork.StaffRepository.Query()
+                .Where(x => x.StaffId.Equals(staffId))
+                .Include(x => x.Account)
+                .SingleOrDefaultAsync() ?? throw new ResourceNotFoundException("Staff not found");
+
+            bool checkPassword = _hashHelper.Verify(oldPassword, staff.Account.Password);
+
+            if (!checkPassword)
+            {
+                throw new Exception("You type in wrong password");
+            }
+
+            staff.Account.Password = _hashHelper.Hash(newPassword);
+
+            try
+            {
+                await _unitOfWork.BeginTransactionAsync();
+                await _unitOfWork.StaffRepository.UpdateAsync(staff);
+                await _unitOfWork.CommitTransactionAsync();
+            }
+            catch
+            {
+                await _unitOfWork.RollbackTransactionAsync();
+                throw;
+            }
         }
 
         public async Task<(int totalCount, List<StaffPreviewDTO> items)> GetAllStaffInfos(
