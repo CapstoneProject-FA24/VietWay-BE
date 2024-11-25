@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace VietWay.Repository.EntityModel
@@ -7,9 +8,12 @@ namespace VietWay.Repository.EntityModel
     public class TourTemplateProvince
     {
         [ForeignKey(nameof(TourTemplate))]
-        public required string TourTemplateId { get; set; }
+        [Required]
+        public string? TourTemplateId { get; set; }
         [ForeignKey(nameof(Province))]
-        public required string ProvinceId { get; set; }
+        [Required]
+        public string? ProvinceId { get; set; }
+
         public virtual TourTemplate? TourTemplate { get; set; }
         public virtual Province? Province { get; set; }
     }

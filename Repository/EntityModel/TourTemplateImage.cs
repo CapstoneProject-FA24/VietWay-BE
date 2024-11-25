@@ -1,17 +1,23 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace VietWay.Repository.EntityModel
 {
-    [PrimaryKey(nameof(TourTemplateId), nameof(ImageId))]
     public class TourTemplateImage
     {
-        [ForeignKey(nameof(TourTemplate))]
-        public string TourTemplateId { get; set; }
+        [Key]
         [ForeignKey(nameof(Image))]
-        public string ImageId { get; set; }
+        [Required]
+        public string? ImageId { get; set; }
+        [ForeignKey(nameof(TourTemplate))]
+        [Required]
+        public string? TourTemplateId { get; set; }
+        [Required]
+        [StringLength(2048)]
+        public string? ImageUrl { get; set; }
 
         public virtual TourTemplate? TourTemplate { get; set; }
-        public virtual Image? Image { get; set; }
     }
 }

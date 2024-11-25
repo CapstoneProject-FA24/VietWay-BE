@@ -1,12 +1,11 @@
 ﻿using VietWay.Repository.EntityModel;
 using VietWay.Repository.EntityModel.Base;
+using VietWay.Service.Management.DataTransferObject;
 
-namespace VietWay.Service.Interface
+namespace VietWay.Service.Management.Interface
 {
     public interface IAccountService
     {
-        public Task<Account?> LoginByPhone(string phone, string password);
-        public Task<Account?> LoginByEmailAsync(string email, string password);
-        public Task<string> CreateCustomerAccountAsync(Account account, Customer customer);
+        public Task<CredentialDTO?> LoginAsync(string emailOrPhone, string password);
     }
 }

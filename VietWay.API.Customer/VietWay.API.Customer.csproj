@@ -4,23 +4,28 @@
     <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <GenerateDocumentationFile>True</GenerateDocumentationFile>
+      	<NoWarn>CS1591</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
-    <!-- Merged packages from both branches -->
     <PackageReference Include="AutoMapper" Version="13.0.1" />
+    <PackageReference Include="Hangfire.AspNetCore" Version="1.8.14" />
+    <PackageReference Include="Hangfire.SqlServer" Version="1.8.14" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.8" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.8">
-      <PrivateAssets>all</PrivateAssets>
+      <publicAssets>all</publicAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+    <PackageReference Include="StackExchange.Redis" Version="2.8.16" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Repository\VietWay.Repository.csproj" />
-    <ProjectReference Include="..\Service\VietWay.Service.csproj" />
+    <ProjectReference Include="..\VietWay.Job\VietWay.Job.csproj" />
     <ProjectReference Include="..\VietWay.Middleware\VietWay.Middleware.csproj" />
+    <ProjectReference Include="..\VietWay.Service.Customer\VietWay.Service.Customer.csproj" />
     <ProjectReference Include="..\VietWay.Util\VietWay.Util.csproj" />
   </ItemGroup>
 

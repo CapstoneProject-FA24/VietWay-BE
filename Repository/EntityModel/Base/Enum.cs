@@ -31,7 +31,8 @@
     {
         Pending,
         Rejected,
-        Scheduled,
+        Accepted,
+        Opened,
         Closed,
         OnGoing,
         Completed,
@@ -41,13 +42,62 @@
     {
         Pending,
         Confirmed,
+        Completed,
+        Expired,
         Cancelled,
-        Completed
+        PendingRefund,
+        Refunded
     }
     public enum PaymentStatus
     {
         Pending,
         Paid,
-        Failed
+        Failed,
+        Refunded
+    }
+    public enum EntityType
+    {
+        Attraction,
+        AttractionType,
+        Booking,
+        Customer,
+        Event,
+        Manager,
+        Post,
+        Province,
+        Staff,
+        Tour,
+        TourBooking,
+        TourCategory,
+        TourDuration,
+        TourTemplate
+    }
+    public enum EventStatus
+    {
+        Draft,
+        Pending,
+        Approved,
+        Rejected
+    }
+    public enum PostStatus
+    {
+        Draft, //0
+        Pending, //1 
+        Approved, //2
+        Rejected //3
+    }
+    public enum EntityModifyAction
+    {
+        Create,
+        Update,
+        ChangeStatus,
+        Delete
+    }
+    public enum PaymentMethod
+    {
+        VNPay,
+        Momo,
+        ZaloPay,
+        PayOS
     }
 }

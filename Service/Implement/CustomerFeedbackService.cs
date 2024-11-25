@@ -1,21 +1,21 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using VietWay.Repository.EntityModel;
 using VietWay.Repository.UnitOfWork;
-using VietWay.Service.Interface;
+using VietWay.Service.Management.Interface;
 
-namespace VietWay.Service.Implement
+namespace VietWay.Service.Management.Implement
 {
-    public class CustomerFeedbackService(IUnitOfWork unitOfWork): ICustomerFeedbackService
+    public class CustomerFeedbackService(IUnitOfWork unitOfWork) : ICustomerFeedbackService
     {
         private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
-        public async Task<(int totalCount, List<CustomerFeedback> items)> GetAllCustomerFeedback(int pageSize, int pageIndex)
+        public async Task<(int totalCount, List<TourReview> items)> GetAllCustomerFeedback(int pageSize, int pageIndex)
         {
             var query = _unitOfWork
-                .CustomerFeedbackRepository
+                .FeedbackRepository
                 .Query();
             int count = await query.CountAsync();
-            List<CustomerFeedback> items = await query
+            List<TourReview> items = await query
                 .Skip((pageIndex - 1) * pageSize)
                 .Take(pageSize)
                 .Include(x => x.Booking)

@@ -1,17 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using VietWay.Repository.EntityModel;
-using VietWay.Service.DataTransferObject;
+﻿using VietWay.Repository.EntityModel;
+using VietWay.Service.ThirdParty.VnPay;
 
-namespace VietWay.Service.Interface
+namespace VietWay.Service.Management.Interface
 {
     public interface IBookingPaymentService
     {
         public Task<BookingPayment?> GetBookingPaymentAsync(string id);
-        public Task<string> GetVnPayBookingPaymentUrl(string bookingId, string ipAddress);
+        public Task<string> GetVnPayBookingPaymentUrl(string bookingId, string customerId, string ipAddress);
         public Task HandleVnPayIPN(VnPayIPN vnPayIPN);
     }
 }

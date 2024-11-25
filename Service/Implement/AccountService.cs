@@ -5,79 +5,59 @@ using Microsoft.Extensions.Logging;
 using VietWay.Repository.EntityModel;
 using VietWay.Repository.EntityModel.Base;
 using VietWay.Repository.UnitOfWork;
-using VietWay.Service.Interface;
-using VietWay.Util.IdHelper;
+using VietWay.Service.Management.DataTransferObject;
+using VietWay.Service.Management.Interface;
+using VietWay.Util.HashUtil;
+using VietWay.Util.IdUtil;
+using VietWay.Util.TokenUtil;
 
-namespace VietWay.Service.Implement
+namespace VietWay.Service.Management.Implement
 {
-    public class AccountService(IUnitOfWork unitOfWork, IIdGenerator idGenerator, ILogger<AccountService> logger) : IAccountService
+    public class AccountService(IUnitOfWork unitOfWork, ILogger<AccountService> logger, IHashHelper hashHelper, ITokenHelper tokenHelper) : IAccountService
     {
         private readonly IUnitOfWork _unitOfWork = unitOfWork;
         private readonly ILogger<AccountService> _logger = logger;
-        private readonly IIdGenerator _idGenerator = idGenerator;
-        public async Task<Account?> LoginByPhone(string phone, string password)
+        private readonly IHashHelper _hashHelper = hashHelper;
+        private readonly ITokenHelper _tokenHelper = tokenHelper;
+        public async Task<CredentialDTO?> LoginAsync(string emailOrPhone, string password)
         {
             Account? account = await _unitOfWork.AccountRepository
                 .Query()
-                .SingleOrDefaultAsync(x => x.PhoneNumber.Equals(phone) && x.Password.Equals(password));
-            return account;
-        }
-        
-        public async Task<Account?> LoginByEmailAsync(string email, string password)
-        {
-            Account? account = await _unitOfWork.AccountRepository
-                .Query()
-                .SingleOrDefaultAsync(x => x.Email.Equals(email));
-
-            if (account == null)
+                .SingleOrDefaultAsync(x => (x.PhoneNumber.Equals(emailOrPhone) || x.Email.Equals(emailOrPhone)) && false == x.IsDeleted);
+            if (account == null || false == _hashHelper.Verify(password, account.Password))
             {
                 return null;
             }
-
-            bool isPasswordValid = VerifyPasswordHash(password, account.Password);
-
-            return isPasswordValid ? account : null;
-        }
-
-        private bool VerifyPasswordHash(string password, string storedHash)
-        {
-            return BCrypt.Net.BCrypt.Verify(password, storedHash);
-        }
-
-        public async Task<string> CreateCustomerAccountAsync(Account account, Customer customer)
-        {
-            if (account == null)
+            string fullName = string.Empty;
+            switch (account.Role)
             {
-                throw new ArgumentNullException(nameof(account), "Account cannot be null");
+                case UserRole.Staff:
+                    Staff? staff = await _unitOfWork.StaffRepository
+                        .Query()
+                        .SingleOrDefaultAsync(x => x.StaffId == account.AccountId);
+                    if (staff != null)
+                    {
+                        fullName = staff.FullName;
+                    }
+                    break;
+                case UserRole.Manager:
+                    Manager? manager = await _unitOfWork.ManagerRepository
+                        .Query()
+                        .SingleOrDefaultAsync(x => x.ManagerId == account.AccountId);
+                    if (manager != null)
+                    {
+                        fullName = manager.FullName;
+                    }
+                    break;
             }
-
-            Account newAccount = new Account
+            CredentialDTO credential = new()
             {
-                AccountId = _idGenerator.GenerateId(),
-                Email = account.Email,
-                Password = HashPassword(account.Password),
-                PhoneNumber = account.PhoneNumber,
-                CreatedAt = DateTime.UtcNow,
-                Role = UserRole.Customer
+                AvatarUrl = default!,
+                FullName = fullName,
+                Role = account.Role,
+                Token = _tokenHelper.GenerateAuthenticationToken(account.AccountId, account.Role.ToString())
             };
-
-            Customer newCustomer = new Customer
-            {
-                CustomerId = newAccount.AccountId,
-                FullName = customer.FullName,
-                DateOfBirth = customer.DateOfBirth,
-                ProvinceId = customer.ProvinceId,
-                Gender = customer.Gender,
-            };
-
-            await _unitOfWork.AccountRepository.Create(newAccount);
-            await _unitOfWork.CustomerInfoRepository.Create(newCustomer);
-            return account.AccountId;
-        }
-
-        private string HashPassword(string password)
-        {
-            return BCrypt.Net.BCrypt.HashPassword(password);
+            return credential;
         }
     }
 }

@@ -1,38 +1,105 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using VietWay.API.Management.ResponseModel;
-using VietWay.Service.Interface;
+using VietWay.Repository.EntityModel.Base;
+using VietWay.Util.TokenUtil;
+using VietWay.Service.Management.Interface;
+using VietWay.Service.Management.DataTransferObject;
 
 namespace VietWay.API.Management.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/staff")]
     [ApiController]
-    public class StaffController(IStaffService staffService, IMapper mapper) : ControllerBase
+    public class StaffController(IStaffService staffService,
+        ITokenHelper tokenHelper,
+        IMapper mapper) : ControllerBase
     {
         private readonly IStaffService _staffService = staffService;
         private readonly IMapper _mapper = mapper;
+        private readonly ITokenHelper _tokenHelper = tokenHelper;
 
         [HttpGet]
         [Produces("application/json")]
-        [ProducesResponseType<DefaultResponseModel<DefaultPageResponse<StaffInfoPreview>>>(StatusCodes.Status200OK)]
-        public async Task<IActionResult> GetAllStaffInfosAsync(int pageSize, int pageIndex)
+        [Authorize(Roles = nameof(UserRole.Manager))]
+        [ProducesResponseType<DefaultResponseModel<PaginatedList<StaffPreviewDTO>>>(StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetAllStaffInfosAsync(string? nameSearch,
+            int? pageSize,
+            int? pageIndex)
         {
-            var result = await _staffService.GetAllStaffInfos(pageSize, pageIndex);
-            List<StaffInfoPreview> staffInfoPreviews = _mapper.Map<List<StaffInfoPreview>>(result.items);
-            DefaultPageResponse<StaffInfoPreview> pagedResponse = new()
+            string? accountId = _tokenHelper.GetAccountIdFromToken(HttpContext);
+            if (string.IsNullOrWhiteSpace(accountId))
             {
-                Total = result.totalCount,
-                PageSize = pageSize,
-                PageIndex = pageIndex,
-                Items = staffInfoPreviews
-            };
-            DefaultResponseModel<DefaultPageResponse<StaffInfoPreview>> response = new()
+                return Unauthorized(new DefaultResponseModel<object>
+                {
+                    Message = "Unauthorized",
+                    StatusCode = StatusCodes.Status401Unauthorized
+                });
+            }
+
+            int checkedPageSize = pageSize ?? 10;
+            int checkedPageIndex = pageIndex ?? 1;
+
+            (int totalCount, List<StaffPreviewDTO> items) = await _staffService.GetAllStaffInfos(
+                nameSearch, checkedPageSize, checkedPageIndex);
+            return Ok(new DefaultResponseModel<PaginatedList<StaffPreviewDTO>>()
             {
-                Data = pagedResponse,
-                Message = "Get all staff info successfully",
+                Message = "Success",
+                Data = new PaginatedList<StaffPreviewDTO>
+                {
+                    Items = items,
+                    PageSize = checkedPageSize,
+                    PageIndex = checkedPageIndex,
+                    Total = totalCount
+                },
                 StatusCode = StatusCodes.Status200OK
-            };
-            return Ok(response);
+            });
+        }
+
+        /// <summary>
+        /// ✅🔐[Manager] Change staff status
+        /// </summary>
+        /// <returns>Staff status changed</returns>
+        /// <response code="200">Return staff account status changed</response>
+        /// <response code="400">Bad request</response>
+        [HttpPatch("change-staff-status/{staffId}")]
+        [Authorize(Roles = nameof(UserRole.Manager))]
+        [Produces("application/json")]
+        [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status200OK)]
+        public async Task<IActionResult> ChangeStaffAccountStatusAsync(string staffId, bool isDeleted)
+        {
+            string? accountId = _tokenHelper.GetAccountIdFromToken(HttpContext);
+            if (string.IsNullOrWhiteSpace(accountId))
+            {
+                return Unauthorized(new DefaultResponseModel<object>
+                {
+                    Message = "Unauthorized",
+                    StatusCode = StatusCodes.Status401Unauthorized
+                });
+            }
+
+            await _staffService.ChangeStaffStatusAsync(staffId, isDeleted);
+            return Ok();
+        }
+
+        [HttpPatch("change-staff-password")]
+        [Authorize(Roles = nameof(UserRole.Staff))]
+        [Produces("application/json")]
+        [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status200OK)]
+        public async Task<IActionResult> ChangeStaffPasswordAsync(string oldPassword, string newPassword)
+        {
+            string? accountId = _tokenHelper.GetAccountIdFromToken(HttpContext);
+            if (string.IsNullOrWhiteSpace(accountId))
+            {
+                return Unauthorized(new DefaultResponseModel<object>
+                {
+                    Message = "Unauthorized",
+                    StatusCode = StatusCodes.Status401Unauthorized
+                });
+            }
+
+            await _staffService.StaffChangePassword(accountId, oldPassword, newPassword);
+            return Ok();
         }
     }
 }

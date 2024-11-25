@@ -4,14 +4,16 @@ using VietWay.Repository.EntityModel.Base;
 
 namespace VietWay.Repository.EntityModel
 {
-    public class Staff : CreatedByEntity<Manager>
+    public class Staff : SoftDeleteEntity
     {
         [Key]
         [ForeignKey(nameof(Account))]
         [StringLength(20)]
-        public required string StaffId { get; set; }
+        [Required]
+        public string? StaffId { get; set; }
         [StringLength(100)]
-        public required string FullName { get; set; }
+        [Required]
+        public string? FullName { get; set; }
 
         public virtual Account? Account { get; set; }
     }

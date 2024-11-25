@@ -53,23 +53,14 @@ namespace VietWay.Repository.Migrations
 
                     b.HasKey("AccountId");
 
-                    b.ToTable("Account");
-                });
+                    b.HasIndex("Email")
+                        .IsUnique()
+                        .HasFilter("[Email] IS NOT NULL");
 
-            modelBuilder.Entity("VietWay.Repository.EntityModel.Admin", b =>
-                {
-                    b.Property<string>("AdminId")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                    b.HasIndex("PhoneNumber")
+                        .IsUnique();
 
-                    b.Property<string>("FullName")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.HasKey("AdminId");
-
-                    b.ToTable("Admin");
+                    b.ToTable("Account", (string)null);
                 });
 
             modelBuilder.Entity("VietWay.Repository.EntityModel.Attraction", b =>
@@ -79,30 +70,21 @@ namespace VietWay.Repository.Migrations
                         .HasColumnType("nvarchar(20)");
 
                     b.Property<string>("Address")
-                        .IsRequired()
                         .HasMaxLength(255)
                         .HasColumnType("nvarchar(255)");
 
-                    b.Property<string>("AttractionTypeId")
-                        .IsRequired()
+                    b.Property<string>("AttractionCategoryId")
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
 
                     b.Property<string>("ContactInfo")
-                        .IsRequired()
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
 
-                    b.Property<string>("CreatedBy")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
-                    b.Property<DateTime>("CreatedDate")
+                    b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Description")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("GooglePlaceId")
@@ -113,12 +95,10 @@ namespace VietWay.Repository.Migrations
                         .HasColumnType("bit");
 
                     b.Property<string>("Name")
-                        .IsRequired()
                         .HasMaxLength(255)
                         .HasColumnType("nvarchar(255)");
 
                     b.Property<string>("ProvinceId")
-                        .IsRequired()
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
 
@@ -131,30 +111,130 @@ namespace VietWay.Repository.Migrations
 
                     b.HasKey("AttractionId");
 
-                    b.HasIndex("AttractionTypeId");
-
-                    b.HasIndex("CreatedBy");
+                    b.HasIndex("AttractionCategoryId");
 
                     b.HasIndex("ProvinceId");
 
-                    b.ToTable("Attraction");
+                    b.ToTable("Attraction", (string)null);
+                });
+
+            modelBuilder.Entity("VietWay.Repository.EntityModel.AttractionCategory", b =>
+                {
+                    b.Property<string>("AttractionCategoryId")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.HasKey("AttractionCategoryId");
+
+                    b.ToTable("AttractionCategory", (string)null);
                 });
 
             modelBuilder.Entity("VietWay.Repository.EntityModel.AttractionImage", b =>
                 {
-                    b.Property<string>("AttractionId")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
                     b.Property<string>("ImageId")
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
 
-                    b.HasKey("AttractionId", "ImageId");
+                    b.Property<string>("AttractionId")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
 
-                    b.HasIndex("ImageId");
+                    b.Property<string>("ImageUrl")
+                        .IsRequired()
+                        .HasMaxLength(2048)
+                        .HasColumnType("nvarchar(2048)");
 
-                    b.ToTable("AttractionImage");
+                    b.HasKey("ImageId");
+
+                    b.HasIndex("AttractionId");
+
+                    b.ToTable("AttractionImage", (string)null);
+                });
+
+            modelBuilder.Entity("VietWay.Repository.EntityModel.AttractionLike", b =>
+                {
+                    b.Property<string>("AttractionId")
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<string>("CustomerId")
+                        .HasColumnType("nvarchar(20)");
+
+                    b.HasKey("AttractionId", "CustomerId");
+
+                    b.HasIndex("CustomerId");
+
+                    b.ToTable("AttractionLike", (string)null);
+                });
+
+            modelBuilder.Entity("VietWay.Repository.EntityModel.AttractionReview", b =>
+                {
+                    b.Property<string>("ReviewId")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<string>("AttractionId")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CustomerId")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("Rating")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Review")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("ReviewId");
+
+                    b.HasIndex("CustomerId");
+
+                    b.HasIndex("AttractionId", "CustomerId")
+                        .IsUnique();
+
+                    b.ToTable("AttractionReview", (string)null);
+                });
+
+            modelBuilder.Entity("VietWay.Repository.EntityModel.AttractionReviewLike", b =>
+                {
+                    b.Property<string>("ReviewId")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<string>("CustomerId")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.HasKey("ReviewId", "CustomerId");
+
+                    b.HasIndex("CustomerId");
+
+                    b.ToTable("AttractionReviewLike", (string)null);
                 });
 
             modelBuilder.Entity("VietWay.Repository.EntityModel.AttractionSchedule", b =>
@@ -174,40 +254,66 @@ namespace VietWay.Repository.Migrations
 
                     b.HasIndex("AttractionId");
 
-                    b.ToTable("AttractionSchedule");
+                    b.ToTable("AttractionSchedule", (string)null);
                 });
 
-            modelBuilder.Entity("VietWay.Repository.EntityModel.AttractionType", b =>
+            modelBuilder.Entity("VietWay.Repository.EntityModel.Booking", b =>
                 {
-                    b.Property<string>("AttractionTypeId")
+                    b.Property<string>("BookingId")
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
 
-                    b.Property<string>("CreatedBy")
+                    b.Property<string>("ContactAddress")
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.Property<string>("ContactEmail")
                         .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasMaxLength(320)
+                        .HasColumnType("nvarchar(320)");
 
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Name")
+                    b.Property<string>("ContactFullName")
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
-                    b.HasKey("AttractionTypeId");
+                    b.Property<string>("ContactPhoneNumber")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
 
-                    b.HasIndex("CreatedBy");
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
 
-                    b.ToTable("AttractionType");
+                    b.Property<string>("CustomerId")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<string>("Note")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("NumberOfParticipants")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("TotalPrice")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("TourId")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.HasKey("BookingId");
+
+                    b.HasIndex("CustomerId");
+
+                    b.HasIndex("TourId");
+
+                    b.ToTable("Booking", (string)null);
                 });
 
             modelBuilder.Entity("VietWay.Repository.EntityModel.BookingPayment", b =>
@@ -230,7 +336,7 @@ namespace VietWay.Repository.Migrations
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
 
-                    b.Property<DateTime>("CreateOn")
+                    b.Property<DateTime>("CreateAt")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Note")
@@ -249,12 +355,17 @@ namespace VietWay.Repository.Migrations
 
                     b.HasIndex("BookingId");
 
-                    b.ToTable("BookingPayment");
+                    b.ToTable("BookingPayment", (string)null);
                 });
 
-            modelBuilder.Entity("VietWay.Repository.EntityModel.BookingTourParticipant", b =>
+            modelBuilder.Entity("VietWay.Repository.EntityModel.BookingTourist", b =>
                 {
-                    b.Property<string>("ParticipantId")
+                    b.Property<string>("TouristId")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<string>("BookingId")
+                        .IsRequired()
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
 
@@ -263,7 +374,8 @@ namespace VietWay.Repository.Migrations
 
                     b.Property<string>("FullName")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<int>("Gender")
                         .HasColumnType("int");
@@ -279,16 +391,14 @@ namespace VietWay.Repository.Migrations
                         .HasMaxLength(10)
                         .HasColumnType("nvarchar(10)");
 
-                    b.Property<string>("TourBookingId")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                    b.Property<decimal>("Price")
+                        .HasColumnType("decimal(18,2)");
 
-                    b.HasKey("ParticipantId");
+                    b.HasKey("TouristId");
 
-                    b.HasIndex("TourBookingId");
+                    b.HasIndex("BookingId");
 
-                    b.ToTable("BookingTourParticipant");
+                    b.ToTable("BookingTourist", (string)null);
                 });
 
             modelBuilder.Entity("VietWay.Repository.EntityModel.Customer", b =>
@@ -320,67 +430,58 @@ namespace VietWay.Repository.Migrations
 
                     b.HasIndex("ProvinceId");
 
-                    b.ToTable("Customer");
+                    b.ToTable("Customer", (string)null);
                 });
 
-            modelBuilder.Entity("VietWay.Repository.EntityModel.CustomerFeedback", b =>
+            modelBuilder.Entity("VietWay.Repository.EntityModel.EntityHistory", b =>
                 {
-                    b.Property<string>("FeedbackId")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
 
-                    b.Property<string>("BookingId")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
-                    b.Property<string>("Feedback")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
-
-                    b.Property<int>("Rating")
+                    b.Property<int>("Action")
                         .HasColumnType("int");
 
-                    b.HasKey("FeedbackId");
-
-                    b.HasIndex("BookingId")
-                        .IsUnique();
-
-                    b.ToTable("CustomerFeedback");
-                });
-
-            modelBuilder.Entity("VietWay.Repository.EntityModel.Image", b =>
-                {
-                    b.Property<string>("ImageId")
+                    b.Property<string>("EntityId")
+                        .IsRequired()
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
 
-                    b.Property<string>("ContentType")
+                    b.Property<int>("EntityType")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ModifiedBy")
                         .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
 
-                    b.Property<string>("FileName")
-                        .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)");
+                    b.Property<int>("ModifierRole")
+                        .HasColumnType("int");
 
-                    b.Property<string>("PublicId")
-                        .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)");
+                    b.Property<string>("Reason")
+                        .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Url")
-                        .IsRequired()
-                        .HasMaxLength(2048)
-                        .HasColumnType("nvarchar(2048)");
+                    b.Property<DateTime>("Timestamp")
+                        .HasColumnType("datetime2");
 
-                    b.HasKey("ImageId");
+                    b.HasKey("Id");
 
-                    b.ToTable("Image");
+                    b.ToTable("EntityHistory", (string)null);
+                });
+
+            modelBuilder.Entity("VietWay.Repository.EntityModel.EntityStatusHistory", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("NewStatus")
+                        .HasColumnType("int");
+
+                    b.Property<int>("OldStatus")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("EntityStatusHistory", (string)null);
                 });
 
             modelBuilder.Entity("VietWay.Repository.EntityModel.Manager", b =>
@@ -388,14 +489,6 @@ namespace VietWay.Repository.Migrations
                     b.Property<string>("ManagerId")
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
-
-                    b.Property<string>("CreatedBy")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("datetime2");
 
                     b.Property<string>("FullName")
                         .IsRequired()
@@ -407,9 +500,97 @@ namespace VietWay.Repository.Migrations
 
                     b.HasKey("ManagerId");
 
-                    b.HasIndex("CreatedBy");
+                    b.ToTable("Manager", (string)null);
+                });
 
-                    b.ToTable("Manager");
+            modelBuilder.Entity("VietWay.Repository.EntityModel.Post", b =>
+                {
+                    b.Property<string>("PostId")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<string>("Content")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("FacebookPostId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ImageUrl")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("PostCategoryId")
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<string>("ProvinceId")
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Title")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("XTweetId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("PostId");
+
+                    b.HasIndex("PostCategoryId");
+
+                    b.HasIndex("ProvinceId");
+
+                    b.ToTable("Post", (string)null);
+                });
+
+            modelBuilder.Entity("VietWay.Repository.EntityModel.PostCategory", b =>
+                {
+                    b.Property<string>("PostCategoryId")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("PostCategoryId");
+
+                    b.ToTable("PostCategory", (string)null);
+                });
+
+            modelBuilder.Entity("VietWay.Repository.EntityModel.PostLike", b =>
+                {
+                    b.Property<string>("PostId")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<string>("CustomerId")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.HasKey("PostId", "CustomerId");
+
+                    b.HasIndex("CustomerId");
+
+                    b.ToTable("PostLike", (string)null);
                 });
 
             modelBuilder.Entity("VietWay.Repository.EntityModel.Province", b =>
@@ -418,21 +599,29 @@ namespace VietWay.Repository.Migrations
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
 
-                    b.Property<string>("ImageId")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
 
-                    b.Property<string>("ProvinceName")
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ImageUrl")
+                        .IsRequired()
+                        .HasMaxLength(2048)
+                        .HasColumnType("nvarchar(2048)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
                     b.HasKey("ProvinceId");
 
-                    b.HasIndex("ImageId");
-
-                    b.ToTable("Province");
+                    b.ToTable("Province", (string)null);
                 });
 
             modelBuilder.Entity("VietWay.Repository.EntityModel.Staff", b =>
@@ -440,14 +629,6 @@ namespace VietWay.Repository.Migrations
                     b.Property<string>("StaffId")
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
-
-                    b.Property<string>("CreatedBy")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("datetime2");
 
                     b.Property<string>("FullName")
                         .IsRequired()
@@ -459,9 +640,7 @@ namespace VietWay.Repository.Migrations
 
                     b.HasKey("StaffId");
 
-                    b.HasIndex("CreatedBy");
-
-                    b.ToTable("Staff");
+                    b.ToTable("Staff", (string)null);
                 });
 
             modelBuilder.Entity("VietWay.Repository.EntityModel.Tour", b =>
@@ -470,37 +649,34 @@ namespace VietWay.Repository.Migrations
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
 
-                    b.Property<string>("CreatedBy")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
-                    b.Property<DateTime>("CreatedDate")
+                    b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
                     b.Property<int>("CurrentParticipant")
                         .HasColumnType("int");
 
-                    b.Property<DateTime>("EndDate")
-                        .HasColumnType("datetime2");
+                    b.Property<decimal?>("DefaultTouristPrice")
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
-                    b.Property<int>("MaxParticipant")
+                    b.Property<int?>("MaxParticipant")
                         .HasColumnType("int");
 
-                    b.Property<int>("MinParticipant")
+                    b.Property<int?>("MinParticipant")
                         .HasColumnType("int");
 
-                    b.Property<decimal>("Price")
-                        .HasColumnType("decimal(18,2)");
+                    b.Property<DateTime?>("RegisterCloseDate")
+                        .HasColumnType("datetime2");
 
-                    b.Property<DateTime>("StartDate")
+                    b.Property<DateTime?>("RegisterOpenDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("StartDate")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("StartLocation")
-                        .IsRequired()
                         .HasMaxLength(255)
                         .HasColumnType("nvarchar(255)");
 
@@ -514,70 +690,9 @@ namespace VietWay.Repository.Migrations
 
                     b.HasKey("TourId");
 
-                    b.HasIndex("CreatedBy");
-
                     b.HasIndex("TourTemplateId");
 
-                    b.ToTable("Tour");
-                });
-
-            modelBuilder.Entity("VietWay.Repository.EntityModel.TourBooking", b =>
-                {
-                    b.Property<string>("BookingId")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
-                    b.Property<string>("ContactAddress")
-                        .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)");
-
-                    b.Property<string>("ContactEmail")
-                        .IsRequired()
-                        .HasMaxLength(320)
-                        .HasColumnType("nvarchar(320)");
-
-                    b.Property<string>("ContactFullName")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<string>("ContactPhoneNumber")
-                        .IsRequired()
-                        .HasMaxLength(10)
-                        .HasColumnType("nvarchar(10)");
-
-                    b.Property<DateTime>("CreatedOn")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("CustomerId")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
-                    b.Property<string>("Note")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("NumberOfParticipants")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("int");
-
-                    b.Property<decimal>("TotalPrice")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<string>("TourId")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
-                    b.HasKey("BookingId");
-
-                    b.HasIndex("CustomerId");
-
-                    b.HasIndex("TourId");
-
-                    b.ToTable("TourBooking");
+                    b.ToTable("Tour", (string)null);
                 });
 
             modelBuilder.Entity("VietWay.Repository.EntityModel.TourCategory", b =>
@@ -586,13 +701,12 @@ namespace VietWay.Repository.Migrations
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
 
-                    b.Property<string>("CreatedBy")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
-                    b.Property<DateTime>("CreatedDate")
+                    b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
@@ -604,9 +718,7 @@ namespace VietWay.Repository.Migrations
 
                     b.HasKey("TourCategoryId");
 
-                    b.HasIndex("CreatedBy");
-
-                    b.ToTable("TourCategory");
+                    b.ToTable("TourCategory", (string)null);
                 });
 
             modelBuilder.Entity("VietWay.Repository.EntityModel.TourDuration", b =>
@@ -615,17 +727,112 @@ namespace VietWay.Repository.Migrations
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
 
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("DurationName")
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
 
                     b.Property<int>("NumberOfDay")
                         .HasColumnType("int");
 
                     b.HasKey("DurationId");
 
-                    b.ToTable("TourDuration");
+                    b.ToTable("TourDuration", (string)null);
+                });
+
+            modelBuilder.Entity("VietWay.Repository.EntityModel.TourPrice", b =>
+                {
+                    b.Property<string>("PriceId")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<int>("AgeFrom")
+                        .HasColumnType("int");
+
+                    b.Property<int>("AgeTo")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<decimal>("Price")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("TourId")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.HasKey("PriceId");
+
+                    b.HasIndex("TourId");
+
+                    b.ToTable("TourPrice", (string)null);
+                });
+
+            modelBuilder.Entity("VietWay.Repository.EntityModel.TourRefundPolicy", b =>
+                {
+                    b.Property<string>("TourRefundPolicyId")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<DateTime>("CancelBefore")
+                        .HasColumnType("datetime2");
+
+                    b.Property<decimal>("RefundPercent")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("TourId")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.HasKey("TourRefundPolicyId");
+
+                    b.HasIndex("TourId");
+
+                    b.ToTable("TourRefundPolicy", (string)null);
+                });
+
+            modelBuilder.Entity("VietWay.Repository.EntityModel.TourReview", b =>
+                {
+                    b.Property<string>("ReviewId")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<string>("BookingId")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsPublic")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("Rating")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Review")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("ReviewId");
+
+                    b.HasIndex("BookingId")
+                        .IsUnique();
+
+                    b.ToTable("TourReview", (string)null);
                 });
 
             modelBuilder.Entity("VietWay.Repository.EntityModel.TourTemplate", b =>
@@ -635,73 +842,68 @@ namespace VietWay.Repository.Migrations
                         .HasColumnType("nvarchar(20)");
 
                     b.Property<string>("Code")
-                        .IsRequired()
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
 
-                    b.Property<string>("CreatedBy")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
-                    b.Property<DateTime>("CreatedDate")
+                    b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Description")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("DurationId")
-                        .IsRequired()
                         .HasColumnType("nvarchar(20)");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
-                    b.Property<string>("Note")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<decimal?>("MaxPrice")
+                        .HasColumnType("decimal(18,2)");
 
-                    b.Property<string>("Policy")
-                        .IsRequired()
+                    b.Property<decimal?>("MinPrice")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("Note")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("Status")
                         .HasColumnType("int");
 
                     b.Property<string>("TourCategoryId")
-                        .IsRequired()
                         .HasColumnType("nvarchar(20)");
 
                     b.Property<string>("TourName")
-                        .IsRequired()
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
 
                     b.HasKey("TourTemplateId");
 
-                    b.HasIndex("CreatedBy");
-
                     b.HasIndex("DurationId");
 
                     b.HasIndex("TourCategoryId");
 
-                    b.ToTable("TourTemplate");
+                    b.ToTable("TourTemplate", (string)null);
                 });
 
             modelBuilder.Entity("VietWay.Repository.EntityModel.TourTemplateImage", b =>
                 {
-                    b.Property<string>("TourTemplateId")
-                        .HasColumnType("nvarchar(20)");
-
                     b.Property<string>("ImageId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("ImageUrl")
+                        .IsRequired()
+                        .HasMaxLength(2048)
+                        .HasColumnType("nvarchar(2048)");
+
+                    b.Property<string>("TourTemplateId")
+                        .IsRequired()
                         .HasColumnType("nvarchar(20)");
 
-                    b.HasKey("TourTemplateId", "ImageId");
+                    b.HasKey("ImageId");
 
-                    b.HasIndex("ImageId");
+                    b.HasIndex("TourTemplateId");
 
-                    b.ToTable("TourTemplateImage");
+                    b.ToTable("TourTemplateImage", (string)null);
                 });
 
             modelBuilder.Entity("VietWay.Repository.EntityModel.TourTemplateProvince", b =>
@@ -716,7 +918,7 @@ namespace VietWay.Repository.Migrations
 
                     b.HasIndex("ProvinceId");
 
-                    b.ToTable("TourTemplateProvince");
+                    b.ToTable("TourTemplateProvince", (string)null);
                 });
 
             modelBuilder.Entity("VietWay.Repository.EntityModel.TourTemplateSchedule", b =>
@@ -737,43 +939,20 @@ namespace VietWay.Repository.Migrations
 
                     b.HasKey("TourTemplateId", "DayNumber");
 
-                    b.ToTable("TourTemplateSchedule");
-                });
-
-            modelBuilder.Entity("VietWay.Repository.EntityModel.Admin", b =>
-                {
-                    b.HasOne("VietWay.Repository.EntityModel.Account", "Account")
-                        .WithMany()
-                        .HasForeignKey("AdminId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Account");
+                    b.ToTable("TourTemplateSchedule", (string)null);
                 });
 
             modelBuilder.Entity("VietWay.Repository.EntityModel.Attraction", b =>
                 {
-                    b.HasOne("VietWay.Repository.EntityModel.AttractionType", "AttractionType")
+                    b.HasOne("VietWay.Repository.EntityModel.AttractionCategory", "AttractionCategory")
                         .WithMany("Attractions")
-                        .HasForeignKey("AttractionTypeId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("VietWay.Repository.EntityModel.Staff", "Creator")
-                        .WithMany()
-                        .HasForeignKey("CreatedBy")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .HasForeignKey("AttractionCategoryId");
 
                     b.HasOne("VietWay.Repository.EntityModel.Province", "Province")
-                        .WithMany()
-                        .HasForeignKey("ProvinceId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .WithMany("Attractions")
+                        .HasForeignKey("ProvinceId");
 
-                    b.Navigation("AttractionType");
-
-                    b.Navigation("Creator");
+                    b.Navigation("AttractionCategory");
 
                     b.Navigation("Province");
                 });
@@ -783,18 +962,67 @@ namespace VietWay.Repository.Migrations
                     b.HasOne("VietWay.Repository.EntityModel.Attraction", "Attraction")
                         .WithMany("AttractionImages")
                         .HasForeignKey("AttractionId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("VietWay.Repository.EntityModel.Image", "Image")
-                        .WithMany()
-                        .HasForeignKey("ImageId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                    b.Navigation("Attraction");
+                });
+
+            modelBuilder.Entity("VietWay.Repository.EntityModel.AttractionLike", b =>
+                {
+                    b.HasOne("VietWay.Repository.EntityModel.Attraction", "Attraction")
+                        .WithMany("AttractionLikes")
+                        .HasForeignKey("AttractionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("VietWay.Repository.EntityModel.Customer", "Customer")
+                        .WithMany("AttractionLikes")
+                        .HasForeignKey("CustomerId")
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Attraction");
 
-                    b.Navigation("Image");
+                    b.Navigation("Customer");
+                });
+
+            modelBuilder.Entity("VietWay.Repository.EntityModel.AttractionReview", b =>
+                {
+                    b.HasOne("VietWay.Repository.EntityModel.Attraction", "Attraction")
+                        .WithMany("AttractionReviews")
+                        .HasForeignKey("AttractionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("VietWay.Repository.EntityModel.Customer", "Customer")
+                        .WithMany()
+                        .HasForeignKey("CustomerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Attraction");
+
+                    b.Navigation("Customer");
+                });
+
+            modelBuilder.Entity("VietWay.Repository.EntityModel.AttractionReviewLike", b =>
+                {
+                    b.HasOne("VietWay.Repository.EntityModel.Customer", "Customer")
+                        .WithMany("AttractionReviewLikes")
+                        .HasForeignKey("CustomerId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("VietWay.Repository.EntityModel.AttractionReview", "AttractionReview")
+                        .WithMany("AttractionReviewLikes")
+                        .HasForeignKey("ReviewId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("AttractionReview");
+
+                    b.Navigation("Customer");
                 });
 
             modelBuilder.Entity("VietWay.Repository.EntityModel.AttractionSchedule", b =>
@@ -802,13 +1030,13 @@ namespace VietWay.Repository.Migrations
                     b.HasOne("VietWay.Repository.EntityModel.Attraction", "Attraction")
                         .WithMany()
                         .HasForeignKey("AttractionId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("VietWay.Repository.EntityModel.TourTemplateSchedule", "TourTemplateSchedule")
                         .WithMany("AttractionSchedules")
                         .HasForeignKey("TourTemplateId", "DayNumber")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Attraction");
@@ -816,149 +1044,18 @@ namespace VietWay.Repository.Migrations
                     b.Navigation("TourTemplateSchedule");
                 });
 
-            modelBuilder.Entity("VietWay.Repository.EntityModel.AttractionType", b =>
-                {
-                    b.HasOne("VietWay.Repository.EntityModel.Manager", "Creator")
-                        .WithMany()
-                        .HasForeignKey("CreatedBy")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Creator");
-                });
-
-            modelBuilder.Entity("VietWay.Repository.EntityModel.BookingPayment", b =>
-                {
-                    b.HasOne("VietWay.Repository.EntityModel.TourBooking", "TourBooking")
-                        .WithMany("BookingPayments")
-                        .HasForeignKey("BookingId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("TourBooking");
-                });
-
-            modelBuilder.Entity("VietWay.Repository.EntityModel.BookingTourParticipant", b =>
-                {
-                    b.HasOne("VietWay.Repository.EntityModel.TourBooking", "TourBooking")
-                        .WithMany("BookingTourParticipants")
-                        .HasForeignKey("TourBookingId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("TourBooking");
-                });
-
-            modelBuilder.Entity("VietWay.Repository.EntityModel.Customer", b =>
-                {
-                    b.HasOne("VietWay.Repository.EntityModel.Account", "Account")
-                        .WithMany()
-                        .HasForeignKey("CustomerId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("VietWay.Repository.EntityModel.Province", "Province")
-                        .WithMany()
-                        .HasForeignKey("ProvinceId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Account");
-
-                    b.Navigation("Province");
-                });
-
-            modelBuilder.Entity("VietWay.Repository.EntityModel.CustomerFeedback", b =>
-                {
-                    b.HasOne("VietWay.Repository.EntityModel.TourBooking", "Booking")
-                        .WithOne("CustomerFeedback")
-                        .HasForeignKey("VietWay.Repository.EntityModel.CustomerFeedback", "BookingId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Booking");
-                });
-
-            modelBuilder.Entity("VietWay.Repository.EntityModel.Manager", b =>
-                {
-                    b.HasOne("VietWay.Repository.EntityModel.Admin", "Creator")
-                        .WithMany()
-                        .HasForeignKey("CreatedBy")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("VietWay.Repository.EntityModel.Account", "Account")
-                        .WithMany()
-                        .HasForeignKey("ManagerId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Account");
-
-                    b.Navigation("Creator");
-                });
-
-            modelBuilder.Entity("VietWay.Repository.EntityModel.Province", b =>
-                {
-                    b.HasOne("VietWay.Repository.EntityModel.Image", "Image")
-                        .WithMany()
-                        .HasForeignKey("ImageId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Image");
-                });
-
-            modelBuilder.Entity("VietWay.Repository.EntityModel.Staff", b =>
-                {
-                    b.HasOne("VietWay.Repository.EntityModel.Manager", "Creator")
-                        .WithMany()
-                        .HasForeignKey("CreatedBy")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("VietWay.Repository.EntityModel.Account", "Account")
-                        .WithMany()
-                        .HasForeignKey("StaffId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Account");
-
-                    b.Navigation("Creator");
-                });
-
-            modelBuilder.Entity("VietWay.Repository.EntityModel.Tour", b =>
-                {
-                    b.HasOne("VietWay.Repository.EntityModel.Staff", "Creator")
-                        .WithMany()
-                        .HasForeignKey("CreatedBy")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("VietWay.Repository.EntityModel.TourTemplate", "TourTemplate")
-                        .WithMany("Tours")
-                        .HasForeignKey("TourTemplateId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Creator");
-
-                    b.Navigation("TourTemplate");
-                });
-
-            modelBuilder.Entity("VietWay.Repository.EntityModel.TourBooking", b =>
+            modelBuilder.Entity("VietWay.Repository.EntityModel.Booking", b =>
                 {
                     b.HasOne("VietWay.Repository.EntityModel.Customer", "CustomerInfo")
-                        .WithMany()
+                        .WithMany("Bookings")
                         .HasForeignKey("CustomerId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("VietWay.Repository.EntityModel.Tour", "Tour")
-                        .WithMany("Bookings")
+                        .WithMany("TourBookings")
                         .HasForeignKey("TourId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("CustomerInfo");
@@ -966,38 +1063,167 @@ namespace VietWay.Repository.Migrations
                     b.Navigation("Tour");
                 });
 
-            modelBuilder.Entity("VietWay.Repository.EntityModel.TourCategory", b =>
+            modelBuilder.Entity("VietWay.Repository.EntityModel.BookingPayment", b =>
                 {
-                    b.HasOne("VietWay.Repository.EntityModel.Manager", "Creator")
-                        .WithMany()
-                        .HasForeignKey("CreatedBy")
-                        .OnDelete(DeleteBehavior.Restrict)
+                    b.HasOne("VietWay.Repository.EntityModel.Booking", "Booking")
+                        .WithMany("BookingPayments")
+                        .HasForeignKey("BookingId")
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Creator");
+                    b.Navigation("Booking");
+                });
+
+            modelBuilder.Entity("VietWay.Repository.EntityModel.BookingTourist", b =>
+                {
+                    b.HasOne("VietWay.Repository.EntityModel.Booking", "Booking")
+                        .WithMany("BookingTourists")
+                        .HasForeignKey("BookingId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Booking");
+                });
+
+            modelBuilder.Entity("VietWay.Repository.EntityModel.Customer", b =>
+                {
+                    b.HasOne("VietWay.Repository.EntityModel.Account", "Account")
+                        .WithMany()
+                        .HasForeignKey("CustomerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("VietWay.Repository.EntityModel.Province", "Province")
+                        .WithMany()
+                        .HasForeignKey("ProvinceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Account");
+
+                    b.Navigation("Province");
+                });
+
+            modelBuilder.Entity("VietWay.Repository.EntityModel.EntityStatusHistory", b =>
+                {
+                    b.HasOne("VietWay.Repository.EntityModel.EntityHistory", "EntityHistory")
+                        .WithMany()
+                        .HasForeignKey("Id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("EntityHistory");
+                });
+
+            modelBuilder.Entity("VietWay.Repository.EntityModel.Manager", b =>
+                {
+                    b.HasOne("VietWay.Repository.EntityModel.Account", "Account")
+                        .WithMany()
+                        .HasForeignKey("ManagerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Account");
+                });
+
+            modelBuilder.Entity("VietWay.Repository.EntityModel.Post", b =>
+                {
+                    b.HasOne("VietWay.Repository.EntityModel.PostCategory", "PostCategory")
+                        .WithMany("Posts")
+                        .HasForeignKey("PostCategoryId");
+
+                    b.HasOne("VietWay.Repository.EntityModel.Province", "Province")
+                        .WithMany("Posts")
+                        .HasForeignKey("ProvinceId");
+
+                    b.Navigation("PostCategory");
+
+                    b.Navigation("Province");
+                });
+
+            modelBuilder.Entity("VietWay.Repository.EntityModel.PostLike", b =>
+                {
+                    b.HasOne("VietWay.Repository.EntityModel.Customer", "Customer")
+                        .WithMany("PostLikes")
+                        .HasForeignKey("CustomerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("VietWay.Repository.EntityModel.Post", "Post")
+                        .WithMany("PostLikes")
+                        .HasForeignKey("PostId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Customer");
+
+                    b.Navigation("Post");
+                });
+
+            modelBuilder.Entity("VietWay.Repository.EntityModel.Staff", b =>
+                {
+                    b.HasOne("VietWay.Repository.EntityModel.Account", "Account")
+                        .WithMany()
+                        .HasForeignKey("StaffId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Account");
+                });
+
+            modelBuilder.Entity("VietWay.Repository.EntityModel.Tour", b =>
+                {
+                    b.HasOne("VietWay.Repository.EntityModel.TourTemplate", "TourTemplate")
+                        .WithMany("Tours")
+                        .HasForeignKey("TourTemplateId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("TourTemplate");
+                });
+
+            modelBuilder.Entity("VietWay.Repository.EntityModel.TourPrice", b =>
+                {
+                    b.HasOne("VietWay.Repository.EntityModel.Tour", "Tour")
+                        .WithMany("TourPrices")
+                        .HasForeignKey("TourId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Tour");
+                });
+
+            modelBuilder.Entity("VietWay.Repository.EntityModel.TourRefundPolicy", b =>
+                {
+                    b.HasOne("VietWay.Repository.EntityModel.Tour", "Tour")
+                        .WithMany("TourRefundPolicies")
+                        .HasForeignKey("TourId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Tour");
+                });
+
+            modelBuilder.Entity("VietWay.Repository.EntityModel.TourReview", b =>
+                {
+                    b.HasOne("VietWay.Repository.EntityModel.Booking", "Booking")
+                        .WithOne("TourReview")
+                        .HasForeignKey("VietWay.Repository.EntityModel.TourReview", "BookingId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Booking");
                 });
 
             modelBuilder.Entity("VietWay.Repository.EntityModel.TourTemplate", b =>
                 {
-                    b.HasOne("VietWay.Repository.EntityModel.Staff", "Creator")
-                        .WithMany()
-                        .HasForeignKey("CreatedBy")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
                     b.HasOne("VietWay.Repository.EntityModel.TourDuration", "TourDuration")
                         .WithMany()
-                        .HasForeignKey("DurationId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .HasForeignKey("DurationId");
 
                     b.HasOne("VietWay.Repository.EntityModel.TourCategory", "TourCategory")
-                        .WithMany()
-                        .HasForeignKey("TourCategoryId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Creator");
+                        .WithMany("TourTemplates")
+                        .HasForeignKey("TourCategoryId");
 
                     b.Navigation("TourCategory");
 
@@ -1006,19 +1232,11 @@ namespace VietWay.Repository.Migrations
 
             modelBuilder.Entity("VietWay.Repository.EntityModel.TourTemplateImage", b =>
                 {
-                    b.HasOne("VietWay.Repository.EntityModel.Image", "Image")
-                        .WithMany()
-                        .HasForeignKey("ImageId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
                     b.HasOne("VietWay.Repository.EntityModel.TourTemplate", "TourTemplate")
                         .WithMany("TourTemplateImages")
                         .HasForeignKey("TourTemplateId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("Image");
 
                     b.Navigation("TourTemplate");
                 });
@@ -1026,15 +1244,15 @@ namespace VietWay.Repository.Migrations
             modelBuilder.Entity("VietWay.Repository.EntityModel.TourTemplateProvince", b =>
                 {
                     b.HasOne("VietWay.Repository.EntityModel.Province", "Province")
-                        .WithMany()
+                        .WithMany("TourTemplateProvinces")
                         .HasForeignKey("ProvinceId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("VietWay.Repository.EntityModel.TourTemplate", "TourTemplate")
                         .WithMany("TourTemplateProvinces")
                         .HasForeignKey("TourTemplateId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Province");
@@ -1047,7 +1265,7 @@ namespace VietWay.Repository.Migrations
                     b.HasOne("VietWay.Repository.EntityModel.TourTemplate", "TourTemplate")
                         .WithMany("TourTemplateSchedules")
                         .HasForeignKey("TourTemplateId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("TourTemplate");
@@ -1056,25 +1274,73 @@ namespace VietWay.Repository.Migrations
             modelBuilder.Entity("VietWay.Repository.EntityModel.Attraction", b =>
                 {
                     b.Navigation("AttractionImages");
+
+                    b.Navigation("AttractionLikes");
+
+                    b.Navigation("AttractionReviews");
                 });
 
-            modelBuilder.Entity("VietWay.Repository.EntityModel.AttractionType", b =>
+            modelBuilder.Entity("VietWay.Repository.EntityModel.AttractionCategory", b =>
                 {
                     b.Navigation("Attractions");
                 });
 
-            modelBuilder.Entity("VietWay.Repository.EntityModel.Tour", b =>
+            modelBuilder.Entity("VietWay.Repository.EntityModel.AttractionReview", b =>
                 {
-                    b.Navigation("Bookings");
+                    b.Navigation("AttractionReviewLikes");
                 });
 
-            modelBuilder.Entity("VietWay.Repository.EntityModel.TourBooking", b =>
+            modelBuilder.Entity("VietWay.Repository.EntityModel.Booking", b =>
                 {
                     b.Navigation("BookingPayments");
 
-                    b.Navigation("BookingTourParticipants");
+                    b.Navigation("BookingTourists");
 
-                    b.Navigation("CustomerFeedback");
+                    b.Navigation("TourReview");
+                });
+
+            modelBuilder.Entity("VietWay.Repository.EntityModel.Customer", b =>
+                {
+                    b.Navigation("AttractionLikes");
+
+                    b.Navigation("AttractionReviewLikes");
+
+                    b.Navigation("Bookings");
+
+                    b.Navigation("PostLikes");
+                });
+
+            modelBuilder.Entity("VietWay.Repository.EntityModel.Post", b =>
+                {
+                    b.Navigation("PostLikes");
+                });
+
+            modelBuilder.Entity("VietWay.Repository.EntityModel.PostCategory", b =>
+                {
+                    b.Navigation("Posts");
+                });
+
+            modelBuilder.Entity("VietWay.Repository.EntityModel.Province", b =>
+                {
+                    b.Navigation("Attractions");
+
+                    b.Navigation("Posts");
+
+                    b.Navigation("TourTemplateProvinces");
+                });
+
+            modelBuilder.Entity("VietWay.Repository.EntityModel.Tour", b =>
+                {
+                    b.Navigation("TourBookings");
+
+                    b.Navigation("TourPrices");
+
+                    b.Navigation("TourRefundPolicies");
+                });
+
+            modelBuilder.Entity("VietWay.Repository.EntityModel.TourCategory", b =>
+                {
+                    b.Navigation("TourTemplates");
                 });
 
             modelBuilder.Entity("VietWay.Repository.EntityModel.TourTemplate", b =>

@@ -1,9 +1,9 @@
 ﻿using Microsoft.AspNetCore.Http;
 using VietWay.Repository.EntityModel;
 using VietWay.Repository.EntityModel.Base;
-using VietWay.Service.DataTransferObject;
+using VietWay.Service.Management.DataTransferObject;
 
-namespace VietWay.Service.Interface
+namespace VietWay.Service.Management.Interface
 {
     public interface ITourTemplateService
     {
@@ -38,5 +38,9 @@ namespace VietWay.Service.Interface
             decimal? maxPrice,
             int pageSize,
             int pageIndex);
+
+        public Task<List<TourTemplatePreviewDTO>> GetTourTemplatesPreviewRelatedToAttractionAsync(string attractionId, int previewCount);
+        Task UpdateTourTemplateImageAsync(string tourTemplateId, string staffId, List<IFormFile>? newImages, List<string>? deletedImageIds);
+        public Task ChangeTourTemplateStatusAsync(string tourTemplateId, string accountId, TourTemplateStatus templateStatus, string? reason);
     }
 }

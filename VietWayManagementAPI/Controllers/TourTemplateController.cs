@@ -1,44 +1,61 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using VietWay.API.Management.RequestModel;
 using VietWay.API.Management.ResponseModel;
 using VietWay.Repository.EntityModel;
 using VietWay.Repository.EntityModel.Base;
-using VietWay.Service.Interface;
+using VietWay.Service.Management.DataTransferObject;
+using VietWay.Service.Management.Interface;
+using VietWay.Util.TokenUtil;
 
 namespace VietWay.API.Management.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class TourTemplateController(ITourTemplateService tourTemplateService, IMapper mapper) : ControllerBase
+    public class TourTemplateController(ITourTemplateService tourTemplateService, IMapper mapper, ITokenHelper tokenHelper, ITourReviewService tourReviewService) : ControllerBase
     {
         private readonly ITourTemplateService _tourTemplateService = tourTemplateService;
         private readonly IMapper _mapper = mapper;
+        private readonly ITokenHelper _tokenHelper = tokenHelper;
+        private readonly ITourReviewService _tourReviewService = tourReviewService;
+
         [HttpGet]
+        [Authorize(Roles = $"{nameof(UserRole.Manager)}, {nameof(UserRole.Staff)}")]
         [Produces("application/json")]
-        [ProducesResponseType<DefaultResponseModel<DefaultPageResponse<TourTemplatePreview>>>(StatusCodes.Status200OK)]
+        [ProducesResponseType<DefaultResponseModel<PaginatedList<TourTemplatePreview>>>(StatusCodes.Status200OK)]
         public async Task<IActionResult> GetAllTemplatesAsync(
             string? nameSearch,
-            [FromQuery]List<string>? templateCategoryIds,
-            [FromQuery]List<string>? provinceIds,
-            [FromQuery]List<string>? durationIds,
+            [FromQuery] List<string>? templateCategoryIds,
+            [FromQuery] List<string>? provinceIds,
+            [FromQuery] List<string>? durationIds,
             TourTemplateStatus? status,
-            int? pageSize, 
+            int? pageSize,
             int? pageIndex)
         {
-            int checkedPageSize = (pageSize == null || pageSize < 1) ? 10 : (int)pageSize;
-            int checkedPageIndex = (pageIndex == null || pageIndex < 1)? 1 : (int)pageIndex;
-
-            var result = await _tourTemplateService.GetAllTemplatesAsync(nameSearch,templateCategoryIds,provinceIds,durationIds,status,checkedPageSize,checkedPageIndex);
-            List<TourTemplatePreview> tourTemplatePreviews = _mapper.Map<List<TourTemplatePreview>>(result.items);
-            DefaultPageResponse<TourTemplatePreview> pagedResponse = new()
+            string? accountId = _tokenHelper.GetAccountIdFromToken(HttpContext);
+            if (string.IsNullOrWhiteSpace(accountId))
             {
-                Total = result.totalCount,
+                return Unauthorized(new DefaultResponseModel<object>
+                {
+                    Message = "Unauthorized",
+                    StatusCode = StatusCodes.Status401Unauthorized
+                });
+            }
+
+            int checkedPageSize = (pageSize == null || pageSize < 1) ? 10 : (int)pageSize;
+            int checkedPageIndex = (pageIndex == null || pageIndex < 1) ? 1 : (int)pageIndex;
+
+            var (totalCount, items) = await _tourTemplateService.GetAllTemplatesAsync(nameSearch, templateCategoryIds, provinceIds, durationIds, status, checkedPageSize, checkedPageIndex);
+            List<TourTemplatePreview> tourTemplatePreviews = _mapper.Map<List<TourTemplatePreview>>(items);
+            PaginatedList<TourTemplatePreview> pagedResponse = new()
+            {
+                Total = totalCount,
                 PageSize = checkedPageSize,
                 PageIndex = checkedPageIndex,
                 Items = tourTemplatePreviews
             };
-            DefaultResponseModel<DefaultPageResponse<TourTemplatePreview>> response = new()
+            DefaultResponseModel<PaginatedList<TourTemplatePreview>> response = new()
             {
                 Data = pagedResponse,
                 Message = "Get all tour templates successfully",
@@ -47,11 +64,22 @@ namespace VietWay.API.Management.Controllers
             return Ok(response);
         }
         [HttpGet("{tourTemplateId}")]
+        [Authorize(Roles = $"{nameof(UserRole.Manager)}, {nameof(UserRole.Staff)}")]
         [Produces("application/json")]
         [ProducesResponseType<DefaultResponseModel<DefaultResponseModel<TourTemplateDetail>>>(StatusCodes.Status200OK)]
         [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetTourTemplateById(string tourTemplateId)
         {
+            string? accountId = _tokenHelper.GetAccountIdFromToken(HttpContext);
+            if (string.IsNullOrWhiteSpace(accountId))
+            {
+                return Unauthorized(new DefaultResponseModel<object>
+                {
+                    Message = "Unauthorized",
+                    StatusCode = StatusCodes.Status401Unauthorized
+                });
+            }
+
             TourTemplate? tourTemplate = await _tourTemplateService
                 .GetTemplateByIdAsync(tourTemplateId);
             if (tourTemplate == null)
@@ -62,7 +90,7 @@ namespace VietWay.API.Management.Controllers
                     Message = $"Can not find Tour template with id {tourTemplateId}"
                 };
                 return NotFound(response);
-            } 
+            }
             else
             {
                 DefaultResponseModel<TourTemplateDetail> response = new()
@@ -75,25 +103,47 @@ namespace VietWay.API.Management.Controllers
             }
         }
         [HttpPost]
+        [Authorize(Roles = $"{nameof(UserRole.Staff)}")]
         [Produces("application/json")]
         [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status200OK)]
-        public async Task<IActionResult> CreateTourTemplate([FromBody]CreateTourTemplateRequest request)
+        public async Task<IActionResult> CreateTourTemplate([FromBody] CreateTourTemplateRequest request)
         {
+            string? accountId = _tokenHelper.GetAccountIdFromToken(HttpContext);
+            if (string.IsNullOrWhiteSpace(accountId))
+            {
+                return Unauthorized(new DefaultResponseModel<object>
+                {
+                    Message = "Unauthorized",
+                    StatusCode = StatusCodes.Status401Unauthorized
+                });
+            }
+
             TourTemplate tourTemplate = _mapper.Map<TourTemplate>(request);
-            tourTemplate.CreatedBy = "1";
 #warning replace createdby with current user id in token
             await _tourTemplateService.CreateTemplateAsync(tourTemplate);
             return Ok(new DefaultResponseModel<object>()
             {
-                Message = "Tour created successfully",
-                StatusCode = StatusCodes.Status200OK
+                Message = "Tour template created successfully",
+                StatusCode = StatusCodes.Status200OK,
+                Data = tourTemplate.TourTemplateId
             });
         }
         [HttpPut("{tourTemplateId}")]
+        [Authorize(Roles = $"{nameof(UserRole.Staff)}")]
         [Produces("application/json")]
         [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status200OK)]
-        public async Task<IActionResult> UpdateTourTemplate(string tourTemplateId,CreateTourTemplateRequest request)
+        public async Task<IActionResult> UpdateTourTemplate(string tourTemplateId, CreateTourTemplateRequest request)
         {
+            string? accountId = _tokenHelper.GetAccountIdFromToken(HttpContext);
+            if (string.IsNullOrWhiteSpace(accountId))
+            {
+                return Unauthorized(new DefaultResponseModel<object>
+                {
+                    Message = "Unauthorized",
+                    StatusCode = StatusCodes.Status401Unauthorized
+                });
+            }
+
             TourTemplate? tourTemplate = await _tourTemplateService.GetTemplateByIdAsync(tourTemplateId);
             if (tourTemplate == null)
             {
@@ -120,13 +170,12 @@ namespace VietWay.API.Management.Controllers
                 };
                 return BadRequest(errorResponse);
             }
-            tourTemplate.Code = request.Code?? "";
-            tourTemplate.TourName = request.TourName ?? "";
-            tourTemplate.Description = request.Description ?? "";
+            tourTemplate.Code = request.Code;
+            tourTemplate.TourName = request.TourName;
+            tourTemplate.Description = request.Description;
             tourTemplate.DurationId = request.DurationId;
             tourTemplate.TourCategoryId = request.TourCategoryId;
-            tourTemplate.Policy = request.Policy ?? "";
-            tourTemplate.Note = request.Note ?? "";
+            tourTemplate.Note = request.Note;
             tourTemplate.TourTemplateProvinces?.Clear();
             foreach (string provinceId in request.ProvinceIds)
             {
@@ -138,14 +187,14 @@ namespace VietWay.API.Management.Controllers
                     });
             }
             List<TourTemplateSchedule> newSchedule = [];
-            foreach(var schedule in request.Schedules)
+            foreach (var schedule in request.Schedules)
             {
                 newSchedule.Add(new()
                 {
                     TourTemplateId = tourTemplateId,
                     DayNumber = schedule.DayNumber,
-                    Description = schedule.Description ?? "",
-                    Title = schedule.Title ?? "",
+                    Description = schedule.Description,
+                    Title = schedule.Title,
                     AttractionSchedules = schedule.AttractionIds.Select(x => new AttractionSchedule()
                     {
                         AttractionId = x,
@@ -162,11 +211,23 @@ namespace VietWay.API.Management.Controllers
                 StatusCode = StatusCodes.Status200OK
             });
         }
+
         [HttpDelete("{tourTemplateId}")]
+        [Authorize(Roles = $"{nameof(UserRole.Manager)}")]
         [Produces("application/json")]
         [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status200OK)]
         public async Task<IActionResult> DeleteTourTemplate(string tourTemplateId)
         {
+            string? accountId = _tokenHelper.GetAccountIdFromToken(HttpContext);
+            if (string.IsNullOrWhiteSpace(accountId))
+            {
+                return Unauthorized(new DefaultResponseModel<object>
+                {
+                    Message = "Unauthorized",
+                    StatusCode = StatusCodes.Status401Unauthorized
+                });
+            }
+
             TourTemplate? tourTemplate = await _tourTemplateService.GetTemplateByIdAsync(tourTemplateId);
             if (tourTemplate == null)
             {
@@ -182,6 +243,111 @@ namespace VietWay.API.Management.Controllers
                 Message = "Tour template deleted successfully",
                 StatusCode = StatusCodes.Status200OK
             });
+        }
+
+        [HttpPatch("{tourTemplateId}/images")]
+        [Authorize(Roles = $"{nameof(UserRole.Staff)}")]
+        [Produces("application/json")]
+        public async Task<IActionResult> UpdateTourTemplateImageAsync(string tourTemplateId, UpdateImageRequest request)
+        {
+            string? accountId = _tokenHelper.GetAccountIdFromToken(HttpContext);
+            if (accountId == null)
+            {
+                return Unauthorized(new DefaultResponseModel<string>()
+                {
+                    Message = "Unauthorized",
+                    Data = null,
+                    StatusCode = StatusCodes.Status401Unauthorized
+                });
+            }
+            if (0 == request.NewImages?.Count && 0 == request.DeletedImageIds?.Count)
+            {
+                DefaultResponseModel<object> errorResponse = new()
+                {
+                    Message = "Nothing to update",
+                    StatusCode = StatusCodes.Status400BadRequest
+                };
+                return BadRequest(errorResponse);
+            }
+            await _tourTemplateService.UpdateTourTemplateImageAsync(tourTemplateId, accountId, request.NewImages, request.DeletedImageIds);
+            return Ok(new DefaultResponseModel<string>()
+            {
+                Message = "Success",
+                Data = null,
+                StatusCode = StatusCodes.Status200OK
+            });
+        }
+
+        /// <summary>
+        /// ✅🔐[Manager] Change tour template status
+        /// </summary>
+        /// <returns>Tour template status changed</returns>
+        /// <response code="200">Return tour template status changed</response>
+        /// <response code="400">Bad request</response>
+        [HttpPatch("change-tour-template-status/{tourTemplateId}")]
+        [Authorize(Roles = $"{nameof(UserRole.Manager)}, {nameof(UserRole.Staff)}")]
+        [Produces("application/json")]
+        [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status200OK)]
+        public async Task<IActionResult> ChangePostStatusAsync(string tourTemplateId, ChangeTourTemplateStatusRequest request)
+        {
+            string? accountId = _tokenHelper.GetAccountIdFromToken(HttpContext);
+            if (string.IsNullOrWhiteSpace(accountId))
+            {
+                return Unauthorized(new DefaultResponseModel<object>
+                {
+                    Message = "Unauthorized",
+                    StatusCode = StatusCodes.Status401Unauthorized
+                });
+            }
+
+            await _tourTemplateService.ChangeTourTemplateStatusAsync(tourTemplateId, accountId, request.Status, request.Reason);
+            return Ok(new DefaultResponseModel<string>
+            {
+                Message = "Status change successfully",
+                StatusCode = StatusCodes.Status200OK,
+            });
+        }
+
+        [HttpGet("{tourTemplateId}/reviews")]
+        [Produces("application/json")]
+        [Authorize(Roles = $"{nameof(UserRole.Manager)}, {nameof(UserRole.Staff)}")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(DefaultResponseModel<PaginatedList<TourReviewDTO>>))]
+        public async Task<IActionResult> GetTourTemplateReviewAsync(string tourTemplateId, [FromQuery] List<int> ratingValue,
+            bool? hasReviewContent, int? pageSize, int? pageIndex, bool? isDeleted)
+        {
+            int checkedPageSize = (pageSize == null || pageSize < 1) ? 10 : (int)pageSize;
+            int checkedPageIndex = (pageIndex == null || pageIndex < 1) ? 1 : (int)pageIndex;
+            var (totalCount, items) = await _tourReviewService.GetTourReviewsAsync(tourTemplateId, ratingValue, hasReviewContent, checkedPageSize, checkedPageIndex, isDeleted);
+
+            return Ok(new DefaultResponseModel<PaginatedList<TourReviewDTO>>
+            {
+                Data = new()
+                {
+                    Total = totalCount,
+                    PageSize = checkedPageSize,
+                    PageIndex = checkedPageIndex,
+                    Items = items
+                },
+                Message = "Success",
+                StatusCode = StatusCodes.Status200OK
+            });
+        }
+
+        [Authorize(Roles = $"{nameof(UserRole.Manager)}")]
+        [HttpPatch("reviews/{reviewId}/hide")]
+        public async Task<IActionResult> ToggleReviewVisibilityAsync(string reviewId, [FromBody] HideReviewRequest request)
+        {
+            string? accountId = _tokenHelper.GetAccountIdFromToken(HttpContext);
+            if (string.IsNullOrWhiteSpace(accountId))
+            {
+                return Unauthorized(new DefaultResponseModel<object>
+                {
+                    Message = "Unauthorized",
+                    StatusCode = StatusCodes.Status401Unauthorized
+                });
+            }
+            await _tourReviewService.ToggleTourReviewVisibilityAsync(accountId, reviewId, request.IsHided, request.Reason);
+            return Ok();
         }
     }
 }

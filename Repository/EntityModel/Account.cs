@@ -1,4 +1,6 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using VietWay.Repository.EntityModel.Base;
 
 namespace VietWay.Repository.EntityModel
@@ -7,14 +9,19 @@ namespace VietWay.Repository.EntityModel
     {
         [Key]
         [StringLength(20)]
-        public required string AccountId { get; set; }
+        [Required]
+        public string? AccountId { get; set; }
         [StringLength(10)]
-        public required string PhoneNumber { get; set; }
+        [Required]
+        public string? PhoneNumber { get; set; }
         [StringLength(320)]
         public string? Email { get; set; }
         [StringLength(60)]
-        public required string Password { get; set; }
-        public required DateTime CreatedAt { get; set; }
-        public required UserRole Role { get; set; }
+        [Required]
+        public string? Password { get; set; }
+        [Required]
+        public DateTime CreatedAt { get; set; }
+        [Required]
+        public UserRole Role { get; set; }
     }
 }
