@@ -117,7 +117,7 @@ namespace VietWay.API.Management.Controllers
                 RegisterOpenDate = request.RegisterOpenDate,
                 StartDate = request.StartDate,
                 StartLocation = request.StartLocation,
-                TourPrices = request.TourPrices.Select(x => new TourPrice()
+                TourPrices = request.TourPrices.Select(x => new Repository.EntityModel.TourPrice()
                 {
                     AgeFrom = x.AgeFrom,
                     AgeTo = x.AgeTo,
@@ -191,6 +191,22 @@ namespace VietWay.API.Management.Controllers
                 StatusCode = StatusCodes.Status200OK
             };
             return Ok(response);
+        }
+
+        [HttpPut("edit-tour/{tourId}")]
+        [Produces("application/json")]
+        [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status200OK)]
+        public async Task<IActionResult> EditTourAsync(string tourId, EditTourRequest request)
+        {
+            Tour tour = _mapper.Map<Tour>(request);
+
+            await _tourService.EditTour(tourId, tour);
+            return Ok(new DefaultResponseModel<string>()
+            {
+                Message = "Edit tour successfully",
+                StatusCode = StatusCodes.Status200OK,
+                Data = ""
+            });
         }
     }
 }
