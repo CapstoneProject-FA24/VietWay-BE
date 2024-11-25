@@ -20,23 +20,28 @@ namespace VietWay.Service.Management.Implement
         {
             await _unitOfWork.BookingRepository.CreateAsync(tourBooking);
         }
-        public async Task CustomerCancelBookingAsync(string bookingId, string customerId, string? reason)
+        public async Task CancelBookingAsync(string bookingId, string managerId, string? reason)
         {
-            Booking? booking = await _unitOfWork
-                .BookingRepository
-                .Query()
-                .Where(x => x.BookingId == bookingId && x.CustomerId == customerId)
-                .SingleOrDefaultAsync() ?? throw new ResourceNotFoundException("Booking not found");
-            if (booking.Status != BookingStatus.Pending && booking.Status != BookingStatus.Confirmed)
-            {
-                throw new InvalidOperationException("Cannot cancel booking that is not pending or confirmed");
-            }
-            int oldStatus = (int)booking.Status;
-            booking.Status = BookingStatus.Cancelled;
-            string entityHistoryId = _idGenerator.GenerateId();
             try
             {
+                Manager manager = await _unitOfWork.ManagerRepository.Query().SingleOrDefaultAsync(x => x.ManagerId == managerId)
+                    ?? throw new UnauthorizedException("You are not allowed to perform this action");
                 await _unitOfWork.BeginTransactionAsync();
+
+                Booking booking = _unitOfWork.BookingRepository.Query()
+                    .Include(x => x.Tour)
+                    .SingleOrDefault(x => x.BookingId.Equals(bookingId))
+                    ?? throw new ResourceNotFoundException("Booking not found");
+                if (booking.Status != BookingStatus.Pending && booking.Status != BookingStatus.Confirmed)
+                {
+                    throw new InvalidOperationException("Cannot cancel booking that is not pending or confirmed");
+                }
+                int oldStatus = (int)booking.Status;
+                if (booking.Status == BookingStatus.Pending) booking.Status = BookingStatus.Cancelled;
+                if (booking.Status == BookingStatus.Confirmed) booking.Status = BookingStatus.PendingRefund;
+
+                booking.Tour.CurrentParticipant -= booking.NumberOfParticipants;
+                string entityHistoryId = _idGenerator.GenerateId();
                 await _unitOfWork.EntityStatusHistoryRepository.CreateAsync(new EntityStatusHistory()
                 {
                     Id = entityHistoryId,
@@ -49,11 +54,12 @@ namespace VietWay.Service.Management.Implement
                         EntityId = bookingId,
                         EntityType = EntityType.Booking,
                         Timestamp = _timeZoneHelper.GetUTC7Now(),
-                        ModifiedBy = customerId,
-                        ModifierRole = UserRole.Customer,
+                        ModifiedBy = managerId,
+                        ModifierRole = UserRole.Manager,
                         Reason = reason,
                     }
                 });
+
                 await _unitOfWork.BookingRepository.UpdateAsync(booking);
                 await _unitOfWork.CommitTransactionAsync();
             }
@@ -217,11 +223,11 @@ namespace VietWay.Service.Management.Implement
 
                 result.RefundAmount = refundAmount;
             }
-            
+
             return result;
         }
 
-        public async Task<(int count, List<BookingPreviewDTO>)> GetBookingsAsync(BookingStatus? bookingStatus, int pageCount, int pageIndex, string? bookingIdSearch, string? contactNameSearch, string? contactPhoneSearc)
+        public async Task<(int count, List<BookingPreviewDTO>)> GetBookingsAsync(BookingStatus? bookingStatus, int pageCount, int pageIndex, string? bookingIdSearch, string? contactNameSearch, string? contactPhoneSearch, string? tourIdSearch)
         {
             IQueryable<Booking> query = _unitOfWork
                 .BookingRepository
@@ -241,9 +247,13 @@ namespace VietWay.Service.Management.Implement
             {
                 query = query.Where(x => x.ContactFullName.Contains(contactNameSearch));
             }
-            if (!string.IsNullOrWhiteSpace(contactPhoneSearc))
+            if (!string.IsNullOrWhiteSpace(contactPhoneSearch))
             {
-                query = query.Where(x => x.ContactPhoneNumber.Contains(contactPhoneSearc));
+                query = query.Where(x => x.ContactPhoneNumber.Contains(contactPhoneSearch));
+            }
+            if (!string.IsNullOrWhiteSpace(tourIdSearch))
+            {
+                query = query.Where(x => x.TourId.Equals(tourIdSearch));
             }
             int count = await query.CountAsync();
             List<BookingPreviewDTO> items = await query
@@ -283,15 +293,24 @@ namespace VietWay.Service.Management.Implement
                 .SingleOrDefaultAsync(x => x.EntityHistory.EntityId == bookingId && x.EntityHistory.Action == EntityModifyAction.ChangeStatus && x.NewStatus == (int)BookingStatus.PendingRefund)
                 ?? throw new ResourceNotFoundException("Entity status history not found");
 
-            DateTime cancelTime = entityStatusHistory.EntityHistory.Timestamp;
+            decimal refundAmount = 0;
 
-            TourRefundPolicy tourRefundPolicy = await _unitOfWork.TourRefundPolicyRepository.Query()
-                .OrderBy(x => x.CancelBefore)
-                .FirstOrDefaultAsync(x => x.CancelBefore > cancelTime && x.TourId == booking.TourId)
-                ?? throw new ResourceNotFoundException("Refund policy not found");
+            if (entityStatusHistory.EntityHistory.ModifierRole == UserRole.Manager)
+            {
+                refundAmount = booking.TotalPrice;
+            }
+            else
+            {
+                DateTime cancelTime = entityStatusHistory.EntityHistory.Timestamp;
 
+                TourRefundPolicy tourRefundPolicy = await _unitOfWork.TourRefundPolicyRepository.Query()
+                    .OrderBy(x => x.CancelBefore)
+                    .FirstOrDefaultAsync(x => x.CancelBefore > cancelTime && x.TourId == booking.TourId)
+                    ?? throw new ResourceNotFoundException("Refund policy not found");
 
-            decimal refundAmount = tourRefundPolicy.RefundPercent * booking.TotalPrice / 100;
+                refundAmount = tourRefundPolicy.RefundPercent * booking.TotalPrice / 100;
+            }
+            
             try
             {
                 bookingPayment.PaymentId ??= _idGenerator.GenerateId();
