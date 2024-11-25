@@ -29,6 +29,7 @@ namespace VietWay.API.Management.Controllers
         /// </summary>
         /// <response code="200">Success</response>
         [HttpGet]
+        [Authorize(Roles = $"{nameof(UserRole.Manager)},{nameof(UserRole.Staff)}")]
         [Produces("application/json")]
         [ProducesResponseType<DefaultResponseModel<PaginatedList<TourPreview>>>(StatusCodes.Status200OK)]
         public async Task<IActionResult> GetAllTourAsync(
@@ -64,12 +65,13 @@ namespace VietWay.API.Management.Controllers
         /// <response code="200">Success</response>
         /// <response code="404">Not found</response>
         [HttpGet("{tourId}")]
+        [Authorize(Roles = $"{nameof(UserRole.Manager)},{nameof(UserRole.Staff)}")]
         [Produces("application/json")]
-        [ProducesResponseType<DefaultResponseModel<DefaultResponseModel<TourDetail>>>(StatusCodes.Status200OK)]
+        [ProducesResponseType<DefaultResponseModel<DefaultResponseModel<TourDetailDTO>>>(StatusCodes.Status200OK)]
         [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetTourById(string tourId)
         {
-            Tour? tour = await _tourService
+            TourDetailDTO? tour = await _tourService
                 .GetTourById(tourId);
             if (tour == null)
             {
@@ -82,11 +84,11 @@ namespace VietWay.API.Management.Controllers
             }
             else
             {
-                DefaultResponseModel<TourDetail> response = new()
+                DefaultResponseModel<TourDetailDTO> response = new()
                 {
                     StatusCode = StatusCodes.Status200OK,
                     Message = "Get tour template successfully",
-                    Data = _mapper.Map<TourDetail>(tour)
+                    Data = tour
                 };
                 return Ok(response);
             }
@@ -98,6 +100,7 @@ namespace VietWay.API.Management.Controllers
         /// <response code="201">Created</response>
         /// <response code="400">Bad request</response>
         [HttpPost]
+        [Authorize(Roles = $"{nameof(UserRole.Staff)}")]
         [Produces("application/json")]
         [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status201Created)]
         public async Task<IActionResult> CreateTourAsync([FromBody] CreateTourRequest request)
@@ -178,13 +181,14 @@ namespace VietWay.API.Management.Controllers
         /// </summary>
         /// <response code="200">Success</response>
         [HttpGet("get-by-template-id/{tourTemplateId}")]
+        [Authorize(Roles = $"{nameof(UserRole.Manager)},{nameof(UserRole.Staff)}")]
         [Produces("application/json")]
-        [ProducesResponseType<DefaultResponseModel<List<TourPreviewDTO>>>(StatusCodes.Status200OK)]
+        [ProducesResponseType<DefaultResponseModel<List<TourDetailDTO>>>(StatusCodes.Status200OK)]
         public async Task<IActionResult> GetAllToursByTemplateIdsAsync(string tourTemplateId)
         {
-            List<TourPreviewDTO> tours = await _tourService.GetAllToursByTemplateIdsAsync(tourTemplateId);
+            List<TourDetailDTO> tours = await _tourService.GetAllToursByTemplateIdsAsync(tourTemplateId);
 
-            DefaultResponseModel<List<TourPreviewDTO>> response = new()
+            DefaultResponseModel<List<TourDetailDTO>> response = new()
             {
                 Data = tours,
                 Message = "Get all tour successfully",
