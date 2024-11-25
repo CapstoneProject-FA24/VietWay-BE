@@ -98,7 +98,6 @@ namespace VietWay.Service.Management.Implement
                 .Take(pageSize)
                 .Include(x => x.TourTemplate)
                 .ThenInclude(x => x.TourTemplateImages)
-
                 .Select(x => new TourPreviewDTO
                 {
                     TourId = x.TourId,
@@ -119,12 +118,42 @@ namespace VietWay.Service.Management.Implement
             return (count, items);
         }
 
-        public async Task<Tour?> GetTourById(string id)
+        public async Task<TourDetailDTO?> GetTourById(string id)
         {
             return await _unitOfWork.TourRepository
                 .Query()
                 .Include(x => x.TourTemplate)
-                .ThenInclude(x => x.TourTemplateImages)
+                .Include(x => x.TourPrices)
+                .Include(x => x.TourRefundPolicies)
+                .Include(x => x.TourBookings)
+                .Select(x => new TourDetailDTO
+                {
+                    TourId = x.TourId,
+                    TourTemplateId = x.TourTemplateId,
+                    StartLocation = x.StartLocation,
+                    StartDate = x.StartDate,
+                    DefaultTouristPrice = x.DefaultTouristPrice,
+                    MaxParticipant = x.MaxParticipant,
+                    MinParticipant = x.MinParticipant,
+                    CurrentParticipant = x.CurrentParticipant,
+                    Status = x.Status,
+                    RegisterOpenDate = x.RegisterOpenDate,
+                    RegisterCloseDate = x.RegisterCloseDate,
+                    CreatedAt = x.CreatedAt,
+                    TotalBookings = x.TourBookings.Count,
+                    TourPrices = x.TourPrices.Select(y => new TourPriceDTO
+                    {
+                        AgeFrom = y.AgeFrom,
+                        AgeTo = y.AgeTo,
+                        Name = y.Name,
+                        Price = y.Price
+                    }).ToList(),
+                    TourPolicies = x.TourRefundPolicies.Select(y => new TourPolicyPreviewDTO
+                    {
+                        CancelBefore = y.CancelBefore,
+                        RefundPercent = y.RefundPercent
+                    }).ToList()
+                })
                 .SingleOrDefaultAsync(x => x.TourId.Equals(id));
         }
 
@@ -143,28 +172,43 @@ namespace VietWay.Service.Management.Implement
                 .ToListAsync();
             return (count, items);
         }
-        public async Task<List<TourPreviewDTO>> GetAllToursByTemplateIdsAsync(
+
+        public async Task<List<TourDetailDTO>> GetAllToursByTemplateIdsAsync(
             string tourTemplateId)
         {
-            List<TourPreviewDTO> items = await _unitOfWork.TourRepository.Query()
+            List<TourDetailDTO> items = await _unitOfWork.TourRepository.Query()
                 .Include(x => x.TourTemplate)
-                .ThenInclude(x => x.TourTemplateImages)
+                .Include(x => x.TourPrices)
+                .Include(x => x.TourRefundPolicies)
+                .Include(x => x.TourBookings)
                 .Where(x => x.TourTemplateId.Equals(tourTemplateId) && x.IsDeleted == false)
-                .Select(x => new TourPreviewDTO
+                .Select(x => new TourDetailDTO
                 {
                     TourId = x.TourId,
                     TourTemplateId = x.TourTemplateId,
-                    Code = x.TourTemplate.Code,
-                    TourName = x.TourTemplate.TourName,
-                    Duration = x.TourTemplate.TourDuration.DurationName,
-                    ImageUrl = x.TourTemplate.TourTemplateImages.FirstOrDefault().ImageUrl,
                     StartLocation = x.StartLocation,
                     StartDate = x.StartDate,
                     DefaultTouristPrice = x.DefaultTouristPrice,
                     MaxParticipant = x.MaxParticipant,
                     MinParticipant = x.MinParticipant,
                     CurrentParticipant = x.CurrentParticipant,
-                    Status = x.Status
+                    Status = x.Status,
+                    RegisterOpenDate = x.RegisterOpenDate,
+                    RegisterCloseDate = x.RegisterCloseDate,
+                    CreatedAt = x.CreatedAt,
+                    TotalBookings = x.TourBookings.Count,
+                    TourPrices = x.TourPrices.Select(y => new TourPriceDTO
+                    {
+                        AgeFrom = y.AgeFrom,
+                        AgeTo = y.AgeTo,
+                        Name = y.Name,
+                        Price = y.Price
+                    }).ToList(),
+                    TourPolicies = x.TourRefundPolicies.Select(y => new TourPolicyPreviewDTO
+                    {
+                        CancelBefore = y.CancelBefore,
+                        RefundPercent = y.RefundPercent
+                    }).ToList()
                 })
                 .ToListAsync();
             return items;
