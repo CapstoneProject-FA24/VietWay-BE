@@ -221,7 +221,7 @@ namespace VietWay.Service.Management.Implement
             return result;
         }
 
-        public async Task<(int count, List<BookingPreviewDTO>)> GetBookingsAsync(BookingStatus? bookingStatus, int pageCount, int pageIndex, string? bookingIdSearch, string? contactNameSearch, string? contactPhoneSearc)
+        public async Task<(int count, List<BookingPreviewDTO>)> GetBookingsAsync(BookingStatus? bookingStatus, int pageCount, int pageIndex, string? bookingIdSearch, string? contactNameSearch, string? contactPhoneSearch, string? tourIdSearch)
         {
             IQueryable<Booking> query = _unitOfWork
                 .BookingRepository
@@ -241,9 +241,13 @@ namespace VietWay.Service.Management.Implement
             {
                 query = query.Where(x => x.ContactFullName.Contains(contactNameSearch));
             }
-            if (!string.IsNullOrWhiteSpace(contactPhoneSearc))
+            if (!string.IsNullOrWhiteSpace(contactPhoneSearch))
             {
-                query = query.Where(x => x.ContactPhoneNumber.Contains(contactPhoneSearc));
+                query = query.Where(x => x.ContactPhoneNumber.Contains(contactPhoneSearch));
+            }
+            if (!string.IsNullOrWhiteSpace(contactPhoneSearch))
+            {
+                query = query.Where(x => x.TourId.Equals(tourIdSearch));
             }
             int count = await query.CountAsync();
             List<BookingPreviewDTO> items = await query

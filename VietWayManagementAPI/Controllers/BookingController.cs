@@ -31,12 +31,12 @@ namespace VietWay.API.Management.Controllers
         public async Task<IActionResult> GetBookings(
             BookingStatus? bookingStatus,
             int? pageCount, int? pageIndex,
-            string? bookingIdSearch, string? contactNameSearch, string? contactPhoneSearch)
+            string? bookingIdSearch, string? contactNameSearch, string? contactPhoneSearch, string? tourIdSearch)
         {
             int checkedPageSize = (pageCount.HasValue && pageCount.Value > 0) ? pageCount.Value : 10;
             int checkedPageIndex = (pageIndex.HasValue && pageIndex.Value > 0) ? pageIndex.Value : 1;
 
-            var (totalCount, items) = await _bookingService.GetBookingsAsync(bookingStatus, checkedPageSize, checkedPageIndex, bookingIdSearch, contactNameSearch, contactPhoneSearch);
+            var (totalCount, items) = await _bookingService.GetBookingsAsync(bookingStatus, checkedPageSize, checkedPageIndex, bookingIdSearch, contactNameSearch, contactPhoneSearch, tourIdSearch);
 
             return Ok(new DefaultResponseModel<PaginatedList<BookingPreviewDTO>>()
             {
