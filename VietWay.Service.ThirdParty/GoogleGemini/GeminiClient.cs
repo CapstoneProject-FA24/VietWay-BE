@@ -37,7 +37,7 @@ namespace VietWay.Service.ThirdParty.GoogleGemini
             {
                 chatRequest.SystemInstruction = new SystemInstruction { Parts = new Part() { Text = SystemPrompt } };
             }
-            HttpResponseMessage response = await _httpClient.PostAsJsonAsync($":generateContent?key={_apiKey}", chatRequest);
+            HttpResponseMessage response = await _httpClient.PostAsJsonAsync($"v1beta/models/gemini-1.5-flash-latest:generateContent?key={_apiKey}", chatRequest);
             response.EnsureSuccessStatusCode();
             JsonDocument jsonDocument = await JsonDocument.ParseAsync(await response.Content.ReadAsStreamAsync());
             JsonElement root = jsonDocument.RootElement;
@@ -55,7 +55,7 @@ namespace VietWay.Service.ThirdParty.GoogleGemini
             {
                 chatRequest.SystemInstruction = new SystemInstruction { Parts = new Part() { Text = SystemPrompt } };
             }
-            HttpResponseMessage response = await _httpClient.PostAsJsonAsync($":generateContent?key={_apiKey}",chatRequest);
+            HttpResponseMessage response = await _httpClient.PostAsJsonAsync($"v1beta/models/gemini-1.5-flash-latest:generateContent?key={_apiKey}",chatRequest);
             response.EnsureSuccessStatusCode();
             JsonDocument jsonDocument = await JsonDocument.ParseAsync(await response.Content.ReadAsStreamAsync());
             JsonElement root = jsonDocument.RootElement;

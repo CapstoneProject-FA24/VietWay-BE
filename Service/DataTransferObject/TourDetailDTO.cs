@@ -10,14 +10,10 @@ using VietWay.Repository.EntityModel.Base;
 
 namespace VietWay.Service.Management.DataTransferObject
 {
-    public class TourPreviewDTO
+    public class TourDetailDTO
     {
         public string TourId { get; set; }
         public string TourTemplateId { get; set; }
-        public string Code { get; set; }
-        public string TourName { get; set; }
-        public string Duration { get; set; }
-        public string ImageUrl { get; set; }
         public string StartLocation { get; set; }
         public DateTime? StartDate { get; set; }
         public decimal? DefaultTouristPrice { get; set; }
@@ -25,5 +21,26 @@ namespace VietWay.Service.Management.DataTransferObject
         public int? MinParticipant { get; set; }
         public int? CurrentParticipant { get; set; }
         public TourStatus Status { get; set; }
+        public DateTime? RegisterOpenDate { get; set; }
+        public DateTime? RegisterCloseDate { get; set; }
+        public DateTime CreatedAt { get; set; }
+        public int TotalBookings { get; set; }
+        public ICollection<TourPolicyPreviewDTO>? TourPolicies{ get; set; }
+        public ICollection<TourPriceDTO>? TourPrices { get; set; }
+    }
+
+    public class TourPolicyPreviewDTO
+    {
+        public DateTime? CancelBefore { get; set; }
+        public decimal? RefundPercent { get; set; }
+    }
+
+    public class TourPriceDTO
+    {
+        public string? PriceId { get; set; }
+        public string? Name { get; set; }
+        public decimal Price { get; set; }
+        public int AgeFrom { get; set; }
+        public int AgeTo { get; set; }
     }
 }

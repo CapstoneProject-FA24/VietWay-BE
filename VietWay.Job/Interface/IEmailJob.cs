@@ -5,11 +5,11 @@ using System.Text;
 using System.Threading.Tasks;
 using VietWay.Repository.EntityModel;
 
-namespace VietWay.Job.Customer.Interface
+namespace VietWay.Job.Interface
 {
     public interface IEmailJob
     {
-        public Task SendBookingConfirmationEmail(Booking booking);
+        public Task SendBookingConfirmationEmail(string bookingId, DateTime paymentDeadline);
         public Task SendBookingCancellationEmail(Booking booking);
     }
 }

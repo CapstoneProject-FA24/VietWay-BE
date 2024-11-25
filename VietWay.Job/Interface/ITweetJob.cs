@@ -6,8 +6,8 @@ using System.Threading.Tasks;
 
 namespace VietWay.Job.Interface
 {
-    public interface IBookingJob
+    public interface ITweetJob
     {
-        public Task CheckBookingForExpirationAsync(string bookingId);
+        public Task GetPublishedTweetsJob();
     }
 }
