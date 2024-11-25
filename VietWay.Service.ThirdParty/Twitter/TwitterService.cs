@@ -63,7 +63,8 @@ namespace VietWay.Service.ThirdParty.Twitter
         {
             using var httpClient = new HttpClient();
             httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _bearerToken);
-            var response = await httpClient.GetAsync($"https://api.twitter.com/2/tweets?ids={tweetIds}&tweet.fields=public_metrics");
+            string ids = string.Join(",", tweetIds);
+            var response = await httpClient.GetAsync($"https://api.twitter.com/2/tweets?ids={ids}&tweet.fields=public_metrics");
 
             if (!response.IsSuccessStatusCode)
             {
