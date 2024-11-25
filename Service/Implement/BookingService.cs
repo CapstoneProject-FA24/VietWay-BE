@@ -245,7 +245,7 @@ namespace VietWay.Service.Management.Implement
             {
                 query = query.Where(x => x.ContactPhoneNumber.Contains(contactPhoneSearch));
             }
-            if (!string.IsNullOrWhiteSpace(contactPhoneSearch))
+            if (!string.IsNullOrWhiteSpace(tourIdSearch))
             {
                 query = query.Where(x => x.TourId.Equals(tourIdSearch));
             }
