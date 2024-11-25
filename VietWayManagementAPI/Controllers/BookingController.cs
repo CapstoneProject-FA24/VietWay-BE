@@ -8,6 +8,7 @@ using VietWay.Repository.EntityModel;
 using VietWay.Repository.EntityModel.Base;
 using VietWay.Service.Management.DataTransferObject;
 using VietWay.Service.Management.Interface;
+using VietWay.Util.CustomExceptions;
 using VietWay.Util.TokenUtil;
 using UserRole = VietWay.Repository.EntityModel.Base.UserRole;
 
@@ -98,6 +99,48 @@ namespace VietWay.API.Management.Controllers
                 Message = "Create refund transaction successfully",
                 StatusCode = StatusCodes.Status200OK
             });
+        }
+
+        [HttpPatch("{bookingId}")]
+        [Produces("application/json")]
+        [Authorize(Roles = nameof(UserRole.Manager))]
+        [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status200OK)]
+        public async Task<IActionResult> CancelBooking(string bookingId, CancelBookingRequest cancelBookingRequest)
+        {
+            string? managerId = _tokenHelper.GetAccountIdFromToken(HttpContext);
+            if (managerId == null)
+            {
+                return Unauthorized(new DefaultResponseModel<object>()
+                {
+                    Message = "Unauthorized",
+                    StatusCode = StatusCodes.Status401Unauthorized
+                });
+            }
+            try
+            {
+                await _bookingService.CancelBookingAsync(bookingId, managerId, cancelBookingRequest.Reason);
+                return Ok(new DefaultResponseModel<object>()
+                {
+                    Message = "Booking cancelled successfully",
+                    StatusCode = StatusCodes.Status200OK
+                });
+            }
+            catch (InvalidOperationException)
+            {
+                return BadRequest(new DefaultResponseModel<object>()
+                {
+                    Message = "Booking is not cancellable",
+                    StatusCode = StatusCodes.Status400BadRequest
+                });
+            }
+            catch (ResourceNotFoundException)
+            {
+                return NotFound(new DefaultResponseModel<object>()
+                {
+                    Message = "Can not find booking with id",
+                    StatusCode = StatusCodes.Status404NotFound
+                });
+            }
         }
     }
 }
