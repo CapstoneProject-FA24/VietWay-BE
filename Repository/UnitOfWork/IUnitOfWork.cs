@@ -29,6 +29,7 @@ namespace VietWay.Repository.UnitOfWork
         public IGenericRepository<TourReview> TourReviewRepository { get; }
         public IGenericRepository<TourTemplate> TourTemplateRepository { get; }
         public IGenericRepository<TourTemplateProvince> TourTemplateProvinceRepository { get; }
+        public IGenericRepository<TourPrice> TourPriceRepository { get; }   
         public IGenericRepository<TourRefundPolicy> TourRefundPolicyRepository { get; }
 
         public Task BeginTransactionAsync();

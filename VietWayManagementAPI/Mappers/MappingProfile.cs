@@ -164,6 +164,31 @@ namespace VietWay.API.Management.Mappers
                     CreatedAt = DateTime.MinValue,
                     IsDeleted = false,
                 }));
+
+            CreateMap<EditTourRequest, Tour>()
+                .ForMember(dest => dest.StartLocation, opt => opt.MapFrom(src => src.StartLocation))
+                .ForMember(dest => dest.StartDate, opt => opt.MapFrom(src => src.StartDate))
+                .ForMember(dest => dest.DefaultTouristPrice, opt => opt.MapFrom(src => src.DefaultTouristPrice))
+                .ForMember(dest => dest.RegisterOpenDate, opt => opt.MapFrom(src => src.RegisterOpenDate))
+                .ForMember(dest => dest.RegisterCloseDate, opt => opt.MapFrom(src => src.RegisterCloseDate))
+                .ForMember(dest => dest.MinParticipant, opt => opt.MapFrom(src => src.MinParticipant))
+                .ForMember(dest => dest.MaxParticipant, opt => opt.MapFrom(src => src.MaxParticipant))
+                .ForMember(dest => dest.TourPrices, opt => opt.MapFrom(src => (src.TourPrice ?? new())
+                    .Select(x => new Repository.EntityModel.TourPrice()
+                    {
+                        Name = x.Name,
+                        Price = x.Price,
+                        AgeFrom = x.AgeFrom,
+                        AgeTo = x.AgeTo
+                    })
+                    .ToList()))
+                .ForMember(dest => dest.TourRefundPolicies, opt => opt.MapFrom(src => (src.RefundPolicies ?? new())
+                    .Select(x => new TourRefundPolicy()
+                    {
+                        RefundPercent = x.RefundPercent,
+                        CancelBefore = x.CancelBefore
+                    })
+                    .ToList()));
         }
     }
 }
