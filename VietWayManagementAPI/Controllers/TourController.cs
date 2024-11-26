@@ -212,5 +212,32 @@ namespace VietWay.API.Management.Controllers
                 Data = ""
             });
         }
+
+        /// <summary>
+        /// [Manager] Cancel tour
+        /// </summary>
+        [HttpPatch("cancel-tour/{tourId}")]
+        [Authorize(Roles = nameof(UserRole.Manager))]
+        [Produces("application/json")]
+        [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status200OK)]
+        public async Task<IActionResult> CancelTourAsync(string tourId, CancelRequest request)
+        {
+            string? managerId = _tokenHelper.GetAccountIdFromToken(HttpContext);
+            if (string.IsNullOrWhiteSpace(managerId))
+            {
+                return Unauthorized(new DefaultResponseModel<object>
+                {
+                    Message = "Unauthorized",
+                    StatusCode = StatusCodes.Status401Unauthorized
+                });
+            }
+
+            await _tourService.CancelTourAsync(tourId, managerId, request.Reason);
+            return Ok(new DefaultResponseModel<string>
+            {
+                Message = "Status change successfully",
+                StatusCode = StatusCodes.Status200OK,
+            });
+        }
     }
 }
