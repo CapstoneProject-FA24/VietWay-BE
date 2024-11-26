@@ -106,5 +106,17 @@ namespace VietWay.API.Management.Controllers
                 Data = tourDurationId
             });
         }
+
+        [HttpPut("{tourDurationId}")]
+        [Produces("application/json")]
+        [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status200OK)]
+        public async Task<IActionResult> UpdateTourDuration(string tourDurationId, CreateTourDurationRequest request)
+        {
+            TourDuration tourDuration = _mapper.Map<TourDuration>(request);
+            tourDuration.DurationId = tourDurationId;
+
+            await _tourDurationService.UpdateTourDurationAsync(tourDuration);
+            return Ok();
+        }
     }
 }
