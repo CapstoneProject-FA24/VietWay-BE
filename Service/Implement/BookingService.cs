@@ -266,8 +266,11 @@ namespace VietWay.Service.Management.Implement
                 .Select(x => new BookingPreviewDTO()
                 {
                     BookingId = x.BookingId,
+                    TourId = x.TourId,
                     TourName = x.Tour.TourTemplate.TourName,
                     TourCode = x.Tour.TourTemplate.Code,
+                    Duration = x.Tour.TourTemplate.TourDuration.DurationName,
+                    Provinces = x.Tour.TourTemplate.TourTemplateProvinces.Select(y => y.Province.Name).ToList(),
                     StartDate = x.Tour.StartDate,
                     StartLocation = x.Tour.StartLocation,
                     CreatedAt = x.CreatedAt,

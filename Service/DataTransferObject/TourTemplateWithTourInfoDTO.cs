@@ -19,7 +19,7 @@ namespace VietWay.Service.Management.DataTransferObject
         public required List<string> Provinces { get; set; }
         public required string ImageUrl { get; set; }
         public required List<ScheduleDTO> Schedules { get; set; }
-        public ICollection<TourInfoDTO> Tours { get; set; }
+        public List<TourInfoDTO> Tours { get; set; }
     }
 
     public class ScheduleDTO
@@ -40,5 +40,6 @@ namespace VietWay.Service.Management.DataTransferObject
         public int? MinParticipant { get; set; }
         public int? CurrentParticipant { get; set; }
         public ICollection<TourPriceDTO> TourPrices { get; set; }
+        public ICollection<TourPolicyPreviewDTO> TourPolicies { get; set; }
     }
 }

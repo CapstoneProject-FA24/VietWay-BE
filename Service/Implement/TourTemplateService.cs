@@ -257,6 +257,9 @@ namespace VietWay.Service.Management.Implement
                 .Include(x => x.TourCategory)
                 .Include(x => x.TourDuration)
                 .Include(x => x.Tours)
+                .ThenInclude(x => x.TourPrices)
+                .Include(x => x.Tours)
+                .ThenInclude(x => x.TourRefundPolicies)
                 .OrderBy(x => x.TourCategoryId)
                 .Skip((pageIndex - 1) * pageSize)
                 .Take(pageSize)
@@ -298,7 +301,12 @@ namespace VietWay.Service.Management.Implement
                             Name = z.Name,
                             AgeFrom = z.AgeFrom,
                             AgeTo = z.AgeTo
-                        }).ToList()
+                        }).ToList(),
+                        TourPolicies = y.TourRefundPolicies.Select(z => new TourPolicyPreviewDTO
+                        {
+                            CancelBefore = z.CancelBefore,
+                            RefundPercent = z.RefundPercent
+                        }).ToList(),
                     }).ToList()
                 })
                 .ToListAsync();

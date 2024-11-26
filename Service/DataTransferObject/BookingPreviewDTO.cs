@@ -12,8 +12,11 @@ namespace VietWay.Service.Management.DataTransferObject
     public class BookingPreviewDTO
     {
         public string BookingId { get; set; }
+        public string? TourId { get; set; }
         public string? TourName { get; set; }
         public string? TourCode { get; set; }
+        public string? Duration { get; set; }
+        public List<string>? Provinces { get; set; }
         public DateTime? StartDate { get; set; }
         public string? StartLocation { get; set; }
         public DateTime CreatedAt { get; set; }
