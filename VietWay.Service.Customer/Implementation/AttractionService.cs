@@ -33,6 +33,7 @@ namespace VietWay.Service.Customer.Implementation
                     Province = new ProvincePreviewDTO
                     {
                         ProvinceId = x.Province.ProvinceId,
+                        Description = x.Province.Description,
                         Name = x.Province.Name,
                     },
                     Images = x.AttractionImages.Select(y => new ImageDTO
