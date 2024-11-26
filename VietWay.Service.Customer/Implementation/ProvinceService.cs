@@ -42,6 +42,7 @@ namespace VietWay.Service.Customer.Implementation
             return new ProvinceWithImageDTO
             {
                 ProvinceId = province.ProvinceId,
+                Description = province.Description,
                 Name = province.Name,
                 Images = images
             };
@@ -54,6 +55,7 @@ namespace VietWay.Service.Customer.Implementation
                 .Select(x => new ProvincePreviewDTO
                 {
                     ProvinceId = x.ProvinceId,
+                    Description = x.Description,
                     Name = x.Name
                 }).ToListAsync();
         }
@@ -74,6 +76,7 @@ namespace VietWay.Service.Customer.Implementation
                 .Select(x => new ProvinceDetailDTO
                 {
                     ProvinceId = x.ProvinceId,
+                    Description = x.Description,
                     ProvinceName = x.Name,
                     ImageUrl = x.ImageUrl,
                     AttractionsCount = x.Attractions

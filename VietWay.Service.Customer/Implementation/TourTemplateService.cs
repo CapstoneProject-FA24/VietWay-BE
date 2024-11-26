@@ -109,6 +109,7 @@ namespace VietWay.Service.Customer.Implementation
                     Provinces = x.TourTemplateProvinces.Select(y => new ProvincePreviewDTO()
                     {
                         ProvinceId = y.ProvinceId,
+                        Description = y.Province.Description,
                         Name = y.Province.Name
                     }).ToList(),
                     Schedules = x.TourTemplateSchedules.Select(y => new ScheduleDTO()
