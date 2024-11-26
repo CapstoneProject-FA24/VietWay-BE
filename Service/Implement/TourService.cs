@@ -324,9 +324,15 @@ namespace VietWay.Service.Management.Implement
                 bool isManagerAcceptedOrDenyPendingTour = (TourStatus.Accepted == tourStatus || TourStatus.Rejected == tourStatus) &&
                     UserRole.Manager == account.Role && TourStatus.Pending == tour.Status;
 
+                bool isRegisteredOpenedDatePass = tour.RegisterOpenDate <= DateTime.Today && UserRole.Manager == account.Role;
+
                 if (isManagerAcceptedOrDenyPendingTour)
                 {
                     tour.Status = tourStatus;
+                }
+                else if (isRegisteredOpenedDatePass)
+                {
+                    tour.Status = TourStatus.Opened;
                 }
                 else
                 {
