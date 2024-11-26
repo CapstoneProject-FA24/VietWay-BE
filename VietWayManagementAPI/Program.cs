@@ -21,8 +21,10 @@ using VietWay.Service.ThirdParty.Facebook;
 using VietWay.Service.ThirdParty.Redis;
 using StackExchange.Redis;
 using VietWay.Repository.DataAccessObject;
-using VietWay.Job.Management.Interface;
-using VietWay.Job.Management.Implementation;
+using VietWay.Job.Implementation;
+using VietWay.Job.Interface;
+using VietWay.Job.Configuration;
+using VietWay.Service.ThirdParty.Email;
 namespace VietWay.API.Management
 {
     public class Program
@@ -37,7 +39,7 @@ namespace VietWay.API.Management
             #region builder.Services.AddHangfire(...);
             builder.Services.AddHangfire(option =>
             {
-                string connectionString = Environment.GetEnvironmentVariable("SQL_CONNECTION_STRING") 
+                string connectionString = Environment.GetEnvironmentVariable("SQL_CONNECTION_STRING")
                     ?? throw new Exception("SQL_CONNECTION_STRING is not set in environment variables");
                 option.UseSqlServerStorage(connectionString);
             });
@@ -121,7 +123,7 @@ namespace VietWay.API.Management
             #region builder.Services.AddScoped(...);
             builder.Services.AddScoped<IAccountService, AccountService>();
             builder.Services.AddScoped<IAttractionService, AttractionService>();
-            builder.Services.AddScoped<IAttractionTypeService , AttractionTypeService>();
+            builder.Services.AddScoped<IAttractionTypeService, AttractionTypeService>();
             builder.Services.AddScoped<IBookingPaymentService, BookingPaymentService>();
             builder.Services.AddScoped<IBookingService, BookingService>();
             builder.Services.AddScoped<ICustomerFeedbackService, CustomerFeedbackService>();
@@ -149,6 +151,11 @@ namespace VietWay.API.Management
             builder.Services.AddScoped<IRedisCacheService, RedisCacheService>();
             builder.Services.AddScoped<IAttractionReviewService, AttractionReviewService>();
             builder.Services.AddScoped<ITourReviewService, TourReviewService>();
+            builder.Services.AddScoped<IEmailService, GmailService>();
+            builder.Services.AddScoped<IEmailJob, EmailJob>();
+            builder.Services.AddScoped<IProvinceJob, ProvinceJob>();
+            builder.Services.AddScoped<ITourCategoryJob, TourCategoryJob>();
+            builder.Services.AddScoped<ITourDurationJob, TourDurationJob>();
             #endregion
             builder.Services.AddSingleton<IIdGenerator, SnowflakeIdGenerator>();
             builder.Services.AddSingleton<IRecurringJobManager, RecurringJobManager>();
@@ -162,7 +169,8 @@ namespace VietWay.API.Management
                 PageAccessToken = Environment.GetEnvironmentVariable("FACEBOOK_PAGE_ACCESS_TOKEN") ??
                     throw new Exception("FACEBOOK_PAGE_ACCESS_TOKEN is not set in environment variables")
             });
-            builder.Services.AddSingleton(s => new CloudinaryApiConfig { 
+            builder.Services.AddSingleton(s => new CloudinaryApiConfig
+            {
                 ApiKey = Environment.GetEnvironmentVariable("CLOUDINARY_API_KEY") ??
                     throw new Exception("CLOUDINARY_API_KEY is not set in environment variables"),
                 ApiSecret = Environment.GetEnvironmentVariable("CLOUDINARY_API_SECRET") ??
@@ -170,7 +178,7 @@ namespace VietWay.API.Management
                 CloudName = Environment.GetEnvironmentVariable("CLOUDINARY_CLOUD_NAME") ??
                     throw new Exception("CLOUDINARY_CLOUD_NAME is not set in environment variables")
             });
-            builder.Services.AddSingleton(s=>new DatabaseConfig
+            builder.Services.AddSingleton(s => new DatabaseConfig
             {
                 ConnectionString = Environment.GetEnvironmentVariable("SQL_CONNECTION_STRING") ??
                     throw new Exception("SQL_CONNECTION_STRING is not set in environment variables")
@@ -204,6 +212,24 @@ namespace VietWay.API.Management
                 VnpTmnCode = Environment.GetEnvironmentVariable("VNPAY_TMN_CODE") ??
                     throw new Exception("VNPAY_TMN_CODE is not set in environment variables")
             });
+            builder.Services.AddSingleton(s => new EmailJobConfiguration
+            {
+                CancelBookingTemplate = Environment.GetEnvironmentVariable("MAIL_SEND_CANCEL_TOUR_MESSAGE") ??
+                    throw new Exception("MAIL_SEND_CANCEL_TOUR_MESSAGE is not set in environment variables"),
+                ConfirmBookingTemplate = Environment.GetEnvironmentVariable("MAIL_SEND_CONFIRM_TOUR_MESSAGE") ??
+                    throw new Exception("MAIL_SEND_CONFIRM_TOUR_MESSAGE is not set in environment variables"),
+            });
+            builder.Services.AddSingleton(s => new EmailClientConfig
+            {
+                AppPassword = Environment.GetEnvironmentVariable("GOOGLE_APP_PASSWORD") ??
+                    throw new Exception("GOOGLE_APP_PASSWORD is not set in environment variables"),
+                SenderEmail = Environment.GetEnvironmentVariable("GOOGLE_SENDER_EMAIL") ??
+                    throw new Exception("GOOGLE_SENDER_EMAIL is not set in environment variables"),
+                SmtpHost = Environment.GetEnvironmentVariable("GOOGLE_SMTP_HOST") ??
+                    throw new Exception("GOOGLE_SMTP_HOST is not set in environment variables"),
+                SmtpPort = int.Parse(Environment.GetEnvironmentVariable("GOOGLE_SMTP_PORT") ??
+                    throw new Exception("GOOGLE_SMTP_PORT is not set in environment variables")),
+            });
             builder.Services.AddHttpClient<IFacebookService, FacebookService>(HttpClient =>
             {
 
@@ -213,8 +239,15 @@ namespace VietWay.API.Management
             });
             var app = builder.Build();
 
-            app.Services.GetRequiredService<IRecurringJobManager>()
-                .AddOrUpdate<ITweetJob>("getTweetsDetail", (x) => x.GetPublishedTweetsJob(), () => "*/16 * * * *");
+            IRecurringJobManager recurringJobManager = app.Services.GetRequiredService<IRecurringJobManager>();
+            recurringJobManager
+                .RemoveIfExists("getTweetsDetail");
+            recurringJobManager
+                .AddOrUpdate<IProvinceJob>("cacheProvinces", (x) => x.CacheProvinceJob(), () => "0 17 * * *");
+            recurringJobManager
+                .AddOrUpdate<ITourCategoryJob>("cacheTourCategories", (x) => x.CacheTourCategoryJob(), () => "0 17 * * *");
+            recurringJobManager
+                .AddOrUpdate<ITourDurationJob>("cacheTourDurations", (x) => x.CacheTourDurationJob(), () => "0 17 * * *");
 
             app.UseStaticFiles();
             #region app.UseSwagger(...);
