@@ -241,7 +241,7 @@ namespace VietWay.API.Management
 
             IRecurringJobManager recurringJobManager = app.Services.GetRequiredService<IRecurringJobManager>();
             recurringJobManager
-                .RemoveIfExists("getTweetsDetail");
+                .AddOrUpdate<ITweetJob>("getTweetsDetail", (x) => x.GetPublishedTweetsJob(), () => "*/16 * * * *");
             recurringJobManager
                 .AddOrUpdate<IProvinceJob>("cacheProvinces", (x) => x.CacheProvinceJob(), () => "0 17 * * *");
             recurringJobManager

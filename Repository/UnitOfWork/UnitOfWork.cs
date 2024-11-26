@@ -267,15 +267,6 @@ namespace VietWay.Repository.UnitOfWork
             }
         }
 
-        public IGenericRepository<TourRefundPolicy> TourRefundPolicyRepository
-        {
-            get
-            {
-                tourRefundPolicyRepository ??= new GenericRepository<TourRefundPolicy>(_dbContext);
-                return tourRefundPolicyRepository;
-            }
-        }
-
         public async Task BeginTransactionAsync()
         {
             if (transaction != null)

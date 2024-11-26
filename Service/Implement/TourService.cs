@@ -9,6 +9,7 @@ using VietWay.Service.Management.DataTransferObject;
 using VietWay.Util.CustomExceptions;
 using Hangfire;
 using VietWay.Job.Interface;
+using Tweetinvi.Core.Extensions;
 
 namespace VietWay.Service.Management.Implement
 {
@@ -336,8 +337,91 @@ namespace VietWay.Service.Management.Implement
                 await _unitOfWork.CommitTransactionAsync();
                 if (tour.Status == TourStatus.Accepted)
                 {
-                    _backgroundJobClient.Schedule<ITourJob>(x=>x.OpenTourAsync(tourId),_timeZoneHelper.GetLocalTimeFromUTC7(tour.RegisterOpenDate!.Value));
+                    _backgroundJobClient.Schedule<ITourJob>(x => x.OpenTourAsync(tourId),_timeZoneHelper.GetLocalTimeFromUTC7(tour.RegisterOpenDate!.Value));
                 }
+            }
+            catch
+            {
+                await _unitOfWork.RollbackTransactionAsync();
+                throw;
+            }
+        }
+
+        public async Task CancelTourAsync(string tourId, string managerId, string? reason)
+        {
+            try
+            {
+                Manager? manager = await _unitOfWork.ManagerRepository.Query()
+                    .SingleOrDefaultAsync(x => x.ManagerId.Equals(managerId)) ??
+                    throw new UnauthorizedException("You are not allowed to perform this action");
+
+                Tour? tour = await _unitOfWork.TourRepository.Query().Include(x => x.TourBookings)
+                    .SingleOrDefaultAsync(x => x.TourId.Equals(tourId)) ??
+                    throw new ResourceNotFoundException("Tour not found");
+
+                if (TourStatus.Accepted != tour.Status && TourStatus.Opened != tour.Status && TourStatus.Closed == tour.Status)
+                {
+                    throw new InvalidOperationException("Cannot cancel tour that is not accepted, opened or closed");
+                }
+                int oldStatus = (int)tour.Status;
+                tour.Status = TourStatus.Cancelled;
+                tour.CurrentParticipant = 0;
+
+                await _unitOfWork.BeginTransactionAsync();
+                string entityHistoryId = _idGenerator.GenerateId();
+                await _unitOfWork.EntityStatusHistoryRepository.CreateAsync(new EntityStatusHistory()
+                {
+                    Id = entityHistoryId,
+                    OldStatus = oldStatus,
+                    NewStatus = (int)tour.Status,
+                    EntityHistory = new EntityHistory()
+                    {
+                        Id = entityHistoryId,
+                        Action = EntityModifyAction.ChangeStatus,
+                        EntityId = tourId,
+                        EntityType = EntityType.Tour,
+                        Timestamp = _timeZoneHelper.GetUTC7Now(),
+                        ModifiedBy = managerId,
+                        ModifierRole = UserRole.Manager,
+                        Reason = reason,
+                    }
+                });
+                if (!tour.TourBookings.IsNullOrEmpty())
+                {
+                    foreach (var booking in tour.TourBookings)
+                    {
+                        int oldBookingStatus = (int)booking.Status;
+                        if (booking.Status == BookingStatus.Confirmed)
+                        {
+                            booking.Status = BookingStatus.PendingRefund;
+                        }
+                        else if(booking.Status == BookingStatus.Pending)
+                        {
+                            booking.Status = BookingStatus.Cancelled;
+                        }
+
+                        string bookingHistoryId = _idGenerator.GenerateId();
+                        await _unitOfWork.EntityStatusHistoryRepository.CreateAsync(new EntityStatusHistory()
+                        {
+                            Id = bookingHistoryId,
+                            OldStatus = oldBookingStatus,
+                            NewStatus = (int)booking.Status,
+                            EntityHistory = new EntityHistory()
+                            {
+                                Id = bookingHistoryId,
+                                Action = EntityModifyAction.ChangeStatus,
+                                EntityId = booking.BookingId,
+                                EntityType = EntityType.Booking,
+                                Timestamp = _timeZoneHelper.GetUTC7Now(),
+                                ModifiedBy = managerId,
+                                ModifierRole = UserRole.Manager,
+                                Reason = $"tour bị hủy vì {reason}",
+                            }
+                        });
+                    }
+                }
+                await _unitOfWork.TourRepository.UpdateAsync(tour);
+                await _unitOfWork.CommitTransactionAsync();
             }
             catch
             {

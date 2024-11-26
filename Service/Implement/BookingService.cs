@@ -20,17 +20,19 @@ namespace VietWay.Service.Management.Implement
         {
             await _unitOfWork.BookingRepository.CreateAsync(tourBooking);
         }
-        public async Task CancelBookingAsync(string bookingId, string managerId, string? reason)
+        public async Task CancelBookingAsync(string bookingId, string accountId, string? reason)
         {
             try
             {
-                Manager manager = await _unitOfWork.ManagerRepository.Query().SingleOrDefaultAsync(x => x.ManagerId == managerId)
-                    ?? throw new UnauthorizedException("You are not allowed to perform this action");
-                await _unitOfWork.BeginTransactionAsync();
+                Account account = await _unitOfWork.AccountRepository.Query().SingleOrDefaultAsync(x => x.AccountId == accountId);
+                if (account.Role != UserRole.Manager && account.Role != UserRole.Staff)
+                {
+                    throw new UnauthorizedException("You are not allowed to perform this action");
+                }
 
-                Booking booking = _unitOfWork.BookingRepository.Query()
+                Booking booking = await _unitOfWork.BookingRepository.Query()
                     .Include(x => x.Tour)
-                    .SingleOrDefault(x => x.BookingId.Equals(bookingId))
+                    .SingleOrDefaultAsync(x => x.BookingId.Equals(bookingId))
                     ?? throw new ResourceNotFoundException("Booking not found");
                 if (booking.Status != BookingStatus.Pending && booking.Status != BookingStatus.Confirmed)
                 {
@@ -42,6 +44,8 @@ namespace VietWay.Service.Management.Implement
 
                 booking.Tour.CurrentParticipant -= booking.NumberOfParticipants;
                 string entityHistoryId = _idGenerator.GenerateId();
+
+                await _unitOfWork.BeginTransactionAsync();
                 await _unitOfWork.EntityStatusHistoryRepository.CreateAsync(new EntityStatusHistory()
                 {
                     Id = entityHistoryId,
@@ -54,8 +58,8 @@ namespace VietWay.Service.Management.Implement
                         EntityId = bookingId,
                         EntityType = EntityType.Booking,
                         Timestamp = _timeZoneHelper.GetUTC7Now(),
-                        ModifiedBy = managerId,
-                        ModifierRole = UserRole.Manager,
+                        ModifiedBy = accountId,
+                        ModifierRole = account.Role,
                         Reason = reason,
                     }
                 });
@@ -277,8 +281,14 @@ namespace VietWay.Service.Management.Implement
             return (count, items);
         }
 
-        public async Task CreateRefundTransactionAsync(string managerId, string bookingId, BookingPayment bookingPayment)
+        public async Task CreateRefundTransactionAsync(string accountId, string bookingId, BookingPayment bookingPayment)
         {
+            Account account = await _unitOfWork.AccountRepository.Query().SingleOrDefaultAsync(x => x.AccountId == accountId);
+            if (account.Role != UserRole.Manager && account.Role != UserRole.Staff)
+            {
+                throw new UnauthorizedException("You are not allowed to perform this action");
+            }
+
             Booking booking = await _unitOfWork
                 .BookingRepository.Query().SingleOrDefaultAsync(x => x.BookingId == bookingId)
                 ?? throw new ResourceNotFoundException("Booking not found");
@@ -295,7 +305,7 @@ namespace VietWay.Service.Management.Implement
 
             decimal refundAmount = 0;
 
-            if (entityStatusHistory.EntityHistory.ModifierRole == UserRole.Manager)
+            if (entityStatusHistory.EntityHistory.ModifierRole == UserRole.Manager || entityStatusHistory.EntityHistory.ModifierRole == UserRole.Staff)
             {
                 refundAmount = booking.TotalPrice;
             }
@@ -340,9 +350,9 @@ namespace VietWay.Service.Management.Implement
                         EntityId = bookingId,
                         EntityType = EntityType.Booking,
                         Timestamp = _timeZoneHelper.GetUTC7Now(),
-                        ModifiedBy = managerId,
-                        ModifierRole = UserRole.Customer,
-                        Reason = "Manager refund booking",
+                        ModifiedBy = accountId,
+                        ModifierRole = account.Role,
+                        Reason = "",
                     }
                 });
                 await _unitOfWork.CommitTransactionAsync();
