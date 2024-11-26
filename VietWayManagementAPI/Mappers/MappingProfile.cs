@@ -189,6 +189,10 @@ namespace VietWay.API.Management.Mappers
                         CancelBefore = x.CancelBefore
                     })
                     .ToList()));
+
+            CreateMap<CreateTourDurationRequest, TourDuration>()
+                .ForMember(dest => dest.DurationName, opt => opt.MapFrom(src => src.DurationName))
+                .ForMember(dest => dest.NumberOfDay, opt => opt.MapFrom(src => src.NumberOfDay));
         }
     }
 }

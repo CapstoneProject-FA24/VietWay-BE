@@ -1,7 +1,9 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using VietWay.API.Management.RequestModel;
 using VietWay.API.Management.ResponseModel;
+using VietWay.Repository.EntityModel;
 using VietWay.Repository.EntityModel.Base;
 using VietWay.Service.Management.DataTransferObject;
 using VietWay.Service.Management.Interface;
@@ -23,7 +25,7 @@ namespace VietWay.API.Management.Controllers
         [Produces("application/json")]
         [Authorize(Roles = $"{nameof(UserRole.Manager)}, {nameof(UserRole.Staff)}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(DefaultResponseModel<TourDurationDTO>))]
-        public async Task<IActionResult> GetAllTourDurationAsync()
+        public async Task<IActionResult> GetAllTourDurationAsync(string? nameSearch)
         {
             string? accountId = _tokenHelper.GetAccountIdFromToken(HttpContext);
             if (string.IsNullOrWhiteSpace(accountId))
@@ -76,6 +78,32 @@ namespace VietWay.API.Management.Controllers
                 Message = "Get tour category successfully",
                 StatusCode = StatusCodes.Status200OK,
                 Data = tourDuration
+            });
+        }
+
+        [HttpPost]
+        [Authorize(Roles = nameof(UserRole.Manager))]
+        [Produces("application/json")]
+        [ProducesResponseType<DefaultResponseModel<string>>(StatusCodes.Status200OK)]
+        public async Task<IActionResult> CreateTourDurationAsync(CreateTourDurationRequest request)
+        {
+            string? accountId = _tokenHelper.GetAccountIdFromToken(HttpContext);
+            if (string.IsNullOrWhiteSpace(accountId))
+            {
+                return Unauthorized(new DefaultResponseModel<object>
+                {
+                    Message = "Unauthorized",
+                    StatusCode = StatusCodes.Status401Unauthorized
+                });
+            }
+
+            TourDuration tourDuration = _mapper.Map<TourDuration>(request);
+            string tourDurationId = await _tourDurationService.CreateTourDurationAsync(tourDuration);
+            return Ok(new DefaultResponseModel<string>
+            {
+                Message = "Create post successfully",
+                StatusCode = StatusCodes.Status200OK,
+                Data = tourDurationId
             });
         }
     }
