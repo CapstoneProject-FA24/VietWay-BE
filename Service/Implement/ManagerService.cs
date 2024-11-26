@@ -7,6 +7,7 @@ using VietWay.Util.DateTimeUtil;
 using VietWay.Util.HashUtil;
 using VietWay.Util.IdUtil;
 using VietWay.Service.Management.Interface;
+using VietWay.Service.Management.DataTransferObject;
 
 namespace VietWay.Service.Management.Implement
 {
@@ -18,16 +19,31 @@ namespace VietWay.Service.Management.Implement
         private readonly IIdGenerator _idGenerator = idGenerator;
         private readonly ITimeZoneHelper _timeZoneHelper = timeZoneHelper;
 
-        public async Task<(int totalCount, List<Manager> items)> GetAllManagerInfos(int pageSize, int pageIndex)
+        public async Task<(int totalCount, List<ManagerPreviewDTO> items)> GetAllManagerInfos(string? nameSearch,
+            int pageSize,
+            int pageIndex)
         {
             var query = _unitOfWork
                 .ManagerRepository
-                .Query();
+                .Query()
+                .Where(x => x.IsDeleted == false);
+            if (!string.IsNullOrEmpty(nameSearch))
+            {
+                query = query.Where(x => x.FullName.Contains(nameSearch));
+            }
             int count = await query.CountAsync();
-            List<Manager> items = await query
+            List<ManagerPreviewDTO> items = await query
+                .Include(x => x.Account)
+                .Select(x => new ManagerPreviewDTO
+                {
+                    ManagerId = x.ManagerId,
+                    PhoneNumber = x.Account.PhoneNumber,
+                    Email = x.Account.Email,
+                    FullName = x.FullName,
+                    CreatedAt = x.Account.CreatedAt
+                })
                 .Skip((pageIndex - 1) * pageSize)
                 .Take(pageSize)
-                .Include(x => x.Account)
                 .ToListAsync();
             return (count, items);
         }
