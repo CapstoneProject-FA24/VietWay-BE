@@ -28,7 +28,8 @@ namespace VietWay.Service.Management.Interface
             int pageSize,
             int pageIndex);
 
-        public Task<(int count, List<TourTemplateWithTourInfoDTO> items)> GetAllTemplateWithActiveToursAsync(string? nameSearch,
+        public Task<(int totalCount, List<TourTemplateWithTourInfoDTO> items)> GetAllTemplateWithActiveToursAsync(
+            string? nameSearch,
             List<string>? templateCategoryIds,
             List<string>? provinceIds,
             List<int>? numberOfDay,

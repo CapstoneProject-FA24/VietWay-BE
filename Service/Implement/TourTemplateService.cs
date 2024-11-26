@@ -196,9 +196,18 @@ namespace VietWay.Service.Management.Implement
                 .ToListAsync();
             return (count, items);
         }
-        public async Task<(int count, List<TourTemplateWithTourInfoDTO> items)> GetAllTemplateWithActiveToursAsync(
-            string? nameSearch, List<string>? templateCategoryIds, List<string>? provinceIds, List<int>? numberOfDay, DateTime? startDateFrom,
-            DateTime? startDateTo, decimal? minPrice, decimal? maxPrice, int pageSize, int pageIndex)
+
+        public async Task<(int totalCount, List<TourTemplateWithTourInfoDTO> items)> GetAllTemplateWithActiveToursAsync(
+            string? nameSearch,
+            List<string>? templateCategoryIds,
+            List<string>? provinceIds,
+            List<int>? numberOfDay,
+            DateTime? startDateFrom,
+            DateTime? startDateTo,
+            decimal? minPrice,
+            decimal? maxPrice,
+            int pageSize,
+            int pageIndex)
         {
             var query = _unitOfWork
                 .TourTemplateRepository
@@ -258,10 +267,39 @@ namespace VietWay.Service.Management.Implement
                     Duration = x.TourDuration.DurationName,
                     TourCategory = x.TourCategory.Name,
                     ImageUrl = x.TourTemplateImages.FirstOrDefault().ImageUrl,
-                    MinPrice = x.Tours.Where(x => x.Status == TourStatus.Opened).Select(y => (decimal)y.DefaultTouristPrice).Min(),
                     Provinces = x.TourTemplateProvinces.Select(y => y.Province.Name).ToList(),
-                    StartDate = x.Tours.Where(x => x.Status == TourStatus.Opened).Select(y => (DateTime)y.StartDate).ToList(),
                     TourName = x.TourName,
+                    Description = x.Description,
+                    Note = x.Note,
+                    Schedules = x.TourTemplateSchedules.Select(y => new ScheduleDTO
+                    {
+                        DayNumber = y.DayNumber,
+                        Title = y.Title,
+                        Description = y.Description,
+                        Attractions = y.AttractionSchedules.Select(z => new AttractionPreviewDTO
+                        {
+                            AttractionId = z.AttractionId,
+                            Name = z.Attraction.Name,
+                        }).ToList()
+                    }).ToList(),
+                    Tours = x.Tours.Select(y => new TourInfoDTO
+                    {
+                        TourId = y.TourId,
+                        StartLocation = y.StartLocation,
+                        StartDate = y.StartDate,
+                        DefaultTouristPrice = y.DefaultTouristPrice,
+                        MaxParticipant = y.MaxParticipant,
+                        MinParticipant = y.MinParticipant,
+                        CurrentParticipant = y.CurrentParticipant,
+                        TourPrices = y.TourPrices.Select(z => new TourPriceDTO
+                        {
+                            PriceId = z.PriceId,
+                            Price = z.Price,
+                            Name = z.Name,
+                            AgeFrom = z.AgeFrom,
+                            AgeTo = z.AgeTo
+                        }).ToList()
+                    }).ToList()
                 })
                 .ToListAsync();
             return (count, items);
