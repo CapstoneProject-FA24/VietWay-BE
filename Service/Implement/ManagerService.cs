@@ -55,11 +55,33 @@ namespace VietWay.Service.Management.Implement
                 .Include(x => x.Account)
                 .SingleOrDefaultAsync(x => x.ManagerId.Equals(id));
         }
-        public async Task<Manager> EditManagerInfo(Manager managerInfo)
+        public async Task ManagerChangePassword(string managerId, string oldPassword, string newPassword)
         {
-            await _unitOfWork.ManagerRepository
-                .UpdateAsync(managerInfo);
-            return managerInfo;
+            Manager? manager = await _unitOfWork.ManagerRepository.Query()
+                .Where(x => x.ManagerId.Equals(managerId))
+                .Include(x => x.Account)
+                .SingleOrDefaultAsync() ?? throw new ResourceNotFoundException("Manager not found");
+
+            bool checkPassword = _hashHelper.Verify(oldPassword, manager.Account.Password);
+
+            if (!checkPassword)
+            {
+                throw new Exception("You type in wrong password");
+            }
+
+            manager.Account.Password = _hashHelper.Hash(newPassword);
+
+            try
+            {
+                await _unitOfWork.BeginTransactionAsync();
+                await _unitOfWork.ManagerRepository.UpdateAsync(manager);
+                await _unitOfWork.CommitTransactionAsync();
+            }
+            catch
+            {
+                await _unitOfWork.RollbackTransactionAsync();
+                throw;
+            }
         }
 
         public async Task<Manager> AddManager(Manager managerInfo)
