@@ -1,3 +1,4 @@
+using Google.Api.Gax;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Cryptography.X509Certificates;
 using VietWay.Repository.EntityModel;
@@ -279,7 +280,13 @@ namespace VietWay.Service.Management.Implement
                     ContactPhoneNumber = x.ContactPhoneNumber,
                     TotalPrice = x.TotalPrice,
                     NumberOfParticipants = x.NumberOfParticipants,
-                    Status = x.Status
+                    Status = x.Status,
+                    Tourists = x.BookingTourists.Select(y => new BookingTouristPreviewDTO
+                    {
+                        TouristId = y.TouristId,
+                        FullName = y.FullName,
+                        DateOfBirth = y.DateOfBirth,
+                    }).ToList(),
                 }).ToListAsync();
             return (count, items);
         }
