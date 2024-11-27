@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Mvc;
 using VietWay.API.Management.RequestModel;
 using VietWay.API.Management.ResponseModel;
 using VietWay.Repository.EntityModel.Base;
+using VietWay.Service.Management.DataTransferObject;
+using VietWay.Service.Management.Implement;
 using VietWay.Service.Management.Interface;
 using VietWay.Util.TokenUtil;
 
@@ -21,25 +23,38 @@ namespace VietWay.API.Management.Controllers
 
         [HttpGet]
         [Produces("application/json")]
+        [Authorize(Roles = nameof(UserRole.Admin))]
         [ProducesResponseType<DefaultResponseModel<PaginatedList<ManagerInfoPreview>>>(StatusCodes.Status200OK)]
-        public async Task<IActionResult> GetAllManagerInfosAsync(int pageSize, int pageIndex)
+        public async Task<IActionResult> GetAllManagerInfosAsync(string? nameSearch,
+            int? pageSize,
+            int? pageIndex)
         {
-            var result = await _managerService.GetAllManagerInfos(pageSize, pageIndex);
-            List<ManagerInfoPreview> managerInfoPreviews = _mapper.Map<List<ManagerInfoPreview>>(result.items);
-            PaginatedList<ManagerInfoPreview> pagedResponse = new()
+            string? accountId = _tokenHelper.GetAccountIdFromToken(HttpContext);
+            if (string.IsNullOrWhiteSpace(accountId))
             {
-                Total = result.totalCount,
-                PageSize = pageSize,
-                PageIndex = pageIndex,
-                Items = managerInfoPreviews
-            };
-            DefaultResponseModel<PaginatedList<ManagerInfoPreview>> response = new()
+                return Unauthorized(new DefaultResponseModel<object>
+                {
+                    Message = "Unauthorized",
+                    StatusCode = StatusCodes.Status401Unauthorized
+                });
+            }
+            int checkedPageSize = pageSize ?? 10;
+            int checkedPageIndex = pageIndex ?? 1;
+
+            (int totalCount, List<ManagerPreviewDTO> items) = await _managerService.GetAllManagerInfos(
+                nameSearch, checkedPageSize, checkedPageIndex);
+            return Ok(new DefaultResponseModel<PaginatedList<ManagerPreviewDTO>>()
             {
-                Data = pagedResponse,
-                Message = "Get all manager info successfully",
+                Message = "Success",
+                Data = new PaginatedList<ManagerPreviewDTO>
+                {
+                    Items = items,
+                    PageSize = checkedPageSize,
+                    PageIndex = checkedPageIndex,
+                    Total = totalCount
+                },
                 StatusCode = StatusCodes.Status200OK
-            };
-            return Ok(response);
+            });
         }
 
         /// <summary>
@@ -70,6 +85,26 @@ namespace VietWay.API.Management.Controllers
                 Message = "Status change successfully",
                 StatusCode = StatusCodes.Status200OK,
             });
+        }
+
+        [HttpPatch("change-manager-password")]
+        [Authorize(Roles = nameof(UserRole.Manager))]
+        [Produces("application/json")]
+        [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status200OK)]
+        public async Task<IActionResult> ChangeManagerPasswordAsync(string oldPassword, string newPassword)
+        {
+            string? accountId = _tokenHelper.GetAccountIdFromToken(HttpContext);
+            if (string.IsNullOrWhiteSpace(accountId))
+            {
+                return Unauthorized(new DefaultResponseModel<object>
+                {
+                    Message = "Unauthorized",
+                    StatusCode = StatusCodes.Status401Unauthorized
+                });
+            }
+
+            await _managerService.ManagerChangePassword(accountId, oldPassword, newPassword);
+            return Ok();
         }
     }
 }
