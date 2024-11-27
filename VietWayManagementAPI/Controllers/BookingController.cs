@@ -142,5 +142,28 @@ namespace VietWay.API.Management.Controllers
                 });
             }
         }
+
+        [HttpPut("{bookingId}/change-booking-tour")]
+        [Produces("application/json")]
+        [Authorize(Roles = $"{nameof(UserRole.Manager)},{nameof(UserRole.Staff)}")]
+        [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status200OK)]
+        public async Task<IActionResult> ChangeBookingTour(string bookingId, ChangeTourRequest request)
+        {
+            string? accountId = _tokenHelper.GetAccountIdFromToken(HttpContext);
+            if (accountId == null)
+            {
+                return Unauthorized(new DefaultResponseModel<object>()
+                {
+                    Message = "Unauthorized",
+                    StatusCode = StatusCodes.Status401Unauthorized
+                });
+            }
+            await _bookingService.ChangeBookingTourAsync(accountId, bookingId, request.NewTourId, request.Reason);
+            return Ok(new DefaultResponseModel<object>()
+            {
+                Message = "Booking tour change successfully",
+                StatusCode = StatusCodes.Status200OK
+            });
+        }
     }
 }
