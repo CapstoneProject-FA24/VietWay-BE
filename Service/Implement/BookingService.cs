@@ -330,7 +330,7 @@ namespace VietWay.Service.Management.Implement
 
                 refundAmount = tourRefundPolicy.RefundPercent * booking.TotalPrice / 100;
             }
-            
+
             try
             {
                 bookingPayment.PaymentId ??= _idGenerator.GenerateId();
@@ -372,6 +372,113 @@ namespace VietWay.Service.Management.Implement
                 await _unitOfWork.RollbackTransactionAsync();
                 throw;
             }
+        }
+
+        public async Task ChangeBookingTourAsync(string accountId, string bookingId, string newTourId, string reason)
+        {
+            try
+            {
+                Account account = await _unitOfWork.AccountRepository.Query().SingleOrDefaultAsync(x => x.AccountId == accountId);
+                if (account.Role != UserRole.Manager && account.Role != UserRole.Staff)
+                {
+                    throw new UnauthorizedException("You are not allowed to perform this action");
+                }
+
+                Booking booking = await _unitOfWork
+                    .BookingRepository.Query().Include(x => x.BookingTourists).SingleOrDefaultAsync(x => x.BookingId == bookingId)
+                    ?? throw new ResourceNotFoundException("Booking not found");
+
+                if (booking.Status != BookingStatus.Pending && booking.Status != BookingStatus.Confirmed)
+                {
+                    throw new InvalidOperationException("The booking is not in a pending or confirmed state and cannot change tour.");
+                }
+
+                Tour? oldTour = await _unitOfWork.TourRepository.Query()
+                        .Include(x => x.TourPrices)
+                        .SingleOrDefaultAsync(x => x.TourId == booking.TourId)
+                        ?? throw new ResourceNotFoundException("Can not find any tour");
+
+                Tour? newTour = await _unitOfWork.TourRepository.Query()
+                        .Include(x => x.TourPrices)
+                        .SingleOrDefaultAsync(x => x.TourId == newTourId && x.Status == TourStatus.Opened && x.IsDeleted == false)
+                        ?? throw new ResourceNotFoundException("Can not find any tour");
+                bool isActiveBookingExisted = await _unitOfWork.BookingRepository.Query()
+                    .AnyAsync(x => x.TourId == newTourId && x.CustomerId == booking.CustomerId && (x.Status == BookingStatus.Pending || x.Status == BookingStatus.Confirmed));
+
+                if (isActiveBookingExisted)
+                {
+                    throw new InvalidOperationException("Customer has already booked this tour");
+                }
+                if (newTour.CurrentParticipant + booking.BookingTourists.Count > newTour.MaxParticipant)
+                {
+                    throw new InvalidOperationException("Tour is full");
+                }
+
+                oldTour.CurrentParticipant -= booking.NumberOfParticipants;
+                newTour.CurrentParticipant += booking.NumberOfParticipants;
+                if (newTour.CurrentParticipant == newTour.MaxParticipant)
+                {
+                    newTour.Status = TourStatus.Closed;
+                }
+
+                booking.TourId = newTourId;
+                decimal oldPrice = booking.TotalPrice;
+                booking.TotalPrice = 0;
+                foreach (BookingTourist tourist in booking.BookingTourists)
+                {
+                    int age = CalculateAge(tourist.DateOfBirth, _timeZoneHelper.GetUTC7Now());
+                    TourPrice? tourPrice = newTour.TourPrices?.SingleOrDefault(x => x.AgeFrom <= age && age <= x.AgeTo);
+                    if (tourPrice == null)
+                    {
+                        tourist.Price = newTour.DefaultTouristPrice!.Value;
+                        booking.TotalPrice += tourist.Price;
+                    }
+                    else
+                    {
+                        tourist.Price = tourPrice.Price;
+                        booking.TotalPrice += tourist.Price;
+                    }
+                }
+
+                if (oldPrice < booking.TotalPrice)
+                {
+                    booking.Status = BookingStatus.Pending;
+                }
+
+                await _unitOfWork.BeginTransactionAsync();
+                await _unitOfWork.BookingRepository.UpdateAsync(booking);
+                await _unitOfWork.TourRepository.UpdateAsync(oldTour);
+                await _unitOfWork.TourRepository.UpdateAsync(newTour);
+
+                string entityHistoryId = _idGenerator.GenerateId();
+                await _unitOfWork.EntityHistoryRepository.CreateAsync(new EntityHistory()
+                {
+                    Id = entityHistoryId,
+                    Action = EntityModifyAction.Update,
+                    EntityId = bookingId,
+                    EntityType = EntityType.Booking,
+                    Timestamp = _timeZoneHelper.GetUTC7Now(),
+                    ModifiedBy = accountId,
+                    ModifierRole = account.Role,
+                    Reason = reason,
+                });
+                await _unitOfWork.CommitTransactionAsync();
+            }
+            catch
+            {
+                await _unitOfWork.RollbackTransactionAsync();
+                throw;
+            }
+        }
+
+        private static int CalculateAge(DateTime birthDay, DateTime currentDate)
+        {
+            int age = currentDate.Year - birthDay.Year;
+            if (currentDate < birthDay.AddYears(age))
+            {
+                age--;
+            }
+            return age;
         }
     }
 }

@@ -143,11 +143,11 @@ namespace VietWay.API.Management.Controllers
             }
         }
 
-        /*[HttpPatch("{bookingId}/change-tour")]
+        [HttpPut("{bookingId}/change-booking-tour")]
         [Produces("application/json")]
         [Authorize(Roles = $"{nameof(UserRole.Manager)},{nameof(UserRole.Staff)}")]
         [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status200OK)]
-        public async Task<IActionResult> ChangeTour(string bookingId, ChangeTourRequest request)
+        public async Task<IActionResult> ChangeBookingTour(string bookingId, ChangeTourRequest request)
         {
             string? accountId = _tokenHelper.GetAccountIdFromToken(HttpContext);
             if (accountId == null)
@@ -158,31 +158,12 @@ namespace VietWay.API.Management.Controllers
                     StatusCode = StatusCodes.Status401Unauthorized
                 });
             }
-            try
+            await _bookingService.ChangeBookingTourAsync(accountId, bookingId, request.NewTourId, request.Reason);
+            return Ok(new DefaultResponseModel<object>()
             {
-                await _bookingService.CancelBookingAsync(bookingId, accountId, cancelBookingRequest.Reason);
-                return Ok(new DefaultResponseModel<object>()
-                {
-                    Message = "Booking cancelled successfully",
-                    StatusCode = StatusCodes.Status200OK
-                });
-            }
-            catch (InvalidOperationException)
-            {
-                return BadRequest(new DefaultResponseModel<object>()
-                {
-                    Message = "Booking is not cancellable",
-                    StatusCode = StatusCodes.Status400BadRequest
-                });
-            }
-            catch (ResourceNotFoundException)
-            {
-                return NotFound(new DefaultResponseModel<object>()
-                {
-                    Message = "Can not find booking with id",
-                    StatusCode = StatusCodes.Status404NotFound
-                });
-            }
-        }*/
+                Message = "Booking tour change successfully",
+                StatusCode = StatusCodes.Status200OK
+            });
+        }
     }
 }
