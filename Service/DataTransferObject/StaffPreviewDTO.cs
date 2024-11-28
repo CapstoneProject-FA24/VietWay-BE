@@ -14,5 +14,6 @@ namespace VietWay.Service.Management.DataTransferObject
         public string? Email { get; set; }
         public string? FullName { get; set; }
         public required DateTime CreatedAt { get; set; }
+        public bool IsDeleted { get; set; }
     }
 }

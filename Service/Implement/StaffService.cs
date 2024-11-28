@@ -61,8 +61,7 @@ namespace VietWay.Service.Management.Implement
         {
             var query = _unitOfWork
                 .StaffRepository
-                .Query()
-                .Where(x => x.IsDeleted == false);
+                .Query();
             if (!string.IsNullOrEmpty(nameSearch))
             {
                 query = query.Where(x => x.FullName.Contains(nameSearch));
@@ -76,7 +75,8 @@ namespace VietWay.Service.Management.Implement
                     PhoneNumber = x.Account.PhoneNumber,
                     Email = x.Account.Email,
                     FullName = x.FullName,
-                    CreatedAt = x.Account.CreatedAt
+                    CreatedAt = x.Account.CreatedAt,
+                    IsDeleted = x.IsDeleted
                 })
                 .Skip((pageIndex - 1) * pageSize)
                 .Take(pageSize)
