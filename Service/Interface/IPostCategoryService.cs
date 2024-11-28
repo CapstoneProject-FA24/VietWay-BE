@@ -10,7 +10,10 @@ namespace VietWay.Service.Management.Interface
 {
     public interface IPostCategoryService
     {
-        public Task<List<PostCategoryDTO>> GetPostCategoriesAsync();
+        public Task<List<PostCategoryDTO>> GetPostCategoriesAsync(string? nameSearch);
         public Task<string> CreatePostCategoryAsync(PostCategory postCategory);
+        public Task UpdatePostCategoryAsync(string postCategoryId, PostCategory newPostCategory);
+        public Task DeletePostCategoryAsync(string postCategoryId);
+        public Task<PostCategoryDTO?> GetPostCategoryByIdAsync(string postCategoryId);
     }
 }
