@@ -289,7 +289,7 @@ namespace VietWay.API.Management.Controllers
         [Authorize(Roles = $"{nameof(UserRole.Manager)}, {nameof(UserRole.Staff)}")]
         [Produces("application/json")]
         [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status200OK)]
-        public async Task<IActionResult> ChangePostStatusAsync(string tourTemplateId, ChangeTourTemplateStatusRequest request)
+        public async Task<IActionResult> ChangeTourTemplateStatusAsync(string tourTemplateId, ChangeTourTemplateStatusRequest request)
         {
             string? accountId = _tokenHelper.GetAccountIdFromToken(HttpContext);
             if (string.IsNullOrWhiteSpace(accountId))
