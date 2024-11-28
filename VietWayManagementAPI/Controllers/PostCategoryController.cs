@@ -60,13 +60,13 @@ namespace VietWay.API.Management.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles = nameof(UserRole.Staff))]
+        [Authorize(Roles = nameof(UserRole.Manager))]
         [Produces("application/json")]
         [ProducesResponseType<DefaultResponseModel<string>>(StatusCodes.Status200OK)]
         public async Task<IActionResult> CreatePostCategoryAsync(CreatePostCategoryRequest request)
         {
-            string? staffId = _tokenHelper.GetAccountIdFromToken(HttpContext);
-            if (string.IsNullOrWhiteSpace(staffId))
+            string? accountId = _tokenHelper.GetAccountIdFromToken(HttpContext);
+            if (string.IsNullOrWhiteSpace(accountId))
             {
                 return Unauthorized(new DefaultResponseModel<object>
                 {
@@ -107,7 +107,7 @@ namespace VietWay.API.Management.Controllers
             {
                 DefaultResponseModel<object> errorResponse = new()
                 {
-                    Message = "Post not found",
+                    Message = "Post Category not found",
                     StatusCode = StatusCodes.Status404NotFound
                 };
                 return NotFound(errorResponse);

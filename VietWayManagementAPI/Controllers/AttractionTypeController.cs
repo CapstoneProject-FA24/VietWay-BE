@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using VietWay.API.Management.RequestModel;
 using VietWay.API.Management.ResponseModel;
+using VietWay.Repository.EntityModel;
 using VietWay.Service.Management.DataTransferObject;
 using VietWay.Service.Management.Interface;
 
@@ -24,9 +25,9 @@ namespace VietWay.API.Management.Controllers
         [HttpGet]
         [Produces("application/json")]
         [ProducesResponseType<DefaultResponseModel<AttractionCategoryDTO>>(StatusCodes.Status200OK)]
-        public async Task<IActionResult> GetAllAttractionTypeAsync()
+        public async Task<IActionResult> GetAllAttractionTypeAsync(string? nameSearch)
         {
-            var result = await _attractionTypeService.GetAllAttractionType();
+            var result = await _attractionTypeService.GetAllAttractionType(nameSearch);
             DefaultResponseModel<List<AttractionCategoryDTO>> response = new()
             {
                 Data = result,
@@ -37,7 +38,7 @@ namespace VietWay.API.Management.Controllers
         }
 
         /// <summary>
-        /// [Manager][Staff] {WIP} Get attraction type by id
+        /// [Manager][Staff] Get attraction type by id
         /// </summary>
         /// <response code="200">Success</response>
         /// <response code="404">Not found</response>
@@ -46,37 +47,62 @@ namespace VietWay.API.Management.Controllers
         [ProducesResponseType<DefaultResponseModel<AttractionCategoryDTO>>(StatusCodes.Status200OK)]
         public async Task<IActionResult> GetAttractionTypeByIdAsync(string attractionTypeId)
         {
-            throw new NotImplementedException();
+            AttractionCategoryDTO? attractionCategory = await _attractionTypeService.GetAttractionCategoryByIdAsync(attractionTypeId);
+            if (null == attractionCategory)
+            {
+                return NotFound(new DefaultResponseModel<object>
+                {
+                    Message = "Not found",
+                    StatusCode = StatusCodes.Status404NotFound
+                });
+            }
+            return Ok(new DefaultResponseModel<AttractionCategoryDTO>
+            {
+                Message = "Get post successfully",
+                StatusCode = StatusCodes.Status200OK,
+                Data = attractionCategory
+            });
         }
 
         /// <summary>
-        /// [Manager] {WIP} Create new attraction type
+        /// [Manager] Create new attraction type
         /// </summary>
         /// <response code="201">Created</response>
         /// <response code="400">Bad request</response>
         [HttpPost]
         [Produces("application/json")]
         [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status201Created)]
-        public async Task<IActionResult> CreateAttractionTypeAsync([FromBody] CreateAttractionTypeRequest request)
+        public async Task<IActionResult> CreateAttractionTypeAsync(CreateAttractionTypeRequest request)
         {
-            throw new NotImplementedException();
+            AttractionCategory attractionCategory = _mapper.Map<AttractionCategory>(request);
+            string attractionCategoryId = await _attractionTypeService.CreateAttractionCategoryAsync(attractionCategory);
+
+            return Ok(new DefaultResponseModel<string>
+            {
+                Message = "Create post successfully",
+                StatusCode = StatusCodes.Status200OK,
+                Data = attractionCategoryId
+            });
         }
 
         /// <summary>
-        /// [Manager] {WIP} Update attraction type
+        /// [Manager] Update attraction type
         /// </summary>
         /// <response code="200">Success</response>
         /// <response code="404">Not found</response>
         [HttpPut("{attractionTypeId}")]
         [Produces("application/json")]
         [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status200OK)]
-        public async Task<IActionResult> UpdateAttractionTypeAsync(string attractionTypeId, [FromBody] CreateAttractionTypeRequest request)
+        public async Task<IActionResult> UpdateAttractionTypeAsync(string attractionTypeId, CreateAttractionTypeRequest request)
         {
-            throw new NotImplementedException();
+            AttractionCategory attractionCategory = _mapper.Map<AttractionCategory>(request);
+
+            await _attractionTypeService.UpdateAttractionCategoryAsync(attractionTypeId, attractionCategory);
+            return Ok();
         }
 
         /// <summary>
-        /// [Manager] {WIP} Delete attraction type
+        /// [Manager] Delete attraction type
         /// </summary>
         /// <remarks>
         /// Soft delete if the attraction type already been assigned to at least 1 attraction.
@@ -89,7 +115,23 @@ namespace VietWay.API.Management.Controllers
         [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status200OK)]
         public async Task<IActionResult> DeleteAttractionTypeAsync(string attractionTypeId)
         {
-            throw new NotImplementedException();
+            AttractionCategoryDTO? attractionCategory = await _attractionTypeService.GetAttractionCategoryByIdAsync(attractionTypeId);
+            if (attractionCategory == null)
+            {
+                DefaultResponseModel<object> errorResponse = new()
+                {
+                    Message = "Attraction Category not found",
+                    StatusCode = StatusCodes.Status404NotFound
+                };
+                return NotFound(errorResponse);
+            }
+            await _attractionTypeService.DeleteAttractionCategoryAsync(attractionTypeId);
+            DefaultResponseModel<object> response = new()
+            {
+                Message = "Delete successfully",
+                StatusCode = StatusCodes.Status200OK
+            };
+            return Ok(response);
         }
     }
 }

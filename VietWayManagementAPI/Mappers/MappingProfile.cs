@@ -197,6 +197,10 @@ namespace VietWay.API.Management.Mappers
             CreateMap<CreatePostCategoryRequest, PostCategory>()
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description));
+
+            CreateMap<CreateAttractionTypeRequest, AttractionCategory>()
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.AttractionTypeName))
+                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description));
         }
     }
 }
