@@ -150,8 +150,6 @@ namespace VietWay.Service.Customer.Implementation
                     Status = x.Status,
                     TotalPrice = x.TotalPrice,
                     TourId = x.TourId,
-                    DurationName = x.Tour.TourTemplate.TourDuration.DurationName,
-                    NumberOfDay = x.Tour.TourTemplate.TourDuration.NumberOfDay,
                     TourName = x.Tour.TourTemplate.TourName,
                     CreatedOn = x.CreatedAt,
                     Note = x.Note,

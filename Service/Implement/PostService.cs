@@ -125,6 +125,7 @@ namespace VietWay.Service.Management.Implement
             post.PostCategoryId = newPost.PostCategoryId;
             post.Description = newPost.Description;
             post.ProvinceId = newPost.ProvinceId;
+            post.ImageUrl = newPost.ImageUrl;
             try
             {
                 await _unitOfWork.BeginTransactionAsync();
