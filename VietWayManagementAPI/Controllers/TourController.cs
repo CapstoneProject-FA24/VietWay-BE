@@ -103,41 +103,21 @@ namespace VietWay.API.Management.Controllers
         [Authorize(Roles = $"{nameof(UserRole.Staff)}")]
         [Produces("application/json")]
         [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status201Created)]
-        public async Task<IActionResult> CreateTourAsync([FromBody] CreateTourRequest request)
+        public async Task<IActionResult> CreateTourAsync(CreateTourRequest request)
         {
-            Tour tour = new()
+            string? staffId = _tokenHelper.GetAccountIdFromToken(HttpContext);
+            if (string.IsNullOrWhiteSpace(staffId))
             {
-                CreatedAt = DateTime.MinValue,
-                Status = TourStatus.Pending,
-                TourId = "",
-                TourTemplateId = request.TourTemplateId,
-                CurrentParticipant = 0,
-                DefaultTouristPrice = request.DefaultTouristPrice,
-                IsDeleted = false,
-                MaxParticipant = request.MaxParticipant,
-                MinParticipant = request.MinParticipant,
-                RegisterCloseDate = request.RegisterCloseDate,
-                RegisterOpenDate = request.RegisterOpenDate,
-                StartDate = request.StartDate,
-                StartLocation = request.StartLocation,
-                TourPrices = request.TourPrices.Select(x => new Repository.EntityModel.TourPrice()
+                return Unauthorized(new DefaultResponseModel<object>
                 {
-                    AgeFrom = x.AgeFrom,
-                    AgeTo = x.AgeTo,
-                    Name = x.Name,
-                    Price = x.Price,
-                    PriceId = "",
-                    TourId = ""
-                }).ToList(),
-                TourRefundPolicies = request.RefundPolicies.Select(x => new TourRefundPolicy()
-                {
-                    CancelBefore = x.CancelBefore,
-                    RefundPercent = x.RefundPercent,
-                    TourId = "",
-                    TourRefundPolicyId = ""
-                }).ToList()
-            };
+                    Message = "Unauthorized",
+                    StatusCode = StatusCodes.Status401Unauthorized
+                });
+            }
+
+            Tour tour = _mapper.Map<Tour>(request);
             string tourId = await _tourService.CreateTour(tour);
+
             return Ok(new DefaultResponseModel<string>()
             {
                 Message = "Create tour successfully",
