@@ -25,14 +25,13 @@ namespace VietWay.Service.Management.Implement
                 query = query.Where(x => x.Name.Contains(nameSearch));
             }
 
-            return await _unitOfWork.AttractionCategoryRepository.Query()
-                .Select(x => new AttractionCategoryDTO()
-                {
-                    AttractionCategoryId = x.AttractionCategoryId,
-                    Name = x.Name,
-                    Description = x.Description,
-                    CreatedAt = x.CreatedAt
-                }).ToListAsync();
+            return await query.Select(x => new AttractionCategoryDTO()
+            {
+                AttractionCategoryId = x.AttractionCategoryId,
+                Name = x.Name,
+                Description = x.Description,
+                CreatedAt = x.CreatedAt
+            }).ToListAsync();
         }
         public async Task<string> CreateAttractionCategoryAsync(AttractionCategory attractionCategory)
         {
@@ -51,7 +50,7 @@ namespace VietWay.Service.Management.Implement
                 throw;
             }
         }
-        public async Task UpdateAttractionCategoryAsync(string attractionCategoryId, 
+        public async Task UpdateAttractionCategoryAsync(string attractionCategoryId,
             AttractionCategory newAttractionCategory)
         {
             AttractionCategory? attractionCategory = await _unitOfWork.AttractionCategoryRepository.Query()
@@ -79,7 +78,7 @@ namespace VietWay.Service.Management.Implement
                 throw new ResourceNotFoundException("Attraction Category not found");
 
             bool hasRelatedData = await _unitOfWork.AttractionRepository.Query().AnyAsync(x => x.AttractionCategoryId.Equals(attractionCategoryId));
-            
+
             try
             {
                 await _unitOfWork.BeginTransactionAsync();

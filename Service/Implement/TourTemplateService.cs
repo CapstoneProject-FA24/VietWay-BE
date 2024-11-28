@@ -214,7 +214,7 @@ namespace VietWay.Service.Management.Implement
                 .Query()
                 .Where(x => x.IsDeleted == false &&
                             x.Tours.Any(y => y.StartDate >= _timeZoneHelper.GetUTC7Now() &&
-                                             y.Status == TourStatus.Opened && y.IsDeleted == false));
+                                             y.Status == TourStatus.Opened && y.RegisterOpenDate <= DateTime.Now && y.RegisterCloseDate >= DateTime.Now && !y.IsDeleted));
             if (false == string.IsNullOrWhiteSpace(nameSearch))
             {
                 query = query.Where(x => x.TourName.Contains(nameSearch));
@@ -285,7 +285,7 @@ namespace VietWay.Service.Management.Implement
                             Name = z.Attraction.Name,
                         }).ToList()
                     }).ToList(),
-                    Tours = x.Tours.Where(a => a.Status == TourStatus.Opened).Select(y => new TourInfoDTO
+                    Tours = x.Tours.Where(a => a.Status == TourStatus.Opened && a.RegisterOpenDate <= DateTime.Now && a.RegisterCloseDate >= DateTime.Now && !a.IsDeleted).Select(y => new TourInfoDTO
                     {
                         TourId = y.TourId,
                         StartLocation = y.StartLocation,

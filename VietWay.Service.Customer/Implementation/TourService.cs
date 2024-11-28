@@ -14,7 +14,7 @@ namespace VietWay.Service.Customer.Implementation
         public async Task<List<TourPreviewDTO>> GetAllToursByTemplateIdsAsync(string tourTemplateId)
         {
             return await _unitOfWork.TourRepository.Query()
-                .Where(x => false == x.IsDeleted && tourTemplateId == x.TourTemplateId && TourStatus.Opened == x.Status)
+                .Where(x => false == x.IsDeleted && tourTemplateId == x.TourTemplateId && TourStatus.Opened == x.Status && x.RegisterOpenDate <= DateTime.Now && x.RegisterCloseDate >= DateTime.Now && !x.IsDeleted)
                 .Select(x => new TourPreviewDTO()
                 {
                     TourId = x.TourId,
@@ -29,7 +29,7 @@ namespace VietWay.Service.Customer.Implementation
         public async Task<TourDetailDTO?> GetTourByIdAsync(string tourId)
         {
             return await _unitOfWork.TourRepository.Query()
-                .Where(x => false == x.IsDeleted && tourId == x.TourId && TourStatus.Opened == x.Status)
+                .Where(x => false == x.IsDeleted && tourId == x.TourId && TourStatus.Opened == x.Status && x.RegisterOpenDate <= DateTime.Now && x.RegisterCloseDate >= DateTime.Now && !x.IsDeleted)
                 .Select(x => new TourDetailDTO()
                 {
                     TourId = x.TourId,

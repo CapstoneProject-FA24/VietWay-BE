@@ -21,7 +21,7 @@ namespace VietWay.Service.Management.Implement
         public async Task<List<PostCategoryDTO>> GetPostCategoriesAsync(string? nameSearch)
         {
             var query = _unitOfWork
-                .ProvinceRepository
+                .PostCategoryRepository
                 .Query()
                 .Where(x => x.IsDeleted == false);
             if (!string.IsNullOrEmpty(nameSearch))
@@ -29,14 +29,13 @@ namespace VietWay.Service.Management.Implement
                 query = query.Where(x => x.Name.Contains(nameSearch));
             }
 
-            return await _unitOfWork.PostCategoryRepository.Query()
-                .Select(x => new PostCategoryDTO()
-                {
-                    Description = x.Description,
-                    Name = x.Name,
-                    PostCategoryId = x.PostCategoryId,
-                    CreatedAt = x.CreatedAt
-                }).ToListAsync();
+            return await query.Select(x => new PostCategoryDTO()
+            {
+                Description = x.Description,
+                Name = x.Name,
+                PostCategoryId = x.PostCategoryId,
+                CreatedAt = x.CreatedAt
+            }).ToListAsync();
         }
         public async Task<string> CreatePostCategoryAsync(PostCategory postCategory)
         {
@@ -56,7 +55,7 @@ namespace VietWay.Service.Management.Implement
             }
         }
 
-        public async Task UpdatePostCategoryAsync(string postCategoryId,PostCategory newPostCategory)
+        public async Task UpdatePostCategoryAsync(string postCategoryId, PostCategory newPostCategory)
         {
             PostCategory? postCategory = await _unitOfWork.PostCategoryRepository.Query()
                 .SingleOrDefaultAsync(x => x.PostCategoryId.Equals(postCategoryId)) ??
