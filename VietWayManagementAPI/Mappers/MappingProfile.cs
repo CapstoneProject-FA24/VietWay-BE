@@ -193,6 +193,10 @@ namespace VietWay.API.Management.Mappers
             CreateMap<CreateTourDurationRequest, TourDuration>()
                 .ForMember(dest => dest.DurationName, opt => opt.MapFrom(src => src.DurationName))
                 .ForMember(dest => dest.NumberOfDay, opt => opt.MapFrom(src => src.NumberOfDay));
+
+            CreateMap<CreatePostCategoryRequest, PostCategory>()
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description));
         }
     }
 }
