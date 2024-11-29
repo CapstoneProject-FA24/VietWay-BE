@@ -177,6 +177,7 @@ namespace VietWay.Service.Customer.Implementation
                     TourName = x.Tour.TourTemplate.TourName,
                     CreatedOn = x.CreatedAt,
                     Note = x.Note,
+                    PaidAmount = x.PaidAmount,
                     Participants = x.BookingTourists.Select(y => new TourParticipantDTO()
                     {
                         DateOfBirth = y.DateOfBirth,

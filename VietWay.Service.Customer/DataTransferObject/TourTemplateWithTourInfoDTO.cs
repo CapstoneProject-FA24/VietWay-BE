@@ -13,6 +13,7 @@ namespace VietWay.Service.Customer.DataTransferObject
         public required string TourName { get; set; }
         public required string Duration { get; set; }
         public required string TourCategory { get; set; }
+        public required string StartingProvince { get; set; }
         public required List<string> Provinces { get; set; }
         public required string ImageUrl { get; set; }
         public required decimal MinPrice { get; set; }
