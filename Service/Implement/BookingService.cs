@@ -17,10 +17,6 @@ namespace VietWay.Service.Management.Implement
         private readonly IUnitOfWork _unitOfWork = unitOfWork;
         private readonly IIdGenerator _idGenerator = idGenerator;
         private readonly ITimeZoneHelper _timeZoneHelper = timeZoneHelper;
-        public async Task CreateBookingAsync(Booking tourBooking)
-        {
-            await _unitOfWork.BookingRepository.CreateAsync(tourBooking);
-        }
         public async Task CancelBookingAsync(string bookingId, string accountId, string? reason)
         {
             try
@@ -73,74 +69,6 @@ namespace VietWay.Service.Management.Implement
                 throw;
             }
         }
-
-        public async Task<(int count, List<TourBookingPreviewDTO> items)> GetCustomerBookedToursAsync(string customerId, int pageSize, int pageIndex)
-        {
-            IQueryable<Booking> query = _unitOfWork
-                .BookingRepository
-                .Query()
-                .Where(x => x.CustomerId == customerId)
-                .Include(x => x.Tour.TourTemplate.TourTemplateImages)
-                .OrderByDescending(x => x.CreatedAt);
-            int count = await query.CountAsync();
-            List<TourBookingPreviewDTO> items = await query
-                .Skip((pageIndex - 1) * pageSize)
-                .Take(pageSize)
-                .Select(x => new TourBookingPreviewDTO()
-                {
-                    BookingId = x.BookingId,
-                    TourId = x.TourId,
-                    CustomerId = x.CustomerId,
-                    NumberOfParticipants = x.NumberOfParticipants,
-                    TotalPrice = x.TotalPrice,
-                    Status = x.Status,
-                    CreatedOn = x.CreatedAt,
-                    TourName = x.Tour.TourTemplate.TourName,
-                    ImageUrl = x.Tour.TourTemplate.TourTemplateImages.First().ImageUrl,
-                    Code = x.Tour.TourTemplate.Code
-                }).ToListAsync();
-            return (count, items);
-        }
-
-
-
-        public async Task<TourBookingInfoDTO?> GetTourBookingInfoAsync(string bookingId, string customerId)
-        {
-            return await _unitOfWork
-                .BookingRepository
-                .Query()
-                .Where(x => x.BookingId == bookingId && x.CustomerId == customerId)
-                .Include(x => x.Tour.TourTemplate.TourTemplateImages)
-                .Include(x => x.BookingTourists)
-                .Select(x => new TourBookingInfoDTO()
-                {
-                    BookingId = x.BookingId,
-                    ContactAddress = x.ContactAddress,
-                    ContactEmail = x.ContactEmail,
-                    ContactFullName = x.ContactFullName,
-                    ContactPhoneNumber = x.ContactPhoneNumber,
-                    CustomerId = x.CustomerId,
-                    ImageUrl = x.Tour.TourTemplate.TourTemplateImages.First().ImageUrl,
-                    NumberOfParticipants = x.NumberOfParticipants,
-                    StartDate = (DateTime)x.Tour.StartDate,
-                    StartLocation = x.Tour.StartLocation,
-                    Status = x.Status,
-                    TotalPrice = x.TotalPrice,
-                    TourId = x.TourId,
-                    TourName = x.Tour.TourTemplate.TourName,
-                    CreatedOn = x.CreatedAt,
-                    Note = x.Note,
-                    Participants = x.BookingTourists.Select(y => new TourParticipantDTO()
-                    {
-                        DateOfBirth = y.DateOfBirth,
-                        FullName = y.FullName,
-                        Gender = y.Gender,
-                        PhoneNumber = y.PhoneNumber,
-                    }).ToList(),
-                    Code = x.Tour.TourTemplate.Code
-                }).SingleOrDefaultAsync();
-        }
-
         public async Task<BookingDetailDTO?> GetBookingByIdAsync(string bookingId)
         {
             BookingDetailDTO result = await _unitOfWork
@@ -170,6 +98,7 @@ namespace VietWay.Service.Management.Implement
                     NumberOfParticipants = x.NumberOfParticipants,
                     Status = x.Status,
                     Note = x.Note,
+                    PaidAmount = x.PaidAmount,
                     Tourists = x.BookingTourists.Select(y => new BookingTouristDetailDTO
                     {
                         TouristId = y.TouristId,
@@ -177,7 +106,8 @@ namespace VietWay.Service.Management.Implement
                         Gender = y.Gender,
                         PhoneNumber = y.PhoneNumber,
                         DateOfBirth = y.DateOfBirth,
-                        Price = y.Price
+                        Price = y.Price,
+                        PIN = y.PIN,
                     }).ToList(),
                     Payments = x.BookingPayments.Select(y => new BookingPaymentDetailDTO
                     {
@@ -274,6 +204,7 @@ namespace VietWay.Service.Management.Implement
                     StartDate = x.Tour.StartDate,
                     StartLocation = x.Tour.StartLocation,
                     CreatedAt = x.CreatedAt,
+                    PaidAmount = x.PaidAmount,
                     ContactFullName = x.ContactFullName,
                     ContactEmail = x.ContactEmail,
                     ContactPhoneNumber = x.ContactPhoneNumber,
@@ -285,6 +216,7 @@ namespace VietWay.Service.Management.Implement
                         TouristId = y.TouristId,
                         FullName = y.FullName,
                         DateOfBirth = y.DateOfBirth,
+                        PIN = y.PIN,
                     }).ToList(),
                 }).ToListAsync();
             return (count, items);

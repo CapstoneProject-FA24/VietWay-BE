@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -19,6 +20,7 @@ namespace VietWay.Repository.EntityModel
         [Required]
         public string? EntityId { get; set; }
         [StringLength(20)]
+        [ForeignKey(nameof(Modifier))] 
         [Required]
         public string? ModifiedBy { get; set; }
         [Required]
@@ -30,5 +32,6 @@ namespace VietWay.Repository.EntityModel
         public DateTime Timestamp { get; set; }
 
         public virtual EntityStatusHistory? StatusHistory { get; set; }
+        public virtual Account? Modifier { get; set; }
     }
 }

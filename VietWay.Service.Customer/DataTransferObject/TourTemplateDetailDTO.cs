@@ -8,6 +8,7 @@
         public required string Description { get; set; }
         public required TourDurationDTO Duration { get; set; }
         public required TourCategoryDTO TourCategory { get; set; }
+        public required string StartingProvince { get; set; }
         public required string Note { get; set; }
         public double? AverageRating { get; set; }
 

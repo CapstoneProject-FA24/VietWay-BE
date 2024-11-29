@@ -25,5 +25,6 @@ namespace VietWay.API.Customer.RequestModel
         public required string PhoneNumber { get; set; }
         public required Gender Gender { get; set; }
         public required DateTime DateOfBirth { get; set; }
+        public string? PIN { get; set; }
     }
 }

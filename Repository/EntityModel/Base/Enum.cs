@@ -68,7 +68,8 @@
         TourBooking,
         TourCategory,
         TourDuration,
-        TourTemplate
+        TourTemplate,
+        BookingRefund
     }
     public enum EventStatus
     {
