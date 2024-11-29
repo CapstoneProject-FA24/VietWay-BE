@@ -180,6 +180,7 @@ namespace VietWay.API.Management.Mappers
                 .ForMember(dest => dest.RegisterCloseDate, opt => opt.MapFrom(src => src.RegisterCloseDate))
                 .ForMember(dest => dest.MinParticipant, opt => opt.MapFrom(src => src.MinParticipant))
                 .ForMember(dest => dest.MaxParticipant, opt => opt.MapFrom(src => src.MaxParticipant))
+                .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.IsDraft ? TourTemplateStatus.Draft : TourTemplateStatus.Pending))
                 .ForMember(dest => dest.TourPrices, opt => opt.MapFrom(src => (src.TourPrice ?? new())
                     .Select(x => new Repository.EntityModel.TourPrice()
                     {
