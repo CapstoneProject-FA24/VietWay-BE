@@ -1,16 +1,14 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace VietWay.API.Management.RequestModel
 {
     public class ZaloPayCallbackData
     {
-        [JsonProperty("data")]
         public string Data { get; set; }
-        [JsonProperty("mac")]
         public string Mac { get; set; }
-        [JsonProperty("type")]
         public int Type { get; set; }
     }
 }

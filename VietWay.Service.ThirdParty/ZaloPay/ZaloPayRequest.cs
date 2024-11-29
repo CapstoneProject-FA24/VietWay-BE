@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using VietWay.Repository.EntityModel.Base;
 using VietWay.Repository.EntityModel;
 using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace VietWay.Service.ThirdParty.ZaloPay
 {
@@ -38,23 +39,21 @@ namespace VietWay.Service.ThirdParty.ZaloPay
 
     public class CallbackData
     {
-        [JsonProperty("data")]
         public string Data { get; set; }
-        [JsonProperty("mac")]
         public string Mac { get; set; }
-        [JsonProperty("type")]
         public int Type { get; set; }
     }
 
     public class CallbackDataContent
     {
         [JsonProperty("app_trans_id")]
+        [JsonPropertyName("app_trans_id")]
         public string AppTransId { get; set; }
-
         [JsonProperty("server_time")]
+        [JsonPropertyName("server_time")]
         public long ServerTime { get; set; }
-
         [JsonProperty("zp_trans_id")]
+        [JsonPropertyName("zp_trans_id")]
         public long ZpTransId { get; set; }
     }
 }

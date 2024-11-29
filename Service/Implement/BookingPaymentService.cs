@@ -130,7 +130,6 @@ namespace VietWay.Service.Management.Implement
         {
             var dataJson = JsonConvert.DeserializeObject<CallbackDataContent>(data.Data);
             Dictionary<string, object> result = _zaloPayService.VerifyTransaction(data);
-
             string[] parts = dataJson.AppTransId.Split('_');
             string appTransId = parts.Length > 1 ? parts[1] : string.Empty;
 

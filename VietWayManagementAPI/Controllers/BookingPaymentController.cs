@@ -48,12 +48,7 @@ namespace VietWay.API.Management.Controllers
         public async Task<IActionResult> HandleZaloPayCallback([FromBody] ZaloPayCallbackData callbackData)
         {
             CallbackData data = _mapper.Map<CallbackData>(callbackData);
-            await _bookingPaymentService.HandleZaloPayCallback(data);
-            return Ok(new
-            {
-                RspCode = "00",
-                Message = "Success"
-            });
+            return Ok(await _bookingPaymentService.HandleZaloPayCallback(data));
         }
     }
 }
