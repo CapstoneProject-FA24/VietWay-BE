@@ -17,6 +17,7 @@ namespace VietWay.API.Management.RequestModel
         public decimal? MaxPrice { get; set; }
         public List<string>? ProvinceIds { get; set; }
         public string? StartingProvinceId { get; set; }
+        public string? Transportation { get; set; }
         public List<TemplateSchedule>? Schedules { get; set; }
         [Required]
         public required bool IsDraft { get; set; }
