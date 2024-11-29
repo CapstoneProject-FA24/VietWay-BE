@@ -76,7 +76,7 @@ namespace VietWay.Service.Customer.Implementation
                     Timestamp = _timeZoneHelper.GetUTC7Now(),
                     ModifiedBy = booking.CustomerId,
                     ModifierRole = UserRole.Customer,
-                };);
+                });
                 await _unitOfWork.CommitTransactionAsync();
                 _backgroundJobClient.Schedule<IBookingJob>(
                     x => x.CheckBookingForExpirationAsync(booking.BookingId), 

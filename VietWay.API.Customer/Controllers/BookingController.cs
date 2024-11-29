@@ -235,7 +235,7 @@ namespace VietWay.API.Customer.Controllers
                 });
             }
             string url = await _bookingPaymentService
-                .GetBookingPaymentUrl(paymentMethod, bookingId, customerId, HttpContext.Connection.RemoteIpAddress?.ToString() ?? "");
+                .GetBookingPaymentUrl(paymentMethod, isFullPayment, bookingId, customerId, HttpContext.Connection.RemoteIpAddress?.ToString() ?? "");
             return Ok(new DefaultResponseModel<string>()
             {
                 Message = "Success",
