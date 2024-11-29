@@ -33,7 +33,7 @@ namespace VietWay.Service.Management.Implement
                     ?? throw new ResourceNotFoundException("Booking not found");
                 if (booking.Status != BookingStatus.Pending && booking.Status != BookingStatus.Deposited && booking.Status != BookingStatus.Paid)
                 {
-                    throw new InvalidOperationException("Cannot cancel booking that is not pending or confirmed");
+                    throw new InvalidOperationException("Cannot cancel booking that is not pending, Deposited or Paid");
                 }
                 int oldStatus = (int)booking.Status;
                 booking.Status = BookingStatus.Cancelled;
@@ -60,6 +60,22 @@ namespace VietWay.Service.Management.Implement
                     }
                 });
 
+                if (booking.PaidAmount > 0)
+                {
+                    await _unitOfWork.BookingRefundRepository.CreateAsync(new BookingRefund()
+                    {
+                        RefundId = _idGenerator.GenerateId(),
+                        BookingId = booking.BookingId,
+                        BankCode = null,
+                        BankTransactionNumber = null,
+                        CreatedAt = _timeZoneHelper.GetUTC7Now(),
+                        RefundAmount = booking.PaidAmount,
+                        RefundDate = null,
+                        RefundNote = null,
+                        RefundReason = reason,
+                        RefundStatus = RefundStatus.Pending,
+                    });
+                }
                 await _unitOfWork.BookingRepository.UpdateAsync(booking);
                 await _unitOfWork.CommitTransactionAsync();
             }

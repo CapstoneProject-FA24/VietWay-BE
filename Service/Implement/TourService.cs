@@ -419,6 +419,23 @@ namespace VietWay.Service.Management.Implement
                                 Reason = $"tour bị hủy vì {reason}",
                             }
                         });
+
+                        if (booking.PaidAmount > 0)
+                        {
+                            await _unitOfWork.BookingRefundRepository.CreateAsync(new BookingRefund()
+                            {
+                                RefundId = _idGenerator.GenerateId(),
+                                BookingId = booking.BookingId,
+                                BankCode = null,
+                                BankTransactionNumber = null,
+                                CreatedAt = _timeZoneHelper.GetUTC7Now(),
+                                RefundAmount = booking.PaidAmount,
+                                RefundDate = null,
+                                RefundNote = null,
+                                RefundReason = reason,
+                                RefundStatus = RefundStatus.Pending,
+                            });
+                        }
                     }
                 }
                 await _unitOfWork.TourRepository.UpdateAsync(tour);

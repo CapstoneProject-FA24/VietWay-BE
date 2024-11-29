@@ -121,6 +121,22 @@ namespace VietWay.Service.Customer.Implementation
                         CreatedAt = _timeZoneHelper.GetUTC7Now(),
                     });
                 }
+                if (booking.PaidAmount > 0)
+                {
+                    await _unitOfWork.BookingRefundRepository.CreateAsync(new BookingRefund()
+                    {
+                        RefundId = _idGenerator.GenerateId(),
+                        BookingId = booking.BookingId,
+                        BankCode = null,
+                        BankTransactionNumber = null,
+                        CreatedAt = _timeZoneHelper.GetUTC7Now(),
+                        RefundAmount = booking.PaidAmount,
+                        RefundDate = null,
+                        RefundNote = null,
+                        RefundReason = reason,
+                        RefundStatus = RefundStatus.Pending,
+                    });
+                }
                 await _unitOfWork.BookingRepository.UpdateAsync(booking);
                 string entityHistoryId = _idGenerator.GenerateId();
                 await _unitOfWork.EntityStatusHistoryRepository.CreateAsync(new EntityStatusHistory()
