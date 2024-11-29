@@ -5,13 +5,15 @@ namespace VietWay.API.Management.RequestModel
     public class CreateTourRequest
     {
         public required string TourTemplateId { get; set; }
-        public string? StartLocation { get; set; }
-        public DateTime? StartDate { get; set; }
-        public decimal? DefaultTouristPrice { get; set; }
-        public DateTime? RegisterOpenDate { get; set; }
-        public DateTime? RegisterCloseDate { get; set; }
-        public int? MaxParticipant { get; set; }
-        public int? MinParticipant { get; set; }
+        public required string StartLocation { get; set; }
+        public required DateTime StartDate { get; set; }
+        public required decimal DefaultTouristPrice { get; set; }
+        public required DateTime RegisterOpenDate { get; set; }
+        public required DateTime RegisterCloseDate { get; set; }
+        public required int MaxParticipant { get; set; }
+        public required int MinParticipant { get; set; }
+        public required decimal DepositPercent { get; set; }
+        public required string StartLocationPlaceId { get; set; }
         public List<TourPrice>? TourPrice { get; set; }
         public List<RefundPolicy>? RefundPolicies { get; set; }
         public required DateTime PaymentDeadline { get; set; }

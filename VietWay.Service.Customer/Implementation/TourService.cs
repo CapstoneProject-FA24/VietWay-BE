@@ -42,6 +42,8 @@ namespace VietWay.Service.Customer.Implementation
                     RegisterOpenDate = x.RegisterOpenDate,
                     StartDate = x.StartDate,
                     StartLocation = x.StartLocation,
+                    StartLocationPlaceId = x.StartLocationPlaceId,
+                    DepositPercent = x.DepositPercent,
                     PricesByAge = x.TourPrices.Select(y => new TourPriceDTO()
                     {
                         AgeFrom = y.AgeFrom,

@@ -7,6 +7,7 @@
         public required string TourName { get; set; }
         public required string Duration { get; set; }
         public required string TourCategory { get; set; }
+        public required string StartingProvince { get; set; }
         public required List<string> Provinces { get; set; }
         public required decimal Price { get; set; } 
         public required string ImageUrl { get; set; }

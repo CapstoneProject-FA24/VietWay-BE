@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using VietWay.Repository.DataAccessObject;
 
@@ -11,9 +12,11 @@ using VietWay.Repository.DataAccessObject;
 namespace VietWay.Repository.Migrations
 {
     [DbContext(typeof(VietWayDbContext))]
-    partial class VietWayDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241129090303_EntityHistory")]
+    partial class EntityHistory
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -949,14 +952,9 @@ namespace VietWay.Repository.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
 
-                    b.Property<string>("Transportation")
-                        .HasColumnType("nvarchar(max)");
-
                     b.HasKey("TourTemplateId");
 
                     b.HasIndex("DurationId");
-
-                    b.HasIndex("StartingProvince");
 
                     b.HasIndex("TourCategoryId");
 
@@ -1321,15 +1319,9 @@ namespace VietWay.Repository.Migrations
                         .WithMany()
                         .HasForeignKey("DurationId");
 
-                    b.HasOne("VietWay.Repository.EntityModel.Province", "Province")
-                        .WithMany()
-                        .HasForeignKey("StartingProvince");
-
                     b.HasOne("VietWay.Repository.EntityModel.TourCategory", "TourCategory")
                         .WithMany("TourTemplates")
                         .HasForeignKey("TourCategoryId");
-
-                    b.Navigation("Province");
 
                     b.Navigation("TourCategory");
 

@@ -66,6 +66,7 @@ namespace VietWay.Service.Customer.Implementation
                 {
                     TourTemplateId = x.TourTemplateId,
                     Code = x.Code,
+                    StartingProvince = x.Province.Name,
                     Duration = x.TourDuration.DurationName,
                     TourCategory = x.TourCategory.Name,
                     ImageUrl = x.TourTemplateImages.Select(x=>x.ImageUrl).FirstOrDefault() ?? "" ,
@@ -93,6 +94,7 @@ namespace VietWay.Service.Customer.Implementation
                 .Select(x => new TourTemplateDetailDTO()
                 {
                     Code = x.Code,
+                    StartingProvince = x.Province.Name,
                     Description = x.Description,
                     Duration = new TourDurationDTO()
                     {
@@ -156,6 +158,7 @@ namespace VietWay.Service.Customer.Implementation
                 .Select(x => new TourTemplatePreviewDTO()
                 {
                     Code = x.Code,
+                    StartingProvince = x.Province.Name,
                     Duration = x.TourDuration.DurationName,
                     ImageUrl = x.TourTemplateImages.FirstOrDefault().ImageUrl,
                     TourName = x.TourName,

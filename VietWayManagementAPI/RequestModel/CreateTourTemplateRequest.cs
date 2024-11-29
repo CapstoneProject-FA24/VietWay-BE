@@ -12,11 +12,12 @@ namespace VietWay.API.Management.RequestModel
         public required string DurationId { get; set; }
         [Required]
         public required string TourCategoryId { get; set; }
-        public string? Policy { get; set; }
         public string? Note { get; set; }
         public decimal? MinPrice { get; set; }
         public decimal? MaxPrice { get; set; }
         public List<string>? ProvinceIds { get; set; }
+        public string? StartingProvinceId { get; set; }
+        public string? Transportation { get; set; }
         public List<TemplateSchedule>? Schedules { get; set; }
         [Required]
         public required bool IsDraft { get; set; }

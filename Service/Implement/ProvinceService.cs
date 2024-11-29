@@ -98,6 +98,12 @@ namespace VietWay.Service.Management.Implement
         {
             try
             {
+                var existingProvince = await GetByNameAsync(province.Name);
+                if (existingProvince != null)
+                {
+                    throw new InvalidOperationException($"A category with the name '{existingProvince.Name}' already exists.");
+                }
+
                 province.ProvinceId ??= _idGenerator.GenerateId();
                 province.CreatedAt = DateTime.Now;
                 province.ImageUrl = "";
@@ -112,7 +118,11 @@ namespace VietWay.Service.Management.Implement
                 throw;
             }
         }
-
+        private async Task<Province> GetByNameAsync(string name)
+        {
+            return await _unitOfWork.ProvinceRepository.Query()
+                .FirstOrDefaultAsync(c => c.Name == name);
+        }
         public async Task UpdateProvinceAsync(Province newProvince)
         {
             Province? province = await _unitOfWork.ProvinceRepository.Query()

@@ -15,6 +15,7 @@ namespace VietWay.Service.Management.DataTransferObject
         public string TourId { get; set; }
         public string TourTemplateId { get; set; }
         public string StartLocation { get; set; }
+        public string? StartLocationPlaceId { get; set; }
         public DateTime? StartDate { get; set; }
         public decimal? DefaultTouristPrice { get; set; }
         public int? MaxParticipant { get; set; }
@@ -25,6 +26,7 @@ namespace VietWay.Service.Management.DataTransferObject
         public DateTime? RegisterCloseDate { get; set; }
         public DateTime CreatedAt { get; set; }
         public int TotalBookings { get; set; }
+        public decimal? DepositPercent { get; set; }
         public ICollection<TourPolicyPreviewDTO>? TourPolicies{ get; set; }
         public ICollection<TourPriceDTO>? TourPrices { get; set; }
     }

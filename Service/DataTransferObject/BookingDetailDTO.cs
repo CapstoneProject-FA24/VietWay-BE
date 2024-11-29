@@ -23,15 +23,17 @@ namespace VietWay.Service.Management.DataTransferObject
         public string? ContactPhoneNumber { get; set; }
         public string? ContactAddress { get; set; }
         public decimal TotalPrice { get; set; }
+        public decimal PaidAmount { get; set; }
         public int NumberOfParticipants { get; set; }
         public BookingStatus Status { get; set; }
         public string? Note { get; set; }
-        public ICollection<BookingTouristDetailDTO> Tourists { get; set; }
-        public ICollection<BookingPaymentDetailDTO> Payments { get; set; }
+        public required bool HavePendingRefund { get; set; }
+        public List<BookingTouristDetailDTO> Tourists { get; set; }
+        public List<BookingPaymentDetailDTO> Payments { get; set; }
         public decimal? RefundAmount { get; set; }
         public DateTime? CancelAt { get; set; }
         public UserRole? CancelBy { get; set; }
-        public ICollection<TourPolicyPreview>? TourPolicies { get; set; }
+        public List<TourPolicyPreview>? TourPolicies { get; set; }
     }
 
     public class BookingTouristDetailDTO
@@ -42,6 +44,7 @@ namespace VietWay.Service.Management.DataTransferObject
         public string? PhoneNumber { get; set; }
         public DateTime DateOfBirth { get; set; }
         public decimal Price { get; set; }
+        public string PIN { get; set; }
     }
 
     public class BookingPaymentDetailDTO

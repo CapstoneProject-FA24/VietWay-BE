@@ -145,7 +145,7 @@ namespace VietWay.API.Management.Controllers
                 });
             }
 
-            TourTemplate? tourTemplate = await _tourTemplateService.GetTemplateByIdAsync(tourTemplateId);
+            /*TourTemplate? tourTemplate = await _tourTemplateService.GetTemplateByIdAsync(tourTemplateId);
             if (tourTemplate == null)
             {
                 return NotFound(new DefaultResponseModel<object>()
@@ -157,7 +157,9 @@ namespace VietWay.API.Management.Controllers
             bool isInfoMissing = string.IsNullOrWhiteSpace(request.Code) ||
                                 string.IsNullOrWhiteSpace(request.TourName) ||
                                 string.IsNullOrWhiteSpace(request.Description) ||
-                                string.IsNullOrWhiteSpace(request.Policy) ||
+                                string.IsNullOrWhiteSpace(request.DurationId) ||
+                                string.IsNullOrWhiteSpace(request.TourCategoryId) ||
+                                string.IsNullOrWhiteSpace(request.StartingProvinceId) ||
                                 string.IsNullOrWhiteSpace(request.Note) ||
                                 request.ProvinceIds?.Count == 0 ||
                                 request.Schedules?.Count == 0 ||
@@ -179,6 +181,8 @@ namespace VietWay.API.Management.Controllers
             tourTemplate.Note = request.Note;
             tourTemplate.MinPrice = request.MinPrice;
             tourTemplate.MaxPrice = request.MaxPrice;
+            tourTemplate.StartingProvince = request.StartingProvinceId;
+            tourTemplate.Transportation = request.Transportation;
             tourTemplate.TourTemplateProvinces?.Clear();
             foreach (string provinceId in request.ProvinceIds)
             {
@@ -205,9 +209,10 @@ namespace VietWay.API.Management.Controllers
                         TourTemplateId = tourTemplateId
                     }).ToList()
                 });
-            }
+            }*/
 
-            await _tourTemplateService.UpdateTemplateAsync(tourTemplate, newSchedule);
+            TourTemplate tourTemplate = _mapper.Map<TourTemplate>(request);
+            await _tourTemplateService.UpdateTemplateAsync(tourTemplateId, tourTemplate);
             return Ok(new DefaultResponseModel<object>()
             {
                 Message = "Tour template updated successfully",

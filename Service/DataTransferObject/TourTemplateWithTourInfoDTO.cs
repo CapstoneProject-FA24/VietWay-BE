@@ -16,6 +16,7 @@ namespace VietWay.Service.Management.DataTransferObject
         public required string TourCategory { get; set; }
         public required string Description { get; set; }
         public required string Note { get; set; }
+        public required string StartingProvince { get; set; }
         public required List<string> Provinces { get; set; }
         public required string ImageUrl { get; set; }
         public required List<ScheduleDTO> Schedules { get; set; }

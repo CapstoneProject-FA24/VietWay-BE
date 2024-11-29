@@ -18,6 +18,7 @@ namespace VietWay.Service.Customer.DataTransferObject
         public required string ContactPhoneNumber { get; set; }
         public string? ContactAddress { get; set; }
         public required decimal TotalPrice { get; set; }
+        public required decimal PaidAmount { get; set; }
         public required BookingStatus Status { get; set; }
         public required DateTime CreatedOn { get; set; }
         public string? Note { get; set; }

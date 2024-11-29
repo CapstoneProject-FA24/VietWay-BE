@@ -22,6 +22,7 @@ namespace VietWay.Repository.EntityModel
         public string? DurationId { get; set; }
         [ForeignKey(nameof(TourCategory))]
         public string? TourCategoryId { get; set; }
+        public string? Transportation { get; set; }
         public string? Note { get; set; }
         [Required]
         public TourTemplateStatus Status { get; set; }
@@ -35,6 +36,7 @@ namespace VietWay.Repository.EntityModel
         public virtual TourDuration? TourDuration { get; set; }
         public virtual TourCategory? TourCategory { get; set; }
         public virtual ICollection<Tour>? Tours { get; set; }
+        public virtual Province? Province { get; set; }
         public virtual ICollection<TourTemplateProvince>? TourTemplateProvinces { get; set; }
         public virtual ICollection<TourTemplateSchedule>? TourTemplateSchedules { get; set; }
         public virtual ICollection<TourTemplateImage>? TourTemplateImages { get; set; }

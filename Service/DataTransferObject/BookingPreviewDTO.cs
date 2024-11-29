@@ -24,8 +24,10 @@ namespace VietWay.Service.Management.DataTransferObject
         public string? ContactEmail { get; set; }
         public string? ContactPhoneNumber { get; set; }
         public decimal TotalPrice { get; set; }
+        public decimal PaidAmount { get; set; }
         public int NumberOfParticipants { get; set; }
         public BookingStatus Status { get; set; }
+        public required bool HavePendingRefund { get; set; }
         public List<BookingTouristPreviewDTO> Tourists { get; set; }
     }
 
@@ -34,5 +36,6 @@ namespace VietWay.Service.Management.DataTransferObject
         public string TouristId { get; set; }
         public string? FullName { get; set; }
         public DateTime DateOfBirth { get; set; }
+        public string? PIN { get; set; }
     }
 }
