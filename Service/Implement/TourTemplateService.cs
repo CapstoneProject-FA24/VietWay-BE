@@ -24,6 +24,12 @@ namespace VietWay.Service.Management.Implement
             tourTemplate.TourTemplateId = _idGenerator.GenerateId();
             tourTemplate.CreatedAt = DateTime.UtcNow;
 
+            var existingCode = await GetByCodeAsync(tourTemplate.Code);
+            if (existingCode != null)
+            {
+                throw new InvalidOperationException($"A category with the name '{existingCode.Code}' already exists.");
+            }
+
             if (tourTemplate.MinPrice == 0 || tourTemplate.MaxPrice == 0)
             {
                 throw new Exception("Price can not be left 0");
@@ -49,6 +55,12 @@ namespace VietWay.Service.Management.Implement
             await _unitOfWork.TourTemplateRepository.CreateAsync(tourTemplate);
             return tourTemplate.TourTemplateId;
         }
+        private async Task<TourTemplate> GetByCodeAsync(string code)
+        {
+            return await _unitOfWork.TourTemplateRepository.Query()
+                .FirstOrDefaultAsync(c => c.Code == code);
+        }
+
         public async Task DeleteTemplateAsync(TourTemplate tourTemplate)
         {
             await _unitOfWork.TourTemplateRepository.SoftDeleteAsync(tourTemplate);
