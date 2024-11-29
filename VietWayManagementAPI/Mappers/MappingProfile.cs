@@ -71,6 +71,7 @@ namespace VietWay.API.Management.Mappers
                 .ForMember(dest => dest.Note, opt => opt.MapFrom(src => src.Note))
                 .ForMember(dest => dest.MinPrice, opt => opt.MapFrom(src => src.MinPrice))
                 .ForMember(dest => dest.MaxPrice, opt => opt.MapFrom(src => src.MaxPrice))
+                .ForMember(dest => dest.StartingProvince, opt => opt.MapFrom(src => src.StartingProvinceId))
                 .ForMember(dest => dest.TourTemplateProvinces, opt => opt.MapFrom(src => (src.ProvinceIds ?? new())
                     .Select(x => new TourTemplateProvince()
                     {
