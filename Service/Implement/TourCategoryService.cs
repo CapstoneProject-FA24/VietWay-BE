@@ -47,6 +47,12 @@ namespace VietWay.Service.Management.Implement
             tourCategory.CreatedAt = DateTime.Now;
             try
             {
+                var existingCategory = await GetByNameAsync(tourCategory.Name);
+                if (existingCategory != null)
+                {
+                    throw new InvalidOperationException($"A category with the name '{existingCategory.Name}' already exists.");
+                }
+
                 tourCategory.TourCategoryId ??= _idGenerator.GenerateId();
                 await _unitOfWork.BeginTransactionAsync();
                 await _unitOfWork.TourCategoryRepository.CreateAsync(tourCategory);
@@ -58,6 +64,11 @@ namespace VietWay.Service.Management.Implement
                 await _unitOfWork.RollbackTransactionAsync();
                 throw;
             }
+        }
+        private async Task<TourCategory> GetByNameAsync(string name)
+        {
+            return await _unitOfWork.TourCategoryRepository.Query()
+                .FirstOrDefaultAsync(c => c.Name == name);
         }
         public async Task UpdateTourCategoryAsync(TourCategory newTourCategory)
         {
