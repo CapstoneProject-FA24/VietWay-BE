@@ -98,7 +98,7 @@ namespace VietWay.Service.Customer.Implementation
             {
                 await _unitOfWork.BeginTransactionAsync();
                 Booking booking = _unitOfWork.BookingRepository.Query()
-                    .Include(x => x.Tour)
+                    .Include(x => x.Tour.TourRefundPolicies)
                     .Include(x => x.BookingRefunds)
                     .SingleOrDefault(x => x.BookingId.Equals(bookingId) && x.CustomerId.Equals(customerId))
                     ?? throw new ResourceNotFoundException("Booking not found");
@@ -109,19 +109,16 @@ namespace VietWay.Service.Customer.Implementation
                 int oldStatus = (int)booking.Status;
                 booking.Status = BookingStatus.Cancelled;
                 booking.Tour.CurrentParticipant -= booking.NumberOfParticipants;
-                if (booking.Status == BookingStatus.Paid || booking.Status == BookingStatus.Deposited)
-                {
-                    booking.BookingRefunds.Add(new BookingRefund()
-                    {
-                        RefundId = _idGenerator.GenerateId(),
-                        BookingId = bookingId,
-                        RefundAmount = booking.TotalPrice,
-                        RefundReason = reason,
-                        RefundStatus = RefundStatus.Pending,
-                        CreatedAt = _timeZoneHelper.GetUTC7Now(),
-                    });
-                }
-                if (booking.PaidAmount > 0)
+
+                decimal refundPercentCost = booking.Tour.TourRefundPolicies?
+                    .Where(x => x.CancelBefore > _timeZoneHelper.GetUTC7Now())
+                    .OrderByDescending(x => x.RefundPercent)
+                    .Select(x => x.RefundPercent)
+                    .FirstOrDefault() ?? 100;
+
+                decimal refundAmount = booking.PaidAmount - (booking.TotalPrice * refundPercentCost / 100);
+
+                if (refundAmount > 0)
                 {
                     await _unitOfWork.BookingRefundRepository.CreateAsync(new BookingRefund()
                     {
@@ -130,7 +127,7 @@ namespace VietWay.Service.Customer.Implementation
                         BankCode = null,
                         BankTransactionNumber = null,
                         CreatedAt = _timeZoneHelper.GetUTC7Now(),
-                        RefundAmount = booking.PaidAmount,
+                        RefundAmount = refundAmount,
                         RefundDate = null,
                         RefundNote = null,
                         RefundReason = reason,

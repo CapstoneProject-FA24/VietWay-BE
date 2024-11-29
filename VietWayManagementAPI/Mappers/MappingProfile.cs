@@ -150,7 +150,11 @@ namespace VietWay.API.Management.Mappers
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description));
 
-            CreateMap<RefundRequest, BookingPayment>();
+            CreateMap<RefundRequest, BookingRefund>()
+                .ForMember(dest => dest.RefundNote, opt => opt.MapFrom(src=>src.Note))
+                .ForMember(dest => dest.BankCode, opt => opt.MapFrom(src => src.BankCode))
+                .ForMember(dest => dest.BankTransactionNumber, opt => opt.MapFrom(src => src.BankTransactionNumber))
+                .ForMember(dest => dest.RefundDate, opt => opt.MapFrom(src => src.PayTime));
             
             CreateMap<CreateStaffAccountRequest, Staff>()
                 .ForMember(dest => dest.FullName, opt => opt.MapFrom(src => src.FullName))
