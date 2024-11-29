@@ -118,6 +118,7 @@ namespace VietWay.Service.Management.Implement
             return await _unitOfWork
                 .TourTemplateRepository
                 .Query()
+                .Include(x => x.Province)
                 .Include(x => x.TourTemplateSchedules)
                 .ThenInclude(x => x.AttractionSchedules)
                 .ThenInclude(x => x.Attraction)

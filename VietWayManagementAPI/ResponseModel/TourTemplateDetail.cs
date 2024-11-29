@@ -16,6 +16,8 @@ namespace VietWay.API.Management.ResponseModel
         public TourTemplateStatus Status { get; set; }
         public required DateTime CreatedAt { get; set; }
         public required string CreatorName { get; set; }
+        public ProvinceBriefPreviewDTO? StartingProvince { get; set; }
+        public string? Transportation { get; set; }
         public required List<ProvinceBriefPreviewDTO> Provinces { get; set; }
         public required List<ScheduleDetail> Schedules { get; set; }
         public required List<ImageDTO> Images { get; set; }

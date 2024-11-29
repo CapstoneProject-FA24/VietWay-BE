@@ -14,6 +14,11 @@ namespace VietWay.API.Management.Mappers
         public MappingProfile()
         {
             CreateMap<TourTemplate, TourTemplateDetail>()
+                .ForMember(dest => dest.StartingProvince, opt => opt.MapFrom(src => new ProvinceBriefPreviewDTO()
+                {
+                    ProvinceId = src.Province.ProvinceId,
+                    ProvinceName = src.Province.Name,
+                }))
                 .ForMember(dest => dest.Duration, opt => opt.MapFrom(src => new DurationDetail()
                 {
                     DayNumber = src.TourDuration.NumberOfDay,
