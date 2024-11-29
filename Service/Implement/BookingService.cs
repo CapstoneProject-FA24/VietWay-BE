@@ -35,13 +35,12 @@ namespace VietWay.Service.Management.Implement
                     .Include(x => x.Tour)
                     .SingleOrDefaultAsync(x => x.BookingId.Equals(bookingId))
                     ?? throw new ResourceNotFoundException("Booking not found");
-                if (booking.Status != BookingStatus.Pending && booking.Status != BookingStatus.Confirmed)
+                if (booking.Status != BookingStatus.Pending && booking.Status != BookingStatus.Deposited && booking.Status != BookingStatus.Paid)
                 {
                     throw new InvalidOperationException("Cannot cancel booking that is not pending or confirmed");
                 }
                 int oldStatus = (int)booking.Status;
-                if (booking.Status == BookingStatus.Pending) booking.Status = BookingStatus.Cancelled;
-                if (booking.Status == BookingStatus.Confirmed) booking.Status = BookingStatus.PendingRefund;
+                booking.Status = BookingStatus.Cancelled;
 
                 booking.Tour.CurrentParticipant -= booking.NumberOfParticipants;
                 string entityHistoryId = _idGenerator.GenerateId();
@@ -201,7 +200,7 @@ namespace VietWay.Service.Management.Implement
 
             EntityStatusHistory entityStatusHistory = await _unitOfWork.EntityStatusHistoryRepository.Query()
                 .Include(x => x.EntityHistory)
-                .SingleOrDefaultAsync(x => x.EntityHistory.EntityId == bookingId && x.EntityHistory.Action == EntityModifyAction.ChangeStatus && x.NewStatus == (int)BookingStatus.PendingRefund);
+                .SingleOrDefaultAsync(x => x.EntityHistory.EntityId == bookingId && x.EntityHistory.Action == EntityModifyAction.ChangeStatus && x.NewStatus == (int)BookingStatus.Cancelled);
             if (entityStatusHistory != null)
             {
                 result.CancelAt = entityStatusHistory.EntityHistory.Timestamp;
@@ -303,14 +302,14 @@ namespace VietWay.Service.Management.Implement
                 .BookingRepository.Query().SingleOrDefaultAsync(x => x.BookingId == bookingId)
                 ?? throw new ResourceNotFoundException("Booking not found");
 
-            if (booking.Status != BookingStatus.PendingRefund)
+            if (booking.Status != BookingStatus.Cancelled)
             {
                 throw new InvalidOperationException("The booking is not in a pending refund state and cannot be refunded.");
             }
 
             EntityStatusHistory entityStatusHistory = await _unitOfWork.EntityStatusHistoryRepository.Query()
                 .Include(x => x.EntityHistory)
-                .SingleOrDefaultAsync(x => x.EntityHistory.EntityId == bookingId && x.EntityHistory.Action == EntityModifyAction.ChangeStatus && x.NewStatus == (int)BookingStatus.PendingRefund)
+                .SingleOrDefaultAsync(x => x.EntityHistory.EntityId == bookingId && x.EntityHistory.Action == EntityModifyAction.ChangeStatus && x.NewStatus == (int)BookingStatus.Cancelled)
                 ?? throw new ResourceNotFoundException("Entity status history not found");
 
             decimal refundAmount = 0;
@@ -341,7 +340,6 @@ namespace VietWay.Service.Management.Implement
                 bookingPayment.Amount = refundAmount;
 
                 int oldStatus = (int)booking.Status;
-                booking.Status = BookingStatus.Refunded;
 
                 string entityHistoryId = _idGenerator.GenerateId();
 
@@ -388,7 +386,7 @@ namespace VietWay.Service.Management.Implement
                     .BookingRepository.Query().Include(x => x.BookingTourists).SingleOrDefaultAsync(x => x.BookingId == bookingId)
                     ?? throw new ResourceNotFoundException("Booking not found");
 
-                if (booking.Status != BookingStatus.Pending && booking.Status != BookingStatus.Confirmed)
+                if (booking.Status != BookingStatus.Pending && booking.Status != BookingStatus.Deposited && booking.Status != BookingStatus.Paid)
                 {
                     throw new InvalidOperationException("The booking is not in a pending or confirmed state and cannot change tour.");
                 }
@@ -403,7 +401,7 @@ namespace VietWay.Service.Management.Implement
                         .SingleOrDefaultAsync(x => x.TourId == newTourId && x.Status == TourStatus.Opened && x.IsDeleted == false)
                         ?? throw new ResourceNotFoundException("Can not find any tour");
                 bool isActiveBookingExisted = await _unitOfWork.BookingRepository.Query()
-                    .AnyAsync(x => x.TourId == newTourId && x.CustomerId == booking.CustomerId && (x.Status == BookingStatus.Pending || x.Status == BookingStatus.Confirmed));
+                    .AnyAsync(x => x.TourId == newTourId && x.CustomerId == booking.CustomerId && (x.Status == BookingStatus.Pending || x.Status == BookingStatus.Deposited) || x.Status == BookingStatus.Paid);
 
                 if (isActiveBookingExisted)
                 {

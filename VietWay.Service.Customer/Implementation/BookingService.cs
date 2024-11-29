@@ -32,7 +32,8 @@ namespace VietWay.Service.Customer.Implementation
                     .SingleOrDefaultAsync(x => x.TourId == booking.TourId && x.Status == TourStatus.Opened && x.IsDeleted == false)
                     ?? throw new ResourceNotFoundException("Can not find any tour");
                 bool isActiveBookingExisted = await _unitOfWork.BookingRepository.Query()
-                    .AnyAsync(x => x.TourId == booking.TourId && x.CustomerId == booking.CustomerId && (x.Status == BookingStatus.Pending || x.Status == BookingStatus.Confirmed));
+                    .AnyAsync(x => x.TourId == booking.TourId && x.CustomerId == booking.CustomerId && 
+                        (x.Status == BookingStatus.Pending || x.Status == BookingStatus.Deposited || x.Status == BookingStatus.Paid));
 
                 if (isActiveBookingExisted)
                 {
@@ -65,6 +66,17 @@ namespace VietWay.Service.Customer.Implementation
                 tour.CurrentParticipant = tour.CurrentParticipant + booking.NumberOfParticipants;
                 await _unitOfWork.BookingRepository.CreateAsync(booking);
                 await _unitOfWork.TourRepository.UpdateAsync(tour);
+
+                await _unitOfWork.EntityHistoryRepository.CreateAsync(new()
+                {
+                    Id = _idGenerator.GenerateId(),
+                    Action = EntityModifyAction.Create,
+                    EntityId = booking.BookingId,
+                    EntityType = EntityType.Booking,
+                    Timestamp = _timeZoneHelper.GetUTC7Now(),
+                    ModifiedBy = booking.CustomerId,
+                    ModifierRole = UserRole.Customer,
+                };);
                 await _unitOfWork.CommitTransactionAsync();
                 _backgroundJobClient.Schedule<IBookingJob>(
                     x => x.CheckBookingForExpirationAsync(booking.BookingId), 
@@ -87,17 +99,29 @@ namespace VietWay.Service.Customer.Implementation
                 await _unitOfWork.BeginTransactionAsync();
                 Booking booking = _unitOfWork.BookingRepository.Query()
                     .Include(x => x.Tour)
+                    .Include(x => x.BookingRefunds)
                     .SingleOrDefault(x => x.BookingId.Equals(bookingId) && x.CustomerId.Equals(customerId))
                     ?? throw new ResourceNotFoundException("Booking not found");
-                if (booking.Status != BookingStatus.Pending && booking.Status != BookingStatus.Confirmed)
+                if (booking.Status != BookingStatus.Pending && booking.Status != BookingStatus.Deposited && booking.Status != BookingStatus.Paid)
                 {
                     throw new InvalidOperationException("You cannot cancel this booking");
                 }
                 int oldStatus = (int)booking.Status;
-                if (booking.Status == BookingStatus.Pending) booking.Status = BookingStatus.Cancelled;
-                if (booking.Status == BookingStatus.Confirmed) booking.Status = BookingStatus.PendingRefund;
-
+                booking.Status = BookingStatus.Cancelled;
                 booking.Tour.CurrentParticipant -= booking.NumberOfParticipants;
+                if (booking.Status == BookingStatus.Paid || booking.Status == BookingStatus.Deposited)
+                {
+                    booking.BookingRefunds.Add(new BookingRefund()
+                    {
+                        RefundId = _idGenerator.GenerateId(),
+                        BookingId = bookingId,
+                        RefundAmount = booking.TotalPrice,
+                        RefundReason = reason,
+                        RefundStatus = RefundStatus.Pending,
+                        CreatedAt = _timeZoneHelper.GetUTC7Now(),
+                    });
+                }
+                await _unitOfWork.BookingRepository.UpdateAsync(booking);
                 string entityHistoryId = _idGenerator.GenerateId();
                 await _unitOfWork.EntityStatusHistoryRepository.CreateAsync(new EntityStatusHistory()
                 {
@@ -116,8 +140,6 @@ namespace VietWay.Service.Customer.Implementation
                         Reason = reason,
                     }
                 });
-
-                await _unitOfWork.BookingRepository.UpdateAsync(booking);
                 await _unitOfWork.CommitTransactionAsync();
             }
             catch

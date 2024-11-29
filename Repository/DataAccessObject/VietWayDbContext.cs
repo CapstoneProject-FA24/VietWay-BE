@@ -17,6 +17,7 @@ namespace VietWay.Repository.DataAccessObject
         public DbSet<AttractionSchedule> AttractionSchedule { get; set; }
         public DbSet<Booking> Booking { get; set; }
         public DbSet<BookingPayment> BookingPayment { get; set; }
+        public DbSet<BookingRefund> BookingRefund { get; set; }
         public DbSet<BookingTourist> BookingTourist { get; set; }
         public DbSet<Customer> Customer { get; set; }
         public DbSet<EntityHistory> EntityHistory { get; set; }

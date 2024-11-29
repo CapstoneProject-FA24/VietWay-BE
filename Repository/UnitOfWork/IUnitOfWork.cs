@@ -13,6 +13,7 @@ namespace VietWay.Repository.UnitOfWork
         public IGenericRepository<AttractionReviewLike> AttractionReviewLikeRepository { get; }
         public IGenericRepository<Booking> BookingRepository { get; }
         public IGenericRepository<BookingPayment> BookingPaymentRepository { get; }
+        public IGenericRepository<BookingRefund> BookingRefundRepository { get; }
         public IGenericRepository<Customer> CustomerRepository { get; }
         public IGenericRepository<EntityHistory> EntityHistoryRepository { get; }
         public IGenericRepository<EntityStatusHistory> EntityStatusHistoryRepository { get; }

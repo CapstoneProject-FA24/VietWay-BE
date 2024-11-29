@@ -12,6 +12,6 @@ namespace VietWay.Service.Customer.Interface
     {
         Task<PaginatedList<BookingPaymentDTO>> GetBookingPaymentsAsync(string customerId, string bookingId, int pageSize, int pageIndex);
         Task<PaginatedList<BookingPaymentDTO>> GetAllCustomerBookingPaymentsAsync(string customerId, int pageSize, int pageIndex);
-        public Task<string> GetBookingPaymentUrl(PaymentMethod paymentMethod, string bookingId, string customerId, string ipAddress);
+        public Task<string> GetBookingPaymentUrl(PaymentMethod paymentMethod,bool isFullPayment, string bookingId, string customerId, string ipAddress);
     }
 }

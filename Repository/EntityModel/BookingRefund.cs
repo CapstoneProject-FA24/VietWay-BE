@@ -9,34 +9,31 @@ using VietWay.Repository.EntityModel.Base;
 
 namespace VietWay.Repository.EntityModel
 {
-    public class BookingTourist
+    public class BookingRefund
     {
         [Key]
-        [StringLength(20)]
         [Required]
-        public string? TouristId { get; set; }
+        [StringLength(20)]
+        public string? RefundId { get; set; }
+        [Required]
         [StringLength(20)]
         [ForeignKey(nameof(Booking))]
-        [Required]
         public string? BookingId { get; set; }
         [Required]
-        [StringLength(100)]
-        public string? FullName { get; set; }
-        [StringLength(10)]
-        [Required]
-        public string? PhoneNumber { get; set; }
-        [Required]
-        public Gender Gender { get; set; }
-        [Required]
-        public DateTime DateOfBirth { get; set; }
-        public bool? HasAttended { get; set; }
         [Range(0.01, 999999999999.99)]
         [Column(TypeName = "decimal(18,2)")]
+        public decimal RefundAmount { get; set; }
         [Required]
-        public decimal Price { get; set; }
-        [StringLength(12)]
-        public string? PIN { get; set; }
-        public string? Note { get; set; }
+        public RefundStatus RefundStatus { get; set; }
+        public DateTime? RefundDate { get; set; }
+        [Required]
+        [StringLength(20)]
+        public string? RefundReason { get; set; }
+        public string? RefundNote { get; set; }
+        public string? BankCode { get; set; }
+        public string? BankTransactionNumber { get; set; }
+        [Required]
+        public DateTime CreatedAt { get; set; }
 
         public virtual Booking? Booking { get; set; }
     }
