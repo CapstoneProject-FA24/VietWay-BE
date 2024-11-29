@@ -145,7 +145,7 @@ namespace VietWay.API.Management.Controllers
                 });
             }
 
-            TourTemplate? tourTemplate = await _tourTemplateService.GetTemplateByIdAsync(tourTemplateId);
+            /*TourTemplate? tourTemplate = await _tourTemplateService.GetTemplateByIdAsync(tourTemplateId);
             if (tourTemplate == null)
             {
                 return NotFound(new DefaultResponseModel<object>()
@@ -208,9 +208,10 @@ namespace VietWay.API.Management.Controllers
                         TourTemplateId = tourTemplateId
                     }).ToList()
                 });
-            }
+            }*/
 
-            await _tourTemplateService.UpdateTemplateAsync(tourTemplate, newSchedule);
+            TourTemplate tourTemplate = _mapper.Map<TourTemplate>(request);
+            await _tourTemplateService.UpdateTemplateAsync(tourTemplateId, tourTemplate);
             return Ok(new DefaultResponseModel<object>()
             {
                 Message = "Tour template updated successfully",
