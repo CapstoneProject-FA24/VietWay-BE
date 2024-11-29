@@ -99,6 +99,7 @@ namespace VietWay.Service.Management.Implement
                     Status = x.Status,
                     Note = x.Note,
                     PaidAmount = x.PaidAmount,
+                    HavePendingRefund = x.BookingRefunds.Any(y => y.RefundStatus == RefundStatus.Pending),
                     Tourists = x.BookingTourists.Select(y => new BookingTouristDetailDTO
                     {
                         TouristId = y.TouristId,
@@ -211,6 +212,7 @@ namespace VietWay.Service.Management.Implement
                     TotalPrice = x.TotalPrice,
                     NumberOfParticipants = x.NumberOfParticipants,
                     Status = x.Status,
+                    HavePendingRefund = x.BookingRefunds.Any(y => y.RefundStatus == RefundStatus.Pending),
                     Tourists = x.BookingTourists.Select(y => new BookingTouristPreviewDTO
                     {
                         TouristId = y.TouristId,
@@ -245,7 +247,6 @@ namespace VietWay.Service.Management.Implement
                 ?? throw new ResourceNotFoundException("Entity status history not found");
 
             decimal refundAmount = 0;
-
             if (entityStatusHistory.EntityHistory.ModifierRole == UserRole.Manager || entityStatusHistory.EntityHistory.ModifierRole == UserRole.Staff)
             {
                 refundAmount = booking.TotalPrice;
