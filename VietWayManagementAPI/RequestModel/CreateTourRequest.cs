@@ -1,5 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.ComponentModel.DataAnnotations.Schema;
 
 namespace VietWay.API.Management.RequestModel
 {
@@ -17,8 +16,6 @@ namespace VietWay.API.Management.RequestModel
         public required string StartLocationPlaceId { get; set; }
         public List<TourPrice>? TourPrice { get; set; }
         public List<RefundPolicy>? RefundPolicies { get; set; }
-        [Required]
-        public required bool IsDraft { get; set; }
     }
     public class TourPriceInfo
     {
