@@ -23,7 +23,8 @@ namespace VietWay.Job.Implementation
             try
             {
                 await _unitOfWork.BeginTransactionAsync();
-                booking.Status = BookingStatus.Expired;
+                booking.Status = BookingStatus.Cancelled;
+#warning add history
                 booking.Tour!.CurrentParticipant -= booking.NumberOfParticipants;
                 await _unitOfWork.BookingRepository.UpdateAsync(booking);
                 await _unitOfWork.CommitTransactionAsync();

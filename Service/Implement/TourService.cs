@@ -397,14 +397,7 @@ namespace VietWay.Service.Management.Implement
                     foreach (var booking in tour.TourBookings)
                     {
                         int oldBookingStatus = (int)booking.Status;
-                        if (booking.Status == BookingStatus.Confirmed)
-                        {
-                            booking.Status = BookingStatus.PendingRefund;
-                        }
-                        else if(booking.Status == BookingStatus.Pending)
-                        {
-                            booking.Status = BookingStatus.Cancelled;
-                        }
+                        booking.Status = BookingStatus.Cancelled;
 
                         string bookingHistoryId = _idGenerator.GenerateId();
                         await _unitOfWork.EntityStatusHistoryRepository.CreateAsync(new EntityStatusHistory()

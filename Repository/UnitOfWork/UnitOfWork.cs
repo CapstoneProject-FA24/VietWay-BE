@@ -19,6 +19,7 @@ namespace VietWay.Repository.UnitOfWork
         private IGenericRepository<AttractionReviewLike>? attractionReviewLikeRepository;
         private IGenericRepository<Booking>? bookingRepository;
         private IGenericRepository<BookingPayment>? bookingPaymentRepository;
+        private IGenericRepository<BookingRefund> bookingRefundRepository;
         private IGenericRepository<Customer>? customerRepository;
         private IGenericRepository<EntityHistory>? entityHistoryRepository;
         private IGenericRepository<EntityStatusHistory>? entityStatusHistoryRepository;
@@ -264,6 +265,15 @@ namespace VietWay.Repository.UnitOfWork
             {
                 tourRefundPolicyRepository ??= new GenericRepository<TourRefundPolicy>(_dbContext);
                 return tourRefundPolicyRepository;
+            }
+        }
+
+        public IGenericRepository<BookingRefund> BookingRefundRepository 
+        {
+            get
+            {
+                bookingRefundRepository ??= new GenericRepository<BookingRefund>(_dbContext);
+                return bookingRefundRepository;
             }
         }
 

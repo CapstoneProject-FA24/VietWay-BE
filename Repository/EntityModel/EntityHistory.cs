@@ -28,5 +28,7 @@ namespace VietWay.Repository.EntityModel
         public EntityModifyAction Action { get; set; }
         [Required]
         public DateTime Timestamp { get; set; }
+
+        public virtual EntityStatusHistory? StatusHistory { get; set; }
     }
 }

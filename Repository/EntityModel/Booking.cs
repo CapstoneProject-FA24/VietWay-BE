@@ -38,6 +38,11 @@ namespace VietWay.Repository.EntityModel
         [Column(TypeName = "decimal(18,2)")]
         [Required]
         public decimal TotalPrice { get; set; }
+
+        [Range(0.01, 999999999999.99)]
+        [Column(TypeName = "decimal(18,2)")]
+        [Required]
+        public decimal PaidAmount { get; set; }
         [Required]
         public BookingStatus Status { get; set; }
         [Required]
@@ -50,5 +55,6 @@ namespace VietWay.Repository.EntityModel
 
         public virtual ICollection<BookingPayment>? BookingPayments { get; set; }
         public virtual ICollection<BookingTourist>? BookingTourists { get; set; }
+        public virtual ICollection<BookingRefund>? BookingRefunds { get; set; }
     }
 }
