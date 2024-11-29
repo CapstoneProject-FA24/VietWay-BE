@@ -27,6 +27,7 @@ namespace VietWay.Service.Management.DataTransferObject
         public decimal PaidAmount { get; set; }
         public int NumberOfParticipants { get; set; }
         public BookingStatus Status { get; set; }
+        public required bool HavePendingRefund { get; set; }
         public List<BookingTouristPreviewDTO> Tourists { get; set; }
     }
 
