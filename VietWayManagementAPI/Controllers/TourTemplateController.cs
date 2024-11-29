@@ -182,6 +182,7 @@ namespace VietWay.API.Management.Controllers
             tourTemplate.MinPrice = request.MinPrice;
             tourTemplate.MaxPrice = request.MaxPrice;
             tourTemplate.StartingProvince = request.StartingProvinceId;
+            tourTemplate.Transportation = request.Transportation;
             tourTemplate.TourTemplateProvinces?.Clear();
             foreach (string provinceId in request.ProvinceIds)
             {
