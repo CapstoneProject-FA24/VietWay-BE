@@ -237,5 +237,28 @@ namespace VietWay.Service.Customer.Implementation
             }
             return age;
         }
+
+        public async Task<List<BookingHistoryDTO>> GetBookingHistoryAsync(string customerId, string bookingId)
+        {
+            bool isBookingExist = _unitOfWork.BookingRepository.Query()
+                .Any(x => x.BookingId == bookingId && x.CustomerId == customerId);
+            if (!isBookingExist)
+            {
+                throw new ResourceNotFoundException("Booking not found");
+            }
+            List<BookingHistoryDTO> result = await _unitOfWork.EntityHistoryRepository.Query()
+                .Where(x => x.EntityType == EntityType.Booking && x.EntityId == bookingId)
+                .OrderByDescending(x => x.Timestamp)
+                .Select(x => new BookingHistoryDTO()
+                {
+                    NewStatus = x.StatusHistory.NewStatus,
+                    OldStatus = x.StatusHistory.OldStatus,
+                    Reason = x.Reason,
+                    Timestamp = x.Timestamp,
+                    ModifierRole = x.ModifierRole,
+                    Action = x.Action,
+                }).ToListAsync();
+            return result;
+        }
     }
 }

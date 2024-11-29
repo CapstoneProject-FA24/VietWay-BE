@@ -14,6 +14,9 @@ namespace VietWay.Repository.EntityModel
         public string? Code { get; set; }
         [StringLength(500)]
         public string? TourName { get; set; }
+        [StringLength(20)]
+        [ForeignKey(nameof(Province))]
+        public string? StartingProvince { get; set; }
         public string? Description { get; set; }
         [ForeignKey(nameof(TourDuration))]
         public string? DurationId { get; set; }
