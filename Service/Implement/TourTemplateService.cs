@@ -267,6 +267,7 @@ namespace VietWay.Service.Management.Implement
                 {
                     TourTemplateId = x.TourTemplateId,
                     Code = x.Code,
+                    StartingProvince = x.Province.Name,
                     Duration = x.TourDuration.DurationName,
                     TourCategory = x.TourCategory.Name,
                     ImageUrl = x.TourTemplateImages.FirstOrDefault().ImageUrl,
