@@ -139,7 +139,7 @@ namespace VietWay.Service.Management.Implement
             if (response.ReturnCode.Equals(1))
             {
                 bookingPayment.Status = PaymentStatus.Paid;
-                bookingPayment.Booking.Status = BookingStatus.Confirmed;
+                bookingPayment.Booking.Status = BookingStatus.Deposited;
             }
             else
             {
@@ -177,7 +177,7 @@ namespace VietWay.Service.Management.Implement
             if (result["return_code"].Equals(1))
             {
                 bookingPayment.Status = PaymentStatus.Paid;
-                bookingPayment.Booking.Status = BookingStatus.Confirmed;
+                bookingPayment.Booking.Status = BookingStatus.Deposited;
             }
             else
             {
