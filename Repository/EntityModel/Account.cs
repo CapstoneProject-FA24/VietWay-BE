@@ -23,5 +23,9 @@ namespace VietWay.Repository.EntityModel
         public DateTime CreatedAt { get; set; }
         [Required]
         public UserRole Role { get; set; }
+        
+        public virtual Customer? Customer { get; set; }
+        public virtual Staff? Staff { get; set; }
+        public virtual Manager? Manager { get; set; }
     }
 }
