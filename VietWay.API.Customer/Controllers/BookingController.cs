@@ -223,7 +223,7 @@ namespace VietWay.API.Customer.Controllers
         [Produces("application/json")]
         [Authorize(Roles = nameof(UserRole.Customer))]
         [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status200OK)]
-        public async Task<IActionResult> GetPaymentUrl(string bookingId, PaymentMethod paymentMethod)
+        public async Task<IActionResult> GetPaymentUrl(string bookingId, PaymentMethod paymentMethod, bool isFullPayment)
         {
             string? customerId = _tokenHelper.GetAccountIdFromToken(HttpContext);
             if (customerId == null)
@@ -235,7 +235,7 @@ namespace VietWay.API.Customer.Controllers
                 });
             }
             string url = await _bookingPaymentService
-                .GetBookingPaymentUrl(paymentMethod, bookingId, customerId, HttpContext.Connection.RemoteIpAddress?.ToString() ?? "");
+                .GetBookingPaymentUrl(paymentMethod, isFullPayment, bookingId, customerId, HttpContext.Connection.RemoteIpAddress?.ToString() ?? "");
             return Ok(new DefaultResponseModel<string>()
             {
                 Message = "Success",
@@ -302,6 +302,28 @@ namespace VietWay.API.Customer.Controllers
                 Message = "Success",
                 StatusCode = StatusCodes.Status200OK,
                 Data = tourReviewDTO
+            });
+        }
+        [HttpGet("{bookingId}/history")]
+        [Produces("application/json")]
+        [Authorize(Roles = nameof(UserRole.Customer))]
+        [ProducesResponseType<DefaultResponseModel<List<BookingHistoryDTO>>>(StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetBookingHistory(string bookingId)
+        {
+            string? customerId = _tokenHelper.GetAccountIdFromToken(HttpContext);
+            if (customerId == null)
+            {
+                return Unauthorized(new DefaultResponseModel<object>()
+                {
+                    Message = "Unauthorized",
+                    StatusCode = StatusCodes.Status401Unauthorized
+                });
+            }
+            return Ok(new DefaultResponseModel<List<BookingHistoryDTO>>()
+            {
+                Data = await _bookingService.GetBookingHistoryAsync(customerId, bookingId),
+                Message = "Get booking history successfully",
+                StatusCode = StatusCodes.Status200OK
             });
         }
     }

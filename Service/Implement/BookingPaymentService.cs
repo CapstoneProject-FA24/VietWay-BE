@@ -71,8 +71,30 @@ namespace VietWay.Service.Management.Implement
             bookingPayment.ThirdPartyTransactionNumber = vnPayIPN.TransactionNo;
             if (vnPayIPN.TransactionStatus.Equals("00"))
             {
+                int oldBookingStatus = (int)bookingPayment.Booking.Status;
                 bookingPayment.Status = PaymentStatus.Paid;
-                bookingPayment.Booking.Status = BookingStatus.Confirmed;
+                bookingPayment.Booking.Status = 
+                    bookingPayment.Booking.PaidAmount + bookingPayment.Amount < bookingPayment.Booking.TotalPrice ?
+                    BookingStatus.Deposited : BookingStatus.Paid;
+                string entityHistoryId = _idGenerator.GenerateId();
+                await _unitOfWork.EntityHistoryRepository.CreateAsync(new()
+                {
+                    Action = EntityModifyAction.Update,
+                    EntityType = EntityType.Booking,
+                    EntityId = bookingPayment.BookingId,
+                    Id = entityHistoryId,
+                    ModifiedBy = bookingPayment.Booking.CustomerId,
+                    ModifierRole = UserRole.Customer,
+                    Reason = "Payment",
+                    Timestamp = _timeZoneHelper.GetUTC7Now(),
+                    StatusHistory = new()
+                    {
+                        Id = entityHistoryId,
+                        NewStatus = (int)bookingPayment.Booking.Status,
+                        OldStatus = oldBookingStatus
+                    }
+                });
+
             }
             else
             {

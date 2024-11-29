@@ -19,6 +19,7 @@ namespace VietWay.Repository.UnitOfWork
         private IGenericRepository<AttractionReviewLike>? attractionReviewLikeRepository;
         private IGenericRepository<Booking>? bookingRepository;
         private IGenericRepository<BookingPayment>? bookingPaymentRepository;
+        private IGenericRepository<BookingRefund> bookingRefundRepository;
         private IGenericRepository<Customer>? customerRepository;
         private IGenericRepository<EntityHistory>? entityHistoryRepository;
         private IGenericRepository<EntityStatusHistory>? entityStatusHistoryRepository;
@@ -34,9 +35,9 @@ namespace VietWay.Repository.UnitOfWork
         private IGenericRepository<TourDuration>? tourDurationRepository;
         private IGenericRepository<TourReview>? tourReviewRepository;
         private IGenericRepository<TourTemplate>? tourTemplateRepository;
-        public IGenericRepository<TourTemplateProvince>? tourTemplateProvinceRepository;
-        public IGenericRepository<TourRefundPolicy>? tourRefundPolicyRepository;
-
+        private IGenericRepository<TourTemplateProvince>? tourTemplateProvinceRepository;
+        private IGenericRepository<TourPrice> tourPriceRepository;
+        private IGenericRepository<TourRefundPolicy> tourRefundPolicyRepository;
 
         public IGenericRepository<Account> AccountRepository
         {
@@ -250,13 +251,29 @@ namespace VietWay.Repository.UnitOfWork
                 return tourTemplateProvinceRepository;
             }
         }
-
+        public IGenericRepository<TourPrice> TourPriceRepository
+        {
+            get
+            {
+                tourPriceRepository ??= new GenericRepository<TourPrice>(_dbContext);
+                return tourPriceRepository;
+            }
+        }
         public IGenericRepository<TourRefundPolicy> TourRefundPolicyRepository
         {
             get
             {
                 tourRefundPolicyRepository ??= new GenericRepository<TourRefundPolicy>(_dbContext);
                 return tourRefundPolicyRepository;
+            }
+        }
+
+        public IGenericRepository<BookingRefund> BookingRefundRepository 
+        {
+            get
+            {
+                bookingRefundRepository ??= new GenericRepository<BookingRefund>(_dbContext);
+                return bookingRefundRepository;
             }
         }
 

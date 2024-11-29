@@ -76,15 +76,26 @@ namespace VietWay.Service.Customer.Implementation
             };
         }
 
-        public async Task<string> GetBookingPaymentUrl(PaymentMethod paymentMethod, string bookingId, string customerId, string ipAddress)
+        public async Task<string> GetBookingPaymentUrl(PaymentMethod paymentMethod, bool isFullPayment, string bookingId, string customerId, string ipAddress)
         {
             Booking? tourBooking = await _unitOfWork.BookingRepository
                 .Query()
+                .Include(x => x.Tour)
                 .SingleOrDefaultAsync(x => x.BookingId.Equals(bookingId) && x.CustomerId.Equals(customerId));
             if (tourBooking == null || tourBooking.Status != BookingStatus.Pending)
             {
                 throw new ResourceNotFoundException("");
             }
+            decimal amount;
+            if (isFullPayment || tourBooking.Tour.DepositPercent == 0m)
+            {
+                amount = tourBooking.TotalPrice - tourBooking.PaidAmount;
+            }
+            else
+            {
+                amount = tourBooking.TotalPrice * tourBooking.Tour!.DepositPercent!.Value / 100;
+            }
+
             BookingPayment bookingPayment = new()
             {
                 PaymentId = _idGenerator.GenerateId(),

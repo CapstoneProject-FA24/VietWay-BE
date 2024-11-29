@@ -1,13 +1,9 @@
-﻿using Hangfire;
-using Microsoft.EntityFrameworkCore;
-using System.Text.Json;
+﻿using Microsoft.EntityFrameworkCore;
 using Tweetinvi.Core.Extensions;
 using VietWay.Job.Interface;
-using VietWay.Repository.EntityModel;
 using VietWay.Repository.UnitOfWork;
 using VietWay.Service.ThirdParty.Redis;
 using VietWay.Service.ThirdParty.Twitter;
-using VietWay.Util.CustomExceptions;
 
 namespace VietWay.Job.Implementation
 {
@@ -16,7 +12,6 @@ namespace VietWay.Job.Implementation
         private readonly IUnitOfWork _unitOfWork = unitOfWork;
         private readonly ITwitterService _twitterService = twitterService;
         private readonly IRedisCacheService _redisCacheService = redisCacheService;
-        [AutomaticRetry(Attempts = 0)]
         public async Task GetPublishedTweetsJob()
         {
             Dictionary<string, string> postTweetId = await _unitOfWork.PostRepository.Query()

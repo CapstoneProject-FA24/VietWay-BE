@@ -19,7 +19,8 @@ namespace VietWay.API.Customer.Mappers
                         FullName = x.FullName,
                         Gender = x.Gender,
                         PhoneNumber = x.PhoneNumber,
-                    })));
+                    })))
+                .ForMember(dest => dest.PaidAmount, opt => opt.MapFrom(src => 0.0m));
             CreateMap<CreateAccountRequest, Account>();
             CreateMap<CreateAccountRequest, Repository.EntityModel.Customer>()
                 .ForMember(dest => dest.IsDeleted, opt => opt.MapFrom(src => false))

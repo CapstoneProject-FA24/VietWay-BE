@@ -21,7 +21,7 @@ namespace VietWay.API.Management.Controllers
 
         [HttpGet]
         [Produces("application/json")]
-        [Authorize(Roles = nameof(UserRole.Manager))]
+        [Authorize(Roles = $"{nameof(UserRole.Manager)}, {nameof(UserRole.Admin)}")]
         [ProducesResponseType<DefaultResponseModel<PaginatedList<StaffPreviewDTO>>>(StatusCodes.Status200OK)]
         public async Task<IActionResult> GetAllStaffInfosAsync(string? nameSearch,
             int? pageSize,
@@ -63,7 +63,7 @@ namespace VietWay.API.Management.Controllers
         /// <response code="200">Return staff account status changed</response>
         /// <response code="400">Bad request</response>
         [HttpPatch("change-staff-status/{staffId}")]
-        [Authorize(Roles = nameof(UserRole.Manager))]
+        [Authorize(Roles = $"{nameof(UserRole.Manager)}, {nameof(UserRole.Admin)}")]
         [Produces("application/json")]
         [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status200OK)]
         public async Task<IActionResult> ChangeStaffAccountStatusAsync(string staffId, bool isDeleted)

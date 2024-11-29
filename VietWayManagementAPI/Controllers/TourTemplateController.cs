@@ -63,6 +63,7 @@ namespace VietWay.API.Management.Controllers
             };
             return Ok(response);
         }
+
         [HttpGet("{tourTemplateId}")]
         [Authorize(Roles = $"{nameof(UserRole.Manager)}, {nameof(UserRole.Staff)}")]
         [Produces("application/json")]
@@ -176,6 +177,8 @@ namespace VietWay.API.Management.Controllers
             tourTemplate.DurationId = request.DurationId;
             tourTemplate.TourCategoryId = request.TourCategoryId;
             tourTemplate.Note = request.Note;
+            tourTemplate.MinPrice = request.MinPrice;
+            tourTemplate.MaxPrice = request.MaxPrice;
             tourTemplate.TourTemplateProvinces?.Clear();
             foreach (string provinceId in request.ProvinceIds)
             {
@@ -288,7 +291,7 @@ namespace VietWay.API.Management.Controllers
         [Authorize(Roles = $"{nameof(UserRole.Manager)}, {nameof(UserRole.Staff)}")]
         [Produces("application/json")]
         [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status200OK)]
-        public async Task<IActionResult> ChangePostStatusAsync(string tourTemplateId, ChangeTourTemplateStatusRequest request)
+        public async Task<IActionResult> ChangeTourTemplateStatusAsync(string tourTemplateId, ChangeTourTemplateStatusRequest request)
         {
             string? accountId = _tokenHelper.GetAccountIdFromToken(HttpContext);
             if (string.IsNullOrWhiteSpace(accountId))
@@ -348,6 +351,55 @@ namespace VietWay.API.Management.Controllers
             }
             await _tourReviewService.ToggleTourReviewVisibilityAsync(accountId, reviewId, request.IsHided, request.Reason);
             return Ok();
+        }
+
+        [HttpGet("with-tour-info")]
+        [Produces("application/json")]
+        [Authorize(Roles = $"{nameof(UserRole.Manager)}, {nameof(UserRole.Staff)}")]
+        [ProducesResponseType<DefaultResponseModel<TourTemplateWithTourInfoDTO>>(StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetTourTemplateWithTourInfoAsync(
+            string? nameSearch,
+            [FromQuery] List<string>? templateCategoryIds,
+            [FromQuery] List<string>? provinceIds,
+            [FromQuery] List<int>? numberOfDay,
+            DateTime? startDateFrom,
+            DateTime? startDateTo,
+            decimal? minPrice,
+            decimal? maxPrice,
+            int? pageSize,
+            int? pageIndex)
+        {
+            string? accountId = _tokenHelper.GetAccountIdFromToken(HttpContext);
+            if (string.IsNullOrWhiteSpace(accountId))
+            {
+                return Unauthorized(new DefaultResponseModel<object>
+                {
+                    Message = "Unauthorized",
+                    StatusCode = StatusCodes.Status401Unauthorized
+                });
+            }
+
+            int checkedPageSize = (pageSize == null || pageSize < 1) ? 10 : (int)pageSize;
+            int checkedPageIndex = (pageIndex == null || pageIndex < 1) ? 1 : (int)pageIndex;
+
+            var (totalCount, items) = await _tourTemplateService.GetAllTemplateWithActiveToursAsync(
+                nameSearch, templateCategoryIds, provinceIds, numberOfDay, startDateFrom,
+                startDateTo, minPrice, maxPrice, checkedPageSize, checkedPageIndex);
+            List<TourTemplateWithTourInfoDTO> tourTemplatePreviews = _mapper.Map<List<TourTemplateWithTourInfoDTO>>(items);
+            PaginatedList<TourTemplateWithTourInfoDTO> pagedResponse = new()
+            {
+                Total = totalCount,
+                PageSize = checkedPageSize,
+                PageIndex = checkedPageIndex,
+                Items = tourTemplatePreviews
+            };
+            DefaultResponseModel<PaginatedList<TourTemplateWithTourInfoDTO>> response = new()
+            {
+                Data = pagedResponse,
+                Message = "Get all tour templates successfully",
+                StatusCode = StatusCodes.Status200OK
+            };
+            return Ok(response);
         }
     }
 }

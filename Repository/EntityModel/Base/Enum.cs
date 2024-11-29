@@ -41,12 +41,10 @@
     public enum BookingStatus
     {
         Pending,
-        Confirmed,
+        Deposited,
+        Paid,
         Completed,
-        Expired,
         Cancelled,
-        PendingRefund,
-        Refunded
     }
     public enum PaymentStatus
     {
@@ -99,5 +97,10 @@
         Momo,
         ZaloPay,
         PayOS
+    }
+    public enum RefundStatus
+    {
+        Pending,
+        Refunded,
     }
 }

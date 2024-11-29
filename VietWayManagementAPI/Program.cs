@@ -137,25 +137,31 @@ namespace VietWay.API.Management
             builder.Services.AddScoped<ITourDurationService, TourDurationService>();
             builder.Services.AddScoped<ITourService, TourService>();
             builder.Services.AddScoped<ITourTemplateService, TourTemplateService>();
-            builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+            builder.Services.AddScoped<ITourReviewService, TourReviewService>();
+            builder.Services.AddScoped<IAttractionReviewService, AttractionReviewService>();
+            builder.Services.AddScoped<ICustomerService, CustomerService>();
+            builder.Services.AddScoped<IPublishPostService, PublishPostService>();
+            builder.Services.AddScoped<IPostService, PostService>();
+
             builder.Services.AddScoped<IVnPayService, VnPayService>();
+            builder.Services.AddScoped<ICloudinaryService, CloudinaryService>();
+            builder.Services.AddScoped<IRedisCacheService, RedisCacheService>();
+            builder.Services.AddScoped<ITwitterService, TwitterService>();
+            builder.Services.AddScoped<IEmailService, GmailService>();
+
+            builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
             builder.Services.AddScoped<ITimeZoneHelper, TimeZoneHelper>();
             builder.Services.AddScoped<IHashHelper, BCryptHashHelper>();
             builder.Services.AddScoped<ITokenHelper, TokenHelper>();
-            builder.Services.AddScoped<ICustomerService, CustomerService>();
-            builder.Services.AddScoped<IPostService, PostService>();
-            builder.Services.AddScoped<ICloudinaryService, CloudinaryService>();
-            builder.Services.AddScoped<ITwitterService, TwitterService>();
-            builder.Services.AddScoped<IPublishPostService, PublishPostService>();
-            builder.Services.AddScoped<ITweetJob, TweetJob>();
-            builder.Services.AddScoped<IRedisCacheService, RedisCacheService>();
-            builder.Services.AddScoped<IAttractionReviewService, AttractionReviewService>();
-            builder.Services.AddScoped<ITourReviewService, TourReviewService>();
-            builder.Services.AddScoped<IEmailService, GmailService>();
+
             builder.Services.AddScoped<IEmailJob, EmailJob>();
             builder.Services.AddScoped<IProvinceJob, ProvinceJob>();
             builder.Services.AddScoped<ITourCategoryJob, TourCategoryJob>();
             builder.Services.AddScoped<ITourDurationJob, TourDurationJob>();
+            builder.Services.AddScoped<IBookingJob, BookingJob>();
+            builder.Services.AddScoped<ITourJob, TourJob>();
+            builder.Services.AddScoped<ITweetJob, TweetJob>();
+
             #endregion
             builder.Services.AddSingleton<IIdGenerator, SnowflakeIdGenerator>();
             builder.Services.AddSingleton<IRecurringJobManager, RecurringJobManager>();

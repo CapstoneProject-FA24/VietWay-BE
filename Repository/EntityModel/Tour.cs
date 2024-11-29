@@ -14,21 +14,35 @@ namespace VietWay.Repository.EntityModel
         [StringLength(20)]
         [Required]
         public string? TourTemplateId { get; set; }
-        [StringLength(255)]
+        [Required]
         public string? StartLocation { get; set; }
+        public string? StartLocationPlaceId { get; set; }
+        [Required]
         public DateTime? StartDate { get; set; }
         [Column(TypeName = "decimal(18,2)")]
         public decimal? DefaultTouristPrice { get; set; }
+        [Required]
         public DateTime? RegisterOpenDate { get; set; }
+        [Required]
         public DateTime? RegisterCloseDate { get; set; }
+        [Required]
         public int? MaxParticipant { get; set; }
+        [Required]
         public int? MinParticipant { get; set; }
+
         [Required]
         public int CurrentParticipant { get; set; }
         [Required]
         public TourStatus Status { get; set; }
         [Required]
         public DateTime CreatedAt { get; set; }
+        [Required]
+        [Range(0, 100)]
+        [Column(TypeName = "decimal(18,2)")]
+        public decimal? DepositPercent { get; set; }
+        [Required]
+        public DateTime? PaymentDeadline { get; set; }
+
 
         public virtual TourTemplate? TourTemplate { get; set; }
         public virtual ICollection<Booking>? TourBookings { get; set; }

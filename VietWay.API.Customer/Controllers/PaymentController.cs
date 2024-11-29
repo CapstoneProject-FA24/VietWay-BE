@@ -24,6 +24,7 @@ namespace VietWay.API.Customer.Controllers
         [Produces("application/json")]
         [ProducesResponseType<DefaultResponseModel<PaginatedList<BookingPaymentDTO>>>(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [Authorize(Roles = nameof(UserRole.Customer))]
         public async Task<IActionResult> GetAllCustomerPaymentsAsync()
         {
             string? customerId = _tokenHelper.GetAccountIdFromToken(HttpContext);

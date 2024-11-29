@@ -9,6 +9,7 @@ using VietWay.Service.Management.DataTransferObject;
 using VietWay.Util.CustomExceptions;
 using Hangfire;
 using VietWay.Job.Interface;
+using Tweetinvi.Core.Extensions;
 
 namespace VietWay.Service.Management.Implement
 {
@@ -47,10 +48,104 @@ namespace VietWay.Service.Management.Implement
             }
         }
 
-        public async Task EditTour(Tour updatedTour)
+        public async Task EditTour(string tourId, Tour updatedTour)
         {
-            await _unitOfWork.TourRepository
-                .UpdateAsync(updatedTour);
+            Tour? tour = await _unitOfWork.TourRepository.Query()
+                .Include(x => x.TourPrices)
+                .Include(x => x.TourRefundPolicies)
+                .SingleOrDefaultAsync(x => x.TourId.Equals(tourId)) ??
+                throw new ResourceNotFoundException("Tour not found");
+
+            /*if (tour.Status.Equals(TourStatus.Opened) && tour.CurrentParticipant != 0)
+            {
+                throw new Exception("Cannot edit tour that already have participant");
+            }
+            else if (tour.Status.Equals(TourStatus.Closed))
+            {
+                throw new Exception("Tour already closed");
+            }
+            else if (tour.Status.Equals(TourStatus.Completed))
+            {
+                throw new Exception("Tour already completed");
+            }
+            else if (tour.Status.Equals(TourStatus.Cancelled))
+            {
+                throw new Exception("Tour already cancelled");
+            }*/
+
+            switch (tour.Status)
+            {
+                case TourStatus.Opened when tour.CurrentParticipant != 0:
+                    throw new InvalidInfoException("Cannot edit tour that already has participants");
+                    break;
+                case TourStatus.Closed:
+                    throw new InvalidInfoException("Tour already closed");
+                    break;
+                case TourStatus.Completed:
+                    throw new InvalidInfoException("Tour already completed");
+                    break;
+                case TourStatus.Cancelled:
+                    throw new InvalidInfoException("Tour already cancelled");
+                    break;
+                default:
+                    break;
+            }
+
+            tour.StartLocation = updatedTour.StartLocation;
+            tour.StartDate = updatedTour.StartDate;
+            tour.DefaultTouristPrice = updatedTour.DefaultTouristPrice;
+            tour.RegisterOpenDate = updatedTour.RegisterOpenDate;
+            tour.RegisterCloseDate = updatedTour.RegisterCloseDate;
+            tour.MinParticipant = updatedTour.MinParticipant;
+            tour.MaxParticipant = updatedTour.MaxParticipant;
+            tour.CreatedAt = DateTime.Now;
+            tour.Status = TourStatus.Pending;
+
+            if (updatedTour.TourPrices != null)
+            {
+                tour.TourPrices.Clear();
+
+                foreach (TourPrice priceInfo in updatedTour.TourPrices)
+                {
+                    tour.TourPrices.Add(new TourPrice
+                    {
+                        PriceId = _idGenerator.GenerateId(),
+                        Name = priceInfo.Name,
+                        Price = priceInfo.Price,
+                        AgeFrom = priceInfo.AgeFrom,
+                        AgeTo = priceInfo.AgeTo,
+                        TourId = tourId 
+                    });
+                }
+            }
+
+            if (updatedTour.TourRefundPolicies != null)
+            {
+                tour.TourRefundPolicies.Clear();
+
+                foreach (TourRefundPolicy refundPolicy in updatedTour.TourRefundPolicies)
+                {
+                    tour.TourRefundPolicies.Add(new TourRefundPolicy
+                    {
+                        TourRefundPolicyId = _idGenerator.GenerateId(),
+                        CancelBefore = refundPolicy.CancelBefore,
+                        RefundPercent = refundPolicy.RefundPercent,
+                        TourId = tourId
+                    });
+                }
+            }
+
+            try
+            {
+                await _unitOfWork.BeginTransactionAsync();
+                await _unitOfWork.TourRepository.UpdateAsync(tour);
+                await _unitOfWork.CommitTransactionAsync();
+            }
+            catch
+            {
+                await _unitOfWork.RollbackTransactionAsync();
+                throw;
+            }
         }
 
         public async Task<(int totalCount, List<TourPreviewDTO> items)> GetAllTour(string? nameSearch, string? codeSearch, List<string>? provinceIds, List<string>? tourCategoryIds, List<string>? durationIds, TourStatus? status, int pageSize, int pageIndex, DateTime? startDateFrom, DateTime? startDateTo)
@@ -229,9 +324,15 @@ namespace VietWay.Service.Management.Implement
                 bool isManagerAcceptedOrDenyPendingTour = (TourStatus.Accepted == tourStatus || TourStatus.Rejected == tourStatus) &&
                     UserRole.Manager == account.Role && TourStatus.Pending == tour.Status;
 
+                bool isRegisteredOpenedDatePass = tour.RegisterOpenDate <= DateTime.Today && UserRole.Manager == account.Role;
+
                 if (isManagerAcceptedOrDenyPendingTour)
                 {
                     tour.Status = tourStatus;
+                }
+                else if (isRegisteredOpenedDatePass)
+                {
+                    tour.Status = TourStatus.Opened;
                 }
                 else
                 {
@@ -242,8 +343,84 @@ namespace VietWay.Service.Management.Implement
                 await _unitOfWork.CommitTransactionAsync();
                 if (tour.Status == TourStatus.Accepted)
                 {
-                    _backgroundJobClient.Schedule<ITourJob>(x=>x.OpenTourAsync(tourId),_timeZoneHelper.GetLocalTimeFromUTC7(tour.RegisterOpenDate!.Value));
+                    _backgroundJobClient.Schedule<ITourJob>(x => x.OpenTourAsync(tourId),_timeZoneHelper.GetLocalTimeFromUTC7(tour.RegisterOpenDate!.Value));
                 }
+            }
+            catch
+            {
+                await _unitOfWork.RollbackTransactionAsync();
+                throw;
+            }
+        }
+
+        public async Task CancelTourAsync(string tourId, string managerId, string? reason)
+        {
+            try
+            {
+                Manager? manager = await _unitOfWork.ManagerRepository.Query()
+                    .SingleOrDefaultAsync(x => x.ManagerId.Equals(managerId)) ??
+                    throw new UnauthorizedException("You are not allowed to perform this action");
+
+                Tour? tour = await _unitOfWork.TourRepository.Query().Include(x => x.TourBookings)
+                    .SingleOrDefaultAsync(x => x.TourId.Equals(tourId)) ??
+                    throw new ResourceNotFoundException("Tour not found");
+
+                if (TourStatus.Accepted != tour.Status && TourStatus.Opened != tour.Status && TourStatus.Closed == tour.Status)
+                {
+                    throw new InvalidOperationException("Cannot cancel tour that is not accepted, opened or closed");
+                }
+                int oldStatus = (int)tour.Status;
+                tour.Status = TourStatus.Cancelled;
+                tour.CurrentParticipant = 0;
+
+                await _unitOfWork.BeginTransactionAsync();
+                string entityHistoryId = _idGenerator.GenerateId();
+                await _unitOfWork.EntityStatusHistoryRepository.CreateAsync(new EntityStatusHistory()
+                {
+                    Id = entityHistoryId,
+                    OldStatus = oldStatus,
+                    NewStatus = (int)tour.Status,
+                    EntityHistory = new EntityHistory()
+                    {
+                        Id = entityHistoryId,
+                        Action = EntityModifyAction.ChangeStatus,
+                        EntityId = tourId,
+                        EntityType = EntityType.Tour,
+                        Timestamp = _timeZoneHelper.GetUTC7Now(),
+                        ModifiedBy = managerId,
+                        ModifierRole = UserRole.Manager,
+                        Reason = reason,
+                    }
+                });
+                if (!tour.TourBookings.IsNullOrEmpty())
+                {
+                    foreach (var booking in tour.TourBookings)
+                    {
+                        int oldBookingStatus = (int)booking.Status;
+                        booking.Status = BookingStatus.Cancelled;
+
+                        string bookingHistoryId = _idGenerator.GenerateId();
+                        await _unitOfWork.EntityStatusHistoryRepository.CreateAsync(new EntityStatusHistory()
+                        {
+                            Id = bookingHistoryId,
+                            OldStatus = oldBookingStatus,
+                            NewStatus = (int)booking.Status,
+                            EntityHistory = new EntityHistory()
+                            {
+                                Id = bookingHistoryId,
+                                Action = EntityModifyAction.ChangeStatus,
+                                EntityId = booking.BookingId,
+                                EntityType = EntityType.Booking,
+                                Timestamp = _timeZoneHelper.GetUTC7Now(),
+                                ModifiedBy = managerId,
+                                ModifierRole = UserRole.Manager,
+                                Reason = $"tour bị hủy vì {reason}",
+                            }
+                        });
+                    }
+                }
+                await _unitOfWork.TourRepository.UpdateAsync(tour);
+                await _unitOfWork.CommitTransactionAsync();
             }
             catch
             {

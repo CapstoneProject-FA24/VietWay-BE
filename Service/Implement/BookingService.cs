@@ -1,3 +1,4 @@
+using Google.Api.Gax;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Cryptography.X509Certificates;
 using VietWay.Repository.EntityModel;
@@ -20,28 +21,31 @@ namespace VietWay.Service.Management.Implement
         {
             await _unitOfWork.BookingRepository.CreateAsync(tourBooking);
         }
-        public async Task CancelBookingAsync(string bookingId, string managerId, string? reason)
+        public async Task CancelBookingAsync(string bookingId, string accountId, string? reason)
         {
             try
             {
-                Manager manager = await _unitOfWork.ManagerRepository.Query().SingleOrDefaultAsync(x => x.ManagerId == managerId)
-                    ?? throw new UnauthorizedException("You are not allowed to perform this action");
-                await _unitOfWork.BeginTransactionAsync();
+                Account account = await _unitOfWork.AccountRepository.Query().SingleOrDefaultAsync(x => x.AccountId == accountId);
+                if (account.Role != UserRole.Manager && account.Role != UserRole.Staff)
+                {
+                    throw new UnauthorizedException("You are not allowed to perform this action");
+                }
 
-                Booking booking = _unitOfWork.BookingRepository.Query()
+                Booking booking = await _unitOfWork.BookingRepository.Query()
                     .Include(x => x.Tour)
-                    .SingleOrDefault(x => x.BookingId.Equals(bookingId))
+                    .SingleOrDefaultAsync(x => x.BookingId.Equals(bookingId))
                     ?? throw new ResourceNotFoundException("Booking not found");
-                if (booking.Status != BookingStatus.Pending && booking.Status != BookingStatus.Confirmed)
+                if (booking.Status != BookingStatus.Pending && booking.Status != BookingStatus.Deposited && booking.Status != BookingStatus.Paid)
                 {
                     throw new InvalidOperationException("Cannot cancel booking that is not pending or confirmed");
                 }
                 int oldStatus = (int)booking.Status;
-                if (booking.Status == BookingStatus.Pending) booking.Status = BookingStatus.Cancelled;
-                if (booking.Status == BookingStatus.Confirmed) booking.Status = BookingStatus.PendingRefund;
+                booking.Status = BookingStatus.Cancelled;
 
                 booking.Tour.CurrentParticipant -= booking.NumberOfParticipants;
                 string entityHistoryId = _idGenerator.GenerateId();
+
+                await _unitOfWork.BeginTransactionAsync();
                 await _unitOfWork.EntityStatusHistoryRepository.CreateAsync(new EntityStatusHistory()
                 {
                     Id = entityHistoryId,
@@ -54,8 +58,8 @@ namespace VietWay.Service.Management.Implement
                         EntityId = bookingId,
                         EntityType = EntityType.Booking,
                         Timestamp = _timeZoneHelper.GetUTC7Now(),
-                        ModifiedBy = managerId,
-                        ModifierRole = UserRole.Manager,
+                        ModifiedBy = accountId,
+                        ModifierRole = account.Role,
                         Reason = reason,
                     }
                 });
@@ -196,7 +200,7 @@ namespace VietWay.Service.Management.Implement
 
             EntityStatusHistory entityStatusHistory = await _unitOfWork.EntityStatusHistoryRepository.Query()
                 .Include(x => x.EntityHistory)
-                .SingleOrDefaultAsync(x => x.EntityHistory.EntityId == bookingId && x.EntityHistory.Action == EntityModifyAction.ChangeStatus && x.NewStatus == (int)BookingStatus.PendingRefund);
+                .SingleOrDefaultAsync(x => x.EntityHistory.EntityId == bookingId && x.EntityHistory.Action == EntityModifyAction.ChangeStatus && x.NewStatus == (int)BookingStatus.Cancelled);
             if (entityStatusHistory != null)
             {
                 result.CancelAt = entityStatusHistory.EntityHistory.Timestamp;
@@ -262,8 +266,11 @@ namespace VietWay.Service.Management.Implement
                 .Select(x => new BookingPreviewDTO()
                 {
                     BookingId = x.BookingId,
+                    TourId = x.TourId,
                     TourName = x.Tour.TourTemplate.TourName,
                     TourCode = x.Tour.TourTemplate.Code,
+                    Duration = x.Tour.TourTemplate.TourDuration.DurationName,
+                    Provinces = x.Tour.TourTemplate.TourTemplateProvinces.Select(y => y.Province.Name).ToList(),
                     StartDate = x.Tour.StartDate,
                     StartLocation = x.Tour.StartLocation,
                     CreatedAt = x.CreatedAt,
@@ -272,30 +279,42 @@ namespace VietWay.Service.Management.Implement
                     ContactPhoneNumber = x.ContactPhoneNumber,
                     TotalPrice = x.TotalPrice,
                     NumberOfParticipants = x.NumberOfParticipants,
-                    Status = x.Status
+                    Status = x.Status,
+                    Tourists = x.BookingTourists.Select(y => new BookingTouristPreviewDTO
+                    {
+                        TouristId = y.TouristId,
+                        FullName = y.FullName,
+                        DateOfBirth = y.DateOfBirth,
+                    }).ToList(),
                 }).ToListAsync();
             return (count, items);
         }
 
-        public async Task CreateRefundTransactionAsync(string managerId, string bookingId, BookingPayment bookingPayment)
+        public async Task CreateRefundTransactionAsync(string accountId, string bookingId, BookingPayment bookingPayment)
         {
+            Account account = await _unitOfWork.AccountRepository.Query().SingleOrDefaultAsync(x => x.AccountId == accountId);
+            if (account.Role != UserRole.Manager && account.Role != UserRole.Staff)
+            {
+                throw new UnauthorizedException("You are not allowed to perform this action");
+            }
+
             Booking booking = await _unitOfWork
                 .BookingRepository.Query().SingleOrDefaultAsync(x => x.BookingId == bookingId)
                 ?? throw new ResourceNotFoundException("Booking not found");
 
-            if (booking.Status != BookingStatus.PendingRefund)
+            if (booking.Status != BookingStatus.Cancelled)
             {
                 throw new InvalidOperationException("The booking is not in a pending refund state and cannot be refunded.");
             }
 
             EntityStatusHistory entityStatusHistory = await _unitOfWork.EntityStatusHistoryRepository.Query()
                 .Include(x => x.EntityHistory)
-                .SingleOrDefaultAsync(x => x.EntityHistory.EntityId == bookingId && x.EntityHistory.Action == EntityModifyAction.ChangeStatus && x.NewStatus == (int)BookingStatus.PendingRefund)
+                .SingleOrDefaultAsync(x => x.EntityHistory.EntityId == bookingId && x.EntityHistory.Action == EntityModifyAction.ChangeStatus && x.NewStatus == (int)BookingStatus.Cancelled)
                 ?? throw new ResourceNotFoundException("Entity status history not found");
 
             decimal refundAmount = 0;
 
-            if (entityStatusHistory.EntityHistory.ModifierRole == UserRole.Manager)
+            if (entityStatusHistory.EntityHistory.ModifierRole == UserRole.Manager || entityStatusHistory.EntityHistory.ModifierRole == UserRole.Staff)
             {
                 refundAmount = booking.TotalPrice;
             }
@@ -310,7 +329,7 @@ namespace VietWay.Service.Management.Implement
 
                 refundAmount = tourRefundPolicy.RefundPercent * booking.TotalPrice / 100;
             }
-            
+
             try
             {
                 bookingPayment.PaymentId ??= _idGenerator.GenerateId();
@@ -321,7 +340,6 @@ namespace VietWay.Service.Management.Implement
                 bookingPayment.Amount = refundAmount;
 
                 int oldStatus = (int)booking.Status;
-                booking.Status = BookingStatus.Refunded;
 
                 string entityHistoryId = _idGenerator.GenerateId();
 
@@ -340,9 +358,9 @@ namespace VietWay.Service.Management.Implement
                         EntityId = bookingId,
                         EntityType = EntityType.Booking,
                         Timestamp = _timeZoneHelper.GetUTC7Now(),
-                        ModifiedBy = managerId,
-                        ModifierRole = UserRole.Customer,
-                        Reason = "Manager refund booking",
+                        ModifiedBy = accountId,
+                        ModifierRole = account.Role,
+                        Reason = "",
                     }
                 });
                 await _unitOfWork.CommitTransactionAsync();
@@ -352,6 +370,113 @@ namespace VietWay.Service.Management.Implement
                 await _unitOfWork.RollbackTransactionAsync();
                 throw;
             }
+        }
+
+        public async Task ChangeBookingTourAsync(string accountId, string bookingId, string newTourId, string reason)
+        {
+            try
+            {
+                Account account = await _unitOfWork.AccountRepository.Query().SingleOrDefaultAsync(x => x.AccountId == accountId);
+                if (account.Role != UserRole.Manager && account.Role != UserRole.Staff)
+                {
+                    throw new UnauthorizedException("You are not allowed to perform this action");
+                }
+
+                Booking booking = await _unitOfWork
+                    .BookingRepository.Query().Include(x => x.BookingTourists).SingleOrDefaultAsync(x => x.BookingId == bookingId)
+                    ?? throw new ResourceNotFoundException("Booking not found");
+
+                if (booking.Status != BookingStatus.Pending && booking.Status != BookingStatus.Deposited && booking.Status != BookingStatus.Paid)
+                {
+                    throw new InvalidOperationException("The booking is not in a pending or confirmed state and cannot change tour.");
+                }
+
+                Tour? oldTour = await _unitOfWork.TourRepository.Query()
+                        .Include(x => x.TourPrices)
+                        .SingleOrDefaultAsync(x => x.TourId == booking.TourId)
+                        ?? throw new ResourceNotFoundException("Can not find any tour");
+
+                Tour? newTour = await _unitOfWork.TourRepository.Query()
+                        .Include(x => x.TourPrices)
+                        .SingleOrDefaultAsync(x => x.TourId == newTourId && x.Status == TourStatus.Opened && x.IsDeleted == false)
+                        ?? throw new ResourceNotFoundException("Can not find any tour");
+                bool isActiveBookingExisted = await _unitOfWork.BookingRepository.Query()
+                    .AnyAsync(x => x.TourId == newTourId && x.CustomerId == booking.CustomerId && (x.Status == BookingStatus.Pending || x.Status == BookingStatus.Deposited) || x.Status == BookingStatus.Paid);
+
+                if (isActiveBookingExisted)
+                {
+                    throw new InvalidOperationException("Customer has already booked this tour");
+                }
+                if (newTour.CurrentParticipant + booking.BookingTourists.Count > newTour.MaxParticipant)
+                {
+                    throw new InvalidOperationException("Tour is full");
+                }
+
+                oldTour.CurrentParticipant -= booking.NumberOfParticipants;
+                newTour.CurrentParticipant += booking.NumberOfParticipants;
+                if (newTour.CurrentParticipant == newTour.MaxParticipant)
+                {
+                    newTour.Status = TourStatus.Closed;
+                }
+
+                booking.TourId = newTourId;
+                decimal oldPrice = booking.TotalPrice;
+                booking.TotalPrice = 0;
+                foreach (BookingTourist tourist in booking.BookingTourists)
+                {
+                    int age = CalculateAge(tourist.DateOfBirth, _timeZoneHelper.GetUTC7Now());
+                    TourPrice? tourPrice = newTour.TourPrices?.SingleOrDefault(x => x.AgeFrom <= age && age <= x.AgeTo);
+                    if (tourPrice == null)
+                    {
+                        tourist.Price = newTour.DefaultTouristPrice!.Value;
+                        booking.TotalPrice += tourist.Price;
+                    }
+                    else
+                    {
+                        tourist.Price = tourPrice.Price;
+                        booking.TotalPrice += tourist.Price;
+                    }
+                }
+
+                if (oldPrice < booking.TotalPrice)
+                {
+                    booking.Status = BookingStatus.Pending;
+                }
+
+                await _unitOfWork.BeginTransactionAsync();
+                await _unitOfWork.BookingRepository.UpdateAsync(booking);
+                await _unitOfWork.TourRepository.UpdateAsync(oldTour);
+                await _unitOfWork.TourRepository.UpdateAsync(newTour);
+
+                string entityHistoryId = _idGenerator.GenerateId();
+                await _unitOfWork.EntityHistoryRepository.CreateAsync(new EntityHistory()
+                {
+                    Id = entityHistoryId,
+                    Action = EntityModifyAction.Update,
+                    EntityId = bookingId,
+                    EntityType = EntityType.Booking,
+                    Timestamp = _timeZoneHelper.GetUTC7Now(),
+                    ModifiedBy = accountId,
+                    ModifierRole = account.Role,
+                    Reason = reason,
+                });
+                await _unitOfWork.CommitTransactionAsync();
+            }
+            catch
+            {
+                await _unitOfWork.RollbackTransactionAsync();
+                throw;
+            }
+        }
+
+        private static int CalculateAge(DateTime birthDay, DateTime currentDate)
+        {
+            int age = currentDate.Year - birthDay.Year;
+            if (currentDate < birthDay.AddYears(age))
+            {
+                age--;
+            }
+            return age;
         }
     }
 }

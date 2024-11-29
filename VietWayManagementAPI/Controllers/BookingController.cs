@@ -27,7 +27,7 @@ namespace VietWay.API.Management.Controllers
 
         [HttpGet]
         [Produces("application/json")]
-        [Authorize(Roles = nameof(UserRole.Manager))]
+        [Authorize(Roles = $"{nameof(UserRole.Manager)},{nameof(UserRole.Staff)}")]
         [ProducesResponseType<DefaultResponseModel<PaginatedList<BookingPreviewDTO>>>(StatusCodes.Status200OK)]
         public async Task<IActionResult> GetBookings(
             BookingStatus? bookingStatus,
@@ -55,7 +55,7 @@ namespace VietWay.API.Management.Controllers
 
         [HttpGet("{bookingId}")]
         [Produces("application/json")]
-        [Authorize(Roles = nameof(UserRole.Manager))]
+        [Authorize(Roles = $"{nameof(UserRole.Manager)},{nameof(UserRole.Staff)}")]
         [ProducesResponseType<DefaultResponseModel<BookingDetailDTO>>(StatusCodes.Status200OK)]
         public async Task<IActionResult> GetBookingById(string bookingId)
         {
@@ -77,7 +77,7 @@ namespace VietWay.API.Management.Controllers
         }
 
         [HttpPost("{bookingId}/create-refund-transaction")]
-        [Authorize(Roles = nameof(UserRole.Manager))]
+        [Authorize(Roles = $"{nameof(UserRole.Manager)},{nameof(UserRole.Staff)}")]
         [Produces("application/json")]
         [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status200OK)]
         [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status400BadRequest)]
@@ -103,12 +103,12 @@ namespace VietWay.API.Management.Controllers
 
         [HttpPatch("{bookingId}")]
         [Produces("application/json")]
-        [Authorize(Roles = nameof(UserRole.Manager))]
+        [Authorize(Roles = $"{nameof(UserRole.Manager)},{nameof(UserRole.Staff)}")]
         [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status200OK)]
-        public async Task<IActionResult> CancelBooking(string bookingId, CancelBookingRequest cancelBookingRequest)
+        public async Task<IActionResult> CancelBooking(string bookingId, CancelRequest cancelBookingRequest)
         {
-            string? managerId = _tokenHelper.GetAccountIdFromToken(HttpContext);
-            if (managerId == null)
+            string? accountId = _tokenHelper.GetAccountIdFromToken(HttpContext);
+            if (accountId == null)
             {
                 return Unauthorized(new DefaultResponseModel<object>()
                 {
@@ -118,7 +118,7 @@ namespace VietWay.API.Management.Controllers
             }
             try
             {
-                await _bookingService.CancelBookingAsync(bookingId, managerId, cancelBookingRequest.Reason);
+                await _bookingService.CancelBookingAsync(bookingId, accountId, cancelBookingRequest.Reason);
                 return Ok(new DefaultResponseModel<object>()
                 {
                     Message = "Booking cancelled successfully",
@@ -141,6 +141,29 @@ namespace VietWay.API.Management.Controllers
                     StatusCode = StatusCodes.Status404NotFound
                 });
             }
+        }
+
+        [HttpPut("{bookingId}/change-booking-tour")]
+        [Produces("application/json")]
+        [Authorize(Roles = $"{nameof(UserRole.Manager)},{nameof(UserRole.Staff)}")]
+        [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status200OK)]
+        public async Task<IActionResult> ChangeBookingTour(string bookingId, ChangeTourRequest request)
+        {
+            string? accountId = _tokenHelper.GetAccountIdFromToken(HttpContext);
+            if (accountId == null)
+            {
+                return Unauthorized(new DefaultResponseModel<object>()
+                {
+                    Message = "Unauthorized",
+                    StatusCode = StatusCodes.Status401Unauthorized
+                });
+            }
+            await _bookingService.ChangeBookingTourAsync(accountId, bookingId, request.NewTourId, request.Reason);
+            return Ok(new DefaultResponseModel<object>()
+            {
+                Message = "Booking tour change successfully",
+                StatusCode = StatusCodes.Status200OK
+            });
         }
     }
 }
