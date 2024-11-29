@@ -248,7 +248,8 @@ namespace VietWay.Service.Management.Implement
                     {
                         CancelBefore = y.CancelBefore,
                         RefundPercent = y.RefundPercent
-                    }).ToList()
+                    }).ToList(),
+                    PaymentDeadline = x.PaymentDeadline
                 })
                 .SingleOrDefaultAsync(x => x.TourId.Equals(id));
         }
