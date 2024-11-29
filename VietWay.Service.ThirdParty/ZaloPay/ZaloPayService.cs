@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore.Metadata.Internal;
+﻿using IdGen;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -11,6 +12,7 @@ using VietWay.Util.DateTimeUtil;
 using ZaloPay.Helper;
 using ZaloPay.Helper.Crypto;
 using static Org.BouncyCastle.Math.EC.ECCurve;
+using static System.Net.WebRequestMethods;
 
 namespace VietWay.Service.ThirdParty.ZaloPay
 {
@@ -39,7 +41,7 @@ namespace VietWay.Service.ThirdParty.ZaloPay
             ZaloPayRequest request = new ZaloPayRequest
             {
                 Amount = (long)bookingPayment.Amount,
-                EmbedData = "{}",
+                EmbedData = "{\"redirecturl\": \"http://localhost:5173/dat-tour/thanh-toan/hoan-thanh/" + bookingPayment.BookingId + "\"}",
                 Item = JsonConvert.SerializeObject(items, new JsonSerializerSettings
                 {
                     ReferenceLoopHandling = ReferenceLoopHandling.Ignore
@@ -47,22 +49,18 @@ namespace VietWay.Service.ThirdParty.ZaloPay
                 Description = $"Thanh toan tour gia {bookingPayment.Amount}",
             };
 
-            Random rnd = new Random();
             var param = new Dictionary<string, string>();
-
-            var app_trans_id = rnd.Next(1000000); // Generate a random order's ID.
-            string appTime = Utils.GetTimeStamp().ToString();
-            string appTransId = _timeZoneHelper.GetUTC7Now().ToString("yyMMdd") + "_" + app_trans_id;
 
             param.Add("app_id", _zaloPayAppId);
             param.Add("app_user", _zaloPayAppUser);
-            param.Add("app_time", appTime);
+            param.Add("app_time", Utils.GetTimeStamp().ToString());
             param.Add("amount", request.Amount.ToString());
-            param.Add("app_trans_id", appTransId); // mã giao dich có định dạng yyMMdd_xxxx
+            param.Add("app_trans_id", DateTime.Now.ToString("yyMMddhhmmss") + "_" + bookingPayment.PaymentId.ToString());
             param.Add("embed_data", request.EmbedData);
             param.Add("item", request.Item);
             param.Add("description", request.Description);
             param.Add("bank_code", "zalopayapp");
+            //param.Add("callback_url", "https://localhost:7092/api/bookings/1310197399175561216/payment-url?paymentMethod=2");
 
             var data = _zaloPayAppId + "|" + param["app_trans_id"] + "|" + param["app_user"] + "|" + param["amount"] + "|"
                 + param["app_time"] + "|" + param["embed_data"] + "|" + param["item"];
@@ -70,6 +68,59 @@ namespace VietWay.Service.ThirdParty.ZaloPay
 
             var result = await HttpHelper.PostFormAsync("https://sb-openapi.zalopay.vn/v2/create", param);
             return result["order_url"].ToString();
+        }
+
+        public async Task<ZaloPayResponse> VerifyTransactionLocal(ZaloPayCallback zaloPayCallback)
+        {
+            var param = new Dictionary<string, string>();
+            param.Add("app_id", zaloPayCallback.AppId.ToString());
+            param.Add("app_trans_id", zaloPayCallback.AppTransId);
+            var data = zaloPayCallback.AppId + "|" + zaloPayCallback.AppTransId + "|" + _zaloPayKey1;
+
+            param.Add("mac", HmacHelper.Compute(ZaloPayHMAC.HMACSHA256, _zaloPayKey1, data));
+            var result = await HttpHelper.PostFormAsync("https://sb-openapi.zalopay.vn/v2/query", param);
+            ZaloPayResponse response = new ZaloPayResponse
+            {
+                ReturnCode = int.Parse(result["return_code"].ToString()),
+                ReturnMessage = result["return_message"].ToString(),
+                SubReturnCode = int.Parse(result["sub_return_code"].ToString()),
+                SubReturnMessage = result["sub_return_message"].ToString(),
+                IsProcessing = bool.Parse(result["is_processing"].ToString()),
+                Amount = long.Parse(result["amount"].ToString()),
+                DiscountAmount = long.Parse(result["discount_amount"].ToString()),
+                ZpTransId = long.Parse(result["zp_trans_id"].ToString()),
+                ServerTime = long.Parse(result["server_time"].ToString())
+            };
+            return response;
+        }
+
+        public Dictionary<string, object> VerifyTransaction(CallbackData data)
+        {
+            var result = new Dictionary<string, object>();
+            try
+            {
+                var dataStr = Convert.ToString(data.Data);
+                var reqMac = Convert.ToString(data.Mac);
+
+                var mac = HmacHelper.Compute(ZaloPayHMAC.HMACSHA256, _zaloPayKey2, dataStr);
+
+                if (!reqMac.Equals(mac))
+                {
+                    result["return_code"] = -1;
+                    result["return_message"] = "mac not equal";
+                }
+                else
+                {
+                    result["return_code"] = 1;
+                    result["return_message"] = "success";
+                }
+            }
+            catch (Exception ex)
+            {
+                result["return_code"] = 0; // ZaloPay server sẽ callback lại (tối đa 3 lần)
+                result["return_message"] = ex.Message;
+            }
+            return result;
         }
     }
 }

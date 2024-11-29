@@ -25,6 +25,7 @@ using VietWay.Job.Implementation;
 using VietWay.Job.Interface;
 using VietWay.Job.Configuration;
 using VietWay.Service.ThirdParty.Email;
+using VietWay.Service.ThirdParty.ZaloPay;
 namespace VietWay.API.Management
 {
     public class Program
@@ -148,6 +149,7 @@ namespace VietWay.API.Management
             builder.Services.AddScoped<IRedisCacheService, RedisCacheService>();
             builder.Services.AddScoped<ITwitterService, TwitterService>();
             builder.Services.AddScoped<IEmailService, GmailService>();
+            builder.Services.AddScoped<IZaloPayService, ZaloPayService>();
 
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
             builder.Services.AddScoped<ITimeZoneHelper, TimeZoneHelper>();
@@ -242,6 +244,17 @@ namespace VietWay.API.Management
                 string graphApiBaseUrl = Environment.GetEnvironmentVariable("FACEBOOK_GRAPH_API_BASE_URL") ??
                     throw new Exception("FACEBOOK_GRAPH_API_BASE_URL is not set in environment variables");
                 HttpClient.BaseAddress = new Uri(graphApiBaseUrl);
+            });
+            builder.Services.AddSingleton(s => new ZaloPayServiceConfiguration
+            {
+                ZaloPayAppId = Environment.GetEnvironmentVariable("ZALOPAY_APP_ID") ??
+                    throw new Exception("ZALOPAY_APP_ID is not set in environment variables"),
+                ZaloPayAppUser = Environment.GetEnvironmentVariable("ZALOPAY_APP_USER") ??
+                    throw new Exception("ZALOPAY_APP_USER is not set in environment variables"),
+                ZaloPayKey1 = Environment.GetEnvironmentVariable("ZALOPAY_KEY1") ??
+                    throw new Exception("ZALOPAY_KEY1 is not set in environment variables"),
+                ZaloPayKey2 = Environment.GetEnvironmentVariable("ZALOPAY_KEY2") ??
+                    throw new Exception("ZALOPAY_KEY2 is not set in environment variables")
             });
             var app = builder.Build();
 

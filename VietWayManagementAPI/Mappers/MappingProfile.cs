@@ -5,6 +5,7 @@ using VietWay.Repository.EntityModel;
 using VietWay.Repository.EntityModel.Base;
 using VietWay.Service.Management.DataTransferObject;
 using VietWay.Service.ThirdParty.VnPay;
+using VietWay.Service.ThirdParty.ZaloPay;
 
 namespace VietWay.API.Management.Mappers
 {
@@ -150,7 +151,7 @@ namespace VietWay.API.Management.Mappers
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description));
 
             CreateMap<RefundRequest, BookingPayment>();
-            
+
             CreateMap<CreateStaffAccountRequest, Staff>()
                 .ForMember(dest => dest.FullName, opt => opt.MapFrom(src => src.FullName))
                 .ForMember(dest => dest.IsDeleted, opt => opt.MapFrom(src => false))
@@ -226,6 +227,8 @@ namespace VietWay.API.Management.Mappers
             CreateMap<CreateAttractionTypeRequest, AttractionCategory>()
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.AttractionTypeName))
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description));
+            CreateMap<ZaloPayCallbackRequest, ZaloPayCallback>();
+            CreateMap<ZaloPayCallbackData, CallbackData>();
         }
     }
 }

@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using VietWay.Repository.EntityModel.Base;
 using VietWay.Repository.EntityModel;
+using Newtonsoft.Json;
 
 namespace VietWay.Service.ThirdParty.ZaloPay
 {
@@ -27,5 +28,33 @@ namespace VietWay.Service.ThirdParty.ZaloPay
         public string? ContactFullName { get; set; }
         public decimal TotalPrice { get; set; }
         public DateTime CreatedAt { get; set; }
+    }
+
+    public class ZaloPayCallback
+    {
+        public int AppId { get; set; }
+        public string AppTransId { get; set; }
+    }
+
+    public class CallbackData
+    {
+        [JsonProperty("data")]
+        public string Data { get; set; }
+        [JsonProperty("mac")]
+        public string Mac { get; set; }
+        [JsonProperty("type")]
+        public int Type { get; set; }
+    }
+
+    public class CallbackDataContent
+    {
+        [JsonProperty("app_trans_id")]
+        public string AppTransId { get; set; }
+
+        [JsonProperty("server_time")]
+        public long ServerTime { get; set; }
+
+        [JsonProperty("zp_trans_id")]
+        public long ZpTransId { get; set; }
     }
 }

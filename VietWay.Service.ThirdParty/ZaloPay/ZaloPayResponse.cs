@@ -16,5 +16,6 @@ namespace VietWay.Service.ThirdParty.ZaloPay
         public long Amount { get; set; }
         public long DiscountAmount { get; set; }
         public long ZpTransId { get; set; }
+        public long ServerTime { get; set; }
     }
 }
