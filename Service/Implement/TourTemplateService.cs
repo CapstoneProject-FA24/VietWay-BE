@@ -61,9 +61,53 @@ namespace VietWay.Service.Management.Implement
                 .FirstOrDefaultAsync(c => c.Code == code);
         }
 
-        public async Task DeleteTemplateAsync(TourTemplate tourTemplate)
+        public async Task DeleteTemplateAsync(string accountId, string tourTemplateId)
         {
-            await _unitOfWork.TourTemplateRepository.SoftDeleteAsync(tourTemplate);
+            TourTemplate? tourTemplate = await _unitOfWork.TourTemplateRepository.Query()
+                .SingleOrDefaultAsync(x => x.TourTemplateId.Equals(tourTemplateId)) ??
+                throw new ResourceNotFoundException("Tour Template not found");
+            Account? account = await _unitOfWork.AccountRepository.Query()
+                .SingleOrDefaultAsync(x => x.AccountId.Equals(accountId)) ??
+                throw new ResourceNotFoundException("Account not found");
+
+            bool hasRelatedTour = await _unitOfWork.TourRepository.Query().AnyAsync(x => x.TourTemplateId.Equals(tourTemplateId));
+            bool isStaff = account.Role.Equals(UserRole.Staff);
+            bool isManager = account.Role.Equals(UserRole.Manager);
+            bool isDraft = tourTemplate.Status.Equals(TourTemplateStatus.Draft);
+            bool isPending = tourTemplate.Status.Equals(TourTemplateStatus.Pending);
+
+            try
+            {
+                await _unitOfWork.BeginTransactionAsync();
+
+                if (isStaff && isDraft)
+                {
+                    await _unitOfWork.TourTemplateRepository.DeleteAsync(tourTemplate);
+                }
+                else if (isStaff && isPending)
+                {
+                    throw new InvalidDataException("Can not delete tour template already submited");
+                }
+                else if (isManager && !hasRelatedTour && !(isPending || isDraft))
+                {
+                    await _unitOfWork.TourTemplateRepository.SoftDeleteAsync(tourTemplate);
+                }
+                else if (isManager && tourTemplate.Status.Equals(TourTemplateStatus.Pending))
+                {
+                    throw new InvalidDataException("Can not delete tour template just submitted");
+                }
+                else if (isManager && hasRelatedTour)
+                {
+                    throw new InvalidDataException("Can not delete tour template that has tour");
+                }
+
+                await _unitOfWork.CommitTransactionAsync();
+            }
+            catch
+            {
+                await _unitOfWork.RollbackTransactionAsync();
+                throw;
+            }
         }
 
         public async Task<(int totalCount, List<TourTemplate> items)> GetAllTemplatesAsync(
