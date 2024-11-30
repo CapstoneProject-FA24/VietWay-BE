@@ -73,20 +73,22 @@ namespace VietWay.Service.Management.Implement
             bool hasRelatedTour = await _unitOfWork.TourRepository.Query().AnyAsync(x => x.TourTemplateId.Equals(tourTemplateId));
             bool isStaff = account.Role.Equals(UserRole.Staff);
             bool isManager = account.Role.Equals(UserRole.Manager);
+            bool isDraft = tourTemplate.Status.Equals(TourTemplateStatus.Draft);
+            bool isPending = tourTemplate.Status.Equals(TourTemplateStatus.Pending);
 
             try
             {
                 await _unitOfWork.BeginTransactionAsync();
 
-                if (isStaff && tourTemplate.Status.Equals(TourTemplateStatus.Draft))
+                if (isStaff && isDraft)
                 {
                     await _unitOfWork.TourTemplateRepository.DeleteAsync(tourTemplate);
                 }
-                else if (isStaff && tourTemplate.Status.Equals(TourTemplateStatus.Pending))
+                else if (isStaff && isPending)
                 {
                     throw new InvalidDataException("Can not delete tour template already submited");
                 }
-                else if (isManager && !hasRelatedTour && !tourTemplate.Status.Equals(TourTemplateStatus.Pending))
+                else if (isManager && !hasRelatedTour && !(isPending || isDraft))
                 {
                     await _unitOfWork.TourTemplateRepository.SoftDeleteAsync(tourTemplate);
                 }
