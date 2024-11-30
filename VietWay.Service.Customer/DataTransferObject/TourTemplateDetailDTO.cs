@@ -11,6 +11,7 @@
         public required string StartingProvince { get; set; }
         public required string Note { get; set; }
         public double? AverageRating { get; set; }
+        public string? Transportation { get; set; }
 
         public required List<RatingDTO> RatingCount { get; set; }
         public required List<ProvincePreviewDTO> Provinces { get; set; }

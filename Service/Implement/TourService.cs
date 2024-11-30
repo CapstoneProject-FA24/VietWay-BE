@@ -327,19 +327,20 @@ namespace VietWay.Service.Management.Implement
                 bool isManagerAcceptedOrDenyPendingTour = (TourStatus.Accepted == tourStatus || TourStatus.Rejected == tourStatus) &&
                     UserRole.Manager == account.Role && TourStatus.Pending == tour.Status;
 
-                bool isRegisteredOpenedDatePass = tour.RegisterOpenDate <= DateTime.Today && UserRole.Manager == account.Role;
+                bool isRegisteredOpenedDatePass = ((DateTime)tour.RegisterOpenDate).Date <= _timeZoneHelper.GetUTC7Now().Date && TourStatus.Accepted == tourStatus;
 
                 if (isManagerAcceptedOrDenyPendingTour)
                 {
                     tour.Status = tourStatus;
                 }
-                else if (isRegisteredOpenedDatePass)
-                {
-                    tour.Status = TourStatus.Opened;
-                }
                 else
                 {
                     throw new UnauthorizedException("You are not allowed to perform this action");
+                }
+
+                if (isRegisteredOpenedDatePass)
+                {
+                    tour.Status = TourStatus.Opened;
                 }
 
                 await _unitOfWork.TourRepository.UpdateAsync(tour);
