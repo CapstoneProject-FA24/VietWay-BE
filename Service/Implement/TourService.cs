@@ -430,5 +430,30 @@ namespace VietWay.Service.Management.Implement
                 throw;
             }
         }
+
+        public async Task DeleteTourAsync(string tourId)
+        {
+            Tour? tour = await _unitOfWork.TourRepository.Query()
+                .SingleOrDefaultAsync(x => x.TourId.Equals(tourId)) ??
+                throw new ResourceNotFoundException("Tour not found");
+
+            try
+            {
+                await _unitOfWork.BeginTransactionAsync();
+
+                if (tour.Status.Equals(TourStatus.Pending))
+                {
+                    throw new InvalidDataException("Can not delete tour just got submitted");
+                }
+
+                await _unitOfWork.TourRepository.SoftDeleteAsync(tour);
+                await _unitOfWork.CommitTransactionAsync();
+            }
+            catch
+            {
+                await _unitOfWork.RollbackTransactionAsync();
+                throw;
+            }
+        }
     }
 }
