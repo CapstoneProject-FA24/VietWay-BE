@@ -22,7 +22,7 @@ namespace VietWay.Service.Management.Implement
         public async Task<string> CreateTemplateAsync(TourTemplate tourTemplate)
         {
             tourTemplate.TourTemplateId = _idGenerator.GenerateId();
-            tourTemplate.CreatedAt = DateTime.UtcNow;
+            tourTemplate.CreatedAt = _timeZoneHelper.GetUTC7Now();
 
             var existingCode = await GetByCodeAsync(tourTemplate.Code);
             if (existingCode != null)
