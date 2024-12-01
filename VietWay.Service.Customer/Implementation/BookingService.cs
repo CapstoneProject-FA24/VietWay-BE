@@ -182,6 +182,8 @@ namespace VietWay.Service.Customer.Implementation
                     NumberOfParticipants = x.NumberOfParticipants,
                     StartDate = (DateTime)x.Tour.StartDate,
                     StartLocation = x.Tour.StartLocation,
+                    DepositPercent = x.Tour.DepositPercent,
+                    PaymentDeadline = x.Tour.PaymentDeadline,
                     Status = x.Status,
                     TotalPrice = x.TotalPrice,
                     TourId = x.TourId,
@@ -210,6 +212,7 @@ namespace VietWay.Service.Customer.Implementation
                 .Query()
                 .Where(x => x.CustomerId == customerId)
                 .Include(x => x.Tour.TourTemplate.TourTemplateImages)
+                .Include(x => x.TourReview)
                 .OrderByDescending(x => x.CreatedAt);
             if (bookingStatus.HasValue)
             {
@@ -231,7 +234,8 @@ namespace VietWay.Service.Customer.Implementation
                     TourName = x.Tour!.TourTemplate!.TourName,
                     ImageUrl = x.Tour!.TourTemplate!.TourTemplateImages.Select(x=>x.ImageUrl).First(),
                     Code = x.Tour.TourTemplate.Code,
-                    StartDate = x.Tour!.StartDate!.Value
+                    StartDate = x.Tour!.StartDate!.Value,
+                    IsReviewed = x.TourReview != null,
                 }).ToListAsync();
             return new PaginatedList<BookingPreviewDTO>
             {
