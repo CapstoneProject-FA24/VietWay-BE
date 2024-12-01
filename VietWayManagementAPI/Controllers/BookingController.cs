@@ -76,31 +76,6 @@ namespace VietWay.API.Management.Controllers
             });
         }
 
-        [HttpPost("{bookingId}/create-refund-transaction")]
-        [Authorize(Roles = $"{nameof(UserRole.Manager)},{nameof(UserRole.Staff)}")]
-        [Produces("application/json")]
-        [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status200OK)]
-        [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> CreateRefundTransaction(string bookingId, [FromBody] RefundRequest request)
-        {
-            string? managerId = _tokenHelper.GetAccountIdFromToken(HttpContext);
-            if (string.IsNullOrWhiteSpace(managerId))
-            {
-                return Unauthorized(new DefaultResponseModel<object>
-                {
-                    Message = "Unauthorized",
-                    StatusCode = StatusCodes.Status401Unauthorized
-                });
-            }
-            BookingPayment bookingPayment = _mapper.Map<BookingPayment>(request);
-            await _bookingService.CreateRefundTransactionAsync(managerId, bookingId, bookingPayment);
-            return Ok(new DefaultResponseModel<object>()
-            {
-                Message = "Create refund transaction successfully",
-                StatusCode = StatusCodes.Status200OK
-            });
-        }
-
         [HttpPatch("{bookingId}")]
         [Produces("application/json")]
         [Authorize(Roles = $"{nameof(UserRole.Manager)},{nameof(UserRole.Staff)}")]

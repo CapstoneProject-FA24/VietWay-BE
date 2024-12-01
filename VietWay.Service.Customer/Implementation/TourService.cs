@@ -23,6 +23,13 @@ namespace VietWay.Service.Customer.Implementation
                     MaxParticipant = x.MaxParticipant,
                     StartDate = x.StartDate,
                     StartLocation = x.StartLocation,
+                    DepositPercent = x.DepositPercent,
+                    PaymentDeadline = x.PaymentDeadline,
+                    RefundPolicies = x.TourRefundPolicies.Select(y => new TourRefundPolicyDTO()
+                    {
+                        CancelBefore = y.CancelBefore,
+                        RefundPercent = y.RefundPercent,
+                    }).ToList(),
                 }).ToListAsync();
         }
 
@@ -44,6 +51,7 @@ namespace VietWay.Service.Customer.Implementation
                     StartLocation = x.StartLocation,
                     StartLocationPlaceId = x.StartLocationPlaceId,
                     DepositPercent = x.DepositPercent,
+                    PaymentDeadline = x.PaymentDeadline,
                     PricesByAge = x.TourPrices.Select(y => new TourPriceDTO()
                     {
                         AgeFrom = y.AgeFrom,

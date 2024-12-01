@@ -223,7 +223,7 @@ namespace VietWay.API.Customer.Controllers
         [Produces("application/json")]
         [Authorize(Roles = nameof(UserRole.Customer))]
         [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status200OK)]
-        public async Task<IActionResult> GetPaymentUrl(string bookingId, PaymentMethod paymentMethod, bool isFullPayment)
+        public async Task<IActionResult> GetPaymentUrl(string bookingId, PaymentMethod paymentMethod, bool? isFullPayment)
         {
             string? customerId = _tokenHelper.GetAccountIdFromToken(HttpContext);
             if (customerId == null)
