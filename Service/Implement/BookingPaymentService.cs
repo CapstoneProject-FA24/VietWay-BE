@@ -28,28 +28,6 @@ namespace VietWay.Service.Management.Implement
                 .Include(x => x.Booking)
                 .SingleOrDefaultAsync(x => x.PaymentId.Equals(id));
         }
-
-        public async Task<string> GetVnPayBookingPaymentUrl(string bookingId, string customerId, string ipAddress)
-        {
-            Booking? tourBooking = await _unitOfWork.BookingRepository
-                .Query()
-                .SingleOrDefaultAsync(x => x.BookingId.Equals(bookingId) && x.CustomerId.Equals(customerId));
-            if (tourBooking == null || tourBooking.Status != BookingStatus.Pending)
-            {
-                throw new ResourceNotFoundException("");
-            }
-            BookingPayment bookingPayment = new()
-            {
-                PaymentId = _idGenerator.GenerateId(),
-                Amount = tourBooking.TotalPrice,
-                Status = PaymentStatus.Pending,
-                BookingId = bookingId,
-                CreateAt = _timeZoneHelper.GetUTC7Now(),
-            };
-            await _unitOfWork.BookingPaymentRepository.CreateAsync(bookingPayment);
-            return _vnPayService.GetPaymentUrl(bookingPayment, ipAddress);
-        }
-
         public async Task HandleVnPayIPN(VnPayIPN vnPayIPN)
         {
             if (_vnPayService.VerifyTransaction(vnPayIPN) == false)
@@ -76,6 +54,7 @@ namespace VietWay.Service.Management.Implement
                 bookingPayment.Booking.Status = 
                     bookingPayment.Booking.PaidAmount + bookingPayment.Amount < bookingPayment.Booking.TotalPrice ?
                     BookingStatus.Deposited : BookingStatus.Paid;
+                bookingPayment.Booking.PaidAmount += bookingPayment.Amount;
                 string entityHistoryId = _idGenerator.GenerateId();
                 await _unitOfWork.EntityHistoryRepository.CreateAsync(new()
                 {
