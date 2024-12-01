@@ -105,7 +105,7 @@ namespace VietWay.Service.Management.Implement
                 }
 
                 province.ProvinceId ??= _idGenerator.GenerateId();
-                province.CreatedAt = DateTime.Now;
+                province.CreatedAt = _timeZoneHelper.GetUTC7Now();
                 province.ImageUrl = "";
                 await _unitOfWork.BeginTransactionAsync();
                 await _unitOfWork.ProvinceRepository.CreateAsync(province);
