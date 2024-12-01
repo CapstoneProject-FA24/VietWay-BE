@@ -40,7 +40,6 @@ namespace VietWay.Repository.EntityModel
         [Range(0, 100)]
         [Column(TypeName = "decimal(18,2)")]
         public decimal? DepositPercent { get; set; }
-        [Required]
         public DateTime? PaymentDeadline { get; set; }
 
 
