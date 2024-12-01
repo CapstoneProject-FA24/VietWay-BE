@@ -82,9 +82,9 @@ namespace VietWay.Service.Customer.Implementation
                 .Query()
                 .Include(x => x.Tour)
                 .SingleOrDefaultAsync(x => x.BookingId.Equals(bookingId) && x.CustomerId.Equals(customerId));
-            if (tourBooking == null || tourBooking.Status != BookingStatus.Pending)
+            if (tourBooking == null || tourBooking.Status != BookingStatus.Pending || tourBooking.Status != BookingStatus.Deposited)
             {
-                throw new ResourceNotFoundException("");
+                throw new ResourceNotFoundException();
             }
             decimal amount;
             if (isFullPayment == null || isFullPayment.Value || tourBooking.Tour.DepositPercent == 0m)
