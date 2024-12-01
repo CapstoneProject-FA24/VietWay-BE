@@ -8,7 +8,7 @@ using VietWay.Service.Management.Interface;
 
 namespace VietWay.API.Management.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/entity-histories")]
     [ApiController]
     public class EntityHistoryController(IEntityHistoryService entityHistoryService) : ControllerBase
     {

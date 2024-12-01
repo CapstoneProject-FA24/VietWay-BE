@@ -78,7 +78,7 @@ namespace VietWay.Service.Customer.Implementation
             };
         }
 
-        public async Task<string> GetBookingPaymentUrl(PaymentMethod paymentMethod, bool isFullPayment, string bookingId, string customerId, string ipAddress)
+        public async Task<string> GetBookingPaymentUrl(PaymentMethod paymentMethod, bool? isFullPayment, string bookingId, string customerId, string ipAddress)
         {
             Booking? tourBooking = await _unitOfWork.BookingRepository
                 .Query()
@@ -89,7 +89,7 @@ namespace VietWay.Service.Customer.Implementation
                 throw new ResourceNotFoundException("");
             }
             decimal amount;
-            if (isFullPayment || tourBooking.Tour.DepositPercent == 0m)
+            if (isFullPayment == null || isFullPayment.Value || tourBooking.Tour.DepositPercent == 0m)
             {
                 amount = tourBooking.TotalPrice - tourBooking.PaidAmount;
             }
@@ -101,7 +101,7 @@ namespace VietWay.Service.Customer.Implementation
             BookingPayment bookingPayment = new()
             {
                 PaymentId = _idGenerator.GenerateId(),
-                Amount = tourBooking.TotalPrice,
+                Amount = amount,
                 Status = PaymentStatus.Pending,
                 BookingId = bookingId,
                 CreateAt = _timeZoneHelper.GetUTC7Now(),

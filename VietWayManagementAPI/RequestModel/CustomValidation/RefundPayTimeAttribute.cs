@@ -14,7 +14,8 @@ namespace VietWay.API.Management.RequestModel.CustomValidation
         {
             if (value is DateTime dateTime)
             {
-                if (dateTime < DateTime.Now)
+#warning warning: Datetime inconsitent, check later
+                if (dateTime < TimeZoneInfo.ConvertTime(DateTime.UtcNow, TimeZoneInfo.FindSystemTimeZoneById("Asia/Ho_Chi_Minh")))
                 {
                     return ValidationResult.Success;
                 }
