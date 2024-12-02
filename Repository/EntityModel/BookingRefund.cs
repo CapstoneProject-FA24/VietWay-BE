@@ -27,7 +27,6 @@ namespace VietWay.Repository.EntityModel
         public RefundStatus RefundStatus { get; set; }
         public DateTime? RefundDate { get; set; }
         [Required]
-        [StringLength(20)]
         public string? RefundReason { get; set; }
         public string? RefundNote { get; set; }
         public string? BankCode { get; set; }
