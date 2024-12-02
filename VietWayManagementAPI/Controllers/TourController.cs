@@ -219,5 +219,29 @@ namespace VietWay.API.Management.Controllers
                 StatusCode = StatusCodes.Status200OK,
             });
         }
+
+        [HttpDelete("{tourId}")]
+        [Authorize(Roles = $"{nameof(UserRole.Manager)},{nameof(UserRole.Staff)}")]
+        [Produces("application/json")]
+        [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status200OK)]
+        public async Task<IActionResult> DeleteTourAsync(string tourId)
+        {
+            string? accountId = _tokenHelper.GetAccountIdFromToken(HttpContext);
+            if (string.IsNullOrWhiteSpace(accountId))
+            {
+                return Unauthorized(new DefaultResponseModel<object>
+                {
+                    Message = "Unauthorized",
+                    StatusCode = StatusCodes.Status401Unauthorized
+                });
+            }
+
+            await _tourService.DeleteTourAsync(tourId, accountId);
+            return Ok(new DefaultResponseModel<string>
+            {
+                Message = "Delete tour successfully",
+                StatusCode = StatusCodes.Status200OK,
+            });
+        }
     }
 }

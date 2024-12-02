@@ -19,7 +19,7 @@ namespace VietWay.Service.Management.Interface
         public Task<string> CreateTemplateAsync(TourTemplate tourTemplate);
         public Task UpdateTemplateImageAsync(TourTemplate tourTemplate, List<IFormFile> ImageFiles, List<string> removedImageId);
         public Task UpdateTemplateAsync(string tourTemplateId, TourTemplate newTourTemplate);
-        public Task DeleteTemplateAsync(TourTemplate tourTemplate);
+        public Task DeleteTemplateAsync(string tourTemplateId, string accountId);
         public Task<(int totalCount, List<TourTemplate> items)> GetAllApprovedTemplatesAsync(
             string? nameSearch,
             List<string>? templateCategoryIds,

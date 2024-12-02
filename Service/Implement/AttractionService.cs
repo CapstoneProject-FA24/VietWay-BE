@@ -42,7 +42,7 @@ namespace VietWay.Service.Management.Implement
         public async Task DeleteAttractionAsync(string attractionId)
         {
             Attraction? attraction = await _unitOfWork.AttractionRepository.Query()
-                .SingleOrDefaultAsync(x => x.AttractionId.Equals(attractionId)) ??
+                .SingleOrDefaultAsync(x => x.AttractionId.Equals(attractionId) && !x.IsDeleted) ??
                 throw new ResourceNotFoundException("Attraction not found");
             try
             {
@@ -116,6 +116,7 @@ namespace VietWay.Service.Management.Implement
             }
             int count = await query.CountAsync();
             List<AttractionPreviewDTO> attractions = await query
+                .Where(x => !x.IsDeleted)
                 .Include(x => x.AttractionImages)
                 .Include(x => x.Province)
                 .Include(x => x.AttractionCategory)
@@ -176,7 +177,7 @@ namespace VietWay.Service.Management.Implement
         {
             return await _unitOfWork.AttractionRepository
                 .Query()
-                .Where(x => x.AttractionId.Equals(attractionId))
+                .Where(x => x.AttractionId.Equals(attractionId) && !x.IsDeleted)
                 .Include(x => x.AttractionImages)
                 .Include(x => x.Province)
                 .Include(x => x.AttractionCategory)
@@ -213,7 +214,7 @@ namespace VietWay.Service.Management.Implement
         public async Task UpdateAttractionAsync(Attraction newAttraction)
         {
             Attraction? attraction = await _unitOfWork.AttractionRepository.Query()
-                .SingleOrDefaultAsync(x => x.AttractionId.Equals(newAttraction.AttractionId)) ??
+                .SingleOrDefaultAsync(x => x.AttractionId.Equals(newAttraction.AttractionId) && !x.IsDeleted) ??
                 throw new ResourceNotFoundException("Attraction not found");
 
             attraction.Status = newAttraction.Status;
@@ -241,7 +242,7 @@ namespace VietWay.Service.Management.Implement
             List<string>? imageIdsToRemove)
         {
             Attraction attraction = await _unitOfWork.AttractionRepository.Query()
-                .Include(x => x.AttractionImages).SingleOrDefaultAsync(x => x.AttractionId.Equals(attractionId))
+                .Include(x => x.AttractionImages).SingleOrDefaultAsync(x => x.AttractionId.Equals(attractionId) && !x.IsDeleted)
                 ?? throw new ResourceNotFoundException("Attraction not found");
             try
             {
@@ -295,7 +296,7 @@ namespace VietWay.Service.Management.Implement
             {
                 await _unitOfWork.BeginTransactionAsync();
                 Account? account = await _unitOfWork.AccountRepository.Query()
-                    .SingleOrDefaultAsync(x => x.AccountId.Equals(accountId)) ??
+                    .SingleOrDefaultAsync(x => x.AccountId.Equals(accountId) && !x.IsDeleted) ??
                     throw new ResourceNotFoundException("Account not found");
                 Attraction? attraction = await _unitOfWork.AttractionRepository.Query()
                     .SingleOrDefaultAsync(x => attractionId.Equals(x.AttractionId)) ??

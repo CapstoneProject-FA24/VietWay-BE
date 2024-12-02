@@ -221,7 +221,7 @@ namespace VietWay.API.Management.Controllers
         }
 
         [HttpDelete("{tourTemplateId}")]
-        [Authorize(Roles = $"{nameof(UserRole.Manager)}")]
+        [Authorize(Roles = $"{nameof(UserRole.Manager)}, {nameof(UserRole.Staff)}")]
         [Produces("application/json")]
         [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status200OK)]
         public async Task<IActionResult> DeleteTourTemplate(string tourTemplateId)
@@ -235,17 +235,7 @@ namespace VietWay.API.Management.Controllers
                     StatusCode = StatusCodes.Status401Unauthorized
                 });
             }
-
-            TourTemplate? tourTemplate = await _tourTemplateService.GetTemplateByIdAsync(tourTemplateId);
-            if (tourTemplate == null)
-            {
-                return NotFound(new DefaultResponseModel<object>()
-                {
-                    Message = $"Can not find Tour template with id {tourTemplateId}",
-                    StatusCode = StatusCodes.Status404NotFound
-                });
-            }
-            await _tourTemplateService.DeleteTemplateAsync(tourTemplate);
+            await _tourTemplateService.DeleteTemplateAsync(tourTemplateId, accountId);
             return Ok(new DefaultResponseModel<object>()
             {
                 Message = "Tour template deleted successfully",
