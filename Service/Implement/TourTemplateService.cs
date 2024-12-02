@@ -158,6 +158,7 @@ namespace VietWay.Service.Management.Implement
             tourTemplate.MinPrice = newTourTemplate.MinPrice;
             tourTemplate.MaxPrice = newTourTemplate.MaxPrice;
             tourTemplate.StartingProvince = newTourTemplate.StartingProvince;
+            tourTemplate.Transportation = newTourTemplate.Transportation;
             tourTemplate.Status = newTourTemplate.Status;
 
             if (newTourTemplate.TourTemplateProvinces != null)
