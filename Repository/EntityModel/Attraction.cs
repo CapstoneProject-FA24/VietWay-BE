@@ -14,7 +14,6 @@ namespace VietWay.Repository.EntityModel
         public string? Name { get; set; }
         [StringLength(255)]
         public string? Address { get; set; }
-        [StringLength(500)]
         public string? ContactInfo { get; set; }
         [StringLength(2048)]
         public string? Website { get; set; }
