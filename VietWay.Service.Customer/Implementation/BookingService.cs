@@ -112,7 +112,7 @@ namespace VietWay.Service.Customer.Implementation
 
                 decimal refundPercentCost = booking.Tour.TourRefundPolicies?
                     .Where(x => x.CancelBefore > _timeZoneHelper.GetUTC7Now())
-                    .OrderByDescending(x => x.RefundPercent)
+                    .OrderBy(x => x.CancelBefore)
                     .Select(x => x.RefundPercent)
                     .FirstOrDefault() ?? 100;
 

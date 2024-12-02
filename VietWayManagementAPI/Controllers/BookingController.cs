@@ -140,5 +140,19 @@ namespace VietWay.API.Management.Controllers
                 StatusCode = StatusCodes.Status200OK
             });
         }
+
+        [HttpGet("{bookingId}/history")]
+        [Produces("application/json")]
+        [Authorize(Roles = $"{nameof(UserRole.Manager)},{nameof(UserRole.Staff)}")]
+        [ProducesResponseType<DefaultResponseModel<List<BookingHistoryDTO>>>(StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetBookingHistory(string bookingId)
+        {
+            return Ok(new DefaultResponseModel<List<BookingHistoryDTO>>()
+            {
+                Data = await _bookingService.GetBookingHistoryAsync(bookingId),
+                Message = "Get booking history successfully",
+                StatusCode = StatusCodes.Status200OK
+            });
+        }
     }
 }
