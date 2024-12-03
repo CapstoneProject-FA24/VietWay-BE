@@ -45,6 +45,7 @@
         Paid,
         Completed,
         Cancelled,
+        PendingChangeConfirmation,
     }
     public enum PaymentStatus
     {

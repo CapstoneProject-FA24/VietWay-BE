@@ -214,12 +214,6 @@ namespace VietWay.Service.Management.Implement
                 }).ToListAsync();
             return (count, items);
         }
-
-        public async Task CreateRefundTransactionAsync(string accountId, string refundId, BookingRefund bookingRefund)
-        {
-            
-        }
-
         public async Task ChangeBookingTourAsync(string accountId, string bookingId, string newTourId, string reason)
         {
             try
@@ -285,11 +279,7 @@ namespace VietWay.Service.Management.Implement
                         booking.TotalPrice += tourist.Price;
                     }
                 }
-
-                if (oldPrice < booking.TotalPrice)
-                {
-                    booking.Status = BookingStatus.Pending;
-                }
+                booking.Status = BookingStatus.PendingChangeConfirmation;
 
                 await _unitOfWork.BeginTransactionAsync();
                 await _unitOfWork.BookingRepository.UpdateAsync(booking);
