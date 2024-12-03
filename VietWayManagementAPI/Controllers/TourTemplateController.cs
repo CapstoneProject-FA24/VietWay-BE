@@ -362,7 +362,8 @@ namespace VietWay.API.Management.Controllers
             decimal? minPrice,
             decimal? maxPrice,
             int? pageSize,
-            int? pageIndex)
+            int? pageIndex,
+            string? tourId)
         {
             string? accountId = _tokenHelper.GetAccountIdFromToken(HttpContext);
             if (string.IsNullOrWhiteSpace(accountId))
@@ -379,7 +380,7 @@ namespace VietWay.API.Management.Controllers
 
             var (totalCount, items) = await _tourTemplateService.GetAllTemplateWithActiveToursAsync(
                 nameSearch, templateCategoryIds, provinceIds, numberOfDay, startDateFrom,
-                startDateTo, minPrice, maxPrice, checkedPageSize, checkedPageIndex);
+                startDateTo, minPrice, maxPrice, checkedPageSize, checkedPageIndex, tourId);
             List<TourTemplateWithTourInfoDTO> tourTemplatePreviews = _mapper.Map<List<TourTemplateWithTourInfoDTO>>(items);
             PaginatedList<TourTemplateWithTourInfoDTO> pagedResponse = new()
             {

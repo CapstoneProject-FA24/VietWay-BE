@@ -340,14 +340,15 @@ namespace VietWay.Service.Management.Implement
             decimal? minPrice,
             decimal? maxPrice,
             int pageSize,
-            int pageIndex)
+            int pageIndex,
+            string? tourId)
         {
             var query = _unitOfWork
                 .TourTemplateRepository
                 .Query()
                 .Where(x => x.IsDeleted == false &&
                             x.Tours.Any(y => y.StartDate >= _timeZoneHelper.GetUTC7Now() &&
-                                             y.Status == TourStatus.Opened && y.RegisterOpenDate <= DateTime.Now && y.RegisterCloseDate >= DateTime.Now && !y.IsDeleted));
+                                             y.Status == TourStatus.Opened && ((DateTime)y.RegisterOpenDate).Date <= _timeZoneHelper.GetUTC7Now().Date && ((DateTime)y.RegisterCloseDate).Date >= _timeZoneHelper.GetUTC7Now().Date && !y.IsDeleted));
             if (false == string.IsNullOrWhiteSpace(nameSearch))
             {
                 query = query.Where(x => x.TourName.Contains(nameSearch));
@@ -380,6 +381,12 @@ namespace VietWay.Service.Management.Implement
             {
                 query = query.Where(x => x.Tours.Any(x => x.DefaultTouristPrice <= maxPrice));
             }
+            if (tourId != null)
+            {
+                query = query.Where(x => x.Tours.Any(x => x.TourId != tourId && x.StartDate >= _timeZoneHelper.GetUTC7Now() &&
+                                             x.Status == TourStatus.Opened && ((DateTime)x.RegisterOpenDate).Date <= _timeZoneHelper.GetUTC7Now().Date 
+                                             && ((DateTime)x.RegisterCloseDate).Date >= _timeZoneHelper.GetUTC7Now().Date && !x.IsDeleted));
+            }
 
             int count = await query.CountAsync();
 
@@ -408,6 +415,7 @@ namespace VietWay.Service.Management.Implement
                     TourName = x.TourName,
                     Description = x.Description,
                     Note = x.Note,
+                    Transportation = x.Transportation,
                     Schedules = x.TourTemplateSchedules.Select(y => new ScheduleDTO
                     {
                         DayNumber = y.DayNumber,
@@ -419,7 +427,10 @@ namespace VietWay.Service.Management.Implement
                             Name = z.Attraction.Name,
                         }).ToList()
                     }).ToList(),
-                    Tours = x.Tours.Where(a => a.Status == TourStatus.Opened && a.RegisterOpenDate <= DateTime.Now && a.RegisterCloseDate >= DateTime.Now && !a.IsDeleted).Select(y => new TourInfoDTO
+                    Tours = x.Tours
+                    .Where(a => a.Status == TourStatus.Opened && ((DateTime)a.RegisterOpenDate).Date <= _timeZoneHelper.GetUTC7Now().Date && ((DateTime)a.RegisterCloseDate).Date >= _timeZoneHelper.GetUTC7Now().Date && !a.IsDeleted)
+                    .Where(a => string.IsNullOrEmpty(tourId) || a.TourId != tourId)
+                    .Select(y => new TourInfoDTO
                     {
                         TourId = y.TourId,
                         StartLocation = y.StartLocation,
@@ -428,6 +439,8 @@ namespace VietWay.Service.Management.Implement
                         MaxParticipant = y.MaxParticipant,
                         MinParticipant = y.MinParticipant,
                         CurrentParticipant = y.CurrentParticipant,
+                        DepositPercent = y.DepositPercent,
+                        PaymentDeadline = y.PaymentDeadline,
                         TourPrices = y.TourPrices.Select(z => new TourPriceDTO
                         {
                             PriceId = z.PriceId,
