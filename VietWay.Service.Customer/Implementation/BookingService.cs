@@ -193,6 +193,7 @@ namespace VietWay.Service.Customer.Implementation
                     CreatedOn = x.CreatedAt,
                     Note = x.Note,
                     PaidAmount = x.PaidAmount,
+                    Transportation = x.Tour.TourTemplate.Transportation,
                     Participants = x.BookingTourists.Select(y => new TourParticipantDTO()
                     {
                         DateOfBirth = y.DateOfBirth,
@@ -202,6 +203,12 @@ namespace VietWay.Service.Customer.Implementation
                         Price = y.Price,
                     }).ToList(),
                     Code = x.Tour.TourTemplate.Code,
+                    RefundRequests = x.BookingRefunds.Select(y => new BookingRefundDTO
+                    {
+                        RefundAmount = y.RefundAmount,
+                        RefundStatus = y.RefundStatus,
+                        RefundDate = y.RefundDate,
+                    }).ToList(),
                 }).SingleOrDefaultAsync();
         }
 
@@ -236,6 +243,7 @@ namespace VietWay.Service.Customer.Implementation
                     Code = x.Tour.TourTemplate.Code,
                     StartDate = x.Tour!.StartDate!.Value,
                     IsReviewed = x.TourReview != null,
+                    HavePendingRefund = x.BookingRefunds.Any(y => y.RefundStatus == RefundStatus.Pending),
                 }).ToListAsync();
             return new PaginatedList<BookingPreviewDTO>
             {
