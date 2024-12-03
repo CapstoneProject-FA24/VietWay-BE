@@ -214,12 +214,6 @@ namespace VietWay.Service.Management.Implement
                 }).ToListAsync();
             return (count, items);
         }
-
-        public async Task CreateRefundTransactionAsync(string accountId, string refundId, BookingRefund bookingRefund)
-        {
-            
-        }
-
         public async Task ChangeBookingTourAsync(string accountId, string bookingId, string newTourId, string reason)
         {
             try
