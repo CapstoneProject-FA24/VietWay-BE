@@ -324,9 +324,10 @@ namespace VietWay.Service.Customer.Implementation
                         RefundStatus = RefundStatus.Pending,
                     });
                     await _unitOfWork.BookingRepository.UpdateAsync(booking);
+                    string entityHistoryId = _idGenerator.GenerateId();
                     await _unitOfWork.EntityHistoryRepository.CreateAsync(new EntityHistory()
                     {
-                        Id = _idGenerator.GenerateId(),
+                        Id = entityHistoryId,
                         Action = EntityModifyAction.ChangeStatus,
                         EntityId = bookingId,
                         EntityType = EntityType.Booking,
@@ -335,7 +336,7 @@ namespace VietWay.Service.Customer.Implementation
                         Reason = null,
                         StatusHistory = new EntityStatusHistory()
                         {
-                            Id = _idGenerator.GenerateId(),
+                            Id = entityHistoryId,
                             OldStatus = (int)BookingStatus.PendingChangeConfirmation,
                             NewStatus = (int)BookingStatus.Pending,
                         },
@@ -380,9 +381,10 @@ namespace VietWay.Service.Customer.Implementation
                     RefundReason = "Tour Change Denied",
                     RefundStatus = RefundStatus.Pending,
                 });
+                string entityHistoryId = _idGenerator.GenerateId();
                 await _unitOfWork.EntityHistoryRepository.CreateAsync(new EntityHistory()
                 {
-                    Id = _idGenerator.GenerateId(),
+                    Id =entityHistoryId,
                     Action = EntityModifyAction.ChangeStatus,
                     EntityId = bookingId,
                     EntityType = EntityType.Booking,
@@ -391,7 +393,7 @@ namespace VietWay.Service.Customer.Implementation
                     Reason = null,
                     StatusHistory = new EntityStatusHistory()
                     {
-                        Id = _idGenerator.GenerateId(),
+                        Id = entityHistoryId,
                         OldStatus = (int)BookingStatus.PendingChangeConfirmation,
                         NewStatus = (int)BookingStatus.Cancelled,
                     },
