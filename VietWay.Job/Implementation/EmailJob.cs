@@ -77,5 +77,20 @@ namespace VietWay.Job.Implementation
             await _emailService.SendEmailAsync(email, "Xác nhận booking", template);
 
         }
+
+        public Task SendBookingPaymentExpiredEmail(string bookingId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task SendBookingRefundEmail(string bookingId, string refundId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task SendBookingTourChangeEmail(string bookingId, string newTourId)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

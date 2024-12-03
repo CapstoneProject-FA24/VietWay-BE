@@ -235,7 +235,7 @@ namespace VietWay.API.Management.Controllers
                     StatusCode = StatusCodes.Status401Unauthorized
                 });
             }
-            await _tourTemplateService.DeleteTemplateAsync(tourTemplateId, accountId);
+            await _tourTemplateService.DeleteTemplateAsync(accountId, tourTemplateId);
             return Ok(new DefaultResponseModel<object>()
             {
                 Message = "Tour template deleted successfully",

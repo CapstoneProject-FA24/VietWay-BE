@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Hangfire;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,12 +9,15 @@ using VietWay.Job.Interface;
 using VietWay.Repository.EntityModel;
 using VietWay.Repository.EntityModel.Base;
 using VietWay.Repository.UnitOfWork;
+using VietWay.Util.DateTimeUtil;
 
 namespace VietWay.Job.Implementation
 {
-    public class TourJob(IUnitOfWork unitOfWork) : ITourJob
+    public class TourJob(IUnitOfWork unitOfWork, IBackgroundJobClient backgroundJobClient, ITimeZoneHelper timeZoneHelper) : ITourJob
     {
         private readonly IUnitOfWork _unitOfWork = unitOfWork;
+        private readonly IBackgroundJobClient _backgroundJobClient = backgroundJobClient;
+        private readonly ITimeZoneHelper _timeZoneHelper = timeZoneHelper;
         public async Task OpenTourAsync(string tourId)
         {
             Tour? tour = await _unitOfWork.TourRepository.Query()
@@ -29,6 +33,8 @@ namespace VietWay.Job.Implementation
                 tour.Status = TourStatus.Opened;
                 await _unitOfWork.TourRepository.UpdateAsync(tour);
                 await _unitOfWork.CommitTransactionAsync();
+                _backgroundJobClient.Schedule<ITourJob>(x => x.CloseTourAsync(tourId),
+                    _timeZoneHelper.GetLocalTimeFromUTC7(tour.RegisterCloseDate!.Value));
             }
             catch
             {
@@ -51,6 +57,8 @@ namespace VietWay.Job.Implementation
                 tour.Status = TourStatus.Closed;
                 await _unitOfWork.TourRepository.UpdateAsync(tour);
                 await _unitOfWork.CommitTransactionAsync();
+                _backgroundJobClient.Schedule<ITourJob>(x => x.ChangeTourToOngoingAsync(tourId),
+                    _timeZoneHelper.GetLocalTimeFromUTC7(tour.StartDate!.Value));
             }
             catch
             {
@@ -62,6 +70,7 @@ namespace VietWay.Job.Implementation
         {
             Tour? tour = await _unitOfWork.TourRepository.Query()
                     .Where(x => x.TourId.Equals(tourId) && x.Status == TourStatus.Closed)
+                    .Include(x=>x.TourTemplate.TourDuration)
                     .SingleOrDefaultAsync();
             if (null == tour)
             {
@@ -73,6 +82,8 @@ namespace VietWay.Job.Implementation
                 tour.Status = TourStatus.OnGoing;
                 await _unitOfWork.TourRepository.UpdateAsync(tour);
                 await _unitOfWork.CommitTransactionAsync();
+                _backgroundJobClient.Schedule<ITourJob>(x => x.ChangeTourToCompletedAsync(tourId),
+                    _timeZoneHelper.GetLocalTimeFromUTC7(tour.StartDate!.Value.AddDays(tour.TourTemplate.TourDuration.NumberOfDay)));
             }
             catch
             {

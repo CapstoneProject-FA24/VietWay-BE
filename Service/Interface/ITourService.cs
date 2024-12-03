@@ -14,6 +14,6 @@ namespace VietWay.Service.Management.Interface
         public Task<List<TourDetailDTO>> GetAllToursByTemplateIdsAsync(string tourTemplateIds);
         public Task ChangeTourStatusAsync(string tourId, string accountId, TourStatus tourStatus, string? reason);
         public Task CancelTourAsync(string tourId, string managerId, string? reason);
-        public Task DeleteTourAsync(string tourId, string accountId);
+        public Task DeleteTourAsync(string tourId);
     }
 }

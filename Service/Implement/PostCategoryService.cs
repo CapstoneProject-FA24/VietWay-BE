@@ -9,15 +9,18 @@ using VietWay.Repository.UnitOfWork;
 using VietWay.Service.Management.DataTransferObject;
 using VietWay.Service.Management.Interface;
 using VietWay.Util.CustomExceptions;
+using VietWay.Util.DateTimeUtil;
 using VietWay.Util.IdUtil;
 
 namespace VietWay.Service.Management.Implement
 {
     public class PostCategoryService(IUnitOfWork unitOfWork,
+        ITimeZoneHelper timeZoneHelper,
         IIdGenerator idGenerator) : IPostCategoryService
     {
         private readonly IUnitOfWork _unitOfWork = unitOfWork;
         private readonly IIdGenerator _idGenerator = idGenerator;
+        private readonly ITimeZoneHelper _timeZoneHelper = timeZoneHelper;
         public async Task<List<PostCategoryDTO>> GetPostCategoriesAsync(string? nameSearch)
         {
             var query = _unitOfWork
@@ -39,7 +42,6 @@ namespace VietWay.Service.Management.Implement
         }
         public async Task<string> CreatePostCategoryAsync(PostCategory postCategory)
         {
-            postCategory.CreatedAt = DateTime.Now;
             try
             {
                 var existingCategory = await GetByNameAsync(postCategory.Name);
@@ -49,6 +51,7 @@ namespace VietWay.Service.Management.Implement
                 }
 
                 postCategory.PostCategoryId ??= _idGenerator.GenerateId();
+                postCategory.CreatedAt = _timeZoneHelper.GetUTC7Now();
                 await _unitOfWork.BeginTransactionAsync();
                 await _unitOfWork.PostCategoryRepository.CreateAsync(postCategory);
                 await _unitOfWork.CommitTransactionAsync();

@@ -53,7 +53,7 @@ namespace VietWay.Service.Management.Implement
             Tour? tour = await _unitOfWork.TourRepository.Query()
                 .Include(x => x.TourPrices)
                 .Include(x => x.TourRefundPolicies)
-                .SingleOrDefaultAsync(x => x.TourId.Equals(tourId) && !x.IsDeleted) ??
+                .SingleOrDefaultAsync(x => x.TourId.Equals(tourId)) ??
                 throw new ResourceNotFoundException("Tour not found");
 
             /*if (tour.Status.Equals(TourStatus.Opened) && tour.CurrentParticipant != 0)
@@ -153,7 +153,6 @@ namespace VietWay.Service.Management.Implement
             IQueryable<Tour> query = _unitOfWork
                 .TourRepository
                 .Query()
-                .Where(x => !x.IsDeleted)
                 .Include(x => x.TourTemplate)
                 .ThenInclude(x => x.TourTemplateImages);
             if (nameSearch != null)
@@ -222,7 +221,6 @@ namespace VietWay.Service.Management.Implement
                 .Include(x => x.TourPrices)
                 .Include(x => x.TourRefundPolicies)
                 .Include(x => x.TourBookings)
-                .Where(x => !x.IsDeleted)
                 .Select(x => new TourDetailDTO
                 {
                     TourId = x.TourId,
@@ -323,7 +321,7 @@ namespace VietWay.Service.Management.Implement
                     .SingleOrDefaultAsync(x => x.AccountId.Equals(accountId)) ??
                     throw new ResourceNotFoundException("Account not found");
                 Tour? tour = await _unitOfWork.TourRepository.Query()
-                    .SingleOrDefaultAsync(x => x.TourId.Equals(tourId) && !x.IsDeleted) ??
+                    .SingleOrDefaultAsync(x => x.TourId.Equals(tourId)) ??
                     throw new ResourceNotFoundException("Tour not found");
 
                 bool isManagerAcceptedOrDenyPendingTour = (TourStatus.Accepted == tourStatus || TourStatus.Rejected == tourStatus) &&
@@ -368,7 +366,7 @@ namespace VietWay.Service.Management.Implement
                     throw new UnauthorizedException("You are not allowed to perform this action");
 
                 Tour? tour = await _unitOfWork.TourRepository.Query().Include(x => x.TourBookings)
-                    .SingleOrDefaultAsync(x => x.TourId.Equals(tourId) && !x.IsDeleted) ??
+                    .SingleOrDefaultAsync(x => x.TourId.Equals(tourId)) ??
                     throw new ResourceNotFoundException("Tour not found");
 
                 if (TourStatus.Accepted != tour.Status && TourStatus.Opened != tour.Status && TourStatus.Closed == tour.Status)
@@ -452,30 +450,22 @@ namespace VietWay.Service.Management.Implement
             }
         }
 
-        public async Task DeleteTourAsync(string tourId, string accountId)
+        public async Task DeleteTourAsync(string tourId)
         {
+            Tour? tour = await _unitOfWork.TourRepository.Query()
+                .SingleOrDefaultAsync(x => x.TourId.Equals(tourId)) ??
+                throw new ResourceNotFoundException("Tour not found");
+
             try
             {
                 await _unitOfWork.BeginTransactionAsync();
-                Account? account = await _unitOfWork.AccountRepository.Query()
-                    .SingleOrDefaultAsync(x => x.AccountId.Equals(accountId)) ??
-                    throw new ResourceNotFoundException("Account not found");
-                Tour? tour = await _unitOfWork.TourRepository.Query()
-                    .SingleOrDefaultAsync(x => x.TourId.Equals(tourId) && !x.IsDeleted) ??
-                    throw new ResourceNotFoundException("Tour not found");
 
-                bool isManagerDeleteTour = tour.TourBookings.IsNullOrEmpty() && UserRole.Manager == account.Role && tour.Status != TourStatus.Pending;
-
-                bool isStaffDeletePendingTour = UserRole.Staff == account.Role && tour.Status == TourStatus.Pending;
-
-                if (isManagerDeleteTour || isStaffDeletePendingTour)
+                if (tour.Status.Equals(TourStatus.Pending))
                 {
-                    await _unitOfWork.TourRepository.SoftDeleteAsync(tour); 
+                    throw new InvalidDataException("Can not delete tour just got submitted");
                 }
-                else
-                {
-                    throw new UnauthorizedException("You are not allowed to perform this action");
-                }
+
+                await _unitOfWork.TourRepository.SoftDeleteAsync(tour);
                 await _unitOfWork.CommitTransactionAsync();
             }
             catch

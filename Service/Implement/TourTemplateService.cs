@@ -1,7 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Identity.Client;
-using Tweetinvi.Core.Extensions;
 using VietWay.Repository.EntityModel;
 using VietWay.Repository.EntityModel.Base;
 using VietWay.Repository.UnitOfWork;
@@ -24,7 +22,7 @@ namespace VietWay.Service.Management.Implement
         public async Task<string> CreateTemplateAsync(TourTemplate tourTemplate)
         {
             tourTemplate.TourTemplateId = _idGenerator.GenerateId();
-            tourTemplate.CreatedAt = DateTime.UtcNow;
+            tourTemplate.CreatedAt = _timeZoneHelper.GetUTC7Now();
 
             var existingCode = await GetByCodeAsync(tourTemplate.Code);
             if (existingCode != null)
@@ -63,30 +61,46 @@ namespace VietWay.Service.Management.Implement
                 .FirstOrDefaultAsync(c => c.Code == code);
         }
 
-        public async Task DeleteTemplateAsync(string tourTemplateId, string accountId)
+        public async Task DeleteTemplateAsync(string accountId, string tourTemplateId)
         {
+            TourTemplate? tourTemplate = await _unitOfWork.TourTemplateRepository.Query()
+                .SingleOrDefaultAsync(x => x.TourTemplateId.Equals(tourTemplateId)) ??
+                throw new ResourceNotFoundException("Tour Template not found");
+            Account? account = await _unitOfWork.AccountRepository.Query()
+                .SingleOrDefaultAsync(x => x.AccountId.Equals(accountId)) ??
+                throw new ResourceNotFoundException("Account not found");
+
+            bool hasRelatedTour = await _unitOfWork.TourRepository.Query().AnyAsync(x => x.TourTemplateId.Equals(tourTemplateId));
+            bool isStaff = account.Role.Equals(UserRole.Staff);
+            bool isManager = account.Role.Equals(UserRole.Manager);
+            bool isDraft = tourTemplate.Status.Equals(TourTemplateStatus.Draft);
+            bool isPending = tourTemplate.Status.Equals(TourTemplateStatus.Pending);
+
             try
             {
                 await _unitOfWork.BeginTransactionAsync();
-                Account? account = await _unitOfWork.AccountRepository.Query()
-                    .SingleOrDefaultAsync(x => x.AccountId.Equals(accountId)) ??
-                    throw new ResourceNotFoundException("Account not found");
-                TourTemplate? tourTemplate = await _unitOfWork.TourTemplateRepository.Query()
-                    .SingleOrDefaultAsync(x => x.TourTemplateId.Equals(tourTemplateId) && !x.IsDeleted) ??
-                    throw new ResourceNotFoundException("Tour template not found");
 
-                bool isManagerDeleteTourTemplate = UserRole.Manager == account.Role && tourTemplate.Status != TourTemplateStatus.Pending && tourTemplate.Status != TourTemplateStatus.Draft;
-
-                bool isStaffDeletePendingTourTemplate = UserRole.Staff == account.Role && (tourTemplate.Status == TourTemplateStatus.Pending || tourTemplate.Status == TourTemplateStatus.Draft);
-
-                if (isManagerDeleteTourTemplate || isStaffDeletePendingTourTemplate)
+                if (isStaff && isDraft)
+                {
+                    await _unitOfWork.TourTemplateRepository.DeleteAsync(tourTemplate);
+                }
+                else if (isStaff && isPending)
+                {
+                    throw new InvalidDataException("Can not delete tour template already submited");
+                }
+                else if (isManager && !hasRelatedTour && !(isPending || isDraft))
                 {
                     await _unitOfWork.TourTemplateRepository.SoftDeleteAsync(tourTemplate);
                 }
-                else
+                else if (isManager && tourTemplate.Status.Equals(TourTemplateStatus.Pending))
                 {
-                    throw new UnauthorizedException("You are not allowed to perform this action");
+                    throw new InvalidDataException("Can not delete tour template just submitted");
                 }
+                else if (isManager && hasRelatedTour)
+                {
+                    throw new InvalidDataException("Can not delete tour template that has tour");
+                }
+
                 await _unitOfWork.CommitTransactionAsync();
             }
             catch
@@ -157,7 +171,7 @@ namespace VietWay.Service.Management.Implement
                 .ThenInclude(x => x.Province)
                 .Include(x => x.TourDuration)
                 .Include(x => x.TourCategory)
-                .SingleOrDefaultAsync(x => x.TourTemplateId.Equals(id) && !x.IsDeleted);
+                .SingleOrDefaultAsync(x => x.TourTemplateId.Equals(id));
         }
 
         public async Task UpdateTemplateAsync(string tourTemplateId, TourTemplate newTourTemplate)
@@ -171,7 +185,7 @@ namespace VietWay.Service.Management.Implement
                 .ThenInclude(x => x.Province)
                 .Include(x => x.TourDuration)
                 .Include(x => x.TourCategory)
-                .SingleOrDefaultAsync(x => x.TourTemplateId.Equals(tourTemplateId) && !x.IsDeleted) ??
+                .SingleOrDefaultAsync(x => x.TourTemplateId.Equals(tourTemplateId)) ??
                 throw new ResourceNotFoundException("Tour not found");
 
             if (tourTemplate.Status.Equals(TourTemplateStatus.Approved))
@@ -459,7 +473,7 @@ namespace VietWay.Service.Management.Implement
         public async Task UpdateTourTemplateImageAsync(string tourTemplateId, string staffId, List<IFormFile>? newImages, List<string>? imageIdsToRemove)
         {
             TourTemplate tourTemplate = await _unitOfWork.TourTemplateRepository.Query()
-                .Include(x => x.TourTemplateImages).SingleOrDefaultAsync(x => x.TourTemplateId.Equals(tourTemplateId) && !x.IsDeleted)
+                .Include(x => x.TourTemplateImages).SingleOrDefaultAsync(x => x.TourTemplateId.Equals(tourTemplateId))
                 ?? throw new ResourceNotFoundException("Tour template not found");
             try
             {
@@ -516,7 +530,7 @@ namespace VietWay.Service.Management.Implement
                     .SingleOrDefaultAsync(x => x.AccountId.Equals(accountId)) ??
                     throw new ResourceNotFoundException("Account not found");
                 TourTemplate? tourTemplate = await _unitOfWork.TourTemplateRepository.Query()
-                    .SingleOrDefaultAsync(x => x.TourTemplateId.Equals(tourTemplateId) && !x.IsDeleted) ??
+                    .SingleOrDefaultAsync(x => x.TourTemplateId.Equals(tourTemplateId)) ??
                     throw new ResourceNotFoundException("Tour template not found");
 
                 bool isManagerApproveOrDenyPendingTourTemplate = (TourTemplateStatus.Approved == templateStatus || TourTemplateStatus.Rejected == templateStatus) &&

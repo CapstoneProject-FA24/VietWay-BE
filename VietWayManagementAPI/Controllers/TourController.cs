@@ -221,7 +221,7 @@ namespace VietWay.API.Management.Controllers
         }
 
         [HttpDelete("{tourId}")]
-        [Authorize(Roles = $"{nameof(UserRole.Manager)},{nameof(UserRole.Staff)}")]
+        [Authorize(Roles = $"{nameof(UserRole.Manager)}")]
         [Produces("application/json")]
         [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status200OK)]
         public async Task<IActionResult> DeleteTourAsync(string tourId)
@@ -235,12 +235,11 @@ namespace VietWay.API.Management.Controllers
                     StatusCode = StatusCodes.Status401Unauthorized
                 });
             }
-
-            await _tourService.DeleteTourAsync(tourId, accountId);
-            return Ok(new DefaultResponseModel<string>
+            await _tourService.DeleteTourAsync(tourId);
+            return Ok(new DefaultResponseModel<object>()
             {
-                Message = "Delete tour successfully",
-                StatusCode = StatusCodes.Status200OK,
+                Message = "Tour template deleted successfully",
+                StatusCode = StatusCodes.Status200OK
             });
         }
     }

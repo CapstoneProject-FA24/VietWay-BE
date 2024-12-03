@@ -4,15 +4,18 @@ using VietWay.Repository.UnitOfWork;
 using VietWay.Service.Management.DataTransferObject;
 using VietWay.Service.Management.Interface;
 using VietWay.Util.CustomExceptions;
+using VietWay.Util.DateTimeUtil;
 using VietWay.Util.IdUtil;
 
 namespace VietWay.Service.Management.Implement
 {
     public class AttractionTypeService(IUnitOfWork unitOfWork,
+        ITimeZoneHelper timeZoneHelper,
         IIdGenerator idGenerator) : IAttractionTypeService
     {
         private readonly IUnitOfWork _unitOfWork = unitOfWork;
         private readonly IIdGenerator _idGenerator = idGenerator;
+        private readonly ITimeZoneHelper _timeZoneHelper = timeZoneHelper;
 
         public async Task<List<AttractionCategoryDTO>> GetAllAttractionType(string? nameSearch)
         {
@@ -35,7 +38,6 @@ namespace VietWay.Service.Management.Implement
         }
         public async Task<string> CreateAttractionCategoryAsync(AttractionCategory attractionCategory)
         {
-            attractionCategory.CreatedAt = DateTime.Now;
             try
             {
                 var existingCategory = await GetByNameAsync(attractionCategory.Name);
@@ -45,6 +47,7 @@ namespace VietWay.Service.Management.Implement
                 }
 
                 attractionCategory.AttractionCategoryId ??= _idGenerator.GenerateId();
+                attractionCategory.CreatedAt = _timeZoneHelper.GetUTC7Now();
                 await _unitOfWork.BeginTransactionAsync();
                 await _unitOfWork.AttractionCategoryRepository.CreateAsync(attractionCategory);
                 await _unitOfWork.CommitTransactionAsync();
