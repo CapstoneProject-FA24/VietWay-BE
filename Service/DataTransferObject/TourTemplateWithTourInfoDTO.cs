@@ -22,15 +22,6 @@ namespace VietWay.Service.Management.DataTransferObject
         public required List<ScheduleDTO> Schedules { get; set; }
         public List<TourInfoDTO> Tours { get; set; }
     }
-
-    public class ScheduleDTO
-    {
-        public int DayNumber { get; set; }
-        public required string Title { get; set; }
-        public required string Description { get; set; }
-        public required List<AttractionPreviewDTO> Attractions { get; set; }
-    }
-
     public class TourInfoDTO
     {
         public required string TourId { get; set; }
@@ -40,7 +31,7 @@ namespace VietWay.Service.Management.DataTransferObject
         public int? MaxParticipant { get; set; }
         public int? MinParticipant { get; set; }
         public int? CurrentParticipant { get; set; }
-        public ICollection<TourPriceDTO> TourPrices { get; set; }
-        public ICollection<TourPolicyPreviewDTO> TourPolicies { get; set; }
+        public List<TourPriceDTO> TourPrices { get; set; }
+        public List<TourPolicyPreviewDTO> TourPolicies { get; set; }
     }
 }

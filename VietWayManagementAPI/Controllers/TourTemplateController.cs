@@ -11,7 +11,7 @@ using VietWay.Util.TokenUtil;
 
 namespace VietWay.API.Management.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/tour-templates")]
     [ApiController]
     public class TourTemplateController(ITourTemplateService tourTemplateService, IMapper mapper, ITokenHelper tokenHelper, ITourReviewService tourReviewService) : ControllerBase
     {
@@ -23,13 +23,13 @@ namespace VietWay.API.Management.Controllers
         [HttpGet]
         [Authorize(Roles = $"{nameof(UserRole.Manager)}, {nameof(UserRole.Staff)}")]
         [Produces("application/json")]
-        [ProducesResponseType<DefaultResponseModel<PaginatedList<TourTemplatePreview>>>(StatusCodes.Status200OK)]
+        [ProducesResponseType<DefaultResponseModel<PaginatedList<TourTemplatePreviewDTO>>>(StatusCodes.Status200OK)]
         public async Task<IActionResult> GetAllTemplatesAsync(
             string? nameSearch,
             [FromQuery] List<string>? templateCategoryIds,
             [FromQuery] List<string>? provinceIds,
             [FromQuery] List<string>? durationIds,
-            TourTemplateStatus? status,
+            [FromQuery] List<TourTemplateStatus>? statuses,
             int? pageSize,
             int? pageIndex)
         {
@@ -45,19 +45,9 @@ namespace VietWay.API.Management.Controllers
 
             int checkedPageSize = (pageSize == null || pageSize < 1) ? 10 : (int)pageSize;
             int checkedPageIndex = (pageIndex == null || pageIndex < 1) ? 1 : (int)pageIndex;
-
-            var (totalCount, items) = await _tourTemplateService.GetAllTemplatesAsync(nameSearch, templateCategoryIds, provinceIds, durationIds, status, checkedPageSize, checkedPageIndex);
-            List<TourTemplatePreview> tourTemplatePreviews = _mapper.Map<List<TourTemplatePreview>>(items);
-            PaginatedList<TourTemplatePreview> pagedResponse = new()
+            DefaultResponseModel<PaginatedList<TourTemplatePreviewDTO>> response = new()
             {
-                Total = totalCount,
-                PageSize = checkedPageSize,
-                PageIndex = checkedPageIndex,
-                Items = tourTemplatePreviews
-            };
-            DefaultResponseModel<PaginatedList<TourTemplatePreview>> response = new()
-            {
-                Data = pagedResponse,
+                Data = await _tourTemplateService.GetAllTemplatesAsync(nameSearch, templateCategoryIds, provinceIds, durationIds, statuses, checkedPageSize, checkedPageIndex),
                 Message = "Get all tour templates successfully",
                 StatusCode = StatusCodes.Status200OK
             };
@@ -67,7 +57,7 @@ namespace VietWay.API.Management.Controllers
         [HttpGet("{tourTemplateId}")]
         [Authorize(Roles = $"{nameof(UserRole.Manager)}, {nameof(UserRole.Staff)}")]
         [Produces("application/json")]
-        [ProducesResponseType<DefaultResponseModel<DefaultResponseModel<TourTemplateDetail>>>(StatusCodes.Status200OK)]
+        [ProducesResponseType<DefaultResponseModel<DefaultResponseModel<TourTemplateDetailDTO>>>(StatusCodes.Status200OK)]
         [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetTourTemplateById(string tourTemplateId)
         {
@@ -80,10 +70,9 @@ namespace VietWay.API.Management.Controllers
                     StatusCode = StatusCodes.Status401Unauthorized
                 });
             }
-
-            TourTemplate? tourTemplate = await _tourTemplateService
+            TourTemplateDetailDTO? tourTemplateDetailDTO = await _tourTemplateService
                 .GetTemplateByIdAsync(tourTemplateId);
-            if (tourTemplate == null)
+            if (tourTemplateDetailDTO == null)
             {
                 DefaultResponseModel<object> response = new()
                 {
@@ -94,11 +83,11 @@ namespace VietWay.API.Management.Controllers
             }
             else
             {
-                DefaultResponseModel<TourTemplateDetail> response = new()
+                DefaultResponseModel<TourTemplateDetailDTO> response = new()
                 {
                     StatusCode = StatusCodes.Status200OK,
                     Message = "Get tour template successfully",
-                    Data = _mapper.Map<TourTemplateDetail>(tourTemplate)
+                    Data = tourTemplateDetailDTO
                 };
                 return Ok(response);
             }
@@ -120,7 +109,6 @@ namespace VietWay.API.Management.Controllers
             }
 
             TourTemplate tourTemplate = _mapper.Map<TourTemplate>(request);
-#warning replace createdby with current user id in token
             await _tourTemplateService.CreateTemplateAsync(tourTemplate);
             return Ok(new DefaultResponseModel<object>()
             {
@@ -144,73 +132,6 @@ namespace VietWay.API.Management.Controllers
                     StatusCode = StatusCodes.Status401Unauthorized
                 });
             }
-
-            /*TourTemplate? tourTemplate = await _tourTemplateService.GetTemplateByIdAsync(tourTemplateId);
-            if (tourTemplate == null)
-            {
-                return NotFound(new DefaultResponseModel<object>()
-                {
-                    Message = $"Can not find Tour template with id {tourTemplateId}",
-                    StatusCode = StatusCodes.Status404NotFound
-                });
-            }
-            bool isInfoMissing = string.IsNullOrWhiteSpace(request.Code) ||
-                                string.IsNullOrWhiteSpace(request.TourName) ||
-                                string.IsNullOrWhiteSpace(request.Description) ||
-                                string.IsNullOrWhiteSpace(request.DurationId) ||
-                                string.IsNullOrWhiteSpace(request.TourCategoryId) ||
-                                string.IsNullOrWhiteSpace(request.StartingProvinceId) ||
-                                string.IsNullOrWhiteSpace(request.Note) ||
-                                request.ProvinceIds?.Count == 0 ||
-                                request.Schedules?.Count == 0 ||
-                                request.Schedules.Any(s => string.IsNullOrWhiteSpace(s.Title) || string.IsNullOrWhiteSpace(s.Description));
-            if (false == request.IsDraft && isInfoMissing)
-            {
-                DefaultResponseModel<object> errorResponse = new()
-                {
-                    Message = "Incomplete attraction information",
-                    StatusCode = StatusCodes.Status400BadRequest
-                };
-                return BadRequest(errorResponse);
-            }
-            tourTemplate.Code = request.Code;
-            tourTemplate.TourName = request.TourName;
-            tourTemplate.Description = request.Description;
-            tourTemplate.DurationId = request.DurationId;
-            tourTemplate.TourCategoryId = request.TourCategoryId;
-            tourTemplate.Note = request.Note;
-            tourTemplate.MinPrice = request.MinPrice;
-            tourTemplate.MaxPrice = request.MaxPrice;
-            tourTemplate.StartingProvince = request.StartingProvinceId;
-            tourTemplate.Transportation = request.Transportation;
-            tourTemplate.TourTemplateProvinces?.Clear();
-            foreach (string provinceId in request.ProvinceIds)
-            {
-                tourTemplate.TourTemplateProvinces?
-                    .Add(new TourTemplateProvince()
-                    {
-                        ProvinceId = provinceId,
-                        TourTemplateId = tourTemplateId
-                    });
-            }
-            List<TourTemplateSchedule> newSchedule = [];
-            foreach (var schedule in request.Schedules)
-            {
-                newSchedule.Add(new()
-                {
-                    TourTemplateId = tourTemplateId,
-                    DayNumber = schedule.DayNumber,
-                    Description = schedule.Description,
-                    Title = schedule.Title,
-                    AttractionSchedules = schedule.AttractionIds.Select(x => new AttractionSchedule()
-                    {
-                        AttractionId = x,
-                        DayNumber = schedule.DayNumber,
-                        TourTemplateId = tourTemplateId
-                    }).ToList()
-                });
-            }*/
-
             TourTemplate tourTemplate = _mapper.Map<TourTemplate>(request);
             await _tourTemplateService.UpdateTemplateAsync(tourTemplateId, tourTemplate);
             return Ok(new DefaultResponseModel<object>()
@@ -376,21 +297,11 @@ namespace VietWay.API.Management.Controllers
 
             int checkedPageSize = (pageSize == null || pageSize < 1) ? 10 : (int)pageSize;
             int checkedPageIndex = (pageIndex == null || pageIndex < 1) ? 1 : (int)pageIndex;
-
-            var (totalCount, items) = await _tourTemplateService.GetAllTemplateWithActiveToursAsync(
-                nameSearch, templateCategoryIds, provinceIds, numberOfDay, startDateFrom,
-                startDateTo, minPrice, maxPrice, checkedPageSize, checkedPageIndex);
-            List<TourTemplateWithTourInfoDTO> tourTemplatePreviews = _mapper.Map<List<TourTemplateWithTourInfoDTO>>(items);
-            PaginatedList<TourTemplateWithTourInfoDTO> pagedResponse = new()
-            {
-                Total = totalCount,
-                PageSize = checkedPageSize,
-                PageIndex = checkedPageIndex,
-                Items = tourTemplatePreviews
-            };
             DefaultResponseModel<PaginatedList<TourTemplateWithTourInfoDTO>> response = new()
             {
-                Data = pagedResponse,
+                Data = await _tourTemplateService.GetAllTemplateWithActiveToursAsync(
+                nameSearch, templateCategoryIds, provinceIds, numberOfDay, startDateFrom,
+                startDateTo, minPrice, maxPrice, checkedPageSize, checkedPageIndex),
                 Message = "Get all tour templates successfully",
                 StatusCode = StatusCodes.Status200OK
             };

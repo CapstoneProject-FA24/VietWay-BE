@@ -32,21 +32,14 @@ namespace VietWay.API.Management.Controllers
         [Produces("application/json")]
         [Authorize(Roles = $"{nameof(UserRole.Manager)},{nameof(UserRole.Staff)}")]
         [ProducesResponseType<DefaultResponseModel<PaginatedList<AttractionPreviewDTO>>>(StatusCodes.Status200OK)]
-        public async Task<IActionResult> GetAllAttractionsAsync(string? nameSearch, [FromQuery] List<string>? provinceIds, [FromQuery] List<string>? attractionTypeIds, AttractionStatus? status, int? pageSize, int? pageIndex)
+        public async Task<IActionResult> GetAllAttractionsAsync(string? nameSearch, [FromQuery] List<string>? provinceIds, 
+            [FromQuery] List<string>? attractionTypeIds, [FromQuery] List<AttractionStatus>? statuses, int? pageSize, int? pageIndex)
         {
             int checkedPageSize = (pageSize == null || pageSize < 1) ? 10 : (int)pageSize;
             int checkedPageIndex = (pageIndex == null || pageIndex < 1) ? 1 : (int)pageIndex;
-            var (totalCount, items) = await _attractionService.GetAllAttractionsWithCreatorAsync(nameSearch, provinceIds, attractionTypeIds, status, checkedPageSize, checkedPageIndex);
-
             return Ok(new DefaultResponseModel<PaginatedList<AttractionPreviewDTO>>
             {
-                Data = new()
-                {
-                    Total = totalCount,
-                    PageSize = checkedPageSize,
-                    PageIndex = checkedPageIndex,
-                    Items = items
-                },
+                Data = await _attractionService.GetAllAttractionsWithCreatorAsync(nameSearch, provinceIds, attractionTypeIds, statuses, checkedPageSize, checkedPageIndex),
                 Message = "Success",
                 StatusCode = StatusCodes.Status200OK
             });

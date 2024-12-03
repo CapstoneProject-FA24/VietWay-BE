@@ -11,7 +11,7 @@ using VietWay.Util.TokenUtil;
 
 namespace VietWay.API.Management.Controllers
 {
-    [Route("api/manager")]
+    [Route("api/managers")]
     [ApiController]
     public class ManagerController (IManagerService managerService,
         ITokenHelper tokenHelper,
@@ -24,7 +24,7 @@ namespace VietWay.API.Management.Controllers
         [HttpGet]
         [Produces("application/json")]
         [Authorize(Roles = nameof(UserRole.Admin))]
-        [ProducesResponseType<DefaultResponseModel<PaginatedList<ManagerInfoPreview>>>(StatusCodes.Status200OK)]
+        [ProducesResponseType<DefaultResponseModel<PaginatedList<ManagerPreviewDTO>>>(StatusCodes.Status200OK)]
         public async Task<IActionResult> GetAllManagerInfosAsync(string? nameSearch,
             int? pageSize,
             int? pageIndex)

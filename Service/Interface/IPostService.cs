@@ -12,11 +12,11 @@ namespace VietWay.Service.Management.Interface
 {
     public interface IPostService
     {
-        public Task<(int totalCount, List<PostPreviewDTO> items)> GetAllPostAsync(
+        public Task<PaginatedList<PostPreviewDTO>> GetAllPostAsync(
             string? nameSearch,
             List<string>? postCategoryIds,
             List<string>? provinceIds,
-            PostStatus? status,
+            List<PostStatus>? status,
             int pageSize,
             int pageIndex);
         public Task<string> CreatePostAsync(Post post);
