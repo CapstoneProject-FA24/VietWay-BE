@@ -323,30 +323,30 @@ namespace VietWay.Service.Customer.Implementation
                         RefundReason = "Tour Change",
                         RefundStatus = RefundStatus.Pending,
                     });
-                    await _unitOfWork.BookingRepository.UpdateAsync(booking);
-                    string entityHistoryId = _idGenerator.GenerateId();
-                    await _unitOfWork.EntityHistoryRepository.CreateAsync(new EntityHistory()
+                }
+                await _unitOfWork.BookingRepository.UpdateAsync(booking);
+                string entityHistoryId = _idGenerator.GenerateId();
+                await _unitOfWork.EntityHistoryRepository.CreateAsync(new EntityHistory()
+                {
+                    Id = entityHistoryId,
+                    Action = EntityModifyAction.ChangeStatus,
+                    EntityId = bookingId,
+                    EntityType = EntityType.Booking,
+                    ModifiedBy = customerId,
+                    ModifierRole = UserRole.Customer,
+                    Reason = null,
+                    StatusHistory = new EntityStatusHistory()
                     {
                         Id = entityHistoryId,
-                        Action = EntityModifyAction.ChangeStatus,
-                        EntityId = bookingId,
-                        EntityType = EntityType.Booking,
-                        ModifiedBy = customerId,
-                        ModifierRole = UserRole.Customer,
-                        Reason = null,
-                        StatusHistory = new EntityStatusHistory()
-                        {
-                            Id = entityHistoryId,
-                            OldStatus = (int)BookingStatus.PendingChangeConfirmation,
-                            NewStatus = (int)BookingStatus.Pending,
-                        },
-                        Timestamp = _timeZoneHelper.GetUTC7Now(),
-                    });
-                    await _unitOfWork.CommitTransactionAsync();
-                    _backgroundJobClient.Schedule<IBookingJob>(
-                        x => x.CheckBookingForExpirationAsync(booking.BookingId),
-                        DateTime.Now.AddMinutes(_pendingBookingExpireAfterMinutes));
-                }
+                        OldStatus = (int)BookingStatus.PendingChangeConfirmation,
+                        NewStatus = (int)BookingStatus.Pending,
+                    },
+                    Timestamp = _timeZoneHelper.GetUTC7Now(),
+                });
+                await _unitOfWork.CommitTransactionAsync();
+                _backgroundJobClient.Schedule<IBookingJob>(
+                    x => x.CheckBookingForExpirationAsync(booking.BookingId),
+                    DateTime.Now.AddMinutes(_pendingBookingExpireAfterMinutes));
             } 
             catch
             {
