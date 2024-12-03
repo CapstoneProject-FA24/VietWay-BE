@@ -274,5 +274,129 @@ namespace VietWay.Service.Customer.Implementation
                 }).ToListAsync();
             return result;
         }
+
+        public async Task ConfirmTourChangeAsync(string customerId, string bookingId)
+        {
+            Booking? booking = _unitOfWork.BookingRepository.Query()
+                .Include(x => x.Tour)
+                .SingleOrDefault(x => x.BookingId == bookingId && x.CustomerId == customerId && x.Status == BookingStatus.PendingChangeConfirmation) ?? 
+                throw new ResourceNotFoundException("Booking not found");
+            BookingStatus newStatus;
+            decimal refundAmount = 0;
+            if (booking.PaidAmount < (booking.TotalPrice * booking.Tour.DepositPercent / 100))
+            {
+                newStatus = BookingStatus.Pending;
+            }
+            else if (booking.PaidAmount < booking.TotalPrice)
+            {
+                newStatus = BookingStatus.Deposited;
+            }
+            else
+            {
+                newStatus = BookingStatus.Paid;
+            }
+            if (newStatus == BookingStatus.Paid && booking.PaidAmount > booking.TotalPrice)
+            {
+                refundAmount = booking.PaidAmount - booking.TotalPrice;
+            }
+            try
+            {
+                await _unitOfWork.BeginTransactionAsync();
+                booking.Status = newStatus;
+                if (refundAmount > 0)
+                {
+                    booking.PaidAmount -= refundAmount;
+                    await _unitOfWork.BookingRefundRepository.CreateAsync(new BookingRefund()
+                    {
+                        RefundId = _idGenerator.GenerateId(),
+                        BookingId = booking.BookingId,
+                        BankCode = null,
+                        BankTransactionNumber = null,
+                        CreatedAt = _timeZoneHelper.GetUTC7Now(),
+                        RefundAmount = refundAmount,
+                        RefundDate = null,
+                        RefundNote = null,
+                        RefundReason = "Tour Change",
+                        RefundStatus = RefundStatus.Pending,
+                    });
+                    await _unitOfWork.BookingRepository.UpdateAsync(booking);
+                await _unitOfWork.EntityHistoryRepository.CreateAsync(new EntityHistory()
+                {
+                    Id = _idGenerator.GenerateId(),
+                    Action = EntityModifyAction.ChangeStatus,
+                    EntityId = bookingId,
+                    EntityType = EntityType.Booking,
+                    ModifiedBy = customerId,
+                    ModifierRole = UserRole.Customer,
+                    Reason = null,
+                    StatusHistory = new EntityStatusHistory()
+                    {
+                        Id = _idGenerator.GenerateId(),
+                        OldStatus = (int)BookingStatus.PendingChangeConfirmation,
+                        NewStatus = (int)BookingStatus.Pending,
+                    },
+                    Timestamp = _timeZoneHelper.GetUTC7Now(),
+                });
+                await _unitOfWork.CommitTransactionAsync();
+                _backgroundJobClient.Schedule<IBookingJob>(
+                    x => x.CheckBookingForExpirationAsync(booking.BookingId),
+                    DateTime.Now.AddMinutes(_pendingBookingExpireAfterMinutes));
+            } 
+            catch
+            {
+                await _unitOfWork.RollbackTransactionAsync();
+            }
+        }
+
+        public async Task DenyTourChangeAsync(string customerId, string bookingId)
+        {
+            Booking? booking = _unitOfWork.BookingRepository.Query()
+                .Include(x => x.Tour)
+                .SingleOrDefault(x => x.BookingId == bookingId && x.CustomerId == customerId && x.Status == BookingStatus.PendingChangeConfirmation) ??
+                throw new ResourceNotFoundException("Booking not found");
+            try
+            {
+                await _unitOfWork.BeginTransactionAsync();
+                booking.Status = BookingStatus.Cancelled;
+                booking.Tour.CurrentParticipant -= booking.NumberOfParticipants;
+
+                await _unitOfWork.BookingRepository.UpdateAsync(booking);
+                await _unitOfWork.BookingRefundRepository.CreateAsync(new BookingRefund()
+                {
+                    RefundId = _idGenerator.GenerateId(),
+                    BookingId = booking.BookingId,
+                    BankCode = null,
+                    BankTransactionNumber = null,
+                    CreatedAt = _timeZoneHelper.GetUTC7Now(),
+                    RefundAmount = booking.PaidAmount,
+                    RefundDate = null,
+                    RefundNote = null,
+                    RefundReason = "Tour Change Denied",
+                    RefundStatus = RefundStatus.Pending,
+                });
+                await _unitOfWork.EntityHistoryRepository.CreateAsync(new EntityHistory()
+                {
+                    Id = _idGenerator.GenerateId(),
+                    Action = EntityModifyAction.ChangeStatus,
+                    EntityId = bookingId,
+                    EntityType = EntityType.Booking,
+                    ModifiedBy = customerId,
+                    ModifierRole = UserRole.Customer,
+                    Reason = null,
+                    StatusHistory = new EntityStatusHistory()
+                    {
+                        Id = _idGenerator.GenerateId(),
+                        OldStatus = (int)BookingStatus.PendingChangeConfirmation,
+                        NewStatus = (int)BookingStatus.Cancelled,
+                    },
+                    Timestamp = _timeZoneHelper.GetUTC7Now(),
+                });
+                await _unitOfWork.CommitTransactionAsync();
+            }
+            catch
+            {
+                await _unitOfWork.RollbackTransactionAsync();
+            }
+        }
     }
 }
