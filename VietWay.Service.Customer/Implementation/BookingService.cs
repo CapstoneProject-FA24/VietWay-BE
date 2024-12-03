@@ -350,6 +350,7 @@ namespace VietWay.Service.Customer.Implementation
             catch
             {
                 await _unitOfWork.RollbackTransactionAsync();
+                throw;
             }
         }
 
@@ -401,6 +402,7 @@ namespace VietWay.Service.Customer.Implementation
             catch
             {
                 await _unitOfWork.RollbackTransactionAsync();
+                throw;
             }
         }
     }
