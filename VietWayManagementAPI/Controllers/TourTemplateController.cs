@@ -145,7 +145,7 @@ namespace VietWay.API.Management.Controllers
                 });
             }
 
-            TourTemplate? tourTemplate = await _tourTemplateService.GetTemplateByIdAsync(tourTemplateId);
+            /*TourTemplate? tourTemplate = await _tourTemplateService.GetTemplateByIdAsync(tourTemplateId);
             if (tourTemplate == null)
             {
                 return NotFound(new DefaultResponseModel<object>()
@@ -182,6 +182,7 @@ namespace VietWay.API.Management.Controllers
             tourTemplate.MinPrice = request.MinPrice;
             tourTemplate.MaxPrice = request.MaxPrice;
             tourTemplate.StartingProvince = request.StartingProvinceId;
+            tourTemplate.Transportation = request.Transportation;
             tourTemplate.TourTemplateProvinces?.Clear();
             foreach (string provinceId in request.ProvinceIds)
             {
@@ -208,9 +209,10 @@ namespace VietWay.API.Management.Controllers
                         TourTemplateId = tourTemplateId
                     }).ToList()
                 });
-            }
+            }*/
 
-            await _tourTemplateService.UpdateTemplateAsync(tourTemplate, newSchedule);
+            TourTemplate tourTemplate = _mapper.Map<TourTemplate>(request);
+            await _tourTemplateService.UpdateTemplateAsync(tourTemplateId, tourTemplate);
             return Ok(new DefaultResponseModel<object>()
             {
                 Message = "Tour template updated successfully",
@@ -219,7 +221,7 @@ namespace VietWay.API.Management.Controllers
         }
 
         [HttpDelete("{tourTemplateId}")]
-        [Authorize(Roles = $"{nameof(UserRole.Manager)}")]
+        [Authorize(Roles = $"{nameof(UserRole.Manager)}, {nameof(UserRole.Staff)}")]
         [Produces("application/json")]
         [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status200OK)]
         public async Task<IActionResult> DeleteTourTemplate(string tourTemplateId)
@@ -233,17 +235,7 @@ namespace VietWay.API.Management.Controllers
                     StatusCode = StatusCodes.Status401Unauthorized
                 });
             }
-
-            TourTemplate? tourTemplate = await _tourTemplateService.GetTemplateByIdAsync(tourTemplateId);
-            if (tourTemplate == null)
-            {
-                return NotFound(new DefaultResponseModel<object>()
-                {
-                    Message = $"Can not find Tour template with id {tourTemplateId}",
-                    StatusCode = StatusCodes.Status404NotFound
-                });
-            }
-            await _tourTemplateService.DeleteTemplateAsync(tourTemplate);
+            await _tourTemplateService.DeleteTemplateAsync(accountId, tourTemplateId);
             return Ok(new DefaultResponseModel<object>()
             {
                 Message = "Tour template deleted successfully",

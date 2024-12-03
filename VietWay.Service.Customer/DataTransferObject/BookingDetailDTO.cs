@@ -25,6 +25,8 @@ namespace VietWay.Service.Customer.DataTransferObject
 
         public required string StartLocation { get; set; }
         public required DateTime StartDate { get; set; }
+        public decimal? DepositPercent { get; set; }
+        public DateTime? PaymentDeadline { get; set; }
 
         public required string DurationName { get; set; }
         public required int NumberOfDay { get; set; }

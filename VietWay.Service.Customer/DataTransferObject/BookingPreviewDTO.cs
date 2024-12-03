@@ -20,5 +20,6 @@ namespace VietWay.Service.Customer.DataTransferObject
         public required string TourName { get; set; }
         public required string ImageUrl { get; set; }
         public required string Code { get; set; }
+        public required bool IsReviewed { get; set; }
     }
 }

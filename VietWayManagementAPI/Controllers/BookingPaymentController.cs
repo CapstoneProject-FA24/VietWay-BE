@@ -1,12 +1,16 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
+using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using VietWay.API.Management.RequestModel;
+using VietWay.Repository.EntityModel.Base;
 using VietWay.Service.Management.DataTransferObject;
 using VietWay.Service.Management.Interface;
 using VietWay.Service.ThirdParty.VnPay;
+using VietWay.Service.ThirdParty.ZaloPay;
 
 namespace VietWay.API.Management.Controllers
 {
@@ -26,6 +30,25 @@ namespace VietWay.API.Management.Controllers
                 RspCode = "00",
                 Message = "Success"
             });
+        }
+
+        [HttpGet("ZaloPayCallback/local")]
+        public async Task<IActionResult> ZaloPayCallbackLocal(ZaloPayCallbackRequest request)
+        {
+            ZaloPayCallback zaloPayCallback = _mapper.Map<ZaloPayCallback>(request);
+            await _bookingPaymentService.HandleZaloPayCallbackLocal(zaloPayCallback);
+            return Ok(new
+            {
+                RspCode = "00",
+                Message = "Success"
+            });
+        }
+
+        [HttpPost("ZaloPayCallback")]
+        public async Task<IActionResult> HandleZaloPayCallback([FromBody] ZaloPayCallbackData callbackData)
+        {
+            CallbackData data = _mapper.Map<CallbackData>(callbackData);
+            return Ok(await _bookingPaymentService.HandleZaloPayCallback(data));
         }
     }
 }

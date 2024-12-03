@@ -248,7 +248,8 @@ namespace VietWay.Service.Management.Implement
                     {
                         CancelBefore = y.CancelBefore,
                         RefundPercent = y.RefundPercent
-                    }).ToList()
+                    }).ToList(),
+                    PaymentDeadline = x.PaymentDeadline
                 })
                 .SingleOrDefaultAsync(x => x.TourId.Equals(id));
         }
@@ -326,19 +327,20 @@ namespace VietWay.Service.Management.Implement
                 bool isManagerAcceptedOrDenyPendingTour = (TourStatus.Accepted == tourStatus || TourStatus.Rejected == tourStatus) &&
                     UserRole.Manager == account.Role && TourStatus.Pending == tour.Status;
 
-                bool isRegisteredOpenedDatePass = tour.RegisterOpenDate <= DateTime.Today && UserRole.Manager == account.Role;
+                bool isRegisteredOpenedDatePass = ((DateTime)tour.RegisterOpenDate).Date <= _timeZoneHelper.GetUTC7Now().Date && TourStatus.Accepted == tourStatus;
 
                 if (isManagerAcceptedOrDenyPendingTour)
                 {
                     tour.Status = tourStatus;
                 }
-                else if (isRegisteredOpenedDatePass)
-                {
-                    tour.Status = TourStatus.Opened;
-                }
                 else
                 {
                     throw new UnauthorizedException("You are not allowed to perform this action");
+                }
+
+                if (isRegisteredOpenedDatePass)
+                {
+                    tour.Status = TourStatus.Opened;
                 }
 
                 await _unitOfWork.TourRepository.UpdateAsync(tour);
@@ -439,6 +441,31 @@ namespace VietWay.Service.Management.Implement
                     }
                 }
                 await _unitOfWork.TourRepository.UpdateAsync(tour);
+                await _unitOfWork.CommitTransactionAsync();
+            }
+            catch
+            {
+                await _unitOfWork.RollbackTransactionAsync();
+                throw;
+            }
+        }
+
+        public async Task DeleteTourAsync(string tourId)
+        {
+            Tour? tour = await _unitOfWork.TourRepository.Query()
+                .SingleOrDefaultAsync(x => x.TourId.Equals(tourId)) ??
+                throw new ResourceNotFoundException("Tour not found");
+
+            try
+            {
+                await _unitOfWork.BeginTransactionAsync();
+
+                if (tour.Status.Equals(TourStatus.Pending))
+                {
+                    throw new InvalidDataException("Can not delete tour just got submitted");
+                }
+
+                await _unitOfWork.TourRepository.SoftDeleteAsync(tour);
                 await _unitOfWork.CommitTransactionAsync();
             }
             catch

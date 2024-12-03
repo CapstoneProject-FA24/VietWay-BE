@@ -22,7 +22,13 @@ namespace VietWay.Service.Management.Implement
         public async Task<string> CreateTemplateAsync(TourTemplate tourTemplate)
         {
             tourTemplate.TourTemplateId = _idGenerator.GenerateId();
-            tourTemplate.CreatedAt = DateTime.UtcNow;
+            tourTemplate.CreatedAt = _timeZoneHelper.GetUTC7Now();
+
+            var existingCode = await GetByCodeAsync(tourTemplate.Code);
+            if (existingCode != null)
+            {
+                throw new InvalidOperationException($"A category with the name '{existingCode.Code}' already exists.");
+            }
 
             if (tourTemplate.MinPrice == 0 || tourTemplate.MaxPrice == 0)
             {
@@ -49,9 +55,59 @@ namespace VietWay.Service.Management.Implement
             await _unitOfWork.TourTemplateRepository.CreateAsync(tourTemplate);
             return tourTemplate.TourTemplateId;
         }
-        public async Task DeleteTemplateAsync(TourTemplate tourTemplate)
+        private async Task<TourTemplate> GetByCodeAsync(string code)
         {
-            await _unitOfWork.TourTemplateRepository.SoftDeleteAsync(tourTemplate);
+            return await _unitOfWork.TourTemplateRepository.Query()
+                .FirstOrDefaultAsync(c => c.Code == code);
+        }
+
+        public async Task DeleteTemplateAsync(string accountId, string tourTemplateId)
+        {
+            TourTemplate? tourTemplate = await _unitOfWork.TourTemplateRepository.Query()
+                .SingleOrDefaultAsync(x => x.TourTemplateId.Equals(tourTemplateId)) ??
+                throw new ResourceNotFoundException("Tour Template not found");
+            Account? account = await _unitOfWork.AccountRepository.Query()
+                .SingleOrDefaultAsync(x => x.AccountId.Equals(accountId)) ??
+                throw new ResourceNotFoundException("Account not found");
+
+            bool hasRelatedTour = await _unitOfWork.TourRepository.Query().AnyAsync(x => x.TourTemplateId.Equals(tourTemplateId));
+            bool isStaff = account.Role.Equals(UserRole.Staff);
+            bool isManager = account.Role.Equals(UserRole.Manager);
+            bool isDraft = tourTemplate.Status.Equals(TourTemplateStatus.Draft);
+            bool isPending = tourTemplate.Status.Equals(TourTemplateStatus.Pending);
+
+            try
+            {
+                await _unitOfWork.BeginTransactionAsync();
+
+                if (isStaff && isDraft)
+                {
+                    await _unitOfWork.TourTemplateRepository.DeleteAsync(tourTemplate);
+                }
+                else if (isStaff && isPending)
+                {
+                    throw new InvalidDataException("Can not delete tour template already submited");
+                }
+                else if (isManager && !hasRelatedTour && !(isPending || isDraft))
+                {
+                    await _unitOfWork.TourTemplateRepository.SoftDeleteAsync(tourTemplate);
+                }
+                else if (isManager && tourTemplate.Status.Equals(TourTemplateStatus.Pending))
+                {
+                    throw new InvalidDataException("Can not delete tour template just submitted");
+                }
+                else if (isManager && hasRelatedTour)
+                {
+                    throw new InvalidDataException("Can not delete tour template that has tour");
+                }
+
+                await _unitOfWork.CommitTransactionAsync();
+            }
+            catch
+            {
+                await _unitOfWork.RollbackTransactionAsync();
+                throw;
+            }
         }
 
         public async Task<(int totalCount, List<TourTemplate> items)> GetAllTemplatesAsync(
@@ -106,6 +162,7 @@ namespace VietWay.Service.Management.Implement
             return await _unitOfWork
                 .TourTemplateRepository
                 .Query()
+                .Include(x => x.Province)
                 .Include(x => x.TourTemplateSchedules)
                 .ThenInclude(x => x.AttractionSchedules)
                 .ThenInclude(x => x.Attraction)
@@ -117,10 +174,86 @@ namespace VietWay.Service.Management.Implement
                 .SingleOrDefaultAsync(x => x.TourTemplateId.Equals(id));
         }
 
-        public async Task UpdateTemplateAsync(TourTemplate tourTemplate, List<TourTemplateSchedule> newSchedule)
+        public async Task UpdateTemplateAsync(string tourTemplateId, TourTemplate newTourTemplate)
         {
-            tourTemplate.TourTemplateSchedules = newSchedule;
-            await _unitOfWork.TourTemplateRepository.UpdateAsync(tourTemplate);
+            TourTemplate? tourTemplate = await _unitOfWork.TourTemplateRepository.Query()
+                .Include(x => x.TourTemplateSchedules)
+                .ThenInclude(x => x.AttractionSchedules)
+                .ThenInclude(x => x.Attraction)
+                .Include(x => x.TourTemplateImages)
+                .Include(x => x.TourTemplateProvinces)
+                .ThenInclude(x => x.Province)
+                .Include(x => x.TourDuration)
+                .Include(x => x.TourCategory)
+                .SingleOrDefaultAsync(x => x.TourTemplateId.Equals(tourTemplateId)) ??
+                throw new ResourceNotFoundException("Tour not found");
+
+            if (tourTemplate.Status.Equals(TourTemplateStatus.Approved))
+            {
+                throw new InvalidInfoException("Tour Template already approved");
+            }
+
+            tourTemplate.Code = newTourTemplate.Code;
+            tourTemplate.TourName = newTourTemplate.TourName;
+            tourTemplate.Description = newTourTemplate.Description;
+            tourTemplate.DurationId = newTourTemplate.DurationId;
+            tourTemplate.TourCategoryId = newTourTemplate.TourCategoryId;
+            tourTemplate.Note = newTourTemplate.Note;
+            tourTemplate.MinPrice = newTourTemplate.MinPrice;
+            tourTemplate.MaxPrice = newTourTemplate.MaxPrice;
+            tourTemplate.StartingProvince = newTourTemplate.StartingProvince;
+            tourTemplate.Transportation = newTourTemplate.Transportation;
+            tourTemplate.Status = newTourTemplate.Status;
+
+            if (newTourTemplate.TourTemplateProvinces != null)
+            {
+                tourTemplate.TourTemplateProvinces?.Clear();
+
+                foreach (TourTemplateProvince province in newTourTemplate.TourTemplateProvinces)
+                {
+                    tourTemplate.TourTemplateProvinces?
+                        .Add(new TourTemplateProvince()
+                        {
+                            ProvinceId = province.ProvinceId,
+                            TourTemplateId = tourTemplateId
+                        });
+                }
+            }
+
+            if (newTourTemplate.TourTemplateSchedules != null)
+            {
+                tourTemplate.TourTemplateSchedules?.Clear();
+
+                foreach (TourTemplateSchedule schedule in newTourTemplate.TourTemplateSchedules)
+                {
+                    tourTemplate.TourTemplateSchedules?
+                        .Add(new TourTemplateSchedule
+                        {
+                            TourTemplateId = tourTemplateId,
+                            DayNumber = schedule.DayNumber,
+                            Description = schedule.Description,
+                            Title = schedule.Title,
+                            AttractionSchedules = schedule.AttractionSchedules.Select(x => new AttractionSchedule
+                            {
+                                AttractionId = x.AttractionId,
+                                DayNumber = schedule.DayNumber,
+                                TourTemplateId = tourTemplateId
+                            }).ToList()
+                        });
+                }
+            }
+
+            try
+            {
+                await _unitOfWork.BeginTransactionAsync();
+                await _unitOfWork.TourTemplateRepository.UpdateAsync(tourTemplate);
+                await _unitOfWork.CommitTransactionAsync();
+            }
+            catch
+            {
+                await _unitOfWork.RollbackTransactionAsync();
+                throw;
+            }
         }
 
         public async Task UpdateTemplateImageAsync(TourTemplate tourTemplate, List<IFormFile>? imageFiles, List<string>? removedImageIds)
