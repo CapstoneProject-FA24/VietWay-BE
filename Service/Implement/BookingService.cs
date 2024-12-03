@@ -285,11 +285,7 @@ namespace VietWay.Service.Management.Implement
                         booking.TotalPrice += tourist.Price;
                     }
                 }
-
-                if (oldPrice < booking.TotalPrice)
-                {
-                    booking.Status = BookingStatus.Pending;
-                }
+                booking.Status = BookingStatus.PendingChangeConfirmation;
 
                 await _unitOfWork.BeginTransactionAsync();
                 await _unitOfWork.BookingRepository.UpdateAsync(booking);
