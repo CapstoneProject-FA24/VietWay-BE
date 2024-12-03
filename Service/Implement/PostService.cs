@@ -13,17 +13,21 @@ using VietWay.Service.Management.DataTransferObject;
 using VietWay.Service.Management.Interface;
 using VietWay.Service.ThirdParty.Cloudinary;
 using VietWay.Util.CustomExceptions;
+using VietWay.Util.DateTimeUtil;
 using VietWay.Util.IdUtil;
 
 namespace VietWay.Service.Management.Implement
 {
-    public class PostService(IUnitOfWork unitOfWork, ICloudinaryService cloudinaryService,
+    public class PostService(IUnitOfWork unitOfWork, 
+        ITimeZoneHelper timeZoneHelper,
+        ICloudinaryService cloudinaryService,
         IIdGenerator idGenerator, IBackgroundJobClient backgroundJobClient) : IPostService
     {
         private readonly IUnitOfWork _unitOfWork = unitOfWork;
         private readonly ICloudinaryService _cloudinaryService = cloudinaryService;
         private readonly IIdGenerator _idGenerator = idGenerator;
         private readonly IBackgroundJobClient _backgroundJobClient = backgroundJobClient;
+        private readonly ITimeZoneHelper _timeZoneHelper = timeZoneHelper;
         public async Task<(int totalCount, List<PostPreviewDTO> items)> GetAllPostAsync(
             string? nameSearch,
             List<string>? postCategoryIds,
@@ -77,10 +81,10 @@ namespace VietWay.Service.Management.Implement
 
         public async Task<string> CreatePostAsync(Post post)
         {
-            post.CreatedAt = DateTime.Now;
             try
             {
                 post.PostId ??= _idGenerator.GenerateId();
+                post.CreatedAt = _timeZoneHelper.GetUTC7Now();
                 await _unitOfWork.BeginTransactionAsync();
                 await _unitOfWork.PostRepository.CreateAsync(post);
                 await _unitOfWork.CommitTransactionAsync();

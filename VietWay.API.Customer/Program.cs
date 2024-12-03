@@ -26,6 +26,7 @@ using VietWay.Util.IdUtil;
 using VietWay.Util.OtpUtil;
 using VietWay.Util.TokenUtil;
 using VietWay.Service.ThirdParty.Email;
+using VietWay.Service.ThirdParty.ZaloPay;
 
 namespace VietWay.API.Customer
 {
@@ -166,6 +167,7 @@ namespace VietWay.API.Customer
             builder.Services.AddScoped<IOtpGenerator, OtpGenerator>();
             builder.Services.AddScoped<ISmsService, SmsService>();
             builder.Services.AddScoped<IRedisCacheService, RedisCacheService>();
+            builder.Services.AddScoped<IZaloPayService, ZaloPayService>();
             #endregion
             builder.Services.AddSingleton<IIdGenerator, SnowflakeIdGenerator>();
             builder.Services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer
@@ -229,6 +231,17 @@ namespace VietWay.API.Customer
                 string baseUrl = Environment.GetEnvironmentVariable("GEMINI_AI_API_ENDPOINT") ??
                     throw new Exception("GEMINI_AI_API_ENDPOINT is not set in environment variables");
                 HttpClient.BaseAddress = new Uri(baseUrl);
+            });
+            builder.Services.AddSingleton(s => new ZaloPayServiceConfiguration
+            {
+                ZaloPayAppId = Environment.GetEnvironmentVariable("ZALOPAY_APP_ID") ??
+                    throw new Exception("ZALOPAY_APP_ID is not set in environment variables"),
+                ZaloPayAppUser = Environment.GetEnvironmentVariable("ZALOPAY_APP_USER") ??
+                    throw new Exception("ZALOPAY_APP_USER is not set in environment variables"),
+                ZaloPayKey1 = Environment.GetEnvironmentVariable("ZALOPAY_KEY1") ??
+                    throw new Exception("ZALOPAY_KEY1 is not set in environment variables"),
+                ZaloPayKey2 = Environment.GetEnvironmentVariable("ZALOPAY_KEY2") ??
+                    throw new Exception("ZALOPAY_KEY2 is not set in environment variables")
             });
             var app = builder.Build();
             app.UseStaticFiles();

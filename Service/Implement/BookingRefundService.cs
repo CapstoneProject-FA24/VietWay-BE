@@ -75,7 +75,7 @@ namespace VietWay.Service.Management.Implement
             pendingBookingRefund.RefundStatus = RefundStatus.Refunded;
             pendingBookingRefund.BankCode = bookingRefund.BankCode;
             pendingBookingRefund.RefundDate = bookingRefund.RefundDate;
-            bookingRefund.BankTransactionNumber = pendingBookingRefund.BankTransactionNumber;
+            pendingBookingRefund.BankTransactionNumber = bookingRefund.BankTransactionNumber;
             string entityHistoryId = _idGenerator.GenerateId();
             try
             {

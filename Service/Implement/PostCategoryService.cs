@@ -9,15 +9,18 @@ using VietWay.Repository.UnitOfWork;
 using VietWay.Service.Management.DataTransferObject;
 using VietWay.Service.Management.Interface;
 using VietWay.Util.CustomExceptions;
+using VietWay.Util.DateTimeUtil;
 using VietWay.Util.IdUtil;
 
 namespace VietWay.Service.Management.Implement
 {
     public class PostCategoryService(IUnitOfWork unitOfWork,
+        ITimeZoneHelper timeZoneHelper,
         IIdGenerator idGenerator) : IPostCategoryService
     {
         private readonly IUnitOfWork _unitOfWork = unitOfWork;
         private readonly IIdGenerator _idGenerator = idGenerator;
+        private readonly ITimeZoneHelper _timeZoneHelper = timeZoneHelper;
         public async Task<List<PostCategoryDTO>> GetPostCategoriesAsync(string? nameSearch)
         {
             var query = _unitOfWork
@@ -39,10 +42,16 @@ namespace VietWay.Service.Management.Implement
         }
         public async Task<string> CreatePostCategoryAsync(PostCategory postCategory)
         {
-            postCategory.CreatedAt = DateTime.Now;
             try
             {
+                var existingCategory = await GetByNameAsync(postCategory.Name);
+                if (existingCategory != null)
+                {
+                    throw new InvalidOperationException($"A category with the name '{existingCategory.Name}' already exists.");
+                }
+
                 postCategory.PostCategoryId ??= _idGenerator.GenerateId();
+                postCategory.CreatedAt = _timeZoneHelper.GetUTC7Now();
                 await _unitOfWork.BeginTransactionAsync();
                 await _unitOfWork.PostCategoryRepository.CreateAsync(postCategory);
                 await _unitOfWork.CommitTransactionAsync();
@@ -53,6 +62,12 @@ namespace VietWay.Service.Management.Implement
                 await _unitOfWork.RollbackTransactionAsync();
                 throw;
             }
+        }
+
+        private async Task<PostCategory> GetByNameAsync(string name)
+        {
+            return await _unitOfWork.PostCategoryRepository.Query()
+                .FirstOrDefaultAsync(c => c.Name == name);
         }
 
         public async Task UpdatePostCategoryAsync(string postCategoryId, PostCategory newPostCategory)

@@ -27,6 +27,7 @@ namespace VietWay.Service.Management.DataTransferObject
         public DateTime CreatedAt { get; set; }
         public int TotalBookings { get; set; }
         public decimal? DepositPercent { get; set; }
+        public DateTime? PaymentDeadline { get; set; }
         public ICollection<TourPolicyPreviewDTO>? TourPolicies{ get; set; }
         public ICollection<TourPriceDTO>? TourPrices { get; set; }
     }
