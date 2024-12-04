@@ -15,7 +15,7 @@ namespace VietWay.API.Management.Controllers
     /// <summary>
     /// Province API endpoints
     /// </summary>
-    [Route("api/[controller]")]
+    [Route("api/provinces")]
     [ApiController]
     public class ProvinceController(IMapper mapper,
         ITokenHelper tokenHelper, 

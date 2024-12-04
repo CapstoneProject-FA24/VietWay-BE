@@ -9,7 +9,7 @@ using VietWay.Util.TokenUtil;
 
 namespace VietWay.API.Management.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/customers")]
     [ApiController]
     public class CustomerController(ICustomerService customerService, ITokenHelper tokenHelper) : ControllerBase
     {

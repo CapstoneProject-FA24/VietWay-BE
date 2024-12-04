@@ -28,11 +28,11 @@ namespace VietWay.Service.Management.Implement
         private readonly IIdGenerator _idGenerator = idGenerator;
         private readonly IBackgroundJobClient _backgroundJobClient = backgroundJobClient;
         private readonly ITimeZoneHelper _timeZoneHelper = timeZoneHelper;
-        public async Task<(int totalCount, List<PostPreviewDTO> items)> GetAllPostAsync(
+        public async Task<PaginatedList<PostPreviewDTO>> GetAllPostAsync(
             string? nameSearch,
             List<string>? postCategoryIds,
             List<string>? provinceIds,
-            PostStatus? status,
+            List<PostStatus>? statuses,
             int pageSize,
             int pageIndex)
         {
@@ -52,9 +52,9 @@ namespace VietWay.Service.Management.Implement
             {
                 query = query.Where(x => provinceIds.Contains(x.ProvinceId));
             }
-            if (status != null)
+            if (statuses?.Count > 0)
             {
-                query = query.Where(x => x.Status.Equals(status));
+                query = query.Where(x => statuses.Contains(x.Status));
             }
             int count = await query.CountAsync();
             List<PostPreviewDTO> items = await query
@@ -76,7 +76,13 @@ namespace VietWay.Service.Management.Implement
                 .Skip((pageIndex - 1) * pageSize)
                 .Take(pageSize)
                 .ToListAsync();
-            return (count, items);
+            return new PaginatedList<PostPreviewDTO>
+            {
+                Items = items,
+                Total = count,
+                PageIndex = pageIndex,
+                PageSize = pageSize
+            };
         }
 
         public async Task<string> CreatePostAsync(Post post)

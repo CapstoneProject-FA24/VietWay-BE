@@ -57,44 +57,8 @@ namespace VietWay.Service.Management.Implement
             }
         }
 
-        public async Task<(int totalCount, List<AttractionPreviewDTO> items)> GetAllApprovedAttractionsAsync(string? nameSearch, List<string>? provinceIds, List<string>? attractionTypeIds, int pageSize, int pageIndex)
-        {
-            IQueryable<Attraction> query = _unitOfWork.AttractionRepository.Query()
-                .Where(x => x.Status == AttractionStatus.Approved && x.IsDeleted == false);
-            if (false == string.IsNullOrWhiteSpace(nameSearch))
-            {
-                query = query.Where(x => x.Name.Contains(nameSearch));
-            }
-            if (null != provinceIds && provinceIds.Count > 0)
-            {
-                query = query.Where(x => provinceIds.Contains(x.ProvinceId));
-            }
-            if (null != attractionTypeIds && attractionTypeIds.Count > 0)
-            {
-                query = query.Where(x => attractionTypeIds.Contains(x.AttractionCategoryId));
-            }
-            int count = await query.CountAsync();
-            List<AttractionPreviewDTO> items = await query
-                .Include(x => x.AttractionImages)
-                .Include(x => x.Province)
-                .Include(x => x.AttractionCategory)
-                .Select(x => new AttractionPreviewDTO
-                {
-                    AttractionId = x.AttractionId,
-                    Name = x.Name,
-                    Address = x.Address,
-                    Province = x.Province.Name,
-                    AttractionType = x.AttractionCategory.Name,
-                    ImageUrl = x.AttractionImages.FirstOrDefault() != null ? x.AttractionImages.FirstOrDefault().ImageUrl : null
-                })
-                .Skip((pageIndex - 1) * pageSize)
-                .Take(pageSize)
-                .ToListAsync();
-            return (count, items);
-        }
-
-        public async Task<(int totalCount, List<AttractionPreviewDTO> items)> GetAllAttractionsWithCreatorAsync(
-            string? nameSearch, List<string>? provinceIds, List<string>? attractionCategoryIds, AttractionStatus? status,
+        public async Task<PaginatedList<AttractionPreviewDTO>> GetAllAttractionsWithCreatorAsync(
+            string? nameSearch, List<string>? provinceIds, List<string>? attractionCategoryIds, List<AttractionStatus>? statuses,
             int pageSize, int pageIndex)
         {
             IQueryable<Attraction> query = _unitOfWork.AttractionRepository.Query();
@@ -102,17 +66,17 @@ namespace VietWay.Service.Management.Implement
             {
                 query = query.Where(x => x.Name.Contains(nameSearch));
             }
-            if (null != provinceIds && provinceIds.Count > 0)
+            if (provinceIds?.Count > 0)
             {
                 query = query.Where(x => provinceIds.Contains(x.ProvinceId));
             }
-            if (null != attractionCategoryIds && attractionCategoryIds.Count > 0)
+            if (attractionCategoryIds?.Count > 0)
             {
                 query = query.Where(x => attractionCategoryIds.Contains(x.AttractionCategoryId));
             }
-            if (null != status)
+            if (statuses?.Count >0)
             {
-                query = query.Where(x => x.Status == status);
+                query = query.Where(x => statuses.Contains(x.Status));
             }
             int count = await query.CountAsync();
             List<AttractionPreviewDTO> attractions = await query
@@ -134,7 +98,13 @@ namespace VietWay.Service.Management.Implement
                     CreatedAt = x.CreatedAt
                 })
                 .ToListAsync();
-            return (count, attractions);
+            return new PaginatedList<AttractionPreviewDTO> 
+            { 
+                Items = attractions, 
+                PageIndex = pageIndex, 
+                PageSize = pageSize, 
+                Total = count
+            };
         }
 
         public async Task<AttractionDetailDTO?> GetApprovedAttractionDetailById(string attractionId)

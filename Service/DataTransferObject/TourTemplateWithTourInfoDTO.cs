@@ -23,15 +23,6 @@ namespace VietWay.Service.Management.DataTransferObject
         public required List<ScheduleDTO> Schedules { get; set; }
         public List<TourInfoDTO> Tours { get; set; }
     }
-
-    public class ScheduleDTO
-    {
-        public int DayNumber { get; set; }
-        public required string Title { get; set; }
-        public required string Description { get; set; }
-        public required List<AttractionPreviewDTO> Attractions { get; set; }
-    }
-
     public class TourInfoDTO
     {
         public required string TourId { get; set; }

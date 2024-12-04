@@ -7,28 +7,19 @@ namespace VietWay.Service.Management.Interface
 {
     public interface ITourTemplateService
     {
-        public Task<(int totalCount, List<TourTemplate> items)> GetAllTemplatesAsync(
+        public Task<PaginatedList<TourTemplatePreviewDTO>> GetAllTemplatesAsync(
             string? nameSearch,
             List<string>? templateCategoryIds,
             List<string>? provinceIds,
             List<string>? durationIds,
-            TourTemplateStatus? status,
+            List<TourTemplateStatus>? statuses,
             int pageSize,
             int pageIndex);
-        public Task<TourTemplate?> GetTemplateByIdAsync(string id);
+        public Task<TourTemplateDetailDTO?> GetTemplateByIdAsync(string id);
         public Task<string> CreateTemplateAsync(TourTemplate tourTemplate);
-        public Task UpdateTemplateImageAsync(TourTemplate tourTemplate, List<IFormFile> ImageFiles, List<string> removedImageId);
         public Task UpdateTemplateAsync(string tourTemplateId, TourTemplate newTourTemplate);
         public Task DeleteTemplateAsync(string accountId, string tourTemplateId);
-        public Task<(int totalCount, List<TourTemplate> items)> GetAllApprovedTemplatesAsync(
-            string? nameSearch,
-            List<string>? templateCategoryIds,
-            List<string>? provinceIds,
-            List<string>? durationIds,
-            int pageSize,
-            int pageIndex);
-
-        public Task<(int totalCount, List<TourTemplateWithTourInfoDTO> items)> GetAllTemplateWithActiveToursAsync(
+        public Task<PaginatedList<TourTemplateWithTourInfoDTO>> GetAllTemplateWithActiveToursAsync(
             string? nameSearch,
             List<string>? templateCategoryIds,
             List<string>? provinceIds,
@@ -41,7 +32,6 @@ namespace VietWay.Service.Management.Interface
             int pageIndex,
             string? tourId);
 
-        public Task<List<TourTemplatePreviewDTO>> GetTourTemplatesPreviewRelatedToAttractionAsync(string attractionId, int previewCount);
         Task UpdateTourTemplateImageAsync(string tourTemplateId, string staffId, List<IFormFile>? newImages, List<string>? deletedImageIds);
         public Task ChangeTourTemplateStatusAsync(string tourTemplateId, string accountId, TourTemplateStatus templateStatus, string? reason);
     }
