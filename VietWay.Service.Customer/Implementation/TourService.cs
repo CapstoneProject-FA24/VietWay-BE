@@ -68,5 +68,39 @@ namespace VietWay.Service.Customer.Implementation
 
 
         }
+
+        public async Task<TourDetailDTO?> GetTourDetailByBookingIdAsync(string customerId, string bookingId)
+        {
+            return await _unitOfWork.BookingRepository.Query()
+                .Where(x => x.BookingId == bookingId && x.CustomerId == customerId)
+                .Select(x => new TourDetailDTO
+                {
+                    CurrentParticipant = x.Tour.CurrentParticipant,
+                    DefaultTouristPrice = x.Tour.DefaultTouristPrice,
+                    DepositPercent = x.Tour.DepositPercent,
+                    MaxParticipant = x.Tour.MaxParticipant,
+                    MinParticipant = x.Tour.MinParticipant,
+                    PaymentDeadline = x.Tour.PaymentDeadline,
+                    PricesByAge = x.Tour.TourPrices.Select(y => new TourPriceDTO
+                    {
+                        AgeFrom = y.AgeFrom,
+                        AgeTo = y.AgeTo,
+                        Name = y.Name,
+                        Price = y.Price,
+                    }).ToList(),
+                    RefundPolicies = x.Tour.TourRefundPolicies.Select(y => new TourRefundPolicyDTO
+                    {
+                        CancelBefore = y.CancelBefore,
+                        RefundPercent = y.RefundPercent,
+                    }).ToList(),
+                    RegisterCloseDate = x.Tour.RegisterCloseDate,
+                    RegisterOpenDate = x.Tour.RegisterOpenDate,
+                    StartDate = x.Tour.StartDate,
+                    StartLocation = x.Tour.StartLocation,
+                    StartLocationPlaceId = x.Tour.StartLocationPlaceId,
+                    TourId = x.TourId,
+                    TourTemplateId = x.Tour.TourTemplateId,
+                }).SingleOrDefaultAsync();
+        }
     }
 }
