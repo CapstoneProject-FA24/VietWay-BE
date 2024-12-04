@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Azure;
+using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -160,7 +161,7 @@ namespace VietWay.Service.Management.Implement
                 .BookingPaymentRepository
                 .Query()
                 .Include(x => x.Booking)
-                .SingleOrDefaultAsync(x => x.PaymentId.Equals(appTransId));
+                .SingleOrDefaultAsync(x => x.PaymentId.Equals(appTransId) && x.Status == PaymentStatus.Pending);
             if (bookingPayment == null)
             {
                 return result;
@@ -177,8 +178,30 @@ namespace VietWay.Service.Management.Implement
             bookingPayment.ThirdPartyTransactionNumber = dataJson.ZpTransId.ToString();
             if (result["return_code"].Equals(1))
             {
+                int oldBookingStatus = (int)bookingPayment.Booking.Status;
                 bookingPayment.Status = PaymentStatus.Paid;
-                bookingPayment.Booking.Status = BookingStatus.Deposited;
+                bookingPayment.Booking.Status =
+                    bookingPayment.Booking.PaidAmount + bookingPayment.Amount < bookingPayment.Booking.TotalPrice ?
+                    BookingStatus.Deposited : BookingStatus.Paid;
+                bookingPayment.Booking.PaidAmount += bookingPayment.Amount;
+                string entityHistoryId = _idGenerator.GenerateId();
+                await _unitOfWork.EntityHistoryRepository.CreateAsync(new()
+                {
+                    Action = EntityModifyAction.Update,
+                    EntityType = EntityType.Booking,
+                    EntityId = bookingPayment.BookingId,
+                    Id = entityHistoryId,
+                    ModifiedBy = bookingPayment.Booking.CustomerId,
+                    ModifierRole = UserRole.Customer,
+                    Reason = "Payment",
+                    Timestamp = _timeZoneHelper.GetUTC7Now(),
+                    StatusHistory = new()
+                    {
+                        Id = entityHistoryId,
+                        NewStatus = (int)bookingPayment.Booking.Status,
+                        OldStatus = oldBookingStatus
+                    }
+                });
             }
             else
             {
