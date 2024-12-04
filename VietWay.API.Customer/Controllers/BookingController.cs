@@ -216,6 +216,9 @@ namespace VietWay.API.Customer.Controllers
             });
         }
 
+        /// <summary>
+        /// ✅🔐[Customer] Get tour info by booking id
+        /// </summary>
         [HttpGet("{bookingId}/tour-info")]
         [Produces("application/json")]
         [Authorize(Roles = nameof(UserRole.Customer))]
