@@ -55,24 +55,6 @@ namespace VietWay.Service.Management.Implement
                 .Include(x => x.TourRefundPolicies)
                 .SingleOrDefaultAsync(x => x.TourId.Equals(tourId)) ??
                 throw new ResourceNotFoundException("Tour not found");
-
-            /*if (tour.Status.Equals(TourStatus.Opened) && tour.CurrentParticipant != 0)
-            {
-                throw new Exception("Cannot edit tour that already have participant");
-            }
-            else if (tour.Status.Equals(TourStatus.Closed))
-            {
-                throw new Exception("Tour already closed");
-            }
-            else if (tour.Status.Equals(TourStatus.Completed))
-            {
-                throw new Exception("Tour already completed");
-            }
-            else if (tour.Status.Equals(TourStatus.Cancelled))
-            {
-                throw new Exception("Tour already cancelled");
-            }*/
-
             switch (tour.Status)
             {
                 case TourStatus.Opened when tour.CurrentParticipant != 0:

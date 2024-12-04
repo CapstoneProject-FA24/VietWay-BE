@@ -12,5 +12,6 @@ namespace VietWay.Service.Customer.DataTransferObject
         public required string Token { get; set; }
         public required string FullName { get; set; }
         public required string AvatarUrl { get; set; } = "https://upload.wikimedia.org/wikipedia/commons/2/2c/Default_pfp.svg";
+        public required UserRole Role { get; set; }
     }
 }
