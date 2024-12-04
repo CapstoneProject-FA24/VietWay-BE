@@ -158,7 +158,8 @@ namespace VietWay.Service.Management.Implement
                     MinPrice = x.MinPrice,
                     MaxPrice = x.MaxPrice,
                     CreatedAt = x.CreatedAt,
-                    ImageUrl = x.TourTemplateImages.FirstOrDefault().ImageUrl
+                    ImageUrl = x.TourTemplateImages.FirstOrDefault().ImageUrl,
+                    Provinces = x.TourTemplateProvinces.Select(y => y.Province.Name).ToList(),
                 })
                 .ToListAsync();
             return new PaginatedList<TourTemplatePreviewDTO>
