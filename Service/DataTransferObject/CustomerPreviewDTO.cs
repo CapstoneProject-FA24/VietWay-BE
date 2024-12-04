@@ -20,5 +20,6 @@ namespace VietWay.Service.Management.DataTransferObject
         public string? Province { get; set; }
         public Gender Gender { get; set; }
         public required DateTime CreatedAt { get; set; }
+        public bool IsDeleted { get; set; }
     }
 }
