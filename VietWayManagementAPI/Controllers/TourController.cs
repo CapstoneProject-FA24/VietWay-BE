@@ -31,7 +31,7 @@ namespace VietWay.API.Management.Controllers
         [HttpGet]
         [Authorize(Roles = $"{nameof(UserRole.Manager)},{nameof(UserRole.Staff)}")]
         [Produces("application/json")]
-        [ProducesResponseType<DefaultResponseModel<PaginatedList<TourPreview>>>(StatusCodes.Status200OK)]
+        [ProducesResponseType<DefaultResponseModel<PaginatedList<TourPreviewDTO>>>(StatusCodes.Status200OK)]
         public async Task<IActionResult> GetAllTourAsync(
             string? nameSearch, string? codeSearch, [FromQuery] List<string>? provinceIds, [FromQuery] List<string>? tourCategoryIds,
             [FromQuery] List<string>? durationIds, TourStatus? status, int? pageSize, int? pageIndex,
@@ -221,7 +221,7 @@ namespace VietWay.API.Management.Controllers
         }
 
         [HttpDelete("{tourId}")]
-        [Authorize(Roles = $"{nameof(UserRole.Manager)}")]
+        [Authorize(Roles = $"{nameof(UserRole.Manager)},{nameof(UserRole.Staff)}")]
         [Produces("application/json")]
         [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status200OK)]
         public async Task<IActionResult> DeleteTourAsync(string tourId)

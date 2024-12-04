@@ -14,7 +14,7 @@ using VietWay.Service.ThirdParty.ZaloPay;
 
 namespace VietWay.API.Management.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/booking-payments")]
     [ApiController]
     public class BookingPaymentController(IBookingPaymentService bookingPaymentService, IMapper mapper) : ControllerBase
     {

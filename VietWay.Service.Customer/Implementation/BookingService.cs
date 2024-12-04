@@ -193,6 +193,7 @@ namespace VietWay.Service.Customer.Implementation
                     CreatedOn = x.CreatedAt,
                     Note = x.Note,
                     PaidAmount = x.PaidAmount,
+                    Transportation = x.Tour.TourTemplate.Transportation,
                     Participants = x.BookingTourists.Select(y => new TourParticipantDTO()
                     {
                         DateOfBirth = y.DateOfBirth,
@@ -202,6 +203,12 @@ namespace VietWay.Service.Customer.Implementation
                         Price = y.Price,
                     }).ToList(),
                     Code = x.Tour.TourTemplate.Code,
+                    RefundRequests = x.BookingRefunds.Select(y => new BookingRefundDTO
+                    {
+                        RefundAmount = y.RefundAmount,
+                        RefundStatus = y.RefundStatus,
+                        RefundDate = y.RefundDate,
+                    }).ToList(),
                 }).SingleOrDefaultAsync();
         }
 
@@ -236,6 +243,7 @@ namespace VietWay.Service.Customer.Implementation
                     Code = x.Tour.TourTemplate.Code,
                     StartDate = x.Tour!.StartDate!.Value,
                     IsReviewed = x.TourReview != null,
+                    HavePendingRefund = x.BookingRefunds.Any(y => y.RefundStatus == RefundStatus.Pending),
                 }).ToListAsync();
             return new PaginatedList<BookingPreviewDTO>
             {
@@ -323,33 +331,35 @@ namespace VietWay.Service.Customer.Implementation
                         RefundReason = "Tour Change",
                         RefundStatus = RefundStatus.Pending,
                     });
-                    await _unitOfWork.BookingRepository.UpdateAsync(booking);
-                    await _unitOfWork.EntityHistoryRepository.CreateAsync(new EntityHistory()
-                    {
-                        Id = _idGenerator.GenerateId(),
-                        Action = EntityModifyAction.ChangeStatus,
-                        EntityId = bookingId,
-                        EntityType = EntityType.Booking,
-                        ModifiedBy = customerId,
-                        ModifierRole = UserRole.Customer,
-                        Reason = null,
-                        StatusHistory = new EntityStatusHistory()
-                        {
-                            Id = _idGenerator.GenerateId(),
-                            OldStatus = (int)BookingStatus.PendingChangeConfirmation,
-                            NewStatus = (int)BookingStatus.Pending,
-                        },
-                        Timestamp = _timeZoneHelper.GetUTC7Now(),
-                    });
-                    await _unitOfWork.CommitTransactionAsync();
-                    _backgroundJobClient.Schedule<IBookingJob>(
-                        x => x.CheckBookingForExpirationAsync(booking.BookingId),
-                        DateTime.Now.AddMinutes(_pendingBookingExpireAfterMinutes));
                 }
+                await _unitOfWork.BookingRepository.UpdateAsync(booking);
+                string entityHistoryId = _idGenerator.GenerateId();
+                await _unitOfWork.EntityHistoryRepository.CreateAsync(new EntityHistory()
+                {
+                    Id = entityHistoryId,
+                    Action = EntityModifyAction.ChangeStatus,
+                    EntityId = bookingId,
+                    EntityType = EntityType.Booking,
+                    ModifiedBy = customerId,
+                    ModifierRole = UserRole.Customer,
+                    Reason = null,
+                    StatusHistory = new EntityStatusHistory()
+                    {
+                        Id = entityHistoryId,
+                        OldStatus = (int)BookingStatus.PendingChangeConfirmation,
+                        NewStatus = (int)BookingStatus.Pending,
+                    },
+                    Timestamp = _timeZoneHelper.GetUTC7Now(),
+                });
+                await _unitOfWork.CommitTransactionAsync();
+                _backgroundJobClient.Schedule<IBookingJob>(
+                    x => x.CheckBookingForExpirationAsync(booking.BookingId),
+                    DateTime.Now.AddMinutes(_pendingBookingExpireAfterMinutes));
             } 
             catch
             {
                 await _unitOfWork.RollbackTransactionAsync();
+                throw;
             }
         }
 
@@ -379,9 +389,10 @@ namespace VietWay.Service.Customer.Implementation
                     RefundReason = "Tour Change Denied",
                     RefundStatus = RefundStatus.Pending,
                 });
+                string entityHistoryId = _idGenerator.GenerateId();
                 await _unitOfWork.EntityHistoryRepository.CreateAsync(new EntityHistory()
                 {
-                    Id = _idGenerator.GenerateId(),
+                    Id =entityHistoryId,
                     Action = EntityModifyAction.ChangeStatus,
                     EntityId = bookingId,
                     EntityType = EntityType.Booking,
@@ -390,7 +401,7 @@ namespace VietWay.Service.Customer.Implementation
                     Reason = null,
                     StatusHistory = new EntityStatusHistory()
                     {
-                        Id = _idGenerator.GenerateId(),
+                        Id = entityHistoryId,
                         OldStatus = (int)BookingStatus.PendingChangeConfirmation,
                         NewStatus = (int)BookingStatus.Cancelled,
                     },
@@ -401,6 +412,7 @@ namespace VietWay.Service.Customer.Implementation
             catch
             {
                 await _unitOfWork.RollbackTransactionAsync();
+                throw;
             }
         }
     }

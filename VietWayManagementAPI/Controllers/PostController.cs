@@ -15,7 +15,7 @@ using VietWay.Service.Management.Implement;
 
 namespace VietWay.API.Management.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/posts")]
     [ApiController]
     public class PostController(
         IPostService postService, 
@@ -39,25 +39,18 @@ namespace VietWay.API.Management.Controllers
         public async Task<IActionResult> GetPosts(string? nameSearch, 
             [FromQuery] List<string>? postCategoryIds,
             [FromQuery] List<string>? provinceIds, 
-            PostStatus? status,
+            [FromQuery] List<PostStatus>? statuses,
             int? pageSize, 
             int? pageIndex)
         {
             int checkedPageSize = pageSize ?? 10;
             int checkedPageIndex = pageIndex ?? 1;
 
-            (int totalCount, List<PostPreviewDTO> items) = await _postService.GetAllPostAsync(
-                nameSearch, postCategoryIds, provinceIds, status, checkedPageSize, checkedPageIndex);
             return Ok(new DefaultResponseModel<PaginatedList<PostPreviewDTO>>()
             {
                 Message = "Success",
-                Data = new PaginatedList<PostPreviewDTO>
-                {
-                    Items = items,
-                    PageSize = checkedPageSize,
-                    PageIndex = checkedPageIndex,
-                    Total = totalCount
-                },
+                Data = await _postService.GetAllPostAsync(
+                    nameSearch, postCategoryIds, provinceIds, statuses, checkedPageSize, checkedPageIndex),
                 StatusCode = StatusCodes.Status200OK
             });
         }

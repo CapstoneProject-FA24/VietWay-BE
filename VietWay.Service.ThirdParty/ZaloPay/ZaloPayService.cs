@@ -38,10 +38,19 @@ namespace VietWay.Service.ThirdParty.ZaloPay
                     TotalPrice = bookingPayment.Booking.TotalPrice
                 }
             };
+            string returnUrl = "";
+            if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development")
+            {
+                returnUrl = "http://localhost:5173/dat-tour/thanh-toan/hoan-thanh/" + bookingPayment.BookingId;
+            }
+            else
+            {
+                returnUrl = "https://vietway.projectpioneer.id.vn/dat-tour/thanh-toan/hoan-thanh/" + bookingPayment.BookingId;
+            }
             ZaloPayRequest request = new ZaloPayRequest
             {
                 Amount = (long)bookingPayment.Amount,
-                EmbedData = "{\"redirecturl\": \"http://localhost:5173/dat-tour/thanh-toan/hoan-thanh/" + bookingPayment.BookingId + "\"}",
+                EmbedData = "{\"redirecturl\": \"" + returnUrl + "\"}",
                 Item = JsonConvert.SerializeObject(items, new JsonSerializerSettings
                 {
                     ReferenceLoopHandling = ReferenceLoopHandling.Ignore

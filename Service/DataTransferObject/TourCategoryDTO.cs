@@ -9,9 +9,9 @@ namespace VietWay.Service.Management.DataTransferObject
 {
     public class TourCategoryDTO
     {
-        public string TourCategoryId { get; set; }
-        public string Name { get; set; }
-        public string Description { get; set; }
+        public required string TourCategoryId { get; set; }
+        public string? Name { get; set; }
+        public string? Description { get; set; }
         public DateTime CreatedAt { get; set; }
     }
 }
