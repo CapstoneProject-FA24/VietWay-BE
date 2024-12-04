@@ -11,5 +11,6 @@ namespace VietWay.Service.Customer.Interface
     {
         public Task<TourDetailDTO?> GetTourByIdAsync(string tourId);
         Task<List<TourPreviewDTO>> GetAllToursByTemplateIdsAsync(string tourTemplateId);
+        Task<TourDetailDTO?> GetTourDetailByBookingIdAsync(string customerId, string bookingId);
     }
 }
