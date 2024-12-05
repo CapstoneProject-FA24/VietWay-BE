@@ -283,7 +283,8 @@ namespace VietWay.API.Management.Controllers
             decimal? minPrice,
             decimal? maxPrice,
             int? pageSize,
-            int? pageIndex)
+            int? pageIndex,
+            string? tourId)
         {
             string? accountId = _tokenHelper.GetAccountIdFromToken(HttpContext);
             if (string.IsNullOrWhiteSpace(accountId))
@@ -301,7 +302,7 @@ namespace VietWay.API.Management.Controllers
             {
                 Data = await _tourTemplateService.GetAllTemplateWithActiveToursAsync(
                 nameSearch, templateCategoryIds, provinceIds, numberOfDay, startDateFrom,
-                startDateTo, minPrice, maxPrice, checkedPageSize, checkedPageIndex),
+                startDateTo, minPrice, maxPrice, checkedPageSize, checkedPageIndex, tourId),
                 Message = "Get all tour templates successfully",
                 StatusCode = StatusCodes.Status200OK
             };

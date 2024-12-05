@@ -35,8 +35,7 @@ namespace VietWay.Service.Management.Implement
         {
             var query = _unitOfWork
                 .CustomerRepository
-                .Query()
-                .Where(x => x.IsDeleted == false);
+                .Query();
             if (!string.IsNullOrEmpty(nameSearch))
             {
                 query = query.Where(x => x.FullName.Contains(nameSearch));
@@ -57,7 +56,8 @@ namespace VietWay.Service.Management.Implement
                     DateOfBirth = x.DateOfBirth,
                     Province = x.Province.Name,
                     Gender = x.Gender,
-                    CreatedAt = x.Account.CreatedAt
+                    CreatedAt = x.Account.CreatedAt,
+                    IsDeleted = x.IsDeleted
                 })
                 .Skip(pageSize * (pageIndex - 1))
                 .Take(pageSize)

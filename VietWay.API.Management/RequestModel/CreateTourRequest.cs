@@ -16,7 +16,7 @@ namespace VietWay.API.Management.RequestModel
         public required string StartLocationPlaceId { get; set; }
         public List<TourPrice>? TourPrice { get; set; }
         public List<RefundPolicy>? RefundPolicies { get; set; }
-        public required DateTime PaymentDeadline { get; set; }
+        public DateTime? PaymentDeadline { get; set; }
     }
     public class TourPriceInfo
     {

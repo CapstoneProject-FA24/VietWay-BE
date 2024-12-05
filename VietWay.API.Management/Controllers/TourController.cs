@@ -221,7 +221,7 @@ namespace VietWay.API.Management.Controllers
         }
 
         [HttpDelete("{tourId}")]
-        [Authorize(Roles = $"{nameof(UserRole.Manager)}")]
+        [Authorize(Roles = $"{nameof(UserRole.Manager)},{nameof(UserRole.Staff)}")]
         [Produces("application/json")]
         [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status200OK)]
         public async Task<IActionResult> DeleteTourAsync(string tourId)

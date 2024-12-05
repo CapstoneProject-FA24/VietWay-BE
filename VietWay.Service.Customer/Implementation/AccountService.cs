@@ -2,6 +2,7 @@
 using VietWay.Repository.EntityModel;
 using VietWay.Repository.EntityModel.Base;
 using VietWay.Repository.UnitOfWork;
+using VietWay.Service.Customer.DataTransferObject;
 using VietWay.Service.Customer.Interface;
 using VietWay.Service.ThirdParty.Firebase;
 using VietWay.Service.ThirdParty.Redis;
@@ -24,27 +25,47 @@ namespace VietWay.Service.Customer.Implementation
         private readonly ISmsService _smsService = smsService;
         private readonly ITokenHelper _tokenHelper = tokenHelper;
 
-        public async Task<Account?> LoginWithGoogleAsync(string idToken)
+        public async Task<CredentialDTO?> LoginWithGoogleAsync(string idToken)
         {
             string email = await _firebaseService.GetEmailFromIdToken(idToken);
             Account? account = await _unitOfWork.AccountRepository
-                .Query()
+                .Query().Include(x => x.Customer)
                 .SingleOrDefaultAsync(x => (x.Email.Equals(email)) && false == x.IsDeleted);
 
-            return account;
+            if (account == null)
+            {
+                return null;
+            }
+
+            CredentialDTO credential = new()
+            {
+                FullName = account.Customer.FullName,
+                Token = _tokenHelper.GenerateAuthenticationToken(account.AccountId, account.Role.ToString()),
+                AvatarUrl = default!,
+                Role = account.Role
+            };
+            return credential;
         }
 
-        public async Task<Account?> LoginAsync(string emailOrPhone, string password)
+        public async Task<CredentialDTO?> LoginAsync(string emailOrPhone, string password)
         {
             Account? account = await _unitOfWork.AccountRepository
-                .Query()
+                .Query().Include(x => x.Customer)
                 .SingleOrDefaultAsync(x => (x.PhoneNumber.Equals(emailOrPhone) || x.Email.Equals(emailOrPhone)) && false == x.IsDeleted);
+
             if (account == null || false == _hashHelper.Verify(password, account.Password))
             {
                 return null;
             }
 
-            return account;
+            CredentialDTO credential = new()
+            {
+                FullName = account.Customer.FullName,
+                Token = _tokenHelper.GenerateAuthenticationToken(account.AccountId, account.Role.ToString()),
+                AvatarUrl = default!,
+                Role = account.Role
+            };
+            return credential;
         }
 
         public async Task<string> ConfirmResetPasswordOtpAsync(string phoneNumber, string otp)

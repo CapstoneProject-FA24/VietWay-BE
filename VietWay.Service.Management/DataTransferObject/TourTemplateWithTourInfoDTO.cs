@@ -17,6 +17,7 @@ namespace VietWay.Service.Management.DataTransferObject
         public required string Description { get; set; }
         public required string Note { get; set; }
         public required string StartingProvince { get; set; }
+        public string? Transportation { get; set; }
         public required List<string> Provinces { get; set; }
         public required string ImageUrl { get; set; }
         public required List<ScheduleDTO> Schedules { get; set; }
@@ -31,7 +32,9 @@ namespace VietWay.Service.Management.DataTransferObject
         public int? MaxParticipant { get; set; }
         public int? MinParticipant { get; set; }
         public int? CurrentParticipant { get; set; }
-        public List<TourPriceDTO> TourPrices { get; set; }
-        public List<TourPolicyPreviewDTO> TourPolicies { get; set; }
+        public decimal? DepositPercent { get; set; }
+        public DateTime? PaymentDeadline { get; set; }
+        public ICollection<TourPriceDTO> TourPrices { get; set; }
+        public ICollection<TourPolicyPreviewDTO> TourPolicies { get; set; }
     }
 }

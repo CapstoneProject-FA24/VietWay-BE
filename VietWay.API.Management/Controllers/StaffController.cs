@@ -9,7 +9,7 @@ using VietWay.Service.Management.DataTransferObject;
 
 namespace VietWay.API.Management.Controllers
 {
-    [Route("api/staffs")]
+    [Route("api/staff")]
     [ApiController]
     public class StaffController(IStaffService staffService,
         ITokenHelper tokenHelper,

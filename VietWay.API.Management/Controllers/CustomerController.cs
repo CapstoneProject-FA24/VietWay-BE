@@ -24,16 +24,6 @@ namespace VietWay.API.Management.Controllers
             int? pageSize,
             int? pageIndex)
         {
-            string? accountId = _tokenHelper.GetAccountIdFromToken(HttpContext);
-            if (string.IsNullOrWhiteSpace(accountId))
-            {
-                return Unauthorized(new DefaultResponseModel<object>
-                {
-                    Message = "Unauthorized",
-                    StatusCode = StatusCodes.Status401Unauthorized
-                });
-            }
-
             int checkedPageSize = pageSize ?? 10;
             int checkedPageIndex = pageIndex ?? 1;
 

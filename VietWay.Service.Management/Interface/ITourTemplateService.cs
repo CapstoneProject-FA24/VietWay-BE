@@ -29,7 +29,9 @@ namespace VietWay.Service.Management.Interface
             decimal? minPrice,
             decimal? maxPrice,
             int pageSize,
-            int pageIndex);
+            int pageIndex,
+            string? tourId);
+
         Task UpdateTourTemplateImageAsync(string tourTemplateId, string staffId, List<IFormFile>? newImages, List<string>? deletedImageIds);
         public Task ChangeTourTemplateStatusAsync(string tourTemplateId, string accountId, TourTemplateStatus templateStatus, string? reason);
     }
