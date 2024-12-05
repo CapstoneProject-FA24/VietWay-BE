@@ -353,7 +353,7 @@ namespace VietWay.Service.Management.Implement
 
                 if (TourStatus.Accepted != tour.Status && TourStatus.Opened != tour.Status && TourStatus.Closed == tour.Status)
                 {
-                    throw new InvalidOperationException("Cannot cancel tour that is not accepted, opened or closed");
+                    throw new InvalidActionException("Cannot cancel tour that is not accepted, opened or closed");
                 }
                 int oldStatus = (int)tour.Status;
                 tour.Status = TourStatus.Cancelled;
