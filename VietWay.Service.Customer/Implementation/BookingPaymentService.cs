@@ -4,6 +4,7 @@ using VietWay.Repository.EntityModel.Base;
 using VietWay.Repository.UnitOfWork;
 using VietWay.Service.Customer.DataTransferObject;
 using VietWay.Service.Customer.Interface;
+using VietWay.Service.ThirdParty.PayOS;
 using VietWay.Service.ThirdParty.VnPay;
 using VietWay.Service.ThirdParty.ZaloPay;
 using VietWay.Util.CustomExceptions;
@@ -12,13 +13,14 @@ using VietWay.Util.IdUtil;
 namespace VietWay.Service.Customer.Implementation
 {
     public class BookingPaymentService(IUnitOfWork unitOfWork, IVnPayService vnPayService, IIdGenerator idGenerator, IZaloPayService zaloPayService,
-        ITimeZoneHelper timeZoneHelper) : IBookingPaymentService
+        ITimeZoneHelper timeZoneHelper, IPayOSService payOSService) : IBookingPaymentService
     {
         private readonly IUnitOfWork _unitOfWork = unitOfWork;
         private readonly IVnPayService _vnPayService = vnPayService;
         private readonly IZaloPayService _zaloPayService = zaloPayService;
         private readonly IIdGenerator _idGenerator = idGenerator;
         private readonly ITimeZoneHelper _timeZoneHelper = timeZoneHelper;
+        private readonly IPayOSService _payOSService = payOSService;
 
         public async Task<PaginatedList<BookingPaymentDTO>> GetAllCustomerBookingPaymentsAsync(string customerId, int pageSize, int pageIndex)
         {
@@ -82,7 +84,7 @@ namespace VietWay.Service.Customer.Implementation
         {
             Booking? tourBooking = await _unitOfWork.BookingRepository
                 .Query()
-                .Include(x => x.Tour)
+                .Include(x => x.Tour.TourTemplate)
                 .SingleOrDefaultAsync(x => x.BookingId.Equals(bookingId) && x.CustomerId.Equals(customerId));
             if (tourBooking == null || (tourBooking.Status != BookingStatus.Pending && tourBooking.Status != BookingStatus.Deposited))
             {
@@ -107,14 +109,13 @@ namespace VietWay.Service.Customer.Implementation
                 CreateAt = _timeZoneHelper.GetUTC7Now(),
             };
             await _unitOfWork.BookingPaymentRepository.CreateAsync(bookingPayment);
-            if (paymentMethod == PaymentMethod.VNPay)
+            return paymentMethod switch
             {
-                return _vnPayService.GetPaymentUrl(bookingPayment, ipAddress);
-            }
-            else
-            {
-                return await _zaloPayService.GetPaymentUrl(bookingPayment);
-            }
+                PaymentMethod.VNPay => _vnPayService.GetPaymentUrl(bookingPayment, ipAddress),
+                PaymentMethod.ZaloPay => await _zaloPayService.GetPaymentUrl(bookingPayment),
+                PaymentMethod.PayOS => await _payOSService.CreatePaymentUrl(bookingPayment, tourBooking.Tour.TourTemplate.TourName),
+                _ => throw new InvalidInfoException()
+            };
         }
     }
 }

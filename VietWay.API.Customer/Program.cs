@@ -168,6 +168,7 @@ namespace VietWay.API.Customer
             builder.Services.AddScoped<ISmsService, SmsService>();
             builder.Services.AddScoped<IRedisCacheService, RedisCacheService>();
             builder.Services.AddScoped<IZaloPayService, ZaloPayService>();
+            builder.Services.AddScoped<IVnPayService, VnPayService>();
             #endregion
             builder.Services.AddSingleton<IIdGenerator, SnowflakeIdGenerator>();
             builder.Services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer
@@ -208,7 +209,9 @@ namespace VietWay.API.Customer
                 VnpHashSecret = Environment.GetEnvironmentVariable("VNPAY_HASH_SECRET") ??
                     throw new Exception("VNPAY_HASH_SECRET is not set in environment variables"),
                 VnpTmnCode = Environment.GetEnvironmentVariable("VNPAY_TMN_CODE") ??
-                    throw new Exception("VNPAY_TMN_CODE is not set in environment variables")
+                    throw new Exception("VNPAY_TMN_CODE is not set in environment variables"),
+                ReturnUrl = Environment.GetEnvironmentVariable("VNPAY_RETURN_URL") ??
+                    throw new Exception("VNPAY_RETURN_URL is not set in environment variables")
             });
             builder.Services.AddSingleton(s => new OtpGeneratorConfiguration
             {
