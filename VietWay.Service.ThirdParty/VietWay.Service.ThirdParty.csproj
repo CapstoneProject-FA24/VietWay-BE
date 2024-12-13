@@ -11,13 +11,12 @@
     <PackageReference Include="FirebaseAdmin" Version="3.1.0" />
     <PackageReference Include="MailKit" Version="4.8.0" />
     <PackageReference Include="Microsoft.Extensions.Http" Version="8.0.1" />
-    <PackageReference Include="payOS" Version="1.0.9" />
     <PackageReference Include="StackExchange.Redis" Version="2.8.16" />
     <PackageReference Include="TweetinviAPI" Version="5.0.4" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\VietWay.Repository\VietWay.Repository.csproj" />
+    <ProjectReference Include="..\Repository\VietWay.Repository.csproj" />
   </ItemGroup>
 
 </Project>

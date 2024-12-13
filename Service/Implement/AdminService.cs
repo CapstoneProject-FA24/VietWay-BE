@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 using VietWay.Repository.EntityModel;
 using VietWay.Repository.UnitOfWork;
 using VietWay.Service.Management.Interface;
-using VietWay.Util.CustomExceptions;
 
 namespace VietWay.Service.Management.Implement
 {
@@ -22,11 +21,11 @@ namespace VietWay.Service.Management.Implement
 
             if (startDate == null)
             {
-                throw new InvalidInfoException(nameof(startDate));
+                throw new ArgumentNullException(nameof(startDate));
             }
             else if (endDate == null)
             {
-                throw new InvalidInfoException(nameof(endDate));
+                throw new ArgumentNullException(nameof(endDate));
             }
 
             int total = await query

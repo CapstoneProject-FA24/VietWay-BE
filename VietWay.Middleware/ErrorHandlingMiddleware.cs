@@ -3,7 +3,6 @@ using System.Net;
 using System.Text.Json;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Primitives;
-using VietWay.Util.CustomExceptions;
 
 namespace VietWay.Middleware
 {
@@ -19,37 +18,18 @@ namespace VietWay.Middleware
             }
             catch (Exception ex)
             {
-                await HandleExceptionAsync(context, ex);
+                await HandleServerExceptionAsync(context, ex);
             }
         }
-        public static Task HandleExceptionAsync(HttpContext context, Exception ex)
+        public static Task HandleServerExceptionAsync(HttpContext context, Exception ex)
         {
-
-            HttpStatusCode code;
-            ResponseModel<string> response;
-
-            if (ex is InvalidInfoException)
+            var code = HttpStatusCode.InternalServerError;
+            var result = JsonSerializer.Serialize(new
             {
-                code = HttpStatusCode.BadRequest;
-                response = new ResponseModel<string> { StatusCode = (int)code, Message = ex.Message };
-            }
-            else if (ex is ResourceNotFoundException)
-            {
-                code = HttpStatusCode.NotFound;
-                response = new ResponseModel<string> { StatusCode = (int)code, Message = ex.Message };
-            }
-            else if (ex is UnauthorizedAccessException)
-            {
-                code = HttpStatusCode.Unauthorized;
-                response = new ResponseModel<string> { StatusCode = (int)code, Message = ex.Message };
-            }
-            else
-            {
-                code = HttpStatusCode.InternalServerError;
-                response = new ResponseModel<string> { StatusCode = (int)code, Message = "Internal Server Error" };
-            }
-
-            var result = JsonSerializer.Serialize(response);
+                error = ex.Message.Split(["\r\n", "\n"], StringSplitOptions.RemoveEmptyEntries),
+                inner = ex.InnerException?.Message.Split(["\r\n", "\n"], StringSplitOptions.RemoveEmptyEntries),
+                detail = ex.StackTrace?.Split(["\r\n","\n"], StringSplitOptions.RemoveEmptyEntries)
+            });
             context.Response.ContentType = "application/json";
             var header = new KeyValuePair<string, StringValues>("Access-Control-Allow-Origin", "*");
             context.Response.Headers.Add(header);

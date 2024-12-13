@@ -29,7 +29,7 @@ namespace VietWay.Service.Customer.Implementation
                 bool isExist = await _unitOfWork.AttractionReviewRepository.Query().AnyAsync(x => x.AttractionId.Equals(review.AttractionId) && x.CustomerId.Equals(review.CustomerId));
                 if (isExist)
                 {
-                    throw new InvalidInfoException("Already existed!");
+                    throw new ResourceAlreadyExistsException(nameof(AttractionReview));
                 }
                 await _unitOfWork.AttractionReviewRepository.CreateAsync(review);
                 await _unitOfWork.CommitTransactionAsync();
@@ -145,7 +145,7 @@ namespace VietWay.Service.Customer.Implementation
                 }
                 else
                 {
-                    throw new InvalidActionException(nameof(AttractionReviewLike));
+                    throw new InvalidOperationException(nameof(AttractionReviewLike));
                 }
                 await _unitOfWork.CommitTransactionAsync();
             }

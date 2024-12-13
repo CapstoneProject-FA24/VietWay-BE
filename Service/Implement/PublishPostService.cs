@@ -28,7 +28,7 @@ namespace VietWay.Service.Management.Implement
                 throw new ResourceNotFoundException("Post not found");
             if (post.FacebookPostId.IsNullOrEmpty())
             {
-                throw new InvalidActionException("The post has not been published");
+                throw new InvalidOperationException("The post has not been published");
             }
             Task<int> countCommentTask = _facebookService.GetPostCommentCountAsync(post.FacebookPostId!);
             Task<int> countShareTask = _facebookService.GetPostShareCountAsync(post.FacebookPostId!);
@@ -62,14 +62,14 @@ namespace VietWay.Service.Management.Implement
 
             if (post.Status != PostStatus.Approved)
             {
-                throw new InvalidActionException("Post has not been approved yet");
+                throw new ServerErrorException("Post has not been approved yet");
             }
             if (!post.XTweetId.IsNullOrEmpty())
             {
-                throw new InvalidActionException("The post has already been tweeted");
+                throw new ServerErrorException("The post has already been tweeted");
             }
 
-            PostTweetRequestDTO postTweetRequestDTO = new()
+            PostTweetRequestDTO postTweetRequestDTO = new PostTweetRequestDTO
             {
                 Text = $"{post.Title.ToUpper()}\n\nXem thêm tại: https://vietway.projectpioneer.id.vn/bai-viet/{post.PostId}",
                 ImageUrl = post.ImageUrl
@@ -104,11 +104,11 @@ namespace VietWay.Service.Management.Implement
 
             if (post.Status != PostStatus.Approved)
             {
-                throw new InvalidActionException("Post has not been approved yet");
+                throw new ServerErrorException("Post has not been approved yet");
             }
             if (!post.FacebookPostId.IsNullOrEmpty())
             {
-                throw new InvalidActionException("The post has already been tweeted");
+                throw new ServerErrorException("The post has already been tweeted");
             }
 
             string facebookPostId = await _facebookService.PublishPostAsync(post.Description, $"https://vietway.projectpioneer.id.vn/bai-viet/{post.PostId}");
@@ -134,8 +134,9 @@ namespace VietWay.Service.Management.Implement
 
             if (post.XTweetId.IsNullOrEmpty())
             {
-                throw new InvalidActionException("The post has not been tweeted yet");
+                throw new ServerErrorException("The post has not been tweeted yet");
             }
+
             try
             {
                 await _twitterService.DeleteTweetAsync(post.XTweetId);

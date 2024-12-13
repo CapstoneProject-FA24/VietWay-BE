@@ -7,7 +7,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Hangfire.Core" Version="1.8.14" />
+    <Folder Include="Configuration\" />
+    <Folder Include="Implementation\" />
+    <Folder Include="Interface\" />
   </ItemGroup>
 
   <ItemGroup>

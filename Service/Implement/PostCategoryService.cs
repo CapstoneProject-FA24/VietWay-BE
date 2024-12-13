@@ -47,7 +47,7 @@ namespace VietWay.Service.Management.Implement
                 var existingCategory = await GetByNameAsync(postCategory.Name);
                 if (existingCategory != null)
                 {
-                    throw new InvalidActionException($"A category with the name '{existingCategory.Name}' already exists.");
+                    throw new InvalidOperationException($"A category with the name '{existingCategory.Name}' already exists.");
                 }
 
                 postCategory.PostCategoryId ??= _idGenerator.GenerateId();

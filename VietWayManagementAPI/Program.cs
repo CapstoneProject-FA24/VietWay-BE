@@ -26,8 +26,6 @@ using VietWay.Job.Interface;
 using VietWay.Job.Configuration;
 using VietWay.Service.ThirdParty.Email;
 using VietWay.Service.ThirdParty.ZaloPay;
-using Net.payOS.Constants;
-using VietWay.Service.ThirdParty.PayOS;
 namespace VietWay.API.Management
 {
     public class Program
@@ -222,9 +220,7 @@ namespace VietWay.API.Management
                 VnpHashSecret = Environment.GetEnvironmentVariable("VNPAY_HASH_SECRET") ??
                     throw new Exception("VNPAY_HASH_SECRET is not set in environment variables"),
                 VnpTmnCode = Environment.GetEnvironmentVariable("VNPAY_TMN_CODE") ??
-                    throw new Exception("VNPAY_TMN_CODE is not set in environment variables"),
-                ReturnUrl = Environment.GetEnvironmentVariable("VNPAY_RETURN_URL") ??
-                    throw new Exception("VNPAY_RETURN_URL is not set in environment variables")
+                    throw new Exception("VNPAY_TMN_CODE is not set in environment variables")
             });
             builder.Services.AddSingleton(s => new EmailJobConfiguration
             {
@@ -261,17 +257,6 @@ namespace VietWay.API.Management
                     throw new Exception("ZALOPAY_KEY1 is not set in environment variables"),
                 ZaloPayKey2 = Environment.GetEnvironmentVariable("ZALOPAY_KEY2") ??
                     throw new Exception("ZALOPAY_KEY2 is not set in environment variables")
-            });
-            builder.Services.AddSingleton(s => new PayOSConfiguration
-            {
-                ApiKey = Environment.GetEnvironmentVariable("PAYOS_API_KEY") ??
-                    throw new Exception("PAYOS_API_KEY is not set in environment variables"),
-                ChecksumKey = Environment.GetEnvironmentVariable("PAYOS_CHECKSUM_KEY") ??
-                    throw new Exception("PAYOS_CHECKSUM_KEY is not set in environment variables"),
-                ClientId = Environment.GetEnvironmentVariable("PAYOS_CLIENT_ID") ??
-                    throw new Exception("PAYOS_CLIENT_ID is not set in environment variables"),
-                ReturnUrl = Environment.GetEnvironmentVariable("PAYOS_RETURN_URL") ??
-                    throw new Exception("PAYOS_RETURN_URL is not set in environment variables"),
             });
             var app = builder.Build();
 

@@ -35,7 +35,7 @@ namespace VietWay.Service.Customer.Implementation
                     ?? throw new ResourceNotFoundException("Booking not found");
                 if (booking.Tour!.StartDate!.Value.AddDays(booking.Tour!.TourTemplate!.TourDuration!.NumberOfDay).AddDays(_reviewTourExpireAfterDays) < _timeZoneHelper.GetUTC7Now())
                 {
-                    throw new InvalidActionException("Review time is expired");
+                    throw new InvalidOperationException("Review time is expired");
                 }
                 tourReview.ReviewId = _idGenerator.GenerateId();
                 tourReview.CreatedAt = _timeZoneHelper.GetUTC7Now();
