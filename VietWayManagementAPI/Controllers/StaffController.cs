@@ -6,6 +6,7 @@ using VietWay.Repository.EntityModel.Base;
 using VietWay.Util.TokenUtil;
 using VietWay.Service.Management.Interface;
 using VietWay.Service.Management.DataTransferObject;
+using VietWay.API.Management.RequestModel;
 
 namespace VietWay.API.Management.Controllers
 {
@@ -86,7 +87,7 @@ namespace VietWay.API.Management.Controllers
         [Authorize(Roles = nameof(UserRole.Staff))]
         [Produces("application/json")]
         [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status200OK)]
-        public async Task<IActionResult> ChangeStaffPasswordAsync(string oldPassword, string newPassword)
+        public async Task<IActionResult> ChangeStaffPasswordAsync([FromBody] ChangePasswordRequest changePasswordRequest)
         {
             string? accountId = _tokenHelper.GetAccountIdFromToken(HttpContext);
             if (string.IsNullOrWhiteSpace(accountId))
@@ -98,7 +99,7 @@ namespace VietWay.API.Management.Controllers
                 });
             }
 
-            await _staffService.StaffChangePassword(accountId, oldPassword, newPassword);
+            await _staffService.StaffChangePassword(accountId, changePasswordRequest.OldPassword, changePasswordRequest.NewPassword);
             return Ok();
         }
     }

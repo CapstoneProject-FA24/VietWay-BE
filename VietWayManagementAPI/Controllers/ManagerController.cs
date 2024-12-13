@@ -91,7 +91,7 @@ namespace VietWay.API.Management.Controllers
         [Authorize(Roles = nameof(UserRole.Manager))]
         [Produces("application/json")]
         [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status200OK)]
-        public async Task<IActionResult> ChangeManagerPasswordAsync(string oldPassword, string newPassword)
+        public async Task<IActionResult> ChangeManagerPasswordAsync([FromBody] ChangePasswordRequest changePasswordRequest)
         {
             string? accountId = _tokenHelper.GetAccountIdFromToken(HttpContext);
             if (string.IsNullOrWhiteSpace(accountId))
@@ -103,7 +103,7 @@ namespace VietWay.API.Management.Controllers
                 });
             }
 
-            await _managerService.ManagerChangePassword(accountId, oldPassword, newPassword);
+            await _managerService.ManagerChangePassword(accountId, changePasswordRequest.OldPassword, changePasswordRequest.NewPassword);
             return Ok();
         }
     }
