@@ -14,6 +14,11 @@ namespace VietWay.Service.ThirdParty.GoogleGemini
             return await _geminiClient.ChatAsync(contents);
         }
 
+        public Task ExtractChatDataAsync(List<Content> contents)
+        {
+            throw new NotImplementedException();
+        }
+
         public async Task<string> QueryAsync(string content)
         {
             _geminiClient.SystemPrompt = await GetSystemPrompt();

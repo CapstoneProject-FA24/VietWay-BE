@@ -33,7 +33,7 @@ namespace VietWay.Service.Management.Implement
                     ?? throw new ResourceNotFoundException("Booking not found");
                 if (booking.Status != BookingStatus.Pending && booking.Status != BookingStatus.Deposited && booking.Status != BookingStatus.Paid)
                 {
-                    throw new InvalidOperationException("Cannot cancel booking that is not pending, Deposited or Paid");
+                    throw new InvalidActionException("Cannot cancel booking that is not pending, Deposited or Paid");
                 }
                 int oldStatus = (int)booking.Status;
                 booking.Status = BookingStatus.Cancelled;
@@ -230,7 +230,7 @@ namespace VietWay.Service.Management.Implement
 
                 if (booking.Status != BookingStatus.Pending && booking.Status != BookingStatus.Deposited && booking.Status != BookingStatus.Paid)
                 {
-                    throw new InvalidOperationException("The booking is not in a pending or confirmed state and cannot change tour.");
+                    throw new InvalidActionException("The booking is not in a pending or confirmed state and cannot change tour.");
                 }
 
                 Tour? oldTour = await _unitOfWork.TourRepository.Query()
@@ -247,11 +247,11 @@ namespace VietWay.Service.Management.Implement
 
                 if (isActiveBookingExisted)
                 {
-                    throw new InvalidOperationException("Customer has already booked this tour");
+                    throw new InvalidActionException("Customer has already booked this tour");
                 }
                 if (newTour.CurrentParticipant + booking.BookingTourists.Count > newTour.MaxParticipant)
                 {
-                    throw new InvalidOperationException("Tour is full");
+                    throw new InvalidActionException("Tour is full");
                 }
 
                 oldTour.CurrentParticipant -= booking.NumberOfParticipants;

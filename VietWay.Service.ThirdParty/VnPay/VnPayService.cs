@@ -10,6 +10,7 @@ namespace VietWay.Service.ThirdParty.VnPay
         private readonly ITimeZoneHelper _timeZoneHelper = timeZoneHelper;
         private readonly string _vnpHashSecret = config.VnpHashSecret;
         private readonly string _vnpTmnCode = config.VnpTmnCode;
+        private readonly string _vnpReturnUrl = config.ReturnUrl;
 
         public string GetPaymentUrl(BookingPayment payment, string userIpAddress)
         {
@@ -21,15 +22,7 @@ namespace VietWay.Service.ThirdParty.VnPay
             const string vnpLocale = "vn";
             string vnpOrderInfo = Uri.EscapeDataString($"Thanh+toan+tour+gia+{payment.Amount}+VND");
             const string vnpOrderType = "130005";
-            string vnpReturnUrl; 
-            if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development")
-            {
-                vnpReturnUrl = Uri.EscapeDataString("http://localhost:5173/dat-tour/thanh-toan/hoan-thanh/" + payment.BookingId);
-            }
-            else
-            {
-                vnpReturnUrl = Uri.EscapeDataString("https://vietway.projectpioneer.id.vn/dat-tour/thanh-toan/hoan-thanh/" + payment.BookingId);
-            }
+            string vnpReturnUrl = _vnpReturnUrl; 
             string vnpExpireDate = _timeZoneHelper.GetUTC7Now().AddHours(1).ToString("yyyyMMddHHmmss");
             string vnpTxnRef = payment.PaymentId;
             string ipAddress = Uri.EscapeDataString(userIpAddress);

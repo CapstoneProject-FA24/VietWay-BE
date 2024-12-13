@@ -3,11 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.11.35222.181
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VietWay.API.Management", "VietWayManagementAPI\VietWay.API.Management.csproj", "{304A102F-CE24-44B3-9003-C54B8746E61A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VietWay.API.Management", "VietWay.API.Management\VietWay.API.Management.csproj", "{304A102F-CE24-44B3-9003-C54B8746E61A}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VietWay.Repository", "Repository\VietWay.Repository.csproj", "{C725CDEF-D4DE-4E47-8C78-C7E745171115}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VietWay.Repository", "VietWay.Repository\VietWay.Repository.csproj", "{C725CDEF-D4DE-4E47-8C78-C7E745171115}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VietWay.Service.Management", "Service\VietWay.Service.Management.csproj", "{4933E75A-8BE8-478D-83B0-1ED3A457D327}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VietWay.Service.Management", "VietWay.Service.Management\VietWay.Service.Management.csproj", "{4933E75A-8BE8-478D-83B0-1ED3A457D327}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VietWay.Util", "VietWay.Util\VietWay.Util.csproj", "{098F1730-E83B-4193-A460-075E484EBE4F}"
 EndProject
