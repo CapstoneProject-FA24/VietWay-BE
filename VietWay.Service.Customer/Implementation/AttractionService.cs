@@ -4,7 +4,6 @@ using VietWay.Repository.EntityModel.Base;
 using VietWay.Repository.UnitOfWork;
 using VietWay.Service.Customer.DataTransferObject;
 using VietWay.Service.Customer.Interface;
-using VietWay.Util.CustomExceptions;
 
 namespace VietWay.Service.Customer.Implementation
 {
@@ -147,7 +146,7 @@ namespace VietWay.Service.Customer.Implementation
                 }
                 else
                 {
-                    throw new InvalidActionException(nameof(AttractionLike));
+                    throw new InvalidOperationException(nameof(AttractionLike));
                 }
                 await _unitOfWork.CommitTransactionAsync();
             }

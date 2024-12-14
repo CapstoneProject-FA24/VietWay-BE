@@ -52,7 +52,7 @@ namespace VietWay.Service.Management.Implement
                 var existingCategory = await GetByNameAsync(tourCategory.Name);
                 if (existingCategory != null)
                 {
-                    throw new InvalidActionException($"A category with the name '{existingCategory.Name}' already exists.");
+                    throw new InvalidOperationException($"A category with the name '{existingCategory.Name}' already exists.");
                 }
 
                 tourCategory.TourCategoryId ??= _idGenerator.GenerateId();

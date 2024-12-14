@@ -66,7 +66,11 @@ namespace VietWay.Service.Management.Implement
 
             if (!checkPassword)
             {
-                throw new Exception("You type in wrong password");
+                throw new InvalidOperationException("Incorrect password");
+            }
+            else if (oldPassword.Equals(newPassword))
+            {
+                throw new InvalidOperationException("Your new password cannot be the same as your current password.");
             }
 
             manager.Account.Password = _hashHelper.Hash(newPassword);

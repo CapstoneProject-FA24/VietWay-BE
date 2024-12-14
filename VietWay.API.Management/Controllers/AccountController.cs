@@ -58,7 +58,7 @@ namespace VietWay.API.Management.Controllers
         /// ✅ Create new staff account
         /// </summary>
         [HttpPost("create-staff-account")]
-        [Authorize(Roles = nameof(UserRole.Manager))]
+        [Authorize(Roles = nameof(UserRole.Admin))]
         [Produces("application/json")]
         [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status200OK)]
         [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status400BadRequest)]

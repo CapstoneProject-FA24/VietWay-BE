@@ -135,6 +135,7 @@ namespace VietWay.Service.Management.Implement
             IQueryable<Tour> query = _unitOfWork
                 .TourRepository
                 .Query()
+                .Where(x => !x.IsDeleted)
                 .Include(x => x.TourTemplate)
                 .ThenInclude(x => x.TourTemplateImages);
             if (nameSearch != null)
@@ -203,6 +204,7 @@ namespace VietWay.Service.Management.Implement
                 .Include(x => x.TourPrices)
                 .Include(x => x.TourRefundPolicies)
                 .Include(x => x.TourBookings)
+                .Where(x => !x.IsDeleted)
                 .Select(x => new TourDetailDTO
                 {
                     TourId = x.TourId,
@@ -353,7 +355,7 @@ namespace VietWay.Service.Management.Implement
 
                 if (TourStatus.Accepted != tour.Status && TourStatus.Opened != tour.Status && TourStatus.Closed == tour.Status)
                 {
-                    throw new InvalidActionException("Cannot cancel tour that is not accepted, opened or closed");
+                    throw new InvalidOperationException("Cannot cancel tour that is not accepted, opened or closed");
                 }
                 int oldStatus = (int)tour.Status;
                 tour.Status = TourStatus.Cancelled;
@@ -441,12 +443,6 @@ namespace VietWay.Service.Management.Implement
             try
             {
                 await _unitOfWork.BeginTransactionAsync();
-
-                if (tour.Status.Equals(TourStatus.Pending))
-                {
-                    throw new InvalidDataException("Can not delete tour just got submitted");
-                }
-
                 await _unitOfWork.TourRepository.SoftDeleteAsync(tour);
                 await _unitOfWork.CommitTransactionAsync();
             }

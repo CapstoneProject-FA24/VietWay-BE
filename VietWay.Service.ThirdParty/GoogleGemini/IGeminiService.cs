@@ -10,6 +10,5 @@ namespace VietWay.Service.ThirdParty.GoogleGemini
     {
         public Task<string> QueryAsync(string content);
         public Task<string> ChatAsync(List<Content> contents);
-        public Task ExtractChatDataAsync(List<Content> contents);
     }
 }

@@ -68,7 +68,7 @@ namespace VietWay.Service.Management.Implement
                 await _unitOfWork.BeginTransactionAsync();
                 Account? account = await _unitOfWork.AccountRepository.Query()
                     .SingleOrDefaultAsync(x => x.AccountId.Equals(accountId)) ??
-                    throw new UnauthorizedException("Account not found");
+                    throw new ResourceNotFoundException("Account not found");
                 AttractionReview review = _unitOfWork.AttractionReviewRepository.Query()
                     .SingleOrDefault(x => x.ReviewId.Equals(reviewId)) ??
                     throw new ResourceNotFoundException("Attraction review not found");

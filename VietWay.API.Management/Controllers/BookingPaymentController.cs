@@ -9,7 +9,6 @@ using VietWay.API.Management.RequestModel;
 using VietWay.Repository.EntityModel.Base;
 using VietWay.Service.Management.DataTransferObject;
 using VietWay.Service.Management.Interface;
-using VietWay.Service.ThirdParty.PayOS;
 using VietWay.Service.ThirdParty.VnPay;
 using VietWay.Service.ThirdParty.ZaloPay;
 
@@ -51,16 +50,5 @@ namespace VietWay.API.Management.Controllers
             CallbackData data = _mapper.Map<CallbackData>(callbackData);
             return Ok(await _bookingPaymentService.HandleZaloPayCallback(data));
         }
-        [HttpPost("payos-confirm-webhook")]
-        public async Task<IActionResult> HandlePayOSConfirmWebhook([FromBody] PayOSWebhookRequest request)
-        {
-            await _bookingPaymentService.HandlePayOSWebhook(request);
-            return Ok(new
-            {
-                RspCode = "00",
-                Message = "Success"
-            });
-        }
-
     }
 }

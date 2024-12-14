@@ -48,7 +48,7 @@ namespace VietWay.Service.Customer.Implementation
                 .SingleOrDefaultAsync(x => x.PhoneNumber.Equals(customer.Account.PhoneNumber) || x.Email.Equals(customer.Account.Email));
             if (account != null)
             {
-                throw new InvalidActionException("Phone number or Email has already been used");
+                throw new InvalidOperationException("Phone number or Email has already been used");
             }
 
             try
@@ -74,13 +74,13 @@ namespace VietWay.Service.Customer.Implementation
             string email = await _firebaseService.GetEmailFromIdToken(idToken);
             Province? province = await _unitOfWork.ProvinceRepository.Query()
                 .SingleOrDefaultAsync(x => x.ProvinceId.Equals(customer.ProvinceId) && false == x.IsDeleted) ??
-                throw new InvalidInfoException("Province not found");
+                throw new ResourceNotFoundException("Province not found");
 
             Account? account = await _unitOfWork.AccountRepository.Query()
                 .SingleOrDefaultAsync(x => x.PhoneNumber.Equals(customer.Account.PhoneNumber) || x.Email.Equals(email));
             if (account != null)
             {
-                throw new InvalidInfoException("Phone number or Email has already been used");
+                throw new InvalidOperationException("Phone number or Email has already been used");
             }
 
             try
