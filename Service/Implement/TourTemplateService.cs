@@ -185,7 +185,7 @@ namespace VietWay.Service.Management.Implement
                 .Include(x => x.TourDuration)
                 .Include(x => x.TourCategory)
                 .SingleOrDefaultAsync(x => x.TourTemplateId.Equals(tourTemplateId)) ??
-                throw new ResourceNotFoundException("Tour not found");
+                throw new ResourceNotFoundException("Tour Template not found");
 
             if (tourTemplate.Status.Equals(TourTemplateStatus.Approved))
             {
