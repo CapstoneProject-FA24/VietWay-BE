@@ -22,10 +22,10 @@ jobs:
           dotnet-version: '8.x'
 
       - name: Build with dotnet
-        run: dotnet build VietWayManagementAPI/VietWay.API.Management.csproj --configuration Release
+        run: dotnet build VietWay.API.Management/VietWay.API.Management.csproj --configuration Release
 
       - name: dotnet publish
-        run: dotnet publish VietWayManagementAPI/VietWay.API.Management.csproj -c Release -o ${{env.DOTNET_ROOT}}/mymanagementapp
+        run: dotnet publish VietWay.API.Management/VietWay.API.Management.csproj -c Release -o ${{env.DOTNET_ROOT}}/mymanagementapp
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
