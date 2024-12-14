@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using VietWay.Repository.EntityModel;
 using VietWay.Repository.EntityModel.Base;
 using VietWay.Repository.UnitOfWork;
 using VietWay.Service.Customer.DataTransferObject;
@@ -24,7 +25,7 @@ namespace VietWay.Service.Customer.Implementation
                 .TourTemplateRepository
                 .Query()
                 .Where(x => x.IsDeleted == false && TourTemplateStatus.Approved == x.Status &&
-                            x.Tours.Any(y => y.Status == TourStatus.Opened && y.RegisterOpenDate <= DateTime.Now && y.RegisterCloseDate >= DateTime.Now && !y.IsDeleted));
+                            x.Tours.Any(y => y.Status == TourStatus.Opened && ((DateTime)y.RegisterOpenDate).Date <= _timeZoneHelper.GetUTC7Now().Date && ((DateTime)y.RegisterCloseDate).Date >= _timeZoneHelper.GetUTC7Now().Date && !y.IsDeleted));
             if (false == string.IsNullOrWhiteSpace(nameSearch))
             {
                 query = query.Where(x => x.TourName.Contains(nameSearch));
@@ -70,10 +71,10 @@ namespace VietWay.Service.Customer.Implementation
                     Duration = x.TourDuration.DurationName,
                     TourCategory = x.TourCategory.Name,
                     ImageUrl = x.TourTemplateImages.Select(x=>x.ImageUrl).FirstOrDefault() ?? "" ,
-                    MinPrice = x.Tours.Where(x => x.Status == TourStatus.Opened && x.RegisterOpenDate <= DateTime.Now && x.RegisterCloseDate >= DateTime.Now && !x.IsDeleted && (false == minPrice.HasValue || minPrice <= x.DefaultTouristPrice))
+                    MinPrice = x.Tours.Where(x => x.Status == TourStatus.Opened && ((DateTime)x.RegisterOpenDate).Date <= _timeZoneHelper.GetUTC7Now().Date && ((DateTime)x.RegisterCloseDate).Date >= _timeZoneHelper.GetUTC7Now().Date && !x.IsDeleted && (false == minPrice.HasValue || minPrice <= x.DefaultTouristPrice))
                                     .Select(y => (decimal)y.DefaultTouristPrice).Min(),
                     Provinces = x.TourTemplateProvinces.Select(y => y.Province.Name).ToList(),
-                    StartDate = x.Tours.Where(x => x.Status == TourStatus.Opened && x.RegisterOpenDate <= DateTime.Now && x.RegisterCloseDate >= DateTime.Now && !x.IsDeleted).Select(y => (DateTime)y.StartDate).ToList(),
+                    StartDate = x.Tours.Where(x => x.Status == TourStatus.Opened && ((DateTime)x.RegisterOpenDate).Date <= _timeZoneHelper.GetUTC7Now().Date && ((DateTime)x.RegisterCloseDate).Date >= _timeZoneHelper.GetUTC7Now().Date && !x.IsDeleted).Select(y => (DateTime)y.StartDate).ToList(),
                     TourName = x.TourName,
                     AverageRating = x.Tours.SelectMany(x => x.TourBookings).Select(x => x.TourReview).Average(x => x.Rating)
                 })
@@ -146,7 +147,8 @@ namespace VietWay.Service.Customer.Implementation
                         {
                             Rating = x.Key,
                             Count = x.Count()
-                        }).ToList()
+                        }).ToList(),
+                    Transportation = x.Transportation
                 }).SingleOrDefaultAsync();
         }
         public Task<List<TourTemplatePreviewDTO>> GetTourTemplatePreviewsByAttractionId(string attractionId, int previewCount)

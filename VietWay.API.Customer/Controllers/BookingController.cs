@@ -217,13 +217,48 @@ namespace VietWay.API.Customer.Controllers
         }
 
         /// <summary>
+        /// ✅🔐[Customer] Get tour info by booking id
+        /// </summary>
+        [HttpGet("{bookingId}/tour-info")]
+        [Produces("application/json")]
+        [Authorize(Roles = nameof(UserRole.Customer))]
+        [ProducesResponseType<DefaultResponseModel<TourDetailDTO>>(StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetTourInfo(string bookingId)
+        {
+            string? customerId = _tokenHelper.GetAccountIdFromToken(HttpContext);
+            if (customerId == null)
+            {
+                return Unauthorized(new DefaultResponseModel<object>()
+                {
+                    Message = "Unauthorized",
+                    StatusCode = StatusCodes.Status401Unauthorized
+                });
+            }
+            TourDetailDTO? tourDetailDTO = await _tourService.GetTourDetailByBookingIdAsync(customerId, bookingId);
+            if (tourDetailDTO == null)
+            {
+                return NotFound(new DefaultResponseModel<object>()
+                {
+                    Message = "Not found",
+                    StatusCode = StatusCodes.Status404NotFound
+                });
+            }
+            return Ok(new DefaultResponseModel<TourDetailDTO>()
+            {
+                Message = "Success",
+                StatusCode = StatusCodes.Status200OK,
+                Data = tourDetailDTO
+            });
+        }
+
+        /// <summary>
         /// ✅🔐[Customer] Generate a payment URL for booking payment
         /// </summary>
         [HttpGet("{bookingId}/payment-url")]
         [Produces("application/json")]
         [Authorize(Roles = nameof(UserRole.Customer))]
         [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status200OK)]
-        public async Task<IActionResult> GetPaymentUrl(string bookingId, PaymentMethod paymentMethod, bool isFullPayment)
+        public async Task<IActionResult> GetPaymentUrl(string bookingId, PaymentMethod paymentMethod, bool? isFullPayment)
         {
             string? customerId = _tokenHelper.GetAccountIdFromToken(HttpContext);
             if (customerId == null)
@@ -323,6 +358,50 @@ namespace VietWay.API.Customer.Controllers
             {
                 Data = await _bookingService.GetBookingHistoryAsync(customerId, bookingId),
                 Message = "Get booking history successfully",
+                StatusCode = StatusCodes.Status200OK
+            });
+        }
+        [HttpPatch("{bookingId}/confirm-tour-change")]
+        [Produces("application/json")]
+        [Authorize(Roles = nameof(UserRole.Customer))]
+        [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status200OK)]
+        public async Task<IActionResult> ConfirmTourChangeAsync(string bookingId)
+        {
+            string? customerId = _tokenHelper.GetAccountIdFromToken(HttpContext);
+            if (customerId == null)
+            {
+                return Unauthorized(new DefaultResponseModel<object>()
+                {
+                    Message = "Unauthorized",
+                    StatusCode = StatusCodes.Status401Unauthorized
+                });
+            }
+            await _bookingService.ConfirmTourChangeAsync(customerId, bookingId);
+            return Ok(new DefaultResponseModel<object>()
+            {
+                Message = "Success",
+                StatusCode = StatusCodes.Status200OK
+            });
+        }
+        [HttpPatch("{bookingId}/deny-tour-change")]
+        [Produces("application/json")]
+        [Authorize(Roles = nameof(UserRole.Customer))]
+        [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status200OK)]
+        public async Task<IActionResult> DenyTourChangeAsync(string bookingId)
+        {
+            string? customerId = _tokenHelper.GetAccountIdFromToken(HttpContext);
+            if (customerId == null)
+            {
+                return Unauthorized(new DefaultResponseModel<object>()
+                {
+                    Message = "Unauthorized",
+                    StatusCode = StatusCodes.Status401Unauthorized
+                });
+            }
+            await _bookingService.DenyTourChangeAsync(customerId, bookingId);
+            return Ok(new DefaultResponseModel<object>()
+            {
+                Message = "Success",
                 StatusCode = StatusCodes.Status200OK
             });
         }

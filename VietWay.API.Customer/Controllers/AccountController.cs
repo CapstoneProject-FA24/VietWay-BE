@@ -5,6 +5,7 @@ using VietWay.API.Customer.RequestModel;
 using VietWay.API.Customer.ResponseModel;
 using VietWay.Repository.EntityModel;
 using VietWay.Repository.EntityModel.Base;
+using VietWay.Service.Customer.DataTransferObject;
 using VietWay.Service.Customer.Interface;
 using VietWay.Util.TokenUtil;
 
@@ -27,11 +28,11 @@ namespace VietWay.API.Customer.Controllers
         /// </summary>
         [HttpPost("login")]
         [Produces("application/json")]
-        [ProducesResponseType<DefaultResponseModel<string>>(StatusCodes.Status200OK)]
+        [ProducesResponseType<DefaultResponseModel<CredentialDTO>>(StatusCodes.Status200OK)]
         [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> LoginAsync([FromBody] LoginRequest request)
         {
-            Account? account = await _accountService.LoginAsync(request.EmailOrPhone, request.Password);
+            CredentialDTO? account = await _accountService.LoginAsync(request.EmailOrPhone, request.Password);
             if (account == null || account.Role != UserRole.Customer)
             {
                 return Unauthorized(new DefaultResponseModel<object>()
@@ -40,11 +41,11 @@ namespace VietWay.API.Customer.Controllers
                     Message = "Unauthorized"
                 });
             }
-            return Ok(new DefaultResponseModel<string>()
+            return Ok(new DefaultResponseModel<CredentialDTO>()
             {
                 Message = "Success",
                 StatusCode = StatusCodes.Status200OK,
-                Data = _tokenHelper.GenerateAuthenticationToken(account.AccountId, account.Role.ToString())
+                Data = account
             });
         }
         /// <summary>
@@ -82,11 +83,11 @@ namespace VietWay.API.Customer.Controllers
 
         [HttpPost("login-with-google")]
         [Produces("application/json")]
-        [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status200OK)]
+        [ProducesResponseType<DefaultResponseModel<CredentialDTO>>(StatusCodes.Status200OK)]
         [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> LoginWithGoogle([FromBody] string idToken)
         {
-            Account? account = await _accountService.LoginWithGoogleAsync(idToken);
+            CredentialDTO? account = await _accountService.LoginWithGoogleAsync(idToken);
             if (account == null || account.Role != UserRole.Customer)
             {
                 return Unauthorized(new DefaultResponseModel<object>()
@@ -95,11 +96,11 @@ namespace VietWay.API.Customer.Controllers
                     Message = "Unauthorized"
                 });
             }
-            return Ok(new DefaultResponseModel<string>()
+            return Ok(new DefaultResponseModel<CredentialDTO>()
             {
                 Message = "Success",
                 StatusCode = StatusCodes.Status200OK,
-                Data = _tokenHelper.GenerateAuthenticationToken(account.AccountId, account.Role.ToString())
+                Data = account
             });
         }
 

@@ -25,13 +25,24 @@ namespace VietWay.Service.Customer.DataTransferObject
 
         public required string StartLocation { get; set; }
         public required DateTime StartDate { get; set; }
+        public decimal? DepositPercent { get; set; }
+        public DateTime? PaymentDeadline { get; set; }
 
         public required string DurationName { get; set; }
         public required int NumberOfDay { get; set; }
         public required string TourName { get; set; }
         public required string ImageUrl { get; set; }
         public required string Code { get; set; }
+        public required string Transportation { get; set; }
 
         public required ICollection<TourParticipantDTO> Participants { get; set; }
+        public List<BookingRefundDTO> RefundRequests { get; set; }
+    }
+
+    public class BookingRefundDTO
+    {
+        public decimal RefundAmount { get; set; }
+        public RefundStatus RefundStatus { get; set; }
+        public DateTime? RefundDate { get; set; }
     }
 }
