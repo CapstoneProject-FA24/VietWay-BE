@@ -24,8 +24,8 @@ namespace VietWay.Service.ThirdParty.PayOS
                 amount: (int)bookingPayment.Amount,
                 description: tourName,
                 items: items,
-                returnUrl: _returnUrl,
-                cancelUrl: _returnUrl,
+                returnUrl: $"_returnUrl/{bookingPayment.PaymentId}",
+                cancelUrl: $"_returnUrl/{bookingPayment.PaymentId}",
                 expiredAt: (int)(DateTime.UtcNow.AddMinutes(15) - new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalSeconds
             );
             CreatePaymentResult result = await _payOS.createPaymentLink(paymentData);
