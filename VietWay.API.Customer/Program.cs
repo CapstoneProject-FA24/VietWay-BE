@@ -27,6 +27,7 @@ using VietWay.Util.OtpUtil;
 using VietWay.Util.TokenUtil;
 using VietWay.Service.ThirdParty.Email;
 using VietWay.Service.ThirdParty.ZaloPay;
+using VietWay.Service.ThirdParty.PayOS;
 
 namespace VietWay.API.Customer
 {
@@ -168,6 +169,7 @@ namespace VietWay.API.Customer
             builder.Services.AddScoped<ISmsService, SmsService>();
             builder.Services.AddScoped<IRedisCacheService, RedisCacheService>();
             builder.Services.AddScoped<IZaloPayService, ZaloPayService>();
+            builder.Services.AddScoped<IPayOSService, PayOSService>();
             #endregion
             builder.Services.AddSingleton<IIdGenerator, SnowflakeIdGenerator>();
             builder.Services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer
@@ -242,6 +244,17 @@ namespace VietWay.API.Customer
                     throw new Exception("ZALOPAY_KEY1 is not set in environment variables"),
                 ZaloPayKey2 = Environment.GetEnvironmentVariable("ZALOPAY_KEY2") ??
                     throw new Exception("ZALOPAY_KEY2 is not set in environment variables")
+            });
+            builder.Services.AddSingleton(s => new PayOSConfiguration
+            {
+                ApiKey = Environment.GetEnvironmentVariable("PAYOS_API_KEY") ??
+                    throw new Exception("PAYOS_API_KEY is not set in environment variables"),
+                ChecksumKey = Environment.GetEnvironmentVariable("PAYOS_CHECKSUM_KEY") ??
+                    throw new Exception("PAYOS_CHECKSUM_KEY is not set in environment variables"),
+                CLientId = Environment.GetEnvironmentVariable("PAYOS_CLIENT_ID") ??
+                    throw new Exception("PAYOS_CLIENT_ID is not set in environment variables"),
+                ReturnUrl = Environment.GetEnvironmentVariable("PAYOS_RETURN_URL") ??
+                    throw new Exception("PAYOS_RETURN_URL is not set in environment variables"),
             });
             var app = builder.Build();
             app.UseStaticFiles();

@@ -37,11 +37,11 @@ namespace VietWay.Service.Customer.Implementation
 
                 if (isActiveBookingExisted)
                 {
-                    throw new InvalidOperationException("Customer has already booked this tour");
+                    throw new InvalidActionException("Customer has already booked this tour");
                 }
                 if (tour.CurrentParticipant + booking.BookingTourists.Count > tour.MaxParticipant)
                 {
-                    throw new InvalidOperationException("Tour is full");
+                    throw new InvalidActionException("Tour is full");
                 }
                 booking.BookingId = _idGenerator.GenerateId();
                 foreach (BookingTourist tourist in booking.BookingTourists)
@@ -104,7 +104,7 @@ namespace VietWay.Service.Customer.Implementation
                     ?? throw new ResourceNotFoundException("Booking not found");
                 if (booking.Status != BookingStatus.Pending && booking.Status != BookingStatus.Deposited && booking.Status != BookingStatus.Paid)
                 {
-                    throw new InvalidOperationException("You cannot cancel this booking");
+                    throw new InvalidActionException("You cannot cancel this booking");
                 }
                 int oldStatus = (int)booking.Status;
                 booking.Status = BookingStatus.Cancelled;

@@ -10,6 +10,7 @@ using VietWay.Repository.EntityModel;
 using VietWay.Repository.EntityModel.Base;
 using VietWay.Repository.UnitOfWork;
 using VietWay.Service.Management.Interface;
+using VietWay.Service.ThirdParty.PayOS;
 using VietWay.Service.ThirdParty.VnPay;
 using VietWay.Service.ThirdParty.ZaloPay;
 using VietWay.Util.CustomExceptions;
@@ -18,7 +19,7 @@ using VietWay.Util.IdUtil;
 
 namespace VietWay.Service.Management.Implement
 {
-    public class BookingPaymentService(IUnitOfWork unitOfWork, IVnPayService vnPayService,
+    public class BookingPaymentService(IUnitOfWork unitOfWork, IVnPayService vnPayService, IPayOSService payOSService
         IIdGenerator idGenerator, ITimeZoneHelper timeZoneHelper, IZaloPayService zaloPayService) : IBookingPaymentService
     {
         private readonly IUnitOfWork _unitOfWork = unitOfWork;
@@ -26,6 +27,7 @@ namespace VietWay.Service.Management.Implement
         private readonly IIdGenerator _idGenerator = idGenerator;
         private readonly ITimeZoneHelper _timeZoneHelper = timeZoneHelper;
         private readonly IZaloPayService _zaloPayService = zaloPayService;
+        private readonly IPayOSService _payOSService = payOSService;
         public async Task<BookingPayment?> GetBookingPaymentAsync(string id)
         {
             return await _unitOfWork.BookingPaymentRepository.Query()
@@ -209,6 +211,60 @@ namespace VietWay.Service.Management.Implement
             }
             await _unitOfWork.BookingPaymentRepository.UpdateAsync(bookingPayment);
             return result;
+        }
+
+        public async Task HandlePayOsWebhook(PayOSWebhookRequest request)
+        {
+            if (_payOSService.VerifyWebhook(request) == false)
+            {
+                return;
+            }
+            BookingPayment? bookingPayment = await _unitOfWork
+                .BookingPaymentRepository
+                .Query()
+                .Include(x => x.Booking)
+                .SingleOrDefaultAsync(x => x.PaymentId.Equals(request.data.orderCode.ToString()) && x.Status == PaymentStatus.Pending);
+            if (bookingPayment == null)
+            {
+                return;
+            }
+            bookingPayment.BankCode = request.data.counterAccountBankId;
+            bookingPayment.BankTransactionNumber = request.data.reference;
+            bookingPayment.PayTime = DateTime.ParseExact(request.data.transactionDateTime, "yyyy-MM-dd HH:mm:ss", null);
+            bookingPayment.ThirdPartyTransactionNumber = request.data.paymentLinkId;
+            if (request.success == true)
+            {
+                int oldBookingStatus = (int)bookingPayment.Booking.Status;
+                bookingPayment.Status = PaymentStatus.Paid;
+                bookingPayment.Booking.Status =
+                    bookingPayment.Booking.PaidAmount + bookingPayment.Amount < bookingPayment.Booking.TotalPrice ?
+                    BookingStatus.Deposited : BookingStatus.Paid;
+                bookingPayment.Booking.PaidAmount += bookingPayment.Amount;
+                string entityHistoryId = _idGenerator.GenerateId();
+                await _unitOfWork.EntityHistoryRepository.CreateAsync(new()
+                {
+                    Action = EntityModifyAction.Update,
+                    EntityType = EntityType.Booking,
+                    EntityId = bookingPayment.BookingId,
+                    Id = entityHistoryId,
+                    ModifiedBy = bookingPayment.Booking.CustomerId,
+                    ModifierRole = UserRole.Customer,
+                    Reason = "Payment",
+                    Timestamp = _timeZoneHelper.GetUTC7Now(),
+                    StatusHistory = new()
+                    {
+                        Id = entityHistoryId,
+                        NewStatus = (int)bookingPayment.Booking.Status,
+                        OldStatus = oldBookingStatus
+                    }
+                });
+
+            }
+            else
+            {
+                bookingPayment.Status = PaymentStatus.Failed;
+            }
+            await _unitOfWork.BookingPaymentRepository.UpdateAsync(bookingPayment);
         }
     }
 }

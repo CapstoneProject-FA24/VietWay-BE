@@ -19,11 +19,11 @@ namespace VietWay.API.Management.RequestModel
         [RequiredIf(nameof(IsDraft), false)]
         public string? Description { get; set; }
         [StringLength(20)]
-        [Required]
-        public required string ProvinceId { get; set; }
+        [RequiredIf(nameof(IsDraft), false)]
+        public string? ProvinceId { get; set; }
         [StringLength(20)]
-        [Required]
-        public required string AttractionCategoryId { get; set; }
+        [RequiredIf(nameof(IsDraft), false)]
+        public string? AttractionCategoryId { get; set; }
         [StringLength(50)]
         public string? GooglePlaceId { get; set; }
         [Required]

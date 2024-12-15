@@ -26,6 +26,9 @@ using VietWay.Job.Interface;
 using VietWay.Job.Configuration;
 using VietWay.Service.ThirdParty.Email;
 using VietWay.Service.ThirdParty.ZaloPay;
+using HangfireBasicAuthenticationFilter;
+using Hangfire.Dashboard;
+using VietWay.Service.ThirdParty.PayOS;
 namespace VietWay.API.Management
 {
     public class Program
@@ -152,6 +155,7 @@ namespace VietWay.API.Management
             builder.Services.AddScoped<ITwitterService, TwitterService>();
             builder.Services.AddScoped<IEmailService, GmailService>();
             builder.Services.AddScoped<IZaloPayService, ZaloPayService>();
+            builder.Services.AddScoped<IPayOSService, PayOSService>();
 
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
             builder.Services.AddScoped<ITimeZoneHelper, TimeZoneHelper>();
@@ -258,11 +262,22 @@ namespace VietWay.API.Management
                 ZaloPayKey2 = Environment.GetEnvironmentVariable("ZALOPAY_KEY2") ??
                     throw new Exception("ZALOPAY_KEY2 is not set in environment variables")
             });
+            builder.Services.AddSingleton(s => new PayOSConfiguration
+            {
+                ApiKey = Environment.GetEnvironmentVariable("PAYOS_API_KEY") ??
+                    throw new Exception("PAYOS_API_KEY is not set in environment variables"),
+                ChecksumKey = Environment.GetEnvironmentVariable("PAYOS_CHECKSUM_KEY") ??
+                    throw new Exception("PAYOS_CHECKSUM_KEY is not set in environment variables"),
+                CLientId = Environment.GetEnvironmentVariable("PAYOS_CLIENT_ID") ??
+                    throw new Exception("PAYOS_CLIENT_ID is not set in environment variables"),
+                ReturnUrl = Environment.GetEnvironmentVariable("PAYOS_RETURN_URL") ??
+                    throw new Exception("PAYOS_RETURN_URL is not set in environment variables"),
+            });
             var app = builder.Build();
 
             IRecurringJobManager recurringJobManager = app.Services.GetRequiredService<IRecurringJobManager>();
             recurringJobManager
-                .AddOrUpdate<ITweetJob>("getTweetsDetail", (x) => x.GetPublishedTweetsJob(), () => "*/16 * * * *");
+                .AddOrUpdate<ITweetJob>("getTweetsDetail", (x) => x.GetPublishedTweetsJob(), () => "*/20 * * * *");
             recurringJobManager
                 .AddOrUpdate<IProvinceJob>("cacheProvinces", (x) => x.CacheProvinceJob(), () => "0 17 * * *");
             recurringJobManager
@@ -299,7 +314,18 @@ namespace VietWay.API.Management
             app.UseAuthorization();
             app.UseMiddleware<ErrorHandlingMiddleware>();
             app.UseMiddleware<RequestLoggingMiddleware>();
-            app.UseHangfireDashboard("/hangfire");
+            app.UseHangfireDashboard("/hangfire", new DashboardOptions
+            {
+                Authorization =
+                [
+                    new HangfireCustomBasicAuthenticationFilter  {
+                        User = Environment.GetEnvironmentVariable("HANGFIRE_DASHBOARD_USERNAME") ??
+                            throw new Exception("HANGFIRE_DASHBOARD_USERNAME is not set in environment variables"),
+                        Pass = Environment.GetEnvironmentVariable("HANGFIRE_DASHBOARD_PASSWORD") ??
+                            throw new Exception("HANGFIRE_DASHBOARD_PASSWORD is not set in environment variables")
+                    }
+                ]
+            });
             app.MapControllers();
             app.Run();
         }

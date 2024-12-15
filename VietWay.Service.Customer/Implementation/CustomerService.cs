@@ -48,7 +48,7 @@ namespace VietWay.Service.Customer.Implementation
                 .SingleOrDefaultAsync(x => x.PhoneNumber.Equals(customer.Account.PhoneNumber) || x.Email.Equals(customer.Account.Email));
             if (account != null)
             {
-                throw new InvalidOperationException("Phone number or Email has already been used");
+                throw new InvalidActionException("Phone number or Email has already been used");
             }
 
             try
@@ -80,7 +80,7 @@ namespace VietWay.Service.Customer.Implementation
                 .SingleOrDefaultAsync(x => x.PhoneNumber.Equals(customer.Account.PhoneNumber) || x.Email.Equals(email));
             if (account != null)
             {
-                throw new InvalidOperationException("Phone number or Email has already been used");
+                throw new InvalidActionException("Phone number or Email has already been used");
             }
 
             try

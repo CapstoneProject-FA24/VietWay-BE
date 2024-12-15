@@ -101,7 +101,7 @@ namespace VietWay.Service.Management.Implement
                 var existingProvince = await GetByNameAsync(province.Name);
                 if (existingProvince != null)
                 {
-                    throw new InvalidOperationException($"A category with the name '{existingProvince.Name}' already exists.");
+                    throw new InvalidActionException($"A category with the name '{existingProvince.Name}' already exists.");
                 }
 
                 province.ProvinceId ??= _idGenerator.GenerateId();

@@ -16,10 +16,10 @@ namespace VietWay.API.Management.RequestModel
         public string? Content { get; set; }
 
         [RequiredIf(nameof(IsDraft), false)]
-        public required string? PostCategoryId { get; set; }
+        public string? PostCategoryId { get; set; }
 
         [RequiredIf(nameof(IsDraft), false)]
-        public required string? ProvinceId { get; set; }
+        public string? ProvinceId { get; set; }
 
         [RequiredIf(nameof(IsDraft), false)]
         public string? Description { get; set; }
