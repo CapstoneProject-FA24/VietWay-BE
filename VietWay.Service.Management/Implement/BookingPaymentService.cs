@@ -19,7 +19,7 @@ using VietWay.Util.IdUtil;
 
 namespace VietWay.Service.Management.Implement
 {
-    public class BookingPaymentService(IUnitOfWork unitOfWork, IVnPayService vnPayService, IPayOSService payOSService
+    public class BookingPaymentService(IUnitOfWork unitOfWork, IVnPayService vnPayService, IPayOSService payOSService,
         IIdGenerator idGenerator, ITimeZoneHelper timeZoneHelper, IZaloPayService zaloPayService) : IBookingPaymentService
     {
         private readonly IUnitOfWork _unitOfWork = unitOfWork;
