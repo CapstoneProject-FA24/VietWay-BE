@@ -26,6 +26,8 @@ using VietWay.Job.Interface;
 using VietWay.Job.Configuration;
 using VietWay.Service.ThirdParty.Email;
 using VietWay.Service.ThirdParty.ZaloPay;
+using HangfireBasicAuthenticationFilter;
+using Hangfire.Dashboard;
 namespace VietWay.API.Management
 {
     public class Program
@@ -262,7 +264,7 @@ namespace VietWay.API.Management
 
             IRecurringJobManager recurringJobManager = app.Services.GetRequiredService<IRecurringJobManager>();
             recurringJobManager
-                .AddOrUpdate<ITweetJob>("getTweetsDetail", (x) => x.GetPublishedTweetsJob(), () => "*/16 * * * *");
+                .AddOrUpdate<ITweetJob>("getTweetsDetail", (x) => x.GetPublishedTweetsJob(), () => "*/20 * * * *");
             recurringJobManager
                 .AddOrUpdate<IProvinceJob>("cacheProvinces", (x) => x.CacheProvinceJob(), () => "0 17 * * *");
             recurringJobManager
@@ -299,7 +301,18 @@ namespace VietWay.API.Management
             app.UseAuthorization();
             app.UseMiddleware<ErrorHandlingMiddleware>();
             app.UseMiddleware<RequestLoggingMiddleware>();
-            app.UseHangfireDashboard("/hangfire");
+            app.UseHangfireDashboard("/hangfire", new DashboardOptions
+            {
+                Authorization =
+                [
+                    new HangfireCustomBasicAuthenticationFilter  {
+                        User = Environment.GetEnvironmentVariable("HANGFIRE_DASHBOARD_USERNAME") ??
+                            throw new Exception("HANGFIRE_DASHBOARD_USERNAME is not set in environment variables"),
+                        Pass = Environment.GetEnvironmentVariable("HANGFIRE_DASHBOARD_PASSWORD") ??
+                            throw new Exception("HANGFIRE_DASHBOARD_PASSWORD is not set in environment variables")
+                    }
+                ]
+            });
             app.MapControllers();
             app.Run();
         }

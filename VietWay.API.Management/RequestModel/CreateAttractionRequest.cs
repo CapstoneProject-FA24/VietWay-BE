@@ -20,10 +20,10 @@ namespace VietWay.API.Management.RequestModel
         public string? Description { get; set; }
         [StringLength(20)]
         [Required]
-        public required string ProvinceId { get; set; }
+        public string? ProvinceId { get; set; }
         [StringLength(20)]
         [Required]
-        public required string AttractionCategoryId { get; set; }
+        public string? AttractionCategoryId { get; set; }
         [StringLength(50)]
         public string? GooglePlaceId { get; set; }
         [Required]

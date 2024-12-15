@@ -9,9 +9,9 @@ namespace VietWay.API.Management.RequestModel
         public string? TourName { get; set; }
         public string? Description { get; set; }
         [Required]
-        public required string DurationId { get; set; }
+        public string? DurationId { get; set; }
         [Required]
-        public required string TourCategoryId { get; set; }
+        public string? TourCategoryId { get; set; }
         public string? Note { get; set; }
         public decimal? MinPrice { get; set; }
         public decimal? MaxPrice { get; set; }
