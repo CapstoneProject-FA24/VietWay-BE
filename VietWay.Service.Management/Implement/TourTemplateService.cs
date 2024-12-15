@@ -27,7 +27,7 @@ namespace VietWay.Service.Management.Implement
             var existingCode = await GetByCodeAsync(tourTemplate.Code);
             if (existingCode != null)
             {
-                throw new InvalidOperationException($"A category with the name '{existingCode.Code}' already exists.");
+                throw new InvalidActionException($"A category with the name '{existingCode.Code}' already exists.");
             }
 
             if (tourTemplate.MinPrice == 0 || tourTemplate.MaxPrice == 0)

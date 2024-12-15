@@ -164,31 +164,12 @@ namespace VietWay.API.Customer.Controllers
                     StatusCode = StatusCodes.Status401Unauthorized
                 });
             }
-            try
-            {
                 await _bookingService.CancelBookingAsync(customerId, bookingId, cancelBookingRequest.Reason);
                 return Ok(new DefaultResponseModel<object>()
                 {
                     Message = "Booking cancelled successfully",
                     StatusCode = StatusCodes.Status200OK
                 });
-            }
-            catch (InvalidOperationException)
-            {
-                return BadRequest(new DefaultResponseModel<object>()
-                {
-                    Message = "Booking is not cancellable",
-                    StatusCode = StatusCodes.Status400BadRequest
-                });
-            }
-            catch (ResourceNotFoundException)
-            {
-                return NotFound(new DefaultResponseModel<object>()
-                {
-                    Message = "Can not find booking with id",
-                    StatusCode = StatusCodes.Status404NotFound
-                });
-            }
         }
 
         [HttpGet("{bookingId}/payments")]
