@@ -36,11 +36,11 @@ namespace VietWay.Service.Management.Implement
 
             if (!checkPassword)
             {
-                throw new InvalidOperationException("Incorrect password");
+                throw new InvalidActionException("Incorrect password");
             }
             else if (oldPassword.Equals(newPassword))
             {
-                throw new InvalidOperationException("Your new password cannot be the same as your current password.");
+                throw new InvalidActionException("Your new password cannot be the same as your current password.");
             }
 
             staff.Account.Password = _hashHelper.Hash(newPassword);

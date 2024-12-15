@@ -28,7 +28,7 @@ namespace VietWay.Service.Management.Implement
                 throw new ResourceNotFoundException("Post not found");
             if (post.FacebookPostId.IsNullOrEmpty())
             {
-                throw new InvalidOperationException("The post has not been published");
+                throw new InvalidActionException("The post has not been published");
             }
             Task<int> countCommentTask = _facebookService.GetPostCommentCountAsync(post.FacebookPostId!);
             Task<int> countShareTask = _facebookService.GetPostShareCountAsync(post.FacebookPostId!);

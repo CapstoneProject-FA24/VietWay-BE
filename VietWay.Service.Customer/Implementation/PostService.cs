@@ -9,6 +9,7 @@ using VietWay.Repository.EntityModel;
 using VietWay.Repository.UnitOfWork;
 using VietWay.Service.Customer.DataTransferObject;
 using VietWay.Service.Customer.Interface;
+using VietWay.Util.CustomExceptions;
 
 namespace VietWay.Service.Customer.Implementation
 {
@@ -128,7 +129,7 @@ namespace VietWay.Service.Customer.Implementation
                 }
                 else
                 {
-                    throw new InvalidOperationException(nameof(PostLike));
+                    throw new InvalidActionException(nameof(PostLike));
                 }
                 await _unitOfWork.CommitTransactionAsync();
             }

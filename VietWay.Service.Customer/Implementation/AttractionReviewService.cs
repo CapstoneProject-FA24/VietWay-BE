@@ -145,7 +145,7 @@ namespace VietWay.Service.Customer.Implementation
                 }
                 else
                 {
-                    throw new InvalidOperationException(nameof(AttractionReviewLike));
+                    throw new (nameof(AttractionReviewLike));
                 }
                 await _unitOfWork.CommitTransactionAsync();
             }
