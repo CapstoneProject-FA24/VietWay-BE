@@ -84,7 +84,7 @@ namespace VietWay.Service.Customer.Implementation
         {
             Booking? tourBooking = await _unitOfWork.BookingRepository
                 .Query()
-                .Include(x => x.Tour.TourTemplate.TourName)
+                .Include(x => x.Tour.TourTemplate)
                 .SingleOrDefaultAsync(x => x.BookingId.Equals(bookingId) && x.CustomerId.Equals(customerId));
             if (tourBooking == null || (tourBooking.Status != BookingStatus.Pending && tourBooking.Status != BookingStatus.Deposited))
             {
