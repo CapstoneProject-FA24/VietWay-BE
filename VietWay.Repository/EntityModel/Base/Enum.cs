@@ -51,8 +51,7 @@
     {
         Pending,
         Paid,
-        Failed,
-        Refunded
+        Failed
     }
     public enum EntityType
     {
@@ -96,7 +95,6 @@
     public enum PaymentMethod
     {
         VNPay,
-        Momo,
         ZaloPay,
         PayOS
     }
