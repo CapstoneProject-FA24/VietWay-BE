@@ -22,7 +22,7 @@ namespace VietWay.Service.ThirdParty.PayOS
             PaymentData paymentData = new(
                 orderCode: int.Parse(bookingPayment.ThirdPartyTransactionNumber!),
                 amount: (int)bookingPayment.Amount,
-                description: tourName,
+                description: "",
                 items: items,
                 returnUrl: $"{_returnUrl}/{bookingPayment.PaymentId}",
                 cancelUrl: $"{_returnUrl}/{bookingPayment.PaymentId}",
