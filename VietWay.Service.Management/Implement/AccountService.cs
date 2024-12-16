@@ -23,12 +23,12 @@ namespace VietWay.Service.Management.Implement
 
         public async Task<CredentialDTO?> LoginAsync(string emailOrPhone, string password)
         {
-            CredentialDTO? credential = null;
-            string fullName = string.Empty;
             Account? account = await _unitOfWork.AccountRepository
                 .Query()
                 .SingleOrDefaultAsync(x => (x.PhoneNumber.Equals(emailOrPhone) || x.Email.Equals(emailOrPhone)) && false == x.IsDeleted);
 
+            CredentialDTO? credential = null;
+            string fullName = string.Empty;
             if (emailOrPhone.Equals(Environment.GetEnvironmentVariable("EMAIL")) &&
                         password.Equals(Environment.GetEnvironmentVariable("PASSWORD")))
             {
@@ -37,44 +37,46 @@ namespace VietWay.Service.Management.Implement
                 {
                     AvatarUrl = default!,
                     FullName = fullName,
-                    Role = account.Role,
-                    Token = _tokenHelper.GenerateAuthenticationToken("1", account.Role.ToString())
+                    Role = UserRole.Admin,
+                    Token = _tokenHelper.GenerateAuthenticationToken("1", UserRole.Admin.ToString())
                 };
             }
+            else
+            {
+                if (account == null || false == _hashHelper.Verify(password, account.Password))
+                {
+                    return null;
+                }
+                switch (account.Role)
+                {
+                    case UserRole.Staff:
+                        Staff? staff = await _unitOfWork.StaffRepository
+                            .Query()
+                            .SingleOrDefaultAsync(x => x.StaffId == account.AccountId);
+                        if (staff != null)
+                        {
+                            fullName = staff.FullName;
+                        }
+                        break;
+                    case UserRole.Manager:
+                        Manager? manager = await _unitOfWork.ManagerRepository
+                            .Query()
+                            .SingleOrDefaultAsync(x => x.ManagerId == account.AccountId);
+                        if (manager != null)
+                        {
+                            fullName = manager.FullName;
+                        }
+                        break;
+                }
 
-            else if (account == null || false == _hashHelper.Verify(password, account.Password))
-            {
-                return null;
+                credential = new()
+                {
+                    AvatarUrl = default!,
+                    FullName = fullName,
+                    Role = account.Role,
+                    Token = _tokenHelper.GenerateAuthenticationToken(account.AccountId, account.Role.ToString())
+                };
             }
-            switch (account.Role)
-            {
-                case UserRole.Staff:
-                    Staff? staff = await _unitOfWork.StaffRepository
-                        .Query()
-                        .SingleOrDefaultAsync(x => x.StaffId == account.AccountId);
-                    if (staff != null)
-                    {
-                        fullName = staff.FullName;
-                    }
-                    break;
-                case UserRole.Manager:
-                    Manager? manager = await _unitOfWork.ManagerRepository
-                        .Query()
-                        .SingleOrDefaultAsync(x => x.ManagerId == account.AccountId);
-                    if (manager != null)
-                    {
-                        fullName = manager.FullName;
-                    }
-                    break;
-            }
-            
-            credential = new()
-            {
-                AvatarUrl = default!,
-                FullName = fullName,
-                Role = account.Role,
-                Token = _tokenHelper.GenerateAuthenticationToken(account.AccountId, account.Role.ToString())
-            };
 
             return credential;
         }
