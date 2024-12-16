@@ -40,20 +40,19 @@ namespace VietWay.Service.Customer.Implementation
 
         public async Task RegisterAccountAsync(Repository.EntityModel.Customer customer)
         {
-            Province? province = await _unitOfWork.ProvinceRepository.Query()
-                .SingleOrDefaultAsync(x => x.ProvinceId.Equals(customer.ProvinceId) && false == x.IsDeleted) ??
-                throw new ResourceNotFoundException("Province not found");
-
-            Account? account = await _unitOfWork.AccountRepository.Query()
-                .SingleOrDefaultAsync(x => x.PhoneNumber.Equals(customer.Account.PhoneNumber) || x.Email.Equals(customer.Account.Email));
-            if (account != null)
-            {
-                throw new InvalidActionException("Phone number or Email has already been used");
-            }
-
             try
             {
                 await _unitOfWork.BeginTransactionAsync();
+                Province? province = await _unitOfWork.ProvinceRepository.Query()
+                    .SingleOrDefaultAsync(x => x.ProvinceId.Equals(customer.ProvinceId) && false == x.IsDeleted) ??
+                    throw new ResourceNotFoundException("Province not found");
+
+                Account? account = await _unitOfWork.AccountRepository.Query()
+                    .SingleOrDefaultAsync(x => x.PhoneNumber.Equals(customer.Account.PhoneNumber) || x.Email.Equals(customer.Account.Email));
+                if (account != null)
+                {
+                    throw new InvalidActionException("Phone number or Email has already been used");
+                }
                 string accountId = _idGenerator.GenerateId();
                 customer.CustomerId = accountId;
                 customer.Account.AccountId = accountId;

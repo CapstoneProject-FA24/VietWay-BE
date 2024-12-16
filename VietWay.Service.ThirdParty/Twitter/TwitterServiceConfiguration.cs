@@ -1,12 +1,17 @@
 ﻿namespace VietWay.Service.ThirdParty.Twitter
 {
-    public class TwitterServiceConfiguration
+    public class TwitterServiceConfiguration(string xApiKey, string xApiKeySecret, string xAccessToken, string xAccessTokenSecret, string bearerToken)
     {
-        public required string XApiKey { get; set; }
-        public required string XApiKeySecret { get; set; }
-        public required string XAccessToken { get; set; }
-        public required string XAccessTokenSecret { get; set; }
-        public required string BearerToken { get; set; }
+        private readonly string _xApiKey = xApiKey;
+        private readonly string _xApiKeySecret = xApiKeySecret;
+        private readonly string _xAccessToken = xAccessToken;
+        private readonly string _xAccessTokenSecret = xAccessTokenSecret;
+        private readonly string _bearerToken = bearerToken;
+        public string XApiKey { get => _xApiKey; }
+        public string XApiKeySecret { get => _xApiKeySecret; }
+        public string XAccessToken { get => _xAccessToken; }
+        public string XAccessTokenSecret { get => _xAccessTokenSecret; }
+        public string BearerToken { get => _bearerToken; }
 
     }
 }

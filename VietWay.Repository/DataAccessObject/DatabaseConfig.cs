@@ -6,8 +6,9 @@ using System.Threading.Tasks;
 
 namespace VietWay.Repository.DataAccessObject
 {
-    public class DatabaseConfig
+    public class DatabaseConfig(string connectionString)
     {
-        public required string ConnectionString { get; set; }
+        private readonly string _connectionString = connectionString;
+        public string ConnectionString { get => _connectionString; }
     }
 }

@@ -6,8 +6,9 @@ using System.Threading.Tasks;
 
 namespace VietWay.Service.Customer.Configuration
 {
-    public class TourReviewServiceConfiguration
+    public class TourReviewServiceConfiguration(int reviewTourExpireAfterDays)
     {
-        public int ReviewTourExpireAfterDays { get; set; }
+        private readonly int _reviewTourExpireAfterDays = reviewTourExpireAfterDays;
+        public int ReviewTourExpireAfterDays { get => _reviewTourExpireAfterDays; }
     }
 }

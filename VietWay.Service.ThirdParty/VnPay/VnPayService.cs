@@ -11,7 +11,7 @@ namespace VietWay.Service.ThirdParty.VnPay
         private readonly string _vnpHashSecret = config.VnpHashSecret;
         private readonly string _vnpTmnCode = config.VnpTmnCode;
 
-        public string GetPaymentUrl(BookingPayment payment, string userIpAddress)
+        public string GetPaymentUrl(BookingPayment payment, string userIpAddress, int expireAfterMinutes)
         {
             const string vnpVersion = "2.1.0";
             const string vnpCommand = "pay";
@@ -30,7 +30,7 @@ namespace VietWay.Service.ThirdParty.VnPay
             {
                 vnpReturnUrl = Uri.EscapeDataString("https://vietway.projectpioneer.id.vn/dat-tour/thanh-toan/hoan-thanh/" + payment.BookingId);
             }
-            string vnpExpireDate = _timeZoneHelper.GetUTC7Now().AddHours(1).ToString("yyyyMMddHHmmss");
+            string vnpExpireDate = _timeZoneHelper.GetUTC7Now().AddMinutes(expireAfterMinutes).ToString("yyyyMMddHHmmss");
             string vnpTxnRef = payment.PaymentId;
             string ipAddress = Uri.EscapeDataString(userIpAddress);
             string hashSource = $"vnp_Amount={vnpAmount}&" +

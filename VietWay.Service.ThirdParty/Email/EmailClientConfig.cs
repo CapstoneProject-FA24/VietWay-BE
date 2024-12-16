@@ -6,11 +6,15 @@ using System.Threading.Tasks;
 
 namespace VietWay.Service.ThirdParty.Email
 {
-    public class EmailClientConfig
+    public class EmailClientConfig(string senderEmail, string appPassword, string smtpHost, int smtpPort)
     {
-        public required string SenderEmail { get; set; }
-        public required string AppPassword { get; set; }
-        public required string SmtpHost { get; set; }
-        public required int SmtpPort { get; set; }
+        private readonly string _senderEmail = senderEmail;
+        private readonly string _appPassword = appPassword;
+        private readonly string _smtpHost = smtpHost;
+        private readonly int _smtpPort = smtpPort;
+        public string SenderEmail { get => _senderEmail; }
+        public string AppPassword { get => _appPassword; }
+        public string SmtpHost { get => _smtpHost; }
+        public int SmtpPort { get => _smtpPort; }
     }
 }

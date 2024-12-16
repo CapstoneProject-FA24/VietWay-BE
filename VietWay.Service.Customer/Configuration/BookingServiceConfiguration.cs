@@ -6,8 +6,9 @@ using System.Threading.Tasks;
 
 namespace VietWay.Service.Customer.Configuration
 {
-    public class BookingServiceConfiguration
+    public class BookingServiceConfiguration(int pendingBookingExpireAfterMinutes)
     {
-        public int PendingBookingExpireAfterMinutes { get; set; }
+        private readonly int _pendingBookingExpireAfterMinutes = pendingBookingExpireAfterMinutes;
+        public int PendingBookingExpireAfterMinutes { get => _pendingBookingExpireAfterMinutes; }
     }
 }
