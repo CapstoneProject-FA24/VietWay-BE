@@ -169,109 +169,83 @@ namespace VietWay.API.Management
             builder.Services.AddScoped<IBookingJob, BookingJob>();
             builder.Services.AddScoped<ITourJob, TourJob>();
             builder.Services.AddScoped<ITweetJob, TweetJob>();
-
             #endregion
+            #region builder.Services.AddSingleton(...);
             builder.Services.AddSingleton<IIdGenerator, SnowflakeIdGenerator>();
             builder.Services.AddSingleton<IRecurringJobManager, RecurringJobManager>();
             builder.Services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer
                 .Connect(Environment.GetEnvironmentVariable("REDIS_CONNECTION_STRING") ??
                     throw new Exception("REDIS_CONNECTION_STRING is not set in environment variables")));
-            builder.Services.AddSingleton(config => new FacebookApiConfig
-            {
-                PageId = Environment.GetEnvironmentVariable("FACEBOOK_PAGE_ID") ??
-                    throw new Exception("FACEBOOK_PAGE_ID is not set in environment variables"),
-                PageAccessToken = Environment.GetEnvironmentVariable("FACEBOOK_PAGE_ACCESS_TOKEN") ??
-                    throw new Exception("FACEBOOK_PAGE_ACCESS_TOKEN is not set in environment variables")
-            });
-            builder.Services.AddSingleton(s => new CloudinaryApiConfig
-            {
-                ApiKey = Environment.GetEnvironmentVariable("CLOUDINARY_API_KEY") ??
-                    throw new Exception("CLOUDINARY_API_KEY is not set in environment variables"),
-                ApiSecret = Environment.GetEnvironmentVariable("CLOUDINARY_API_SECRET") ??
-                    throw new Exception("CLOUDINARY_API_SECRET is not set in environment variables"),
-                CloudName = Environment.GetEnvironmentVariable("CLOUDINARY_CLOUD_NAME") ??
-                    throw new Exception("CLOUDINARY_CLOUD_NAME is not set in environment variables")
-            });
-            builder.Services.AddSingleton(s => new DatabaseConfig
-            {
-                ConnectionString = Environment.GetEnvironmentVariable("SQL_CONNECTION_STRING") ??
-                    throw new Exception("SQL_CONNECTION_STRING is not set in environment variables")
-            });
-            builder.Services.AddSingleton(s => new TokenConfig
-            {
-                Audience = Environment.GetEnvironmentVariable("JWT_AUDIENCE") ??
-                    throw new Exception("JWT_AUDIENCE is not set in environment variables"),
-                Issuer = Environment.GetEnvironmentVariable("JWT_ISSUER") ??
-                    throw new Exception("JWT_ISSUER is not set in environment variables"),
-                Secret = Environment.GetEnvironmentVariable("JWT_KEY") ??
-                    throw new Exception("JWT_KEY is not set in environment variables")
-            });
-            builder.Services.AddSingleton(s => new TwitterServiceConfiguration
-            {
-                XApiKey = Environment.GetEnvironmentVariable("X_API_KEY") ??
-                    throw new Exception("X_API_KEY is not set in environment variables"),
-                XApiKeySecret = Environment.GetEnvironmentVariable("X_API_KEY_SECRET") ??
-                    throw new Exception("X_API_KEY_SECRET is not set in environment variables"),
-                XAccessToken = Environment.GetEnvironmentVariable("X_ACCESS_TOKEN") ??
-                    throw new Exception("X_ACCESS_TOKEN is not set in environment variables"),
-                XAccessTokenSecret = Environment.GetEnvironmentVariable("X_ACCESS_TOKEN_SECRET") ??
-                    throw new Exception("X_ACCESS_TOKEN_SECRET is not set in environment variables"),
-                BearerToken = Environment.GetEnvironmentVariable("X_BEARER_TOKEN") ??
-                    throw new Exception("X_BEARER_TOKEN is not set in environment variables")
-            });
-            builder.Services.AddSingleton(s => new VnPayConfiguration
-            {
-                VnpHashSecret = Environment.GetEnvironmentVariable("VNPAY_HASH_SECRET") ??
-                    throw new Exception("VNPAY_HASH_SECRET is not set in environment variables"),
-                VnpTmnCode = Environment.GetEnvironmentVariable("VNPAY_TMN_CODE") ??
-                    throw new Exception("VNPAY_TMN_CODE is not set in environment variables")
-            });
-            builder.Services.AddSingleton(s => new EmailJobConfiguration
-            {
-                CancelBookingTemplate = Environment.GetEnvironmentVariable("MAIL_SEND_CANCEL_TOUR_MESSAGE") ??
-                    throw new Exception("MAIL_SEND_CANCEL_TOUR_MESSAGE is not set in environment variables"),
-                ConfirmBookingTemplate = Environment.GetEnvironmentVariable("MAIL_SEND_CONFIRM_TOUR_MESSAGE") ??
-                    throw new Exception("MAIL_SEND_CONFIRM_TOUR_MESSAGE is not set in environment variables"),
-            });
-            builder.Services.AddSingleton(s => new EmailClientConfig
-            {
-                AppPassword = Environment.GetEnvironmentVariable("GOOGLE_APP_PASSWORD") ??
-                    throw new Exception("GOOGLE_APP_PASSWORD is not set in environment variables"),
-                SenderEmail = Environment.GetEnvironmentVariable("GOOGLE_SENDER_EMAIL") ??
-                    throw new Exception("GOOGLE_SENDER_EMAIL is not set in environment variables"),
-                SmtpHost = Environment.GetEnvironmentVariable("GOOGLE_SMTP_HOST") ??
-                    throw new Exception("GOOGLE_SMTP_HOST is not set in environment variables"),
-                SmtpPort = int.Parse(Environment.GetEnvironmentVariable("GOOGLE_SMTP_PORT") ??
-                    throw new Exception("GOOGLE_SMTP_PORT is not set in environment variables")),
-            });
+            builder.Services.AddSingleton(s => new FacebookApiConfig(
+    pageId: Environment.GetEnvironmentVariable("FACEBOOK_PAGE_ID") ?? throw new Exception("FACEBOOK_PAGE_ID is not set in environment variables"),
+    pageAccessToken: Environment.GetEnvironmentVariable("FACEBOOK_PAGE_ACCESS_TOKEN") ?? throw new Exception("FACEBOOK_PAGE_ACCESS_TOKEN is not set in environment variables")
+));
+
+            builder.Services.AddSingleton(s => new CloudinaryApiConfig(
+                apiKey: Environment.GetEnvironmentVariable("CLOUDINARY_API_KEY") ?? throw new Exception("CLOUDINARY_API_KEY is not set in environment variables"),
+                apiSecret: Environment.GetEnvironmentVariable("CLOUDINARY_API_SECRET") ?? throw new Exception("CLOUDINARY_API_SECRET is not set in environment variables"),
+                cloudName: Environment.GetEnvironmentVariable("CLOUDINARY_CLOUD_NAME") ?? throw new Exception("CLOUDINARY_CLOUD_NAME is not set in environment variables")
+            ));
+
+            builder.Services.AddSingleton(s => new DatabaseConfig(
+                connectionString: Environment.GetEnvironmentVariable("SQL_CONNECTION_STRING") ?? throw new Exception("SQL_CONNECTION_STRING is not set in environment variables")
+            ));
+
+            builder.Services.AddSingleton(s => new TokenConfig(
+                audience: Environment.GetEnvironmentVariable("JWT_AUDIENCE") ?? throw new Exception("JWT_AUDIENCE is not set in environment variables"),
+                issuer: Environment.GetEnvironmentVariable("JWT_ISSUER") ?? throw new Exception("JWT_ISSUER is not set in environment variables"),
+                secret: Environment.GetEnvironmentVariable("JWT_KEY") ?? throw new Exception("JWT_KEY is not set in environment variables"),
+                tokenExpireAfterMinutes: int.Parse(Environment.GetEnvironmentVariable("JWT_EXPIRE_AFTER_MINUTES") ?? throw new Exception("JWT_EXPIRE_AFTER_MINUTES is not set in environment variables"))
+            ));
+
+            builder.Services.AddSingleton(s => new TwitterServiceConfiguration(
+                xApiKey: Environment.GetEnvironmentVariable("X_API_KEY") ?? throw new Exception("X_API_KEY is not set in environment variables"),
+                xApiKeySecret: Environment.GetEnvironmentVariable("X_API_KEY_SECRET") ?? throw new Exception("X_API_KEY_SECRET is not set in environment variables"),
+                xAccessToken: Environment.GetEnvironmentVariable("X_ACCESS_TOKEN") ?? throw new Exception("X_ACCESS_TOKEN is not set in environment variables"),
+                xAccessTokenSecret: Environment.GetEnvironmentVariable("X_ACCESS_TOKEN_SECRET") ?? throw new Exception("X_ACCESS_TOKEN_SECRET is not set in environment variables"),
+                bearerToken: Environment.GetEnvironmentVariable("X_BEARER_TOKEN") ?? throw new Exception("X_BEARER_TOKEN is not set in environment variables")
+            ));
+
+            builder.Services.AddSingleton(s => new VnPayConfiguration(
+                vnpHashSecret: Environment.GetEnvironmentVariable("VNPAY_HASH_SECRET") ?? throw new Exception("VNPAY_HASH_SECRET is not set in environment variables"),
+                vnpTmnCode: Environment.GetEnvironmentVariable("VNPAY_TMN_CODE") ?? throw new Exception("VNPAY_TMN_CODE is not set in environment variables"),
+                returnUrl: Environment.GetEnvironmentVariable("RETURN_URL") ?? throw new Exception("RETURN_URL is not set in environment variables")
+            ));
+
+            builder.Services.AddSingleton(s => new EmailJobConfiguration(
+                cancelBookingTemplate: Environment.GetEnvironmentVariable("MAIL_SEND_CANCEL_TOUR_MESSAGE") ?? throw new Exception("MAIL_SEND_CANCEL_TOUR_MESSAGE is not set in environment variables"),
+                confirmBookingTemplate: Environment.GetEnvironmentVariable("MAIL_SEND_CONFIRM_TOUR_MESSAGE") ?? throw new Exception("MAIL_SEND_CONFIRM_TOUR_MESSAGE is not set in environment variables")
+            ));
+
+            builder.Services.AddSingleton(s => new EmailClientConfig(
+                appPassword: Environment.GetEnvironmentVariable("GOOGLE_APP_PASSWORD") ?? throw new Exception("GOOGLE_APP_PASSWORD is not set in environment variables"),
+                senderEmail: Environment.GetEnvironmentVariable("GOOGLE_SENDER_EMAIL") ?? throw new Exception("GOOGLE_SENDER_EMAIL is not set in environment variables"),
+                smtpHost: Environment.GetEnvironmentVariable("GOOGLE_SMTP_HOST") ?? throw new Exception("GOOGLE_SMTP_HOST is not set in environment variables"),
+                smtpPort: int.Parse(Environment.GetEnvironmentVariable("GOOGLE_SMTP_PORT") ?? throw new Exception("GOOGLE_SMTP_PORT is not set in environment variables"))
+            ));
+
+            builder.Services.AddSingleton(s => new ZaloPayServiceConfiguration(
+                zaloPayAppId: Environment.GetEnvironmentVariable("ZALOPAY_APP_ID") ?? throw new Exception("ZALOPAY_APP_ID is not set in environment variables"),
+                zaloPayAppUser: Environment.GetEnvironmentVariable("ZALOPAY_APP_USER") ?? throw new Exception("ZALOPAY_APP_USER is not set in environment variables"),
+                zaloPayKey1: Environment.GetEnvironmentVariable("ZALOPAY_KEY1") ?? throw new Exception("ZALOPAY_KEY1 is not set in environment variables"),
+                zaloPayKey2: Environment.GetEnvironmentVariable("ZALOPAY_KEY2") ?? throw new Exception("ZALOPAY_KEY2 is not set in environment variables"),
+                returnUrl: Environment.GetEnvironmentVariable("RETURN_URL") ?? throw new Exception("RETURN_URL is not set in environment variables")
+            ));
+
+            builder.Services.AddSingleton(s => new PayOSConfiguration(
+                apiKey: Environment.GetEnvironmentVariable("PAYOS_API_KEY") ?? throw new Exception("PAYOS_API_KEY is not set in environment variables"),
+                checksumKey: Environment.GetEnvironmentVariable("PAYOS_CHECKSUM_KEY") ?? throw new Exception("PAYOS_CHECKSUM_KEY is not set in environment variables"),
+                clientId: Environment.GetEnvironmentVariable("PAYOS_CLIENT_ID") ?? throw new Exception("PAYOS_CLIENT_ID is not set in environment variables"),
+                returnUrl: Environment.GetEnvironmentVariable("RETURN_URL") ?? throw new Exception("RETURN_URL is not set in environment variables")
+            ));
+            #endregion
+
             builder.Services.AddHttpClient<IFacebookService, FacebookService>(HttpClient =>
             {
 
                 string graphApiBaseUrl = Environment.GetEnvironmentVariable("FACEBOOK_GRAPH_API_BASE_URL") ??
                     throw new Exception("FACEBOOK_GRAPH_API_BASE_URL is not set in environment variables");
                 HttpClient.BaseAddress = new Uri(graphApiBaseUrl);
-            });
-            builder.Services.AddSingleton(s => new ZaloPayServiceConfiguration
-            {
-                ZaloPayAppId = Environment.GetEnvironmentVariable("ZALOPAY_APP_ID") ??
-                    throw new Exception("ZALOPAY_APP_ID is not set in environment variables"),
-                ZaloPayAppUser = Environment.GetEnvironmentVariable("ZALOPAY_APP_USER") ??
-                    throw new Exception("ZALOPAY_APP_USER is not set in environment variables"),
-                ZaloPayKey1 = Environment.GetEnvironmentVariable("ZALOPAY_KEY1") ??
-                    throw new Exception("ZALOPAY_KEY1 is not set in environment variables"),
-                ZaloPayKey2 = Environment.GetEnvironmentVariable("ZALOPAY_KEY2") ??
-                    throw new Exception("ZALOPAY_KEY2 is not set in environment variables")
-            });
-            builder.Services.AddSingleton(s => new PayOSConfiguration
-            {
-                ApiKey = Environment.GetEnvironmentVariable("PAYOS_API_KEY") ??
-                    throw new Exception("PAYOS_API_KEY is not set in environment variables"),
-                ChecksumKey = Environment.GetEnvironmentVariable("PAYOS_CHECKSUM_KEY") ??
-                    throw new Exception("PAYOS_CHECKSUM_KEY is not set in environment variables"),
-                CLientId = Environment.GetEnvironmentVariable("PAYOS_CLIENT_ID") ??
-                    throw new Exception("PAYOS_CLIENT_ID is not set in environment variables"),
-                ReturnUrl = Environment.GetEnvironmentVariable("PAYOS_RETURN_URL") ??
-                    throw new Exception("PAYOS_RETURN_URL is not set in environment variables"),
             });
             var app = builder.Build();
 

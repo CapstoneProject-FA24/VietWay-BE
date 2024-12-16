@@ -6,9 +6,11 @@ using System.Threading.Tasks;
 
 namespace VietWay.Service.ThirdParty.GoogleGemini
 {
-    public class GeminiApiConfig
+    public class GeminiApiConfig(string apiKey, string? systemPrompt)
     {
-        public required string ApiKey { get; set; }
-        public string? SystemPrompt { get; set; }
+        private readonly string _apiKey = apiKey;
+        private readonly string? _systemPrompt = systemPrompt;
+        public string ApiKey { get => _apiKey; }
+        public string? SystemPrompt { get => _systemPrompt; }
     }
 }

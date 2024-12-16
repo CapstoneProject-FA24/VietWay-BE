@@ -6,9 +6,11 @@ using System.Threading.Tasks;
 
 namespace VietWay.Service.ThirdParty.Facebook
 {
-    public class FacebookApiConfig
+    public class FacebookApiConfig(string pageId, string pageAccessToken)
     {
-        public required string PageId { get; set; }
-        public required string PageAccessToken { get; set; }
+        private readonly string _pageId = pageId;
+        private readonly string _pageAccessToken = pageAccessToken;
+        public string PageId { get => _pageId; }
+        public string PageAccessToken { get => _pageAccessToken; }
     }
 }

@@ -6,9 +6,11 @@ using System.Threading.Tasks;
 
 namespace VietWay.Util.OtpUtil
 {
-    public class OtpGeneratorConfiguration
+    public class OtpGeneratorConfiguration(int length, int expiryTimeInMinute)
     {
-        public int Length { get; set; }
-        public int ExpiryTimeInMinute { get; set; }
+        private readonly int _length = length;
+        private readonly int _expiryTimeInMinute = expiryTimeInMinute;
+        public int Length { get => _length; }
+        public int ExpiryTimeInMinute { get => _expiryTimeInMinute; }
     }
 }

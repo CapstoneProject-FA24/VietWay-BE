@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -42,6 +43,25 @@ namespace VietWay.Service.ThirdParty.Redis
             KeyValuePair<RedisKey, RedisValue>[] keyValues = dictionary
                 .Select(x => new KeyValuePair<RedisKey, RedisValue>(x.Key, JsonSerializer.Serialize(x.Value))).ToArray();
             await _database.StringSetAsync(keyValues, When.Always, CommandFlags.FireAndForget);
+        }
+
+        public async Task<int> CreateIntId(string value, TimeSpan? expiry = null)
+        {
+            int newId;
+
+            do
+            {
+                newId = RandomNumberGenerator.GetInt32(int.MaxValue);
+            } 
+            while ((await _database.StringGetAsync($"int32Id:{newId}")).HasValue);
+
+            await _database.StringSetAsync($"int32Id:{newId}", value, expiry);
+            return newId;
+        }
+
+        public async Task<string?> GetValueFromIntId(int id)
+        {
+            return await _database.StringGetAsync($"int32Id:{id}");
         }
     }
 }

@@ -10,23 +10,23 @@ namespace VietWay.Service.ThirdParty.PayOS
 {
     public class PayOSService(PayOSConfiguration config) : IPayOSService
     {
-        private readonly Net.payOS.PayOS _payOS = new(config.CLientId, config.ApiKey, config.ChecksumKey);
+        private readonly Net.payOS.PayOS _payOS = new(config.ClientId, config.ApiKey, config.ChecksumKey);
         private readonly string _returnUrl = config.ReturnUrl;
 
-        public async Task<string> CreatePaymentUrl(BookingPayment bookingPayment, string tourName)
+        public async Task<string> CreatePaymentUrl(BookingPayment bookingPayment, string tourName, int expireAfterMinutes)
         {
             List<ItemData> items =
                 [
                     new ItemData(name: tourName, quantity: 1, price: (int)bookingPayment.Amount)
                 ];
             PaymentData paymentData = new(
-                orderCode: long.Parse(bookingPayment.PaymentId),
+                orderCode: int.Parse(bookingPayment.ThirdPartyTransactionNumber!),
                 amount: (int)bookingPayment.Amount,
                 description: tourName,
                 items: items,
-                returnUrl: $"_returnUrl/{bookingPayment.PaymentId}",
-                cancelUrl: $"_returnUrl/{bookingPayment.PaymentId}",
-                expiredAt: (int)(DateTime.UtcNow.AddMinutes(15) - new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalSeconds
+                returnUrl: $"{_returnUrl}/{bookingPayment.PaymentId}",
+                cancelUrl: $"{_returnUrl}/{bookingPayment.PaymentId}",
+                expiredAt: (int)(DateTime.UtcNow.AddMinutes(expireAfterMinutes) - new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalSeconds
             );
             CreatePaymentResult result = await _payOS.createPaymentLink(paymentData);
             return result.checkoutUrl;

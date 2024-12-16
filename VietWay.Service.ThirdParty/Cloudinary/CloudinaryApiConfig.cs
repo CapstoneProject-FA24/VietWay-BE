@@ -6,10 +6,14 @@ using System.Threading.Tasks;
 
 namespace VietWay.Service.ThirdParty.Cloudinary
 {
-    public class CloudinaryApiConfig
+    public class CloudinaryApiConfig(string apiKey, string apiSecret, string cloudName)
     {
-        public required string ApiKey { get; set; }
-        public required string ApiSecret { get; set; }
-        public required string CloudName { get; set; }
+        private readonly string _apiKey = apiKey;
+        private readonly string _apiSecret = apiSecret;
+        private readonly string _cloudName = cloudName;
+
+        public string ApiKey { get => _apiKey; }
+        public string ApiSecret { get => _apiSecret; }
+        public string CloudName { get => _cloudName; }
     }
 }

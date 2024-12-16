@@ -6,10 +6,15 @@ using System.Threading.Tasks;
 
 namespace VietWay.Util.TokenUtil
 {
-    public class TokenConfig
+    public class TokenConfig(string issuer, string audience, string secret, int tokenExpireAfterMinutes)
     {
-        public required string Issuer { get; set; }
-        public required string Audience { get; set; }
-        public required string Secret { get; set; }
+        private readonly string _issuer = issuer;
+        private readonly string _audience = audience;
+        private readonly string _secret = secret;
+        private readonly int _tokenExpireAfterMinutes = tokenExpireAfterMinutes;
+        public string Issuer { get => _issuer; }
+        public string Audience { get => _audience; }
+        public string Secret { get => _secret; }
+        public int TokenExpireAfterMinutes { get => _tokenExpireAfterMinutes; }
     }
 }

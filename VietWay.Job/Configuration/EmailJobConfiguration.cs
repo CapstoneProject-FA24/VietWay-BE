@@ -6,9 +6,11 @@ using System.Threading.Tasks;
 
 namespace VietWay.Job.Configuration
 {
-    public class EmailJobConfiguration
+    public class EmailJobConfiguration(string cancelBookingTemplate, string confirmBookingTemplate)
     {
-        public required string ConfirmBookingTemplate { get; set; }
-        public required string CancelBookingTemplate { get; set; }
+        private string _cancelBookingTemplate = cancelBookingTemplate;
+        private string _confirmBookingTemplate = confirmBookingTemplate;
+        public string ConfirmBookingTemplate { get => _confirmBookingTemplate; }
+        public string CancelBookingTemplate { get => _cancelBookingTemplate; }
     }
 }

@@ -19,11 +19,12 @@ namespace VietWay.Service.ThirdParty.ZaloPay
     public class ZaloPayService(ITimeZoneHelper timeZoneHelper, ZaloPayServiceConfiguration config) : IZaloPayService
     {
         private readonly ITimeZoneHelper _timeZoneHelper = timeZoneHelper;
-        public readonly string _zaloPayAppId = config.ZaloPayAppId;
-        public readonly string _zaloPayAppUser = config.ZaloPayAppUser;
-        public readonly string _zaloPayKey1 = config.ZaloPayKey1;
-        public readonly string _zaloPayKey2 = config.ZaloPayKey2;
-        public async Task<string> GetPaymentUrl(BookingPayment bookingPayment)
+        private readonly string _zaloPayAppId = config.ZaloPayAppId;
+        private readonly string _zaloPayAppUser = config.ZaloPayAppUser;
+        private readonly string _zaloPayKey1 = config.ZaloPayKey1;
+        private readonly string _zaloPayKey2 = config.ZaloPayKey2;
+        private readonly string _returnUrl = config.ReturnUrl;
+        public async Task<string> GetPaymentUrl(BookingPayment bookingPayment, int expireAfterMinutes)
         {
             List<BookingItem> items = new List<BookingItem>
             {
@@ -38,19 +39,10 @@ namespace VietWay.Service.ThirdParty.ZaloPay
                     TotalPrice = bookingPayment.Booking.TotalPrice
                 }
             };
-            string returnUrl = "";
-            if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development")
-            {
-                returnUrl = "http://localhost:5173/dat-tour/thanh-toan/hoan-thanh/" + bookingPayment.BookingId;
-            }
-            else
-            {
-                returnUrl = "https://vietway.projectpioneer.id.vn/dat-tour/thanh-toan/hoan-thanh/" + bookingPayment.BookingId;
-            }
             ZaloPayRequest request = new ZaloPayRequest
             {
                 Amount = (long)bookingPayment.Amount,
-                EmbedData = "{\"redirecturl\": \"" + returnUrl + "\"}",
+                EmbedData = "{\"redirecturl\": \"" + _returnUrl + "\"}",
                 Item = JsonConvert.SerializeObject(items, new JsonSerializerSettings
                 {
                     ReferenceLoopHandling = ReferenceLoopHandling.Ignore
@@ -58,18 +50,20 @@ namespace VietWay.Service.ThirdParty.ZaloPay
                 Description = $"Thanh toan tour gia {bookingPayment.Amount}",
             };
 
-            var param = new Dictionary<string, string>();
-
-            param.Add("app_id", _zaloPayAppId);
-            param.Add("app_user", _zaloPayAppUser);
-            param.Add("app_time", Utils.GetTimeStamp().ToString());
-            param.Add("amount", request.Amount.ToString());
-            param.Add("app_trans_id", DateTime.Now.ToString("yyMMddhhmmss") + "_" + bookingPayment.PaymentId.ToString());
-            param.Add("embed_data", request.EmbedData);
-            param.Add("item", request.Item);
-            param.Add("description", request.Description);
-            param.Add("bank_code", "zalopayapp");
-            param.Add("callback_url", "https://api.vietway.projectpioneer.id.vn/api/booking-payments/ZaloPayCallback");
+            var param = new Dictionary<string, string>
+            {
+                { "app_id", _zaloPayAppId },
+                { "app_user", _zaloPayAppUser },
+                { "app_time", Utils.GetTimeStamp().ToString() },
+                { "amount", request.Amount.ToString() },
+                { "app_trans_id", DateTime.Now.ToString("yyMMddhhmmss") + "_" + bookingPayment.PaymentId.ToString() },
+                { "embed_data", request.EmbedData },
+                { "expire_duration_seconds", (expireAfterMinutes * 60).ToString() },
+                { "item", request.Item },
+                { "description", request.Description },
+                { "bank_code", "zalopayapp" },
+                { "callback_url", "https://api.vietway.projectpioneer.id.vn/api/booking-payments/ZaloPayCallback" }
+            };
 
             var data = _zaloPayAppId + "|" + param["app_trans_id"] + "|" + param["app_user"] + "|" + param["amount"] + "|"
                 + param["app_time"] + "|" + param["embed_data"] + "|" + param["item"];
