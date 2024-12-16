@@ -29,52 +29,59 @@ namespace VietWay.Service.Management.Implement
                 .Query()
                 .SingleOrDefaultAsync(x => (x.PhoneNumber.Equals(emailOrPhone) || x.Email.Equals(emailOrPhone)) && false == x.IsDeleted);
 
-            if (emailOrPhone.Equals(Environment.GetEnvironmentVariable("EMAIL")) &&
-                        password.Equals(Environment.GetEnvironmentVariable("PASSWORD")))
-            {
-                fullName = "Admin";
-                credential = new()
-                {
-                    AvatarUrl = default!,
-                    FullName = fullName,
-                    Role = account.Role,
-                    Token = _tokenHelper.GenerateAuthenticationToken("1", account.Role.ToString())
-                };
-            }
+CredentialDTO? credential = null;
+string fullName = string.Empty;
 
-            else if (account == null || false == _hashHelper.Verify(password, account.Password))
+if (emailOrPhone.Equals(Environment.GetEnvironmentVariable("EMAIL")) &&
+    password.Equals(Environment.GetEnvironmentVariable("PASSWORD")))
+{
+    fullName = "Admin";
+    credential = new()
+    {
+        AvatarUrl = default!,
+        FullName = fullName,
+        Role = account.Role,
+        Token = _tokenHelper.GenerateAuthenticationToken("1", account.Role.ToString())
+    };
+}
+else
+{
+    if (account == null || false == _hashHelper.Verify(password, account.Password))
+    {
+        return null;
+    }
+
+    switch (account.Role)
+    {
+        case UserRole.Staff:
+            Staff? staff = await _unitOfWork.StaffRepository
+                .Query()
+                .SingleOrDefaultAsync(x => x.StaffId == account.AccountId);
+            if (staff != null)
             {
-                return null;
+                fullName = staff.FullName;
             }
-            switch (account.Role)
+            break;
+
+        case UserRole.Manager:
+            Manager? manager = await _unitOfWork.ManagerRepository
+                .Query()
+                .SingleOrDefaultAsync(x => x.ManagerId == account.AccountId);
+            if (manager != null)
             {
-                case UserRole.Staff:
-                    Staff? staff = await _unitOfWork.StaffRepository
-                        .Query()
-                        .SingleOrDefaultAsync(x => x.StaffId == account.AccountId);
-                    if (staff != null)
-                    {
-                        fullName = staff.FullName;
-                    }
-                    break;
-                case UserRole.Manager:
-                    Manager? manager = await _unitOfWork.ManagerRepository
-                        .Query()
-                        .SingleOrDefaultAsync(x => x.ManagerId == account.AccountId);
-                    if (manager != null)
-                    {
-                        fullName = manager.FullName;
-                    }
-                    break;
+                fullName = manager.FullName;
             }
-            
-            credential = new()
-            {
-                AvatarUrl = default!,
-                FullName = fullName,
-                Role = account.Role,
-                Token = _tokenHelper.GenerateAuthenticationToken(account.AccountId, account.Role.ToString())
-            };
+            break;
+    }
+
+    credential = new()
+    {
+        AvatarUrl = default!,
+        FullName = fullName,
+        Role = account.Role,
+        Token = _tokenHelper.GenerateAuthenticationToken(account.AccountId, account.Role.ToString())
+    };
+}
 
             return credential;
         }

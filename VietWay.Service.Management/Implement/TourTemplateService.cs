@@ -24,32 +24,52 @@ namespace VietWay.Service.Management.Implement
             tourTemplate.TourTemplateId = _idGenerator.GenerateId();
             tourTemplate.CreatedAt = _timeZoneHelper.GetUTC7Now();
 
-            var existingCode = await GetByCodeAsync(tourTemplate.Code);
-            if (existingCode != null)
-            {
-                throw new InvalidActionException($"A category with the name '{existingCode.Code}' already exists.");
-            }
+            bool isDrafted = tourTemplate.Status.Equals(TourTemplateStatus.Draft);
 
-            if (tourTemplate.MinPrice == 0 || tourTemplate.MaxPrice == 0)
+            if (isDrafted == true)
             {
-                throw new Exception("Price can not be left 0");
-            }
-            else if (tourTemplate.MinPrice > tourTemplate.MaxPrice)
-            {
-                throw new Exception("Min Price must be lower than Max Price");
-            }
-            foreach (var province in tourTemplate.TourTemplateProvinces ?? [])
-            {
-                province.TourTemplateId = tourTemplate.TourTemplateId;
-            }
-            foreach (var schedule in tourTemplate.TourTemplateSchedules ?? [])
-            {
-                schedule.TourTemplateId = tourTemplate.TourTemplateId;
-                foreach (var attractionSchedule in schedule.AttractionSchedules ?? [])
+                foreach (var province in tourTemplate.TourTemplateProvinces ?? [])
                 {
-                    attractionSchedule.TourTemplateId = tourTemplate.TourTemplateId;
+                    province.TourTemplateId = tourTemplate.TourTemplateId;
+                }
+                foreach (var schedule in tourTemplate.TourTemplateSchedules ?? [])
+                {
+                    schedule.TourTemplateId = tourTemplate.TourTemplateId;
+                    foreach (var attractionSchedule in schedule.AttractionSchedules ?? [])
+                    {
+                        attractionSchedule.TourTemplateId = tourTemplate.TourTemplateId;
+                    }
                 }
             }
+            else
+            {
+                var existingCode = await GetByCodeAsync(tourTemplate.Code);
+                if (existingCode != null)
+                {
+                    throw new InvalidActionException($"A category with the name '{existingCode.Code}' already exists.");
+                }
+                if (tourTemplate.MinPrice == 0 || tourTemplate.MaxPrice == 0)
+                {
+                    throw new Exception("Price can not be left 0");
+                }
+                else if (tourTemplate.MinPrice > tourTemplate.MaxPrice)
+                {
+                    throw new Exception("Min Price must be lower than Max Price");
+                }
+                foreach (var province in tourTemplate.TourTemplateProvinces ?? [])
+                {
+                    province.TourTemplateId = tourTemplate.TourTemplateId;
+                }
+                foreach (var schedule in tourTemplate.TourTemplateSchedules ?? [])
+                {
+                    schedule.TourTemplateId = tourTemplate.TourTemplateId;
+                    foreach (var attractionSchedule in schedule.AttractionSchedules ?? [])
+                    {
+                        attractionSchedule.TourTemplateId = tourTemplate.TourTemplateId;
+                    }
+                }
+            }
+
             await _unitOfWork.TourTemplateRepository.CreateAsync(tourTemplate);
             return tourTemplate.TourTemplateId;
         }
