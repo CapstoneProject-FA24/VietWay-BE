@@ -23,5 +23,6 @@ namespace VietWay.Service.Management.DataTransferObject
         public List<string>? Provinces { get; set; }
         public string? ImageUrl { get; set; }
         public string? StartingProvince { get; set; }
+        public string? Transportation { get; set; }
     }
 }
