@@ -51,8 +51,7 @@
     {
         Pending,
         Paid,
-        Failed,
-        Refunded
+        Failed
     }
     public enum EntityType
     {

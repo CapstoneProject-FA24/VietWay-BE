@@ -171,90 +171,92 @@ namespace VietWay.API.Customer
             builder.Services.AddScoped<IZaloPayService, ZaloPayService>();
             builder.Services.AddScoped<IPayOSService, PayOSService>();
             #endregion
+            #region builder.Services.AddSingleton(...);
             builder.Services.AddSingleton<IIdGenerator, SnowflakeIdGenerator>();
             builder.Services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer
                 .Connect(Environment.GetEnvironmentVariable("REDIS_CONNECTION_STRING") ??
                     throw new Exception("REDIS_CONNECTION_STRING is not set in environment variables")));
-            builder.Services.AddSingleton(s => new GeminiApiConfig
-            {
-                ApiKey = Environment.GetEnvironmentVariable("GEMINI_AI_API_KEY") ??
+            builder.Services.AddSingleton(s => new GeminiApiConfig(
+                apiKey: Environment.GetEnvironmentVariable("GEMINI_AI_API_KEY") ??
                     throw new Exception("GEMINI_AI_API_KEY is not set in environment variables"),
-                SystemPrompt = Environment.GetEnvironmentVariable("GEMINI_AI_SYSTEM_PROMPT")
-            });
-            builder.Services.AddSingleton(s => new DatabaseConfig
-            {
-                ConnectionString = Environment.GetEnvironmentVariable("SQL_CONNECTION_STRING") ??
+                systemPrompt: Environment.GetEnvironmentVariable("GEMINI_AI_SYSTEM_PROMPT")
+            ));
+            builder.Services.AddSingleton(s => new DatabaseConfig(
+                connectionString: Environment.GetEnvironmentVariable("SQL_CONNECTION_STRING") ??
                     throw new Exception("SQL_CONNECTION_STRING is not set in environment variables")
-            });
-            builder.Services.AddSingleton(s => new TokenConfig
-            {
-                Audience = Environment.GetEnvironmentVariable("JWT_AUDIENCE") ??
-                    throw new Exception("JWT_AUDIENCE is not set in environment variables"),
-                Issuer = Environment.GetEnvironmentVariable("JWT_ISSUER") ??
+            ));
+            builder.Services.AddSingleton(s => new TokenConfig(
+                issuer: Environment.GetEnvironmentVariable("JWT_ISSUER") ??
                     throw new Exception("JWT_ISSUER is not set in environment variables"),
-                Secret = Environment.GetEnvironmentVariable("JWT_KEY") ??
-                    throw new Exception("JWT_KEY is not set in environment variables")
-            });
-            builder.Services.AddSingleton(s => new BookingServiceConfiguration
-            {
-                PendingBookingExpireAfterMinutes = int.Parse(Environment.GetEnvironmentVariable("PENDING_BOOKING_EXPIRE_AFTER_MINUTES") ??
+                audience: Environment.GetEnvironmentVariable("JWT_AUDIENCE") ??
+                    throw new Exception("JWT_AUDIENCE is not set in environment variables"),
+                secret: Environment.GetEnvironmentVariable("JWT_KEY") ??
+                    throw new Exception("JWT_KEY is not set in environment variables"),
+                tokenExpireAfterMinutes: int.Parse(Environment.GetEnvironmentVariable("JWT_EXPIRE_AFTER_MINUTES") ??
+                    throw new Exception("JWT_EXPIRE_AFTER_MINUTES is not set in environment variables"))
+            ));
+            builder.Services.AddSingleton(s => new BookingServiceConfiguration(
+                pendingBookingExpireAfterMinutes: int.Parse(Environment.GetEnvironmentVariable("PENDING_BOOKING_EXPIRE_AFTER_MINUTES") ??
                     throw new Exception("PENDING_BOOKING_EXPIRE_AFTER_MINUTES is not set in environment variables"))
-            });
-            builder.Services.AddSingleton(s => new TourReviewServiceConfiguration
-            {
-                ReviewTourExpireAfterDays = int.Parse(Environment.GetEnvironmentVariable("REVIEW_TOUR_EXPIRE_AFTER_DAYS") ??
+            ));
+            builder.Services.AddSingleton(s => new TourReviewServiceConfiguration(
+                reviewTourExpireAfterDays: int.Parse(Environment.GetEnvironmentVariable("REVIEW_TOUR_EXPIRE_AFTER_DAYS") ??
                     throw new Exception("REVIEW_TOUR_EXPIRE_AFTER_DAYS is not set in environment variables"))
-            });
-            builder.Services.AddSingleton(s => new VnPayConfiguration
-            {
-                VnpHashSecret = Environment.GetEnvironmentVariable("VNPAY_HASH_SECRET") ??
+            ));
+            builder.Services.AddSingleton(s => new VnPayConfiguration(
+                vnpHashSecret: Environment.GetEnvironmentVariable("VNPAY_HASH_SECRET") ??
                     throw new Exception("VNPAY_HASH_SECRET is not set in environment variables"),
-                VnpTmnCode = Environment.GetEnvironmentVariable("VNPAY_TMN_CODE") ??
-                    throw new Exception("VNPAY_TMN_CODE is not set in environment variables")
-            });
-            builder.Services.AddSingleton(s => new OtpGeneratorConfiguration
-            {
-                Length = int.Parse(Environment.GetEnvironmentVariable("SMS_OTP_LENGTH") ??
+                vnpTmnCode: Environment.GetEnvironmentVariable("VNPAY_TMN_CODE") ??
+                    throw new Exception("VNPAY_TMN_CODE is not set in environment variables"),
+                returnUrl: Environment.GetEnvironmentVariable("RETURN_URL") ??
+                    throw new Exception("RETURN_URL is not set in environment variables")
+            ));
+            builder.Services.AddSingleton(s => new OtpGeneratorConfiguration(
+                length: int.Parse(Environment.GetEnvironmentVariable("SMS_OTP_LENGTH") ??
                     throw new Exception("SMS_OTP_LENGTH is not set in environment variables")),
-                ExpiryTimeInMinute = int.Parse(Environment.GetEnvironmentVariable("SMS_OTP_EXPIRE_AFTER_MINUTES") ??
-                    throw new Exception("SMS_OTP_EXPIRE_AFTER_MINUTES is not set in environment variables")),
-            });
-            builder.Services.AddSingleton(s => new SmsConfiguration
-            {
-                DeviceId = Environment.GetEnvironmentVariable("SPEEDSMS_DEVICE_ID") ??
+                expiryTimeInMinute: int.Parse(Environment.GetEnvironmentVariable("SMS_OTP_EXPIRE_AFTER_MINUTES") ??
+                    throw new Exception("SMS_OTP_EXPIRE_AFTER_MINUTES is not set in environment variables"))
+            ));
+            builder.Services.AddSingleton(s => new SmsConfiguration(
+                deviceId: Environment.GetEnvironmentVariable("SPEEDSMS_DEVICE_ID") ??
                     throw new Exception("SPEEDSMS_DEVICE_ID is not set in environment variables"),
-                SendTokenMessage = Environment.GetEnvironmentVariable("SMS_SEND_TOKEN_MESSAGE") ??
+                sendTokenMessage: Environment.GetEnvironmentVariable("SMS_SEND_TOKEN_MESSAGE") ??
                     throw new Exception("SMS_SEND_TOKEN_MESSAGE is not set in environment variables"),
-                Token = Environment.GetEnvironmentVariable("SPEEDSMS_TOKEN") ??
+                token: Environment.GetEnvironmentVariable("SPEEDSMS_TOKEN") ??
                     throw new Exception("SPEEDSMS_TOKEN is not set in environment variables")
-            });
+            ));
+            builder.Services.AddSingleton(s => new ZaloPayServiceConfiguration(
+                zaloPayAppId: Environment.GetEnvironmentVariable("ZALOPAY_APP_ID") ??
+                    throw new Exception("ZALOPAY_APP_ID is not set in environment variables"),
+                zaloPayAppUser: Environment.GetEnvironmentVariable("ZALOPAY_APP_USER") ??
+                    throw new Exception("ZALOPAY_APP_USER is not set in environment variables"),
+                zaloPayKey1: Environment.GetEnvironmentVariable("ZALOPAY_KEY1") ??
+                    throw new Exception("ZALOPAY_KEY1 is not set in environment variables"),
+                zaloPayKey2: Environment.GetEnvironmentVariable("ZALOPAY_KEY2") ??
+                    throw new Exception("ZALOPAY_KEY2 is not set in environment variables"),
+                returnUrl: Environment.GetEnvironmentVariable("RETURN_URL") ??
+                    throw new Exception("RETURN_URL is not set in environment variables")
+            ));
+            builder.Services.AddSingleton(s => new PayOSConfiguration(
+                apiKey: Environment.GetEnvironmentVariable("PAYOS_API_KEY") ??
+                    throw new Exception("PAYOS_API_KEY is not set in environment variables"),
+                checksumKey: Environment.GetEnvironmentVariable("PAYOS_CHECKSUM_KEY") ??
+                    throw new Exception("PAYOS_CHECKSUM_KEY is not set in environment variables"),
+                clientId: Environment.GetEnvironmentVariable("PAYOS_CLIENT_ID") ??
+                    throw new Exception("PAYOS_CLIENT_ID is not set in environment variables"),
+                returnUrl: Environment.GetEnvironmentVariable("RETURN_URL") ??
+                    throw new Exception("RETURN_URL is not set in environment variables")
+            ));
+            builder.Services.AddSingleton(s => new BookingPaymentConfiguration(
+                paymentExpireAfterMinutes: int.Parse(Environment.GetEnvironmentVariable("BOOKING_PAYMENT_EXPIRE_AFTER_MINUTES") ??
+                    throw new Exception("BOOKING_PAYMENT_EXPIRE_AFTER_MINUTES is not set in environment variables"))
+            ));
+            #endregion
             builder.Services.AddHttpClient<IGeminiService, GeminiService>(HttpClient =>
             {
                 string baseUrl = Environment.GetEnvironmentVariable("GEMINI_AI_API_ENDPOINT") ??
                     throw new Exception("GEMINI_AI_API_ENDPOINT is not set in environment variables");
                 HttpClient.BaseAddress = new Uri(baseUrl);
-            });
-            builder.Services.AddSingleton(s => new ZaloPayServiceConfiguration
-            {
-                ZaloPayAppId = Environment.GetEnvironmentVariable("ZALOPAY_APP_ID") ??
-                    throw new Exception("ZALOPAY_APP_ID is not set in environment variables"),
-                ZaloPayAppUser = Environment.GetEnvironmentVariable("ZALOPAY_APP_USER") ??
-                    throw new Exception("ZALOPAY_APP_USER is not set in environment variables"),
-                ZaloPayKey1 = Environment.GetEnvironmentVariable("ZALOPAY_KEY1") ??
-                    throw new Exception("ZALOPAY_KEY1 is not set in environment variables"),
-                ZaloPayKey2 = Environment.GetEnvironmentVariable("ZALOPAY_KEY2") ??
-                    throw new Exception("ZALOPAY_KEY2 is not set in environment variables")
-            });
-            builder.Services.AddSingleton(s => new PayOSConfiguration
-            {
-                ApiKey = Environment.GetEnvironmentVariable("PAYOS_API_KEY") ??
-                    throw new Exception("PAYOS_API_KEY is not set in environment variables"),
-                ChecksumKey = Environment.GetEnvironmentVariable("PAYOS_CHECKSUM_KEY") ??
-                    throw new Exception("PAYOS_CHECKSUM_KEY is not set in environment variables"),
-                CLientId = Environment.GetEnvironmentVariable("PAYOS_CLIENT_ID") ??
-                    throw new Exception("PAYOS_CLIENT_ID is not set in environment variables"),
-                ReturnUrl = Environment.GetEnvironmentVariable("PAYOS_RETURN_URL") ??
-                    throw new Exception("PAYOS_RETURN_URL is not set in environment variables"),
             });
             var app = builder.Build();
             app.UseStaticFiles();
