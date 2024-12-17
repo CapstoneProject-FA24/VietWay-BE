@@ -42,7 +42,7 @@ namespace VietWay.Service.ThirdParty.ZaloPay
             ZaloPayRequest request = new ZaloPayRequest
             {
                 Amount = (long)bookingPayment.Amount,
-                EmbedData = "{\"redirecturl\": \"" + _returnUrl + "\"}",
+                EmbedData = $"{{\"redirecturl\": \"{_returnUrl}/{bookingPayment.BookingId}\"}}",
                 Item = JsonConvert.SerializeObject(items, new JsonSerializerSettings
                 {
                     ReferenceLoopHandling = ReferenceLoopHandling.Ignore

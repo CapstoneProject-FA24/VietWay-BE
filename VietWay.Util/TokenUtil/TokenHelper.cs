@@ -11,6 +11,7 @@ namespace VietWay.Util.TokenUtil
         private readonly string _issuer = config.Issuer;
         private readonly string _audience = config.Audience;
         private readonly string _secret = config.Secret;
+        private readonly int _tokenExpireAfterMinutes = config.TokenExpireAfterMinutes;
 
         public string GenerateAuthenticationToken(string accountId, string role)
         {
@@ -27,7 +28,7 @@ namespace VietWay.Util.TokenUtil
                 Audience = _audience,
                 Claims = claims,
                 NotBefore = DateTime.Now,
-                Expires = DateTime.Now.AddDays(30),
+                Expires = DateTime.Now.AddMinutes(_tokenExpireAfterMinutes),
                 SigningCredentials = credentials
             };
             return new JsonWebTokenHandler().CreateToken(descriptor);

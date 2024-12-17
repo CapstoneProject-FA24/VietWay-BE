@@ -180,6 +180,7 @@ namespace VietWay.Service.Management.Implement
                     CreatedAt = x.CreatedAt,
                     ImageUrl = x.TourTemplateImages.FirstOrDefault().ImageUrl,
                     Provinces = x.TourTemplateProvinces.Select(y => y.Province.Name).ToList(),
+                    Transportation = x.Transportation
                 })
                 .ToListAsync();
             return new PaginatedList<TourTemplatePreviewDTO>

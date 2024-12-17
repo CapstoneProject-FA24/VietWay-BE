@@ -177,8 +177,8 @@ namespace VietWay.API.Management
                 .Connect(Environment.GetEnvironmentVariable("REDIS_CONNECTION_STRING") ??
                     throw new Exception("REDIS_CONNECTION_STRING is not set in environment variables")));
             builder.Services.AddSingleton(s => new FacebookApiConfig(
-    pageId: Environment.GetEnvironmentVariable("FACEBOOK_PAGE_ID") ?? throw new Exception("FACEBOOK_PAGE_ID is not set in environment variables"),
-    pageAccessToken: Environment.GetEnvironmentVariable("FACEBOOK_PAGE_ACCESS_TOKEN") ?? throw new Exception("FACEBOOK_PAGE_ACCESS_TOKEN is not set in environment variables")
+                pageId: Environment.GetEnvironmentVariable("FACEBOOK_PAGE_ID") ?? throw new Exception("FACEBOOK_PAGE_ID is not set in environment variables"),
+                pageAccessToken: Environment.GetEnvironmentVariable("FACEBOOK_PAGE_ACCESS_TOKEN") ?? throw new Exception("FACEBOOK_PAGE_ACCESS_TOKEN is not set in environment variables")
 ));
 
             builder.Services.AddSingleton(s => new CloudinaryApiConfig(

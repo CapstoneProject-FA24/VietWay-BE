@@ -22,10 +22,10 @@ namespace VietWay.Service.ThirdParty.PayOS
             PaymentData paymentData = new(
                 orderCode: int.Parse(bookingPayment.ThirdPartyTransactionNumber!),
                 amount: (int)bookingPayment.Amount,
-                description: tourName,
+                description: "",
                 items: items,
-                returnUrl: $"{_returnUrl}/{bookingPayment.PaymentId}",
-                cancelUrl: $"{_returnUrl}/{bookingPayment.PaymentId}",
+                returnUrl: $"{_returnUrl}/{bookingPayment.BookingId}",
+                cancelUrl: $"{_returnUrl}/{bookingPayment.BookingId}",
                 expiredAt: (int)(DateTime.UtcNow.AddMinutes(expireAfterMinutes) - new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalSeconds
             );
             CreatePaymentResult result = await _payOS.createPaymentLink(paymentData);
