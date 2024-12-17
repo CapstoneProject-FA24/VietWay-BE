@@ -123,12 +123,11 @@ namespace VietWay.API.Management.Controllers
                 });
             }
 
-            string password = await _managerService.AdminResetManagerPassword(managerId);
+            await _managerService.AdminResetManagerPassword(managerId);
             return Ok(new DefaultResponseModel<string>
             {
-                Message = "Status change successfully",
+                Message = "Password successfully",
                 StatusCode = StatusCodes.Status200OK,
-                Data = password,
             });
         }
     }
