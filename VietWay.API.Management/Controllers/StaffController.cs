@@ -7,6 +7,7 @@ using VietWay.Util.TokenUtil;
 using VietWay.Service.Management.Interface;
 using VietWay.Service.Management.DataTransferObject;
 using VietWay.API.Management.RequestModel;
+using VietWay.Service.Management.Implement;
 
 namespace VietWay.API.Management.Controllers
 {
@@ -101,6 +102,31 @@ namespace VietWay.API.Management.Controllers
 
             await _staffService.StaffChangePassword(accountId, changePasswordRequest.OldPassword, changePasswordRequest.NewPassword);
             return Ok();
+        }
+
+        [HttpPatch("admin-reset-staff-password")]
+        [Authorize(Roles = nameof(UserRole.Admin))]
+        [Produces("application/json")]
+        [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status200OK)]
+        public async Task<IActionResult> AdminResetStaffPasswordAsync(string staffId)
+        {
+            string? accountId = _tokenHelper.GetAccountIdFromToken(HttpContext);
+            if (string.IsNullOrWhiteSpace(accountId))
+            {
+                return Unauthorized(new DefaultResponseModel<object>
+                {
+                    Message = "Unauthorized",
+                    StatusCode = StatusCodes.Status401Unauthorized
+                });
+            }
+
+            string password = await _staffService.AdminResetStaffPassword(staffId);
+            return Ok(new DefaultResponseModel<string>
+            {
+                Message = "Status change successfully",
+                StatusCode = StatusCodes.Status200OK,
+                Data = password,
+            });
         }
     }
 }
