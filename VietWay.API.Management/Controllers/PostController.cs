@@ -234,7 +234,7 @@ namespace VietWay.API.Management.Controllers
         }
 
         [HttpPatch("{postId}/images")]
-        [Authorize(Roles = nameof(UserRole.Staff))]
+        [Authorize(Roles = $"{nameof(UserRole.Manager)}, {nameof(UserRole.Staff)}")]
         [Produces("application/json")]
         public async Task<IActionResult> UpdatePostImageAsync(string postId, IFormFile? newImage)
         {

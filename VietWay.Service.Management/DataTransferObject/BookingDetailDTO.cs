@@ -14,6 +14,8 @@ namespace VietWay.Service.Management.DataTransferObject
         public string BookingId { get; set; }
         public string? TourId { get; set; }
         public string? TourName { get; set; }
+        public string? Duration { get; set; }
+        public string? Transportation { get; set; }
         public string? TourCode { get; set; }
         public DateTime? StartDate { get; set; }
         public string? StartLocation { get; set; }
