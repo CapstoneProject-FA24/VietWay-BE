@@ -96,6 +96,8 @@ namespace VietWay.Service.Management.Implement
                     BookingId = x.BookingId,
                     TourId = x.TourId,
                     TourName = x.Tour.TourTemplate.TourName,
+                    Duration = x.Tour.TourTemplate.TourDuration.DurationName,
+                    Transportation = x.Tour.TourTemplate.Transportation,
                     TourCode = x.Tour.TourTemplate.Code,
                     StartDate = x.Tour.StartDate,
                     StartLocation = x.Tour.StartLocation,
@@ -243,7 +245,7 @@ namespace VietWay.Service.Management.Implement
                         .SingleOrDefaultAsync(x => x.TourId == newTourId && x.Status == TourStatus.Opened && x.IsDeleted == false)
                         ?? throw new ResourceNotFoundException("Can not find any tour");
                 bool isActiveBookingExisted = await _unitOfWork.BookingRepository.Query()
-                    .AnyAsync(x => x.TourId == newTourId && x.CustomerId == booking.CustomerId && (x.Status == BookingStatus.Pending || x.Status == BookingStatus.Deposited) || x.Status == BookingStatus.Paid);
+                    .AnyAsync(x => x.TourId == newTourId && x.CustomerId == booking.CustomerId && (x.Status == BookingStatus.Pending || x.Status == BookingStatus.Deposited || x.Status == BookingStatus.Paid));
 
                 if (isActiveBookingExisted)
                 {
