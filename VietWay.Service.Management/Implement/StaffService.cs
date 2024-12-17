@@ -137,7 +137,7 @@ namespace VietWay.Service.Management.Implement
                 throw;
             }
         }
-        public async Task<string> AdminResetStaffPassword(string staffId)
+        public async Task AdminResetStaffPassword(string staffId)
         {
             Staff? staff = await _unitOfWork.StaffRepository.Query()
                 .Where(x => x.StaffId.Equals(staffId))
@@ -152,8 +152,6 @@ namespace VietWay.Service.Management.Implement
                 await _unitOfWork.BeginTransactionAsync();
                 await _unitOfWork.StaffRepository.UpdateAsync(staff);
                 await _unitOfWork.CommitTransactionAsync();
-
-                return newPassword;
             }
             catch
             {
