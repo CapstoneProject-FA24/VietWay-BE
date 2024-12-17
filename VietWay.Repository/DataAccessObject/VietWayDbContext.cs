@@ -55,6 +55,9 @@ namespace VietWay.Repository.DataAccessObject
             modelBuilder.Entity<Account>()
                 .HasIndex(x => x.PhoneNumber)
                 .IsUnique();
+            modelBuilder.Entity<Account>()
+                .HasIndex(x => x.Email)
+                .IsUnique();
             modelBuilder.Entity<AttractionReviewLike>()
                 .HasKey(x => new { x.ReviewId, x.CustomerId });
             modelBuilder.Entity<AttractionReviewLike>()

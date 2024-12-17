@@ -169,6 +169,7 @@ namespace VietWay.API.Management
             builder.Services.AddScoped<IBookingJob, BookingJob>();
             builder.Services.AddScoped<ITourJob, TourJob>();
             builder.Services.AddScoped<ITweetJob, TweetJob>();
+            builder.Services.AddScoped<IBookingPaymentJob, BookingPaymentJob>();
             #endregion
             #region builder.Services.AddSingleton(...);
             builder.Services.AddSingleton<IIdGenerator, SnowflakeIdGenerator>();

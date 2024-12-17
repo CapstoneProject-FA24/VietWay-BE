@@ -30,17 +30,17 @@ namespace VietWay.Service.Management.Implement
             Staff? staff = await _unitOfWork.StaffRepository.Query()
                 .Where(x => x.StaffId.Equals(staffId))
                 .Include(x => x.Account)
-                .SingleOrDefaultAsync() ?? throw new ResourceNotFoundException("Staff not found");
+                .SingleOrDefaultAsync() ?? throw new ResourceNotFoundException("NOT_EXIST_STAFF");
 
             bool checkPassword = _hashHelper.Verify(oldPassword, staff.Account.Password);
 
             if (!checkPassword)
             {
-                throw new InvalidActionException("Incorrect password");
+                throw new InvalidActionException("INVALID_INFO_PASSWORD");
             }
             else if (oldPassword.Equals(newPassword))
             {
-                throw new InvalidActionException("Your new password cannot be the same as your current password.");
+                throw new InvalidActionException("INVALID_INFO_SAME_PASSWORD");
             }
 
             staff.Account.Password = _hashHelper.Hash(newPassword);
@@ -121,7 +121,7 @@ namespace VietWay.Service.Management.Implement
         {
             Staff? staff = await _unitOfWork.StaffRepository.Query()
                 .SingleOrDefaultAsync(x => x.StaffId.Equals(staffId)) ??
-                throw new ResourceNotFoundException("Staff not found");
+                throw new ResourceNotFoundException("NOT_EXIST_STAFF");
 
             staff.IsDeleted = isDeleted;
             try

@@ -30,18 +30,18 @@ namespace VietWay.Service.Customer.Implementation
                 Tour? tour = await _unitOfWork.TourRepository.Query()
                     .Include(x => x.TourPrices)
                     .SingleOrDefaultAsync(x => x.TourId == booking.TourId && x.Status == TourStatus.Opened && x.IsDeleted == false)
-                    ?? throw new ResourceNotFoundException("Can not find any tour");
+                    ?? throw new ResourceNotFoundException("NOT_EXIST_TOUR");
                 bool isActiveBookingExisted = await _unitOfWork.BookingRepository.Query()
                     .AnyAsync(x => x.TourId == booking.TourId && x.CustomerId == booking.CustomerId && 
                         (x.Status == BookingStatus.Pending || x.Status == BookingStatus.Deposited || x.Status == BookingStatus.Paid));
 
                 if (isActiveBookingExisted)
                 {
-                    throw new InvalidActionException("Customer has already booked this tour");
+                    throw new InvalidActionException("INVALID_ACTION_BOOKED_TOUR");
                 }
                 if (tour.CurrentParticipant + booking.BookingTourists.Count > tour.MaxParticipant)
                 {
-                    throw new InvalidActionException("Tour is full");
+                    throw new InvalidActionException("INVALID_ACTION_TOUR_FULL");
                 }
                 booking.BookingId = _idGenerator.GenerateId();
                 foreach (BookingTourist tourist in booking.BookingTourists)
@@ -101,10 +101,10 @@ namespace VietWay.Service.Customer.Implementation
                     .Include(x => x.Tour.TourRefundPolicies)
                     .Include(x => x.BookingRefunds)
                     .SingleOrDefault(x => x.BookingId.Equals(bookingId) && x.CustomerId.Equals(customerId))
-                    ?? throw new ResourceNotFoundException("Booking not found");
+                    ?? throw new ResourceNotFoundException("NOT_EXIST_BOOKING");
                 if (booking.Status != BookingStatus.Pending && booking.Status != BookingStatus.Deposited && booking.Status != BookingStatus.Paid)
                 {
-                    throw new InvalidActionException("You cannot cancel this booking");
+                    throw new InvalidActionException("INVALID_ACTION_TOUR_CANCEL");
                 }
                 int oldStatus = (int)booking.Status;
                 booking.Status = BookingStatus.Cancelled;
@@ -270,7 +270,7 @@ namespace VietWay.Service.Customer.Implementation
                 .Any(x => x.BookingId == bookingId && x.CustomerId == customerId);
             if (!isBookingExist)
             {
-                throw new ResourceNotFoundException("Booking not found");
+                throw new ResourceNotFoundException("NOT_EXIST_BOOKING");
             }
             List<BookingHistoryDTO> result = await _unitOfWork.EntityHistoryRepository.Query()
                 .Where(x => x.EntityType == EntityType.Booking && x.EntityId == bookingId)
@@ -292,7 +292,7 @@ namespace VietWay.Service.Customer.Implementation
             Booking? booking = _unitOfWork.BookingRepository.Query()
                 .Include(x => x.Tour)
                 .SingleOrDefault(x => x.BookingId == bookingId && x.CustomerId == customerId && x.Status == BookingStatus.PendingChangeConfirmation) ?? 
-                throw new ResourceNotFoundException("Booking not found");
+                throw new ResourceNotFoundException("NOT_EXIST_BOOKING");
             BookingStatus newStatus;
             decimal refundAmount = 0;
             if (booking.PaidAmount < (booking.TotalPrice * booking.Tour.DepositPercent / 100))
@@ -368,7 +368,7 @@ namespace VietWay.Service.Customer.Implementation
             Booking? booking = _unitOfWork.BookingRepository.Query()
                 .Include(x => x.Tour)
                 .SingleOrDefault(x => x.BookingId == bookingId && x.CustomerId == customerId && x.Status == BookingStatus.PendingChangeConfirmation) ??
-                throw new ResourceNotFoundException("Booking not found");
+                throw new ResourceNotFoundException("NOT_EXIST_BOOKING");
             try
             {
                 await _unitOfWork.BeginTransactionAsync();

@@ -45,13 +45,13 @@ namespace VietWay.Service.Customer.Implementation
                 await _unitOfWork.BeginTransactionAsync();
                 Province? province = await _unitOfWork.ProvinceRepository.Query()
                     .SingleOrDefaultAsync(x => x.ProvinceId.Equals(customer.ProvinceId) && false == x.IsDeleted) ??
-                    throw new ResourceNotFoundException("Province not found");
+                    throw new ResourceNotFoundException("NOT_EXIST_PROVINCE");
 
                 Account? account = await _unitOfWork.AccountRepository.Query()
                     .SingleOrDefaultAsync(x => x.PhoneNumber.Equals(customer.Account.PhoneNumber) || x.Email.Equals(customer.Account.Email));
                 if (account != null)
                 {
-                    throw new InvalidActionException("Phone number or Email has already been used");
+                    throw new InvalidActionException("EXISTED_PHONE_OR_EMAIL");
                 }
                 string accountId = _idGenerator.GenerateId();
                 customer.CustomerId = accountId;
@@ -73,13 +73,13 @@ namespace VietWay.Service.Customer.Implementation
             string email = await _firebaseService.GetEmailFromIdToken(idToken);
             Province? province = await _unitOfWork.ProvinceRepository.Query()
                 .SingleOrDefaultAsync(x => x.ProvinceId.Equals(customer.ProvinceId) && false == x.IsDeleted) ??
-                throw new ResourceNotFoundException("Province not found");
+                throw new ResourceNotFoundException("NOT_EXIST_PROVINCE");
 
             Account? account = await _unitOfWork.AccountRepository.Query()
                 .SingleOrDefaultAsync(x => x.PhoneNumber.Equals(customer.Account.PhoneNumber) || x.Email.Equals(email));
             if (account != null)
             {
-                throw new InvalidActionException("Phone number or Email has already been used");
+                throw new InvalidActionException("EXISTED_PHONE_OR_EMAIL");
             }
 
             try
@@ -106,7 +106,7 @@ namespace VietWay.Service.Customer.Implementation
             VietWay.Repository.EntityModel.Customer? customer = await _unitOfWork.CustomerRepository.Query()
                 .Where(x => x.CustomerId.Equals(customerId) && false == x.IsDeleted)
                 .Include(x => x.Account)
-                .SingleOrDefaultAsync() ?? throw new ResourceNotFoundException("Customer not found");
+                .SingleOrDefaultAsync() ?? throw new ResourceNotFoundException("NOT_EXIST_CUSTOMER");
             try
             {
                 await _unitOfWork.BeginTransactionAsync();

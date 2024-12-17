@@ -43,7 +43,7 @@ namespace VietWay.Service.Management.Implement
         {
             Attraction? attraction = await _unitOfWork.AttractionRepository.Query()
                 .SingleOrDefaultAsync(x => x.AttractionId.Equals(attractionId) && !x.IsDeleted) ??
-                throw new ResourceNotFoundException("Attraction not found");
+                throw new ResourceNotFoundException("NOT_EXIST_ATTRACTION");
             try
             {
                 await _unitOfWork.BeginTransactionAsync();
@@ -185,7 +185,7 @@ namespace VietWay.Service.Management.Implement
         {
             Attraction? attraction = await _unitOfWork.AttractionRepository.Query()
                 .SingleOrDefaultAsync(x => x.AttractionId.Equals(newAttraction.AttractionId) && !x.IsDeleted) ??
-                throw new ResourceNotFoundException("Attraction not found");
+                throw new ResourceNotFoundException("NOT_EXIST_ATTRACTION");
 
             attraction.Status = newAttraction.Status;
             attraction.Name = newAttraction.Name;
@@ -213,7 +213,7 @@ namespace VietWay.Service.Management.Implement
         {
             Attraction attraction = await _unitOfWork.AttractionRepository.Query()
                 .Include(x => x.AttractionImages).SingleOrDefaultAsync(x => x.AttractionId.Equals(attractionId) && !x.IsDeleted)
-                ?? throw new ResourceNotFoundException("Attraction not found");
+                ?? throw new ResourceNotFoundException("NOT_EXIST_ATTRACTION");
             try
             {
                 var enqueuedJobs = new List<Action>();
@@ -267,10 +267,10 @@ namespace VietWay.Service.Management.Implement
                 await _unitOfWork.BeginTransactionAsync();
                 Account? account = await _unitOfWork.AccountRepository.Query()
                     .SingleOrDefaultAsync(x => x.AccountId.Equals(accountId) && !x.IsDeleted) ??
-                    throw new ResourceNotFoundException("Account not found");
+                    throw new UnauthorizedException("UNAUTHORIZED");
                 Attraction? attraction = await _unitOfWork.AttractionRepository.Query()
                     .SingleOrDefaultAsync(x => attractionId.Equals(x.AttractionId)) ??
-                    throw new ResourceNotFoundException("Attraction not found");
+                    throw new ResourceNotFoundException("NOT_EXIST_ATTRACTION");
 
                 bool isManagerApproveOrDenyPendingAttraction = (AttractionStatus.Approved == status || AttractionStatus.Rejected == status) &&
                     UserRole.Manager == account.Role && AttractionStatus.Pending == attraction.Status;
@@ -287,7 +287,7 @@ namespace VietWay.Service.Management.Implement
                 }
                 else
                 {
-                    throw new UnauthorizedException("You are not allowed to perform this action");
+                    throw new UnauthorizedException("UNAUTHORIZED");
                 }
 
                 await _unitOfWork.AttractionRepository.UpdateAsync(attraction);
