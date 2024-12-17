@@ -19,5 +19,6 @@ namespace VietWay.Service.Customer.DataTransferObject
         public required decimal MinPrice { get; set; }
         public required List<DateTime> StartDate { get; set; }
         public double? AverageRating { get; set; }
+        public string? Transportation { get; set; }
     }
 }

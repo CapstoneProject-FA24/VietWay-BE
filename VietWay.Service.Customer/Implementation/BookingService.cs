@@ -200,6 +200,7 @@ namespace VietWay.Service.Customer.Implementation
                         FullName = y.FullName,
                         Gender = y.Gender,
                         PhoneNumber = y.PhoneNumber,
+                        PIN = y.PIN,
                         Price = y.Price,
                     }).ToList(),
                     Code = x.Tour.TourTemplate.Code,
