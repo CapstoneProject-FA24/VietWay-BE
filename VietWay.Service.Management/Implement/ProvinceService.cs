@@ -101,7 +101,7 @@ namespace VietWay.Service.Management.Implement
                 var existingProvince = await GetByNameAsync(province.Name);
                 if (existingProvince != null)
                 {
-                    throw new InvalidActionException($"A category with the name '{existingProvince.Name}' already exists.");
+                    throw new InvalidActionException("EXISTED_CATEGORY");
                 }
 
                 province.ProvinceId ??= _idGenerator.GenerateId();
@@ -127,7 +127,7 @@ namespace VietWay.Service.Management.Implement
         {
             Province? province = await _unitOfWork.ProvinceRepository.Query()
                 .SingleOrDefaultAsync(x => x.ProvinceId.Equals(newProvince.ProvinceId)) ??
-                throw new ResourceNotFoundException("Province not found");
+                throw new ResourceNotFoundException("NOT_EXISTED_PROVINCE");
 
             province.Name = newProvince.Name;
             province.Description = newProvince.Description;
@@ -149,7 +149,7 @@ namespace VietWay.Service.Management.Implement
         {
             Province province = await _unitOfWork.ProvinceRepository.Query()
                 .SingleOrDefaultAsync(x => x.ProvinceId.Equals(provinceId))
-                ?? throw new ResourceNotFoundException("Province not found");
+                ?? throw new ResourceNotFoundException("NOT_EXISTED_PROVINCE");
             try
             {
                 await _unitOfWork.BeginTransactionAsync();
@@ -177,7 +177,7 @@ namespace VietWay.Service.Management.Implement
         {
             Province province = await _unitOfWork.ProvinceRepository.Query()
                 .SingleOrDefaultAsync(x => x.ProvinceId.Equals(provinceId))
-                ?? throw new ResourceNotFoundException("Province not found");
+                ?? throw new ResourceNotFoundException("NOT_EXISTED_PROVINCE");
             bool hasRelatedData = await _unitOfWork.PostRepository.Query().AnyAsync(x => x.ProvinceId.Equals(provinceId))
                 || await _unitOfWork.CustomerRepository.Query().AnyAsync(x => x.CustomerId.Equals(provinceId))
                 || await _unitOfWork.AttractionRepository.Query().AnyAsync(x => x.ProvinceId.Equals(provinceId))

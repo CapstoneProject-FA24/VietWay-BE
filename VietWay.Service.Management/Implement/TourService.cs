@@ -54,21 +54,17 @@ namespace VietWay.Service.Management.Implement
                 .Include(x => x.TourPrices)
                 .Include(x => x.TourRefundPolicies)
                 .SingleOrDefaultAsync(x => x.TourId.Equals(tourId)) ??
-                throw new ResourceNotFoundException("Tour not found");
+                throw new ResourceNotFoundException("NOT_EXIST_TOUR");
             switch (tour.Status)
             {
                 case TourStatus.Opened when tour.CurrentParticipant != 0:
-                    throw new InvalidInfoException("Cannot edit tour that already has participants");
-                    break;
+                    throw new InvalidActionException("INVALID_ACTION_EDIT_TOUR_HAS_BOOKING");
                 case TourStatus.Closed:
-                    throw new InvalidInfoException("Tour already closed");
-                    break;
+                    throw new InvalidActionException("INVALID_ACTION_EDIT_CLOSED_TOUR");
                 case TourStatus.Completed:
-                    throw new InvalidInfoException("Tour already completed");
-                    break;
+                    throw new InvalidActionException("INVALID_ACTION_EDIT_COMPLETED_TOUR");
                 case TourStatus.Cancelled:
-                    throw new InvalidInfoException("Tour already cancelled");
-                    break;
+                    throw new InvalidActionException("INVALID_ACTION_EDIT_CANCELLED_TOUR");
                 default:
                     break;
             }
@@ -303,10 +299,10 @@ namespace VietWay.Service.Management.Implement
                 await _unitOfWork.BeginTransactionAsync();
                 Account? account = await _unitOfWork.AccountRepository.Query()
                     .SingleOrDefaultAsync(x => x.AccountId.Equals(accountId)) ??
-                    throw new ResourceNotFoundException("Account not found");
+                    throw new UnauthorizedException("UNAUTHORIZED");
                 Tour? tour = await _unitOfWork.TourRepository.Query()
                     .SingleOrDefaultAsync(x => x.TourId.Equals(tourId)) ??
-                    throw new ResourceNotFoundException("Tour not found");
+                    throw new ResourceNotFoundException("NOT_EXIST_TOUR");
 
                 bool isManagerAcceptedOrDenyPendingTour = (TourStatus.Accepted == tourStatus || TourStatus.Rejected == tourStatus) &&
                     UserRole.Manager == account.Role && TourStatus.Pending == tour.Status;
@@ -319,7 +315,7 @@ namespace VietWay.Service.Management.Implement
                 }
                 else
                 {
-                    throw new UnauthorizedException("You are not allowed to perform this action");
+                    throw new UnauthorizedException("UNAUTHORIZED");
                 }
 
                 if (isRegisteredOpenedDatePass)
@@ -347,15 +343,15 @@ namespace VietWay.Service.Management.Implement
             {
                 Manager? manager = await _unitOfWork.ManagerRepository.Query()
                     .SingleOrDefaultAsync(x => x.ManagerId.Equals(managerId)) ??
-                    throw new UnauthorizedException("You are not allowed to perform this action");
+                    throw new UnauthorizedException("UNAUTHORIZED");
 
                 Tour? tour = await _unitOfWork.TourRepository.Query().Include(x => x.TourBookings)
                     .SingleOrDefaultAsync(x => x.TourId.Equals(tourId)) ??
-                    throw new ResourceNotFoundException("Tour not found");
+                    throw new ResourceNotFoundException("NOT_EXIST_TOUR");
 
                 if (TourStatus.Accepted != tour.Status && TourStatus.Opened != tour.Status && TourStatus.Closed == tour.Status)
                 {
-                    throw new InvalidActionException("Cannot cancel tour that is not accepted, opened or closed");
+                    throw new InvalidActionException("INVALID_ACTION_TOUR_CANCEL");
                 }
                 int oldStatus = (int)tour.Status;
                 tour.Status = TourStatus.Cancelled;
@@ -438,7 +434,7 @@ namespace VietWay.Service.Management.Implement
         {
             Tour? tour = await _unitOfWork.TourRepository.Query()
                 .SingleOrDefaultAsync(x => x.TourId.Equals(tourId)) ??
-                throw new ResourceNotFoundException("Tour not found");
+                throw new ResourceNotFoundException("NOT_EXIST_TOUR");
 
             try
             {

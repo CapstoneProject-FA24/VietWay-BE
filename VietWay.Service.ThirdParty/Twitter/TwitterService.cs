@@ -9,6 +9,7 @@ using Tweetinvi;
 using Tweetinvi.Models;
 using Tweetinvi.Models.V2;
 using VietWay.Repository.EntityModel;
+using VietWay.Util.CustomExceptions;
 using static Google.Apis.Requests.BatchRequest;
 
 namespace VietWay.Service.ThirdParty.Twitter
@@ -68,7 +69,7 @@ namespace VietWay.Service.ThirdParty.Twitter
 
             if (!response.IsSuccessStatusCode)
             {
-                throw new Exception($"Failed to fetch tweets: {response.ReasonPhrase}");
+                throw new ServerErrorException($"Failed to fetch tweets: {response.ReasonPhrase}");
             }
             using JsonDocument document = await JsonDocument.ParseAsync(await response.Content.ReadAsStreamAsync());
             JsonElement tweetData = document.RootElement.GetProperty("data");
@@ -99,7 +100,7 @@ namespace VietWay.Service.ThirdParty.Twitter
 
                 if (!response.IsSuccessStatusCode)
                 {
-                    throw new Exception($"Failed to fetch tweets: {response.ReasonPhrase}");
+                    throw new ServerErrorException($"Failed to fetch tweets: {response.ReasonPhrase}");
                 }
 
                 return await response.Content.ReadAsStringAsync();
@@ -118,7 +119,7 @@ namespace VietWay.Service.ThirdParty.Twitter
 
             if (!result.Response.IsSuccessStatusCode)
             {
-                throw new Exception($"Failed to delete tweet {tweetId}: {result.Response.ReasonPhrase}");
+                throw new ServerErrorException($"Failed to delete tweet {tweetId}: {result.Response.ReasonPhrase}");
             }
         }
     }

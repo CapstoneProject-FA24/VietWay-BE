@@ -46,15 +46,15 @@ namespace VietWay.Service.Management.Implement
                 var existingCode = await GetByCodeAsync(tourTemplate.Code);
                 if (existingCode != null)
                 {
-                    throw new InvalidActionException($"A category with the name '{existingCode.Code}' already exists.");
+                    throw new InvalidInfoException($"EXISTED_TOUR_TEMPLATE_CODE");
                 }
                 if (tourTemplate.MinPrice == 0 || tourTemplate.MaxPrice == 0)
                 {
-                    throw new Exception("Price can not be left 0");
+                    throw new InvalidInfoException("INVALID_INFO_PRICE");
                 }
                 else if (tourTemplate.MinPrice > tourTemplate.MaxPrice)
                 {
-                    throw new Exception("Min Price must be lower than Max Price");
+                    throw new Exception("INVALID_INFO_PRICE");
                 }
                 foreach (var province in tourTemplate.TourTemplateProvinces ?? [])
                 {
@@ -83,10 +83,10 @@ namespace VietWay.Service.Management.Implement
         {
             TourTemplate? tourTemplate = await _unitOfWork.TourTemplateRepository.Query()
                 .SingleOrDefaultAsync(x => x.TourTemplateId.Equals(tourTemplateId)) ??
-                throw new ResourceNotFoundException("Tour Template not found");
+                throw new ResourceNotFoundException("NOT_EXIST_TOUR_TEMPLATE");
             Account? account = await _unitOfWork.AccountRepository.Query()
                 .SingleOrDefaultAsync(x => x.AccountId.Equals(accountId)) ??
-                throw new ResourceNotFoundException("Account not found");
+                throw new UnauthorizedException("UNAUTHORIZED");
 
             bool hasRelatedTour = await _unitOfWork.TourRepository.Query().AnyAsync(x => x.TourTemplateId.Equals(tourTemplateId));
             bool isStaff = account.Role.Equals(UserRole.Staff);
@@ -104,7 +104,7 @@ namespace VietWay.Service.Management.Implement
                 }
                 else if (isStaff && isPending)
                 {
-                    throw new InvalidDataException("Can not delete tour template already submited");
+                    throw new InvalidActionException("INVALID_ACTION_DELETE_PENDING_TOUR_TEMPLATE");
                 }
                 else if (isManager && !hasRelatedTour && !(isPending || isDraft))
                 {
@@ -112,11 +112,11 @@ namespace VietWay.Service.Management.Implement
                 }
                 else if (isManager && tourTemplate.Status.Equals(TourTemplateStatus.Pending))
                 {
-                    throw new InvalidDataException("Can not delete tour template just submitted");
+                    throw new InvalidActionException("INVALID_ACTION_DELETE_PENDING_TOUR_TEMPLATE");
                 }
                 else if (isManager && hasRelatedTour)
                 {
-                    throw new InvalidDataException("Can not delete tour template that has tour");
+                    throw new InvalidDataException("INVALID_ACTION_DELETE_TOUR_TEMPLATE_HAS_TOUR");
                 }
 
                 await _unitOfWork.CommitTransactionAsync();
@@ -261,11 +261,11 @@ namespace VietWay.Service.Management.Implement
                 .Include(x => x.TourDuration)
                 .Include(x => x.TourCategory)
                 .SingleOrDefaultAsync(x => x.TourTemplateId.Equals(tourTemplateId)) ??
-                throw new ResourceNotFoundException("Tour Template not found");
+                throw new ResourceNotFoundException("NOT_EXIST_TOUR_TEMPLATE");
 
             if (tourTemplate.Status.Equals(TourTemplateStatus.Approved))
             {
-                throw new InvalidInfoException("Tour Template already approved");
+                throw new InvalidActionException("INVALID_ACTION_TOUR_TEMPLATE_ALREADY_APPROVED");
             }
 
             tourTemplate.Code = newTourTemplate.Code;
@@ -550,7 +550,7 @@ namespace VietWay.Service.Management.Implement
         {
             TourTemplate tourTemplate = await _unitOfWork.TourTemplateRepository.Query()
                 .Include(x => x.TourTemplateImages).SingleOrDefaultAsync(x => x.TourTemplateId.Equals(tourTemplateId))
-                ?? throw new ResourceNotFoundException("Tour template not found");
+                ?? throw new ResourceNotFoundException("NOT_EXIST_TOUR_TEMPLATE");
             try
             {
                 var enqueuedJobs = new List<Action>();
@@ -604,10 +604,10 @@ namespace VietWay.Service.Management.Implement
                 await _unitOfWork.BeginTransactionAsync();
                 Account? account = await _unitOfWork.AccountRepository.Query()
                     .SingleOrDefaultAsync(x => x.AccountId.Equals(accountId)) ??
-                    throw new ResourceNotFoundException("Account not found");
+                    throw new UnauthorizedException("UNAUTHORIZED");
                 TourTemplate? tourTemplate = await _unitOfWork.TourTemplateRepository.Query()
                     .SingleOrDefaultAsync(x => x.TourTemplateId.Equals(tourTemplateId)) ??
-                    throw new ResourceNotFoundException("Tour template not found");
+                    throw new ResourceNotFoundException("NOT_EXIST_TOUR_TEMPLATE");
 
                 bool isManagerApproveOrDenyPendingTourTemplate = (TourTemplateStatus.Approved == templateStatus || TourTemplateStatus.Rejected == templateStatus) &&
                     UserRole.Manager == account.Role && TourTemplateStatus.Pending == tourTemplate.Status;
@@ -624,7 +624,7 @@ namespace VietWay.Service.Management.Implement
                 }
                 else
                 {
-                    throw new UnauthorizedException("You are not allowed to perform this action");
+                    throw new UnauthorizedException("UNAUTHORIZED");
                 }
 
                 await _unitOfWork.TourTemplateRepository.UpdateAsync(tourTemplate);

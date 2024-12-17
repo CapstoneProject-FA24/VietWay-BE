@@ -61,17 +61,17 @@ namespace VietWay.Service.Management.Implement
             Manager? manager = await _unitOfWork.ManagerRepository.Query()
                 .Where(x => x.ManagerId.Equals(managerId))
                 .Include(x => x.Account)
-                .SingleOrDefaultAsync() ?? throw new ResourceNotFoundException("Manager not found");
+                .SingleOrDefaultAsync() ?? throw new ResourceNotFoundException("NOT_EXIST_MANAGER");
 
             bool checkPassword = _hashHelper.Verify(oldPassword, manager.Account.Password);
 
             if (!checkPassword)
             {
-                throw new InvalidActionException("Incorrect password");
+                throw new InvalidInfoException("INVALID_INFO_PASSWORD");
             }
             else if (oldPassword.Equals(newPassword))
             {
-                throw new InvalidActionException("Your new password cannot be the same as your current password.");
+                throw new InvalidInfoException("INVALID_INFO_SAME_PASSWORD");
             }
 
             manager.Account.Password = _hashHelper.Hash(newPassword);
@@ -119,7 +119,7 @@ namespace VietWay.Service.Management.Implement
         {
             Manager? manager = await _unitOfWork.ManagerRepository.Query()
                 .SingleOrDefaultAsync(x => x.ManagerId.Equals(managerId)) ??
-                throw new ResourceNotFoundException("Manager account not found");
+                throw new ResourceNotFoundException("NOT_EXIST_MANAGER");
 
             manager.IsDeleted = isDeleted;
             try

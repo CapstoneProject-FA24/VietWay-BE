@@ -62,7 +62,7 @@ namespace VietWay.Service.Management.Implement
         {
             TourDuration? tourDuration = await _unitOfWork.TourDurationRepository.Query()
                 .SingleOrDefaultAsync(x => x.DurationId.Equals(newTourDuration.DurationId)) ??
-                throw new ResourceNotFoundException("Tour Duration not found");
+                throw new ResourceNotFoundException("NOT_EXIST_DURATION");
 
             tourDuration.DurationName = newTourDuration.DurationName;
             tourDuration.NumberOfDay = newTourDuration.NumberOfDay;
@@ -96,7 +96,7 @@ namespace VietWay.Service.Management.Implement
         {
             TourDuration? tourDuration = await _unitOfWork.TourDurationRepository.Query()
                 .SingleOrDefaultAsync(x => x.DurationId.Equals(tourDurationId)) ??
-                throw new ResourceNotFoundException("Tour Duration not found");
+                throw new ResourceNotFoundException("NOT_EXIST_DURATION");
 
             bool hasRelatedData = await _unitOfWork.TourDurationRepository.Query().AnyAsync(x => x.DurationId.Equals(tourDurationId));
 

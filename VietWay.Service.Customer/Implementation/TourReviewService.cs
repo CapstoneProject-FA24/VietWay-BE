@@ -32,10 +32,10 @@ namespace VietWay.Service.Customer.Implementation
                 Booking booking = await _unitOfWork.BookingRepository.Query()
                     .Include(x => x.Tour.TourTemplate.TourDuration)
                     .SingleOrDefaultAsync(x => x.BookingId == tourReview.BookingId && x.CustomerId == customerId && x.Status == BookingStatus.Completed)
-                    ?? throw new ResourceNotFoundException("Booking not found");
+                    ?? throw new ResourceNotFoundException("NOT_EXIST_BOOKING");
                 if (booking.Tour!.StartDate!.Value.AddDays(booking.Tour!.TourTemplate!.TourDuration!.NumberOfDay).AddDays(_reviewTourExpireAfterDays) < _timeZoneHelper.GetUTC7Now())
                 {
-                    throw new InvalidActionException("Review time is expired");
+                    throw new InvalidActionException("INVALID_ACTION_REVIEW_EXPIRED");
                 }
                 tourReview.ReviewId = _idGenerator.GenerateId();
                 tourReview.CreatedAt = _timeZoneHelper.GetUTC7Now();
