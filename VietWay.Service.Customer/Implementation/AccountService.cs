@@ -73,11 +73,11 @@ namespace VietWay.Service.Customer.Implementation
             string? otpInCache = await _redisCacheService.GetAsync<string>(phoneNumber);
             if (otpInCache == null || false == _hashHelper.Verify(otp,otpInCache))
             {
-                throw new InvalidInfoException("Invalid OTP");
+                throw new InvalidInfoException("INVALID_OTP");
             }
             Account? account = await _unitOfWork.AccountRepository
                 .Query()
-                .SingleOrDefaultAsync(x => x.PhoneNumber!.Equals(phoneNumber) && false == x.IsDeleted) ?? throw new InvalidInfoException("Invalid phone number");
+                .SingleOrDefaultAsync(x => x.PhoneNumber!.Equals(phoneNumber) && false == x.IsDeleted) ?? throw new InvalidInfoException("INVALID_PHONENUMBER");
             return _tokenHelper.GenerateResetPasswordToken(account.AccountId!, DateTime.Now.Add(_otpGenerator.GetOtpTimespan()));
         }
 
@@ -89,11 +89,11 @@ namespace VietWay.Service.Customer.Implementation
                 Account? account = await _unitOfWork.AccountRepository
                     .Query()
                     .SingleOrDefaultAsync(x => x.AccountId!.Equals(accountId) && x.PhoneNumber!.Equals(phoneNumber) && false == x.IsDeleted) ??
-                        throw new InvalidInfoException("Invalid phone number");
+                        throw new InvalidInfoException("INVALID_PHONENUMBER ");
                 bool phoneNumberHasResetPasswordRequest = await _redisCacheService.GetAsync<string>(phoneNumber) != null;
                 if (phoneNumberHasResetPasswordRequest == false)
                 {
-                    throw new InvalidInfoException("Invalid phone number");
+                    throw new InvalidInfoException("INVALID_PHONENUMBER");
                 }
                 account.Password = _hashHelper.Hash(newPassword);
                 await _unitOfWork.AccountRepository.UpdateAsync(account);
@@ -113,7 +113,7 @@ namespace VietWay.Service.Customer.Implementation
                 .AnyAsync(x=>x.PhoneNumber.Equals(phoneNumber) && false == x.IsDeleted && x.Role == UserRole.Customer);
             if (isCustomerAccountValid == false)
             {
-                throw new InvalidInfoException("Invalid phone number");
+                throw new InvalidInfoException("INVALID_PHONENUMBER");
             }
             string otp = _otpGenerator.GenerateOtp();
             bool result = await _smsService.SendOTP(otp, phoneNumber);

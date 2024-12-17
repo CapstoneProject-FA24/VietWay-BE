@@ -100,7 +100,7 @@ namespace VietWay.Service.Customer.Implementation
                     .SingleOrDefaultAsync(x => x.BookingId.Equals(bookingId) && x.CustomerId.Equals(customerId));
                 if (tourBooking == null || (tourBooking.Status != BookingStatus.Pending && tourBooking.Status != BookingStatus.Deposited))
                 {
-                    throw new ResourceNotFoundException();
+                    throw new ResourceNotFoundException("NOT_EXIST_BOOKING");
                 }
                 decimal amount;
                 if (isFullPayment == null || isFullPayment.Value || tourBooking.Tour.DepositPercent == 0m)
@@ -133,7 +133,7 @@ namespace VietWay.Service.Customer.Implementation
                         bookingPayment,
                         tourBooking.Tour!.TourTemplate!.TourName!,
                         _paymentExpireAfterMinutes),
-                    _ => throw new InvalidActionException("Invalid payment method")
+                    _ => throw new InvalidInfoException("INVALID_INFO_PAYMENT_METHOD")
                 };
                 _backgroundJobClient.Enqueue<IBookingPaymentJob>(x => x.CheckExpiredPayment(bookingPayment.PaymentId));
                 return paymentUrl;

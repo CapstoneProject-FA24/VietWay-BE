@@ -25,10 +25,10 @@ namespace VietWay.Service.Management.Implement
         {
             Post? post = await _unitOfWork.PostRepository.Query()
                 .SingleOrDefaultAsync(x => x.PostId.Equals(postId)) ??
-                throw new ResourceNotFoundException("Post not found");
+                throw new ResourceNotFoundException("NOT_EXISTED_POST");
             if (post.FacebookPostId.IsNullOrEmpty())
             {
-                throw new InvalidActionException("The post has not been published");
+                throw new InvalidActionException("INVALID_ACTION_POST_NOT_PUBLISHED");
             }
             Task<int> countCommentTask = _facebookService.GetPostCommentCountAsync(post.FacebookPostId!);
             Task<int> countShareTask = _facebookService.GetPostShareCountAsync(post.FacebookPostId!);
@@ -49,7 +49,7 @@ namespace VietWay.Service.Management.Implement
             TweetDTO? tweetDto = await _redisCacheService.GetAsync<TweetDTO>(postId);
             if (null == tweetDto)
             {
-                throw new ResourceNotFoundException("The post has not been published");
+                throw new ResourceNotFoundException("POST_NOT_PUBLISHED");
             }
             return tweetDto;
         }
@@ -58,18 +58,18 @@ namespace VietWay.Service.Management.Implement
         {
             Post? post = await _unitOfWork.PostRepository.Query()
                 .SingleOrDefaultAsync(x => x.PostId.Equals(postId)) ??
-                throw new ResourceNotFoundException("Post not found");
+                throw new ResourceNotFoundException("NOT_EXISTED_POST");
 
             if (post.Status != PostStatus.Approved)
             {
-                throw new ServerErrorException("Post has not been approved yet");
+                throw new InvalidActionException("INVALID_ACTION_POST_NOT_APPROVED");
             }
             if (!post.XTweetId.IsNullOrEmpty())
             {
-                throw new ServerErrorException("The post has already been tweeted");
+                throw new ServerErrorException("INVALID_ACTION_POST_PUBLISHED");
             }
 
-            PostTweetRequestDTO postTweetRequestDTO = new PostTweetRequestDTO
+            PostTweetRequestDTO postTweetRequestDTO = new()
             {
                 Text = $"{post.Title.ToUpper()}\n\nXem thêm tại: https://vietway.projectpioneer.id.vn/bai-viet/{post.PostId}",
                 ImageUrl = post.ImageUrl
@@ -100,15 +100,15 @@ namespace VietWay.Service.Management.Implement
         {
             Post? post = await _unitOfWork.PostRepository.Query()
                 .SingleOrDefaultAsync(x => x.PostId.Equals(postId)) ??
-                throw new ResourceNotFoundException("Post not found");
+                throw new ResourceNotFoundException("NOT_EXISTED_POST");
 
             if (post.Status != PostStatus.Approved)
             {
-                throw new ServerErrorException("Post has not been approved yet");
+                throw new InvalidActionException("INVALID_ACTION_POST_NOT_APPROVED");
             }
             if (!post.FacebookPostId.IsNullOrEmpty())
             {
-                throw new ServerErrorException("The post has already been tweeted");
+                throw new InvalidActionException("INVALID_ACTION_POST_PUBLISHED");
             }
 
             string facebookPostId = await _facebookService.PublishPostAsync(post.Description, $"https://vietway.projectpioneer.id.vn/bai-viet/{post.PostId}");
@@ -130,11 +130,11 @@ namespace VietWay.Service.Management.Implement
         {
             Post? post = await _unitOfWork.PostRepository.Query()
                 .SingleOrDefaultAsync(x => x.PostId.Equals(postId)) ??
-                throw new ResourceNotFoundException("Post not found");
+                throw new ResourceNotFoundException("NOT_EXISTED_POST");
 
             if (post.XTweetId.IsNullOrEmpty())
             {
-                throw new ServerErrorException("The post has not been tweeted yet");
+                throw new InvalidActionException("INVALID_ACTION_POST_PUBLISHED");
             }
 
             try

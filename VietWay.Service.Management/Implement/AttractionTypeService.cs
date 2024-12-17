@@ -43,7 +43,7 @@ namespace VietWay.Service.Management.Implement
                 var existingCategory = await GetByNameAsync(attractionCategory.Name);
                 if (existingCategory != null)
                 {
-                    throw new InvalidActionException($"A category with the name '{existingCategory.Name}' already exists.");
+                    throw new InvalidInfoException("EXISTED_CATEGORY");
                 }
 
                 attractionCategory.AttractionCategoryId ??= _idGenerator.GenerateId();
@@ -69,7 +69,7 @@ namespace VietWay.Service.Management.Implement
         {
             AttractionCategory? attractionCategory = await _unitOfWork.AttractionCategoryRepository.Query()
                 .SingleOrDefaultAsync(x => x.AttractionCategoryId.Equals(attractionCategoryId)) ??
-                throw new ResourceNotFoundException("Attraction Category not found");
+                throw new ResourceNotFoundException("NOT_EXIST_CATEGORY");
 
             attractionCategory.Name = newAttractionCategory.Name;
             attractionCategory.Description = newAttractionCategory.Description;
@@ -89,7 +89,7 @@ namespace VietWay.Service.Management.Implement
         {
             AttractionCategory? attractionCategory = await _unitOfWork.AttractionCategoryRepository.Query()
                 .SingleOrDefaultAsync(x => x.AttractionCategoryId.Equals(attractionCategoryId)) ??
-                throw new ResourceNotFoundException("Attraction Category not found");
+                throw new ResourceNotFoundException("NOT_EXIST_CATEGORY");
 
             bool hasRelatedData = await _unitOfWork.AttractionRepository.Query().AnyAsync(x => x.AttractionCategoryId.Equals(attractionCategoryId));
 

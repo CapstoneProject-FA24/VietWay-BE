@@ -47,7 +47,7 @@ namespace VietWay.Service.Management.Implement
                 var existingCategory = await GetByNameAsync(postCategory.Name);
                 if (existingCategory != null)
                 {
-                    throw new InvalidActionException($"A category with the name '{existingCategory.Name}' already exists.");
+                    throw new InvalidActionException("EXISTED_CATEGORY");
                 }
 
                 postCategory.PostCategoryId ??= _idGenerator.GenerateId();
@@ -74,7 +74,7 @@ namespace VietWay.Service.Management.Implement
         {
             PostCategory? postCategory = await _unitOfWork.PostCategoryRepository.Query()
                 .SingleOrDefaultAsync(x => x.PostCategoryId.Equals(postCategoryId)) ??
-                throw new ResourceNotFoundException("Post Category not found");
+                throw new ResourceNotFoundException("NOT_EXIST_CATEGORY");
 
             postCategory.Name = newPostCategory.Name;
             postCategory.Description = newPostCategory.Description;
@@ -94,7 +94,7 @@ namespace VietWay.Service.Management.Implement
         {
             PostCategory? postCategory = await _unitOfWork.PostCategoryRepository.Query()
                 .SingleOrDefaultAsync(x => x.PostCategoryId.Equals(postCategoryId)) ??
-                throw new ResourceNotFoundException("Post Category not found");
+                throw new ResourceNotFoundException("NOT_EXIST_CATEGORY");
             bool hasRelatedData = await _unitOfWork.PostRepository.Query().AnyAsync(x => x.PostCategoryId.Equals(postCategoryId));
             try
             {

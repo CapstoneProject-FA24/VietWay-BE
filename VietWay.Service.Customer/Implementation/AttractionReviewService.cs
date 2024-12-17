@@ -29,7 +29,7 @@ namespace VietWay.Service.Customer.Implementation
                 bool isExist = await _unitOfWork.AttractionReviewRepository.Query().AnyAsync(x => x.AttractionId.Equals(review.AttractionId) && x.CustomerId.Equals(review.CustomerId));
                 if (isExist)
                 {
-                    throw new ResourceAlreadyExistsException(nameof(AttractionReview));
+                    throw new ResourceAlreadyExistsException("EXISTED_REVIEW");
                 }
                 await _unitOfWork.AttractionReviewRepository.CreateAsync(review);
                 await _unitOfWork.CommitTransactionAsync();
@@ -48,7 +48,7 @@ namespace VietWay.Service.Customer.Implementation
                 await _unitOfWork.BeginTransactionAsync();
                 AttractionReview review = await _unitOfWork.AttractionReviewRepository.Query()
                     .SingleOrDefaultAsync(x => x.ReviewId.Equals(reviewId) && true == x.IsDeleted && x.CustomerId.Equals(customerId)) ??
-                    throw new ResourceNotFoundException(nameof(AttractionReview));
+                    throw new ResourceNotFoundException("NOT_EXIST_REVIEW");
                 review.IsDeleted = true;
                 await _unitOfWork.AttractionReviewRepository.UpdateAsync(review);
                 await _unitOfWork.CommitTransactionAsync();
@@ -126,8 +126,6 @@ namespace VietWay.Service.Customer.Implementation
         {
             try
             {
-#warning TODO: Customer can not like their own review
-
                 await _unitOfWork.BeginTransactionAsync();
                 AttractionReviewLike? attractionReviewLike = await _unitOfWork.AttractionReviewLikeRepository.Query()
                     .SingleOrDefaultAsync(x => x.ReviewId.Equals(reviewId) && x.CustomerId.Equals(customerId) && false == x.AttractionReview!.IsDeleted);
@@ -145,7 +143,7 @@ namespace VietWay.Service.Customer.Implementation
                 }
                 else
                 {
-                    throw new (nameof(AttractionReviewLike));
+                    throw new InvalidActionException("INVALID_ACTION_REVIEW_LIKE");
                 }
                 await _unitOfWork.CommitTransactionAsync();
             }
@@ -163,7 +161,7 @@ namespace VietWay.Service.Customer.Implementation
                 await _unitOfWork.RollbackTransactionAsync();
                 AttractionReview oldReview = await _unitOfWork.AttractionReviewRepository.Query()
                     .SingleOrDefaultAsync(x => x.AttractionId.Equals(review.AttractionId) && false == x.IsDeleted && x.CustomerId.Equals(review.CustomerId)) ??
-                    throw new ResourceNotFoundException(nameof(AttractionReview));
+                    throw new ResourceNotFoundException("NOT_EXIST_REVIEW");
                 oldReview.Rating = review.Rating;
                 oldReview.Review = review.Review;
                 oldReview.CreatedAt = _timeZoneHelper.GetUTC7Now();

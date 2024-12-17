@@ -63,10 +63,10 @@ namespace VietWay.Service.Management.Implement
                 await _unitOfWork.BeginTransactionAsync();
                 Account? account = await _unitOfWork.AccountRepository.Query()
                     .SingleOrDefaultAsync(x => x.AccountId.Equals(accountId)) ??
-                    throw new ResourceNotFoundException("Account not found");
+                    throw new UnauthorizedException("UNAUTHORIZED");
                 TourReview review = _unitOfWork.TourReviewRepository.Query()
                     .SingleOrDefault(x => x.ReviewId.Equals(reviewId)) ??
-                    throw new ResourceNotFoundException("Tour review not found");
+                    throw new ResourceNotFoundException("NOT_EXIST_REVIEW");
                 review.IsDeleted = isHided;
                 await _unitOfWork.TourReviewRepository.UpdateAsync(review);
                 await _unitOfWork.CommitTransactionAsync();

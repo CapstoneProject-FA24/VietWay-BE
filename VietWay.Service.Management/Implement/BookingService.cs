@@ -24,16 +24,16 @@ namespace VietWay.Service.Management.Implement
                 Account account = await _unitOfWork.AccountRepository.Query().SingleOrDefaultAsync(x => x.AccountId == accountId);
                 if (account.Role != UserRole.Manager && account.Role != UserRole.Staff)
                 {
-                    throw new UnauthorizedException("You are not allowed to perform this action");
+                    throw new UnauthorizedException("UNAUTHORIZED");
                 }
 
                 Booking booking = await _unitOfWork.BookingRepository.Query()
                     .Include(x => x.Tour)
                     .SingleOrDefaultAsync(x => x.BookingId.Equals(bookingId))
-                    ?? throw new ResourceNotFoundException("Booking not found");
+                    ?? throw new ResourceNotFoundException("NOT_EXIST_BOOKING");
                 if (booking.Status != BookingStatus.Pending && booking.Status != BookingStatus.Deposited && booking.Status != BookingStatus.Paid)
                 {
-                    throw new InvalidActionException("Cannot cancel booking that is not pending, Deposited or Paid");
+                    throw new InvalidActionException("INVALID_ACTION_BOOKING_CANCEL");
                 }
                 int oldStatus = (int)booking.Status;
                 booking.Status = BookingStatus.Cancelled;
@@ -223,37 +223,37 @@ namespace VietWay.Service.Management.Implement
                 Account account = await _unitOfWork.AccountRepository.Query().SingleOrDefaultAsync(x => x.AccountId == accountId);
                 if (account.Role != UserRole.Manager && account.Role != UserRole.Staff)
                 {
-                    throw new UnauthorizedException("You are not allowed to perform this action");
+                    throw new UnauthorizedException("UNAUTHORIZED");
                 }
 
                 Booking booking = await _unitOfWork
                     .BookingRepository.Query().Include(x => x.BookingTourists).SingleOrDefaultAsync(x => x.BookingId == bookingId)
-                    ?? throw new ResourceNotFoundException("Booking not found");
+                    ?? throw new ResourceNotFoundException("NOT_EXIST_BOOKING");
 
                 if (booking.Status != BookingStatus.Pending && booking.Status != BookingStatus.Deposited && booking.Status != BookingStatus.Paid)
                 {
-                    throw new InvalidActionException("The booking is not in a pending or confirmed state and cannot change tour.");
+                    throw new InvalidActionException("INVALID_ACTION_BOOKING_CHANGE");
                 }
 
                 Tour? oldTour = await _unitOfWork.TourRepository.Query()
                         .Include(x => x.TourPrices)
                         .SingleOrDefaultAsync(x => x.TourId == booking.TourId)
-                        ?? throw new ResourceNotFoundException("Can not find any tour");
+                        ?? throw new ResourceNotFoundException("NOT_EXIST_TOUR");
 
                 Tour? newTour = await _unitOfWork.TourRepository.Query()
                         .Include(x => x.TourPrices)
                         .SingleOrDefaultAsync(x => x.TourId == newTourId && x.Status == TourStatus.Opened && x.IsDeleted == false)
-                        ?? throw new ResourceNotFoundException("Can not find any tour");
+                        ?? throw new ResourceNotFoundException("NOT_EXIST_TOUR");
                 bool isActiveBookingExisted = await _unitOfWork.BookingRepository.Query()
                     .AnyAsync(x => x.TourId == newTourId && x.CustomerId == booking.CustomerId && (x.Status == BookingStatus.Pending || x.Status == BookingStatus.Deposited || x.Status == BookingStatus.Paid));
 
                 if (isActiveBookingExisted)
                 {
-                    throw new InvalidActionException("Customer has already booked this tour");
+                    throw new InvalidActionException("INVALID_ACTION_BOOKED_TOUR");
                 }
                 if (newTour.CurrentParticipant + booking.BookingTourists.Count > newTour.MaxParticipant)
                 {
-                    throw new InvalidActionException("Tour is full");
+                    throw new InvalidActionException("INVALID_ACTION_TOUR_FULL");
                 }
 
                 oldTour.CurrentParticipant -= booking.NumberOfParticipants;
@@ -315,7 +315,7 @@ namespace VietWay.Service.Management.Implement
                 .Any(x => x.BookingId == bookingId);
             if (!isBookingExist)
             {
-                throw new ResourceNotFoundException("Booking not found");
+                throw new ResourceNotFoundException("NOT_EXIST_BOOKING");
             }
             List<BookingHistoryDTO> result = await _unitOfWork.EntityHistoryRepository.Query()
                 .Where(x => x.EntityType == EntityType.Booking && x.EntityId == bookingId)

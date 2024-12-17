@@ -129,7 +129,7 @@ namespace VietWay.Service.Customer.Implementation
                 }
                 else
                 {
-                    throw new InvalidActionException(nameof(PostLike));
+                    throw new InvalidActionException("INVALID_ACTION_POST_LIKE");
                 }
                 await _unitOfWork.CommitTransactionAsync();
             }

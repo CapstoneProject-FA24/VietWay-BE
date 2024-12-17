@@ -63,14 +63,14 @@ namespace VietWay.Service.Management.Implement
             Account account = await _unitOfWork.AccountRepository.Query().SingleOrDefaultAsync(x => x.AccountId == accountId);
             if (account.Role != UserRole.Manager && account.Role != UserRole.Staff)
             {
-                throw new UnauthorizedException("You are not allowed to perform this action");
+                throw new UnauthorizedException("UNAUTHORIZED");
             }
 
             BookingRefund pendingBookingRefund = await _unitOfWork
                 .BookingRefundRepository.Query()
                 .Include(x => x.Booking)
                 .SingleOrDefaultAsync(x => x.RefundId == refundId && x.RefundStatus == RefundStatus.Pending)
-                ?? throw new ResourceNotFoundException("BookingRefund not found");
+                ?? throw new ResourceNotFoundException("NOT_EXIST_BOOKING_REFUND");
             pendingBookingRefund.RefundNote = bookingRefund.RefundNote;
             pendingBookingRefund.RefundStatus = RefundStatus.Refunded;
             pendingBookingRefund.BankCode = bookingRefund.BankCode;

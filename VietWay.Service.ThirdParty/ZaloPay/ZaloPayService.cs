@@ -42,7 +42,10 @@ namespace VietWay.Service.ThirdParty.ZaloPay
             ZaloPayRequest request = new ZaloPayRequest
             {
                 Amount = (long)bookingPayment.Amount,
-                EmbedData = $"{{\"redirecturl\": \"{_returnUrl}/{bookingPayment.BookingId}\"}}",
+                EmbedData = $"{{" +
+                    $"\"redirecturl\": \"{_returnUrl}/{bookingPayment.BookingId}\"," +
+                    $"\"preferred_payment_method\": [\"zalopay_wallet\"]" +
+                    $"}}",
                 Item = JsonConvert.SerializeObject(items, new JsonSerializerSettings
                 {
                     ReferenceLoopHandling = ReferenceLoopHandling.Ignore
@@ -61,7 +64,7 @@ namespace VietWay.Service.ThirdParty.ZaloPay
                 { "expire_duration_seconds", (expireAfterMinutes * 60).ToString() },
                 { "item", request.Item },
                 { "description", request.Description },
-                { "bank_code", "zalopayapp" },
+                { "bank_code", "" },
                 { "callback_url", "https://api.vietway.projectpioneer.id.vn/api/booking-payments/ZaloPayCallback" }
             };
 

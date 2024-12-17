@@ -52,7 +52,7 @@ namespace VietWay.Service.Management.Implement
                 var existingCategory = await GetByNameAsync(tourCategory.Name);
                 if (existingCategory != null)
                 {
-                    throw new InvalidActionException($"A category with the name '{existingCategory.Name}' already exists.");
+                    throw new InvalidActionException("EXISTED_CATEGORY");
                 }
 
                 tourCategory.TourCategoryId ??= _idGenerator.GenerateId();
@@ -77,7 +77,7 @@ namespace VietWay.Service.Management.Implement
         {
             TourCategory? tourCategory = await _unitOfWork.TourCategoryRepository.Query()
                 .SingleOrDefaultAsync(x => x.TourCategoryId.Equals(newTourCategory.TourCategoryId)) ??
-                throw new ResourceNotFoundException("Tour Category not found");
+                throw new ResourceNotFoundException("NOT_EXIST_CATEGORY");
 
             tourCategory.Name = newTourCategory.Name;
             tourCategory.Description = newTourCategory.Description;
@@ -113,7 +113,7 @@ namespace VietWay.Service.Management.Implement
         {
             TourCategory? tourCategory = await _unitOfWork.TourCategoryRepository.Query()
                 .SingleOrDefaultAsync(x => x.TourCategoryId.Equals(tourCategoryId)) ??
-                throw new ResourceNotFoundException("Tour Category not found");
+                throw new ResourceNotFoundException("NOT_EXIST_CATEGORY");
 
             bool hasRelatedData = await _unitOfWork.TourTemplateRepository.Query().AnyAsync(x => x.TourCategoryId.Equals(tourCategoryId));
 

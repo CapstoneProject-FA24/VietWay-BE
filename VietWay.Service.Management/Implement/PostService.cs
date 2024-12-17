@@ -109,7 +109,7 @@ namespace VietWay.Service.Management.Implement
                 .SingleOrDefaultAsync(x => x.PostId.Equals(postId));
             Post? post = await _unitOfWork.PostRepository.Query()
                 .SingleOrDefaultAsync(x => x.PostId.Equals(postId)) ??
-                throw new ResourceNotFoundException("Post not found");
+                throw new ResourceNotFoundException("NOT_EXISTED_POST");
             try
             {
                 await _unitOfWork.BeginTransactionAsync();
@@ -127,7 +127,7 @@ namespace VietWay.Service.Management.Implement
         {
             Post? post = await _unitOfWork.PostRepository.Query()
                 .SingleOrDefaultAsync(x => x.PostId.Equals(newPost.PostId)) ??
-                throw new ResourceNotFoundException("Post not found");
+                throw new ResourceNotFoundException("NOT_EXISTED_POST");
 
             post.Status = newPost.Status;
             post.Title = newPost.Title;
@@ -180,10 +180,10 @@ namespace VietWay.Service.Management.Implement
                 await _unitOfWork.BeginTransactionAsync();
                 Account? account = await _unitOfWork.AccountRepository.Query()
                     .SingleOrDefaultAsync(x => x.AccountId.Equals(accountId)) ??
-                    throw new ResourceNotFoundException("Account not found");
+                    throw new UnauthorizedException("UNAUTHORIZED");
                 Post? post = await _unitOfWork.PostRepository.Query()
                     .SingleOrDefaultAsync(x => x.PostId.Equals(postId)) ??
-                    throw new ResourceNotFoundException("Post not found");
+                    throw new ResourceNotFoundException("NOT_EXISTED_POST");
 
                 bool isManagerApproveOrDenyPendingPost = (PostStatus.Approved == postStatus || PostStatus.Rejected == postStatus) &&
                     UserRole.Manager == account.Role && PostStatus.Pending == post.Status;
@@ -200,7 +200,7 @@ namespace VietWay.Service.Management.Implement
                 }
                 else
                 {
-                    throw new UnauthorizedException("You are not allowed to perform this action");
+                    throw new UnauthorizedException("UNAUTHORIZED");
                 }
 
                 await _unitOfWork.PostRepository.UpdateAsync(post);
@@ -217,7 +217,7 @@ namespace VietWay.Service.Management.Implement
         {
             Post post = await _unitOfWork.PostRepository.Query()
                 .SingleOrDefaultAsync(x => x.PostId.Equals(postId))
-                ?? throw new ResourceNotFoundException("Post not found");
+                ?? throw new ResourceNotFoundException("NOT_EXISTED_POST");
             try
             {
                 await _unitOfWork.BeginTransactionAsync();
