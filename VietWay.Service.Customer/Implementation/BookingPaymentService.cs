@@ -135,7 +135,7 @@ namespace VietWay.Service.Customer.Implementation
                         _paymentExpireAfterMinutes),
                     _ => throw new InvalidInfoException("INVALID_INFO_PAYMENT_METHOD")
                 };
-                _backgroundJobClient.Enqueue<IBookingPaymentJob>(x => x.CheckExpiredPayment(bookingPayment.PaymentId));
+                _backgroundJobClient.Schedule<IBookingPaymentJob>(x => x.CheckExpiredPayment(bookingPayment.PaymentId),TimeSpan.FromMinutes(_paymentExpireAfterMinutes));
                 return paymentUrl;
             } catch
             {
