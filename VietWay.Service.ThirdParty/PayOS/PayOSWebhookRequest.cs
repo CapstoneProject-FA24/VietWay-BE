@@ -7,7 +7,12 @@ using Net.payOS.Types;
 
 namespace VietWay.Service.ThirdParty.PayOS
 {
-    public record PayOSWebhookRequest(string code, string desc, bool success, WebhookData data, string signature) : WebhookType(code, desc, success, data, signature)
+    public class PayOSWebhookRequest
     {
+        public required string Code { get; set; }
+        public required string Desc { get; set; }
+        public bool Success { get; set; }
+        public required PayOSWebhookData Data { get; set; }
+        public required string Signature { get; set; }
     }
 }

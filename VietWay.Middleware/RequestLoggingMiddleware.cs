@@ -19,8 +19,6 @@ namespace VietWay.Middleware
         {
             var stopwatch = Stopwatch.StartNew();
             _logger.LogInformation("Incoming request: [{requestMethod}] {requestPath}", context.Request.Method, context.Request.Path);
-            using StreamReader streamReader = new(context.Request.Body);
-            _logger.LogInformation("Request data: {requestData}", await streamReader.ReadToEndAsync());
             await _next(context);
 
             stopwatch.Stop();

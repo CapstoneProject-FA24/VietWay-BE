@@ -36,7 +36,25 @@ namespace VietWay.Service.ThirdParty.PayOS
         {
             try
             {
-                _ = _payOS.verifyPaymentWebhookData(request);
+                WebhookData data = new(
+                    request.Data.OrderCode, 
+                    request.Data.Amount,
+                    request.Data.Description,
+                    request.Data.AccountNumber,
+                    request.Data.Reference,
+                    request.Data.TransactionDateTime,
+                    request.Data.Currency,
+                    request.Data.PaymentLinkId,
+                    request.Data.Code,
+                    request.Data.Desc,
+                    request.Data.CounterAccountBankId,
+                    request.Data.CounterAccountBankName,
+                    request.Data.CounterAccountName,
+                    request.Data.CounterAccountNumber,
+                    request.Data.VirtualAccountName,
+                    request.Data.VirtualAccountNumber);
+                WebhookType webhookType = new(request.Code,request.Desc,request.Success,data,request.Signature);
+                _ = _payOS.verifyPaymentWebhookData(webhookType);
                 return true;
             }
             catch
