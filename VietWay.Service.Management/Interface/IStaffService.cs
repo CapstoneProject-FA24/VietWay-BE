@@ -15,5 +15,6 @@ namespace VietWay.Service.Management.Interface
         public Task RegisterAccountAsync(Staff staff);
         public Task ChangeStaffStatusAsync(string staffId, bool isDeleted);
         public Task AdminResetStaffPassword(string staffId);
+        public Task<StaffDetailDTO?> GetStaffDetailAsync(string staffId);
     }
 }

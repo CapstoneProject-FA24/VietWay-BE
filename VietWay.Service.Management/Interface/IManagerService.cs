@@ -14,5 +14,6 @@ namespace VietWay.Service.Management.Interface
         public Task RegisterAccountAsync(Manager manager);
         public Task ChangeManagerStatusAsync(string managerId, bool isDeleted);
         public Task AdminResetManagerPassword(string managerId);
+        public Task<ManagerDetailDTO?> GetManagerDetailAsync(string managerId);
     }
 }

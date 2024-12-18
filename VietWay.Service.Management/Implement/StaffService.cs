@@ -220,5 +220,17 @@ namespace VietWay.Service.Management.Implement
                 array[j] = temp;
             }
         }
+        public async Task<StaffDetailDTO?> GetStaffDetailAsync(string staffId)
+        {
+            return await _unitOfWork.StaffRepository
+                .Query()
+                .Where(x => x.StaffId.Equals(staffId))
+                .Select(x => new StaffDetailDTO
+                {
+                    FullName = x.FullName,
+                    PhoneNumber = x.Account.PhoneNumber,
+                    Email = x.Account.Email,
+                }).SingleOrDefaultAsync();
+        }
     }
 }

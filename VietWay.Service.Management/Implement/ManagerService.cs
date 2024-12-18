@@ -217,5 +217,17 @@ namespace VietWay.Service.Management.Implement
                 array[j] = temp;
             }
         }
+        public async Task<ManagerDetailDTO?> GetManagerDetailAsync(string managerId)
+        {
+            return await _unitOfWork.ManagerRepository
+                .Query()
+                .Where(x => x.ManagerId.Equals(managerId))
+                .Select(x => new ManagerDetailDTO
+                {
+                    FullName = x.FullName,
+                    PhoneNumber = x.Account.PhoneNumber,
+                    Email = x.Account.Email,
+                }).SingleOrDefaultAsync();
+        }
     }
 }
