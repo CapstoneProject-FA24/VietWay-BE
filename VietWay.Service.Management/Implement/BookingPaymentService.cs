@@ -224,7 +224,7 @@ namespace VietWay.Service.Management.Implement
                 {
                     return;
                 }
-                string? paymentId = await _redisCacheService.GetValueFromIntId((int)request.data.orderCode);
+                string? paymentId = await _redisCacheService.GetValueFromIntId((int)request.Data.OrderCode);
                 if (paymentId == null)
                 {
                     return;
@@ -238,11 +238,11 @@ namespace VietWay.Service.Management.Implement
                 {
                     return;
                 }
-                bookingPayment.BankCode = request.data.counterAccountBankId;
-                bookingPayment.BankTransactionNumber = request.data.reference;
-                bookingPayment.PayTime = DateTime.ParseExact(request.data.transactionDateTime, "yyyy-MM-dd HH:mm:ss", null);
-                bookingPayment.ThirdPartyTransactionNumber = request.data.paymentLinkId;
-                if (request.success == true)
+                bookingPayment.BankCode = request.Data.CounterAccountBankId;
+                bookingPayment.BankTransactionNumber = request.Data.Reference;
+                bookingPayment.PayTime = DateTime.ParseExact(request.Data.TransactionDateTime, "yyyy-MM-dd HH:mm:ss", null);
+                bookingPayment.ThirdPartyTransactionNumber = request.Data.PaymentLinkId;
+                if (request.Success == true)
                 {
                     int oldBookingStatus = (int)bookingPayment.Booking.Status;
                     bookingPayment.Status = PaymentStatus.Paid;
@@ -276,7 +276,7 @@ namespace VietWay.Service.Management.Implement
                 }
                 await _unitOfWork.BookingPaymentRepository.UpdateAsync(bookingPayment);
                 await _unitOfWork.CommitTransactionAsync();
-                await _redisCacheService.RemoveAsync($"int32Id:{request.data.orderCode}");
+                await _redisCacheService.RemoveAsync($"int32Id:{request.Data.OrderCode}");
             }
             catch
             {
