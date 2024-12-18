@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace VietWay.Middleware
@@ -18,7 +19,7 @@ namespace VietWay.Middleware
         {
             var stopwatch = Stopwatch.StartNew();
             _logger.LogInformation("Incoming request: [{requestMethod}] {requestPath}", context.Request.Method, context.Request.Path);
-
+            _logger.LogInformation("Request data: {requestData}", JsonSerializer.Serialize(context.Request));
             await _next(context);
 
             stopwatch.Stop();
