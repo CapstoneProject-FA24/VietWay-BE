@@ -19,7 +19,8 @@ namespace VietWay.Middleware
         {
             var stopwatch = Stopwatch.StartNew();
             _logger.LogInformation("Incoming request: [{requestMethod}] {requestPath}", context.Request.Method, context.Request.Path);
-            _logger.LogInformation("Request data: {requestData}", JsonSerializer.Serialize(context.Request.Body));
+            using StreamReader streamReader = new(context.Request.Body);
+            _logger.LogInformation("Request data: {requestData}", streamReader.ReadToEnd());
             await _next(context);
 
             stopwatch.Stop();
