@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using Tweetinvi.Core.Extensions;
 using VietWay.Repository.EntityModel;
 using VietWay.Repository.EntityModel.Base;
 using VietWay.Repository.UnitOfWork;
@@ -26,6 +27,15 @@ namespace VietWay.Service.Management.Implement
 
             bool isDrafted = tourTemplate.Status.Equals(TourTemplateStatus.Draft);
 
+            if (!tourTemplate.Code.IsNullOrEmpty())
+            {
+                var existingCode = await GetByCodeAsync(tourTemplate.Code, tourTemplate.TourTemplateId);
+                if (existingCode != null)
+                {
+                    throw new InvalidInfoException($"EXISTED_TOUR_TEMPLATE_CODE");
+                }
+            }
+
             if (isDrafted == true)
             {
                 foreach (var province in tourTemplate.TourTemplateProvinces ?? [])
@@ -43,11 +53,6 @@ namespace VietWay.Service.Management.Implement
             }
             else
             {
-                var existingCode = await GetByCodeAsync(tourTemplate.Code);
-                if (existingCode != null)
-                {
-                    throw new InvalidInfoException($"EXISTED_TOUR_TEMPLATE_CODE");
-                }
                 if (tourTemplate.MinPrice == 0 || tourTemplate.MaxPrice == 0)
                 {
                     throw new InvalidInfoException("INVALID_INFO_PRICE");
@@ -73,10 +78,10 @@ namespace VietWay.Service.Management.Implement
             await _unitOfWork.TourTemplateRepository.CreateAsync(tourTemplate);
             return tourTemplate.TourTemplateId;
         }
-        private async Task<TourTemplate> GetByCodeAsync(string code)
+        private async Task<TourTemplate> GetByCodeAsync(string code, string tourTemplateId)
         {
             return await _unitOfWork.TourTemplateRepository.Query()
-                .FirstOrDefaultAsync(c => c.Code == code);
+                .FirstOrDefaultAsync(c => c.Code == code && tourTemplateId != c.TourTemplateId);
         }
 
         public async Task DeleteTemplateAsync(string accountId, string tourTemplateId)
@@ -266,6 +271,11 @@ namespace VietWay.Service.Management.Implement
             if (tourTemplate.Status.Equals(TourTemplateStatus.Approved))
             {
                 throw new InvalidActionException("INVALID_ACTION_TOUR_TEMPLATE_ALREADY_APPROVED");
+            }
+            var existingCode = await GetByCodeAsync(newTourTemplate.Code, tourTemplateId);
+            if (existingCode != null)
+            {
+                throw new InvalidInfoException($"EXISTED_TOUR_TEMPLATE_CODE");
             }
 
             tourTemplate.Code = newTourTemplate.Code;

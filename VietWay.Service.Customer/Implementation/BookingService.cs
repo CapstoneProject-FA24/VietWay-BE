@@ -194,6 +194,7 @@ namespace VietWay.Service.Customer.Implementation
                     Note = x.Note,
                     PaidAmount = x.PaidAmount,
                     Transportation = x.Tour.TourTemplate.Transportation,
+                    IsReviewed = x.TourReview != null,
                     Participants = x.BookingTourists.Select(y => new TourParticipantDTO()
                     {
                         DateOfBirth = y.DateOfBirth,

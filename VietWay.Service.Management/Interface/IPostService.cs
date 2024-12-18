@@ -21,7 +21,7 @@ namespace VietWay.Service.Management.Interface
             int pageIndex);
         public Task<string> CreatePostAsync(Post post);
         public Task DeletePostAsync(string postId);
-        public Task UpdatePostAsync(Post newPost);
+        public Task UpdatePostAsync(Post newPost, string accountId);
         public Task<PostDetailDTO?> GetPostByIdAsync(string postId);
         public Task ChangePostStatusAsync(string postId, string accountId, PostStatus postStatus, string? reason);
         public Task UpdatePostImageAsync(string postId, IFormFile newImages);

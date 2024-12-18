@@ -117,10 +117,19 @@ namespace VietWay.API.Management.Controllers
         [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status200OK)]
         public async Task<IActionResult> UpdateAttractionAsync(string attractionId, CreateAttractionRequest request)
         {
+            string? accountId = _tokenHelper.GetAccountIdFromToken(HttpContext);
+            if (string.IsNullOrWhiteSpace(accountId))
+            {
+                return Unauthorized(new DefaultResponseModel<object>
+                {
+                    Message = "Unauthorized",
+                    StatusCode = StatusCodes.Status401Unauthorized
+                });
+            }
             Attraction attraction = _mapper.Map<Attraction>(request);
             attraction.AttractionId = attractionId;
 
-            await _attractionService.UpdateAttractionAsync(attraction);
+            await _attractionService.UpdateAttractionAsync(attraction, accountId);
             return Ok();
         }
 
@@ -236,6 +245,23 @@ namespace VietWay.API.Management.Controllers
             }
             await _attractionReviewService.ToggleAttractionReviewVisibilityAsync(accountId, reviewId, request.IsHided, request.Reason);
             return Ok();
+        }
+
+        [HttpGet("approved-attraction")]
+        [Produces("application/json")]
+        [Authorize(Roles = $"{nameof(UserRole.Manager)},{nameof(UserRole.Staff)}")]
+        [ProducesResponseType<DefaultResponseModel<PaginatedList<AttractionPreviewDTO>>>(StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetAllApproveAttractions(string? nameSearch, [FromQuery] List<string>? provinceIds,
+            [FromQuery] List<string>? attractionTypeIds, [FromQuery] List<string>? attractionIds, int? pageSize, int? pageIndex)
+        {
+            int checkedPageSize = (pageSize == null || pageSize < 1) ? 10 : (int)pageSize;
+            int checkedPageIndex = (pageIndex == null || pageIndex < 1) ? 1 : (int)pageIndex;
+            return Ok(new DefaultResponseModel<PaginatedList<AttractionPreviewDTO>>
+            {
+                Data = await _attractionService.GetAllApproveAttractionsAsync(nameSearch, provinceIds, attractionTypeIds, attractionIds, checkedPageSize, checkedPageIndex),
+                Message = "Success",
+                StatusCode = StatusCodes.Status200OK
+            });
         }
     }
 }

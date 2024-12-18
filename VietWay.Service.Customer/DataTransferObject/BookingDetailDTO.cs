@@ -35,6 +35,8 @@ namespace VietWay.Service.Customer.DataTransferObject
         public required string Code { get; set; }
         public required string Transportation { get; set; }
 
+        public required bool IsReviewed { get; set; }
+
         public required ICollection<TourParticipantDTO> Participants { get; set; }
         public List<BookingRefundDTO> RefundRequests { get; set; }
     }

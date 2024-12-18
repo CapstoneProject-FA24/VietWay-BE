@@ -21,6 +21,8 @@ namespace VietWay.API.Management.RequestModel
         public int? MaxParticipant { get; set; }
         public List<TourPrice>? TourPrice {  get; set; }
         public List<RefundPolicy>? RefundPolicies { get; set; }
+        public required decimal DepositPercent { get; set; }
+        public DateTime? PaymentDeadline { get; set; }
     }
     public class TourPrice
     {
