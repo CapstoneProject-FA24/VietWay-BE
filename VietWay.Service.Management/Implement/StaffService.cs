@@ -100,6 +100,13 @@ namespace VietWay.Service.Management.Implement
 
         public async Task RegisterAccountAsync(Staff staff)
         {
+            Account? account = await _unitOfWork.AccountRepository.Query()
+                    .SingleOrDefaultAsync(x => x.PhoneNumber.Equals(staff.Account.PhoneNumber) || x.Email.Equals(staff.Account.Email));
+            if (account != null)
+            {
+                throw new InvalidActionException("Phone number or Email has already been used");
+            }
+
             try
             {
                 await _unitOfWork.BeginTransactionAsync();
