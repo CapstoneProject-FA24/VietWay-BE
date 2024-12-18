@@ -22,7 +22,7 @@ namespace VietWay.Service.ThirdParty.VnPay
             const string vnpLocale = "vn";
             string vnpOrderInfo = Uri.EscapeDataString($"Thanh+toan+tour+gia+{payment.Amount}+VND");
             const string vnpOrderType = "130005";
-            string vnpReturnUrl = $"{_returnUrl}/{payment.BookingId}";
+            string vnpReturnUrl = Uri.EscapeDataString($"{_returnUrl}/{payment.BookingId}");
             string vnpExpireDate = _timeZoneHelper.GetUTC7Now().AddMinutes(expireAfterMinutes).ToString("yyyyMMddHHmmss");
             string vnpTxnRef = payment.PaymentId;
             string ipAddress = Uri.EscapeDataString(userIpAddress);
