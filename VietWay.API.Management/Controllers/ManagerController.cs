@@ -130,5 +130,37 @@ namespace VietWay.API.Management.Controllers
                 StatusCode = StatusCodes.Status200OK,
             });
         }
+
+        [HttpGet("profile")]
+        [Produces("application/json")]
+        [Authorize(Roles = nameof(UserRole.Manager))]
+        [ProducesResponseType<DefaultResponseModel<ManagerDetailDTO>>(StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetCurrentManagerProfileAsync()
+        {
+            string? accountId = _tokenHelper.GetAccountIdFromToken(HttpContext);
+            if (accountId == null)
+            {
+                return Unauthorized(new DefaultResponseModel<object>()
+                {
+                    Message = "Unauthorized",
+                    StatusCode = StatusCodes.Status401Unauthorized
+                });
+            }
+            ManagerDetailDTO? managerDetailDTO = await _managerService.GetManagerDetailAsync(accountId);
+            if (managerDetailDTO == null)
+            {
+                return Unauthorized(new DefaultResponseModel<object>()
+                {
+                    Message = "Unauthorized",
+                    StatusCode = StatusCodes.Status404NotFound
+                });
+            }
+            return Ok(new DefaultResponseModel<ManagerDetailDTO>()
+            {
+                Data = managerDetailDTO,
+                Message = "Get current customer profile successfully",
+                StatusCode = StatusCodes.Status200OK
+            });
+        }
     }
 }
