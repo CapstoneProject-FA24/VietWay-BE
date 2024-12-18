@@ -79,5 +79,25 @@ namespace VietWay.API.Customer.Controllers
                 StatusCode = StatusCodes.Status200OK
             });
         }
+
+        [HttpPatch("customer-change-password")]
+        [Authorize(Roles = nameof(UserRole.Customer))]
+        [Produces("application/json")]
+        [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status200OK)]
+        public async Task<IActionResult> CustomerChangePasswordAsync([FromBody] ChangePasswordRequest changePasswordRequest)
+        {
+            string? accountId = _tokenHelper.GetAccountIdFromToken(HttpContext);
+            if (string.IsNullOrWhiteSpace(accountId))
+            {
+                return Unauthorized(new DefaultResponseModel<object>
+                {
+                    Message = "Unauthorized",
+                    StatusCode = StatusCodes.Status401Unauthorized
+                });
+            }
+
+            await _customerService.CustomerChangePassword(accountId, changePasswordRequest.OldPassword, changePasswordRequest.NewPassword);
+            return Ok();
+        }
     }
 }

@@ -139,5 +139,38 @@ namespace VietWay.Service.Customer.Implementation
                 throw;
             }
         }
+
+        public async Task CustomerChangePassword(string customerId, string oldPassword, string newPassword)
+        {
+            VietWay.Repository.EntityModel.Customer? customer = await _unitOfWork.CustomerRepository.Query()
+                .Where(x => x.CustomerId.Equals(customerId))
+                .Include(x => x.Account)
+                .SingleOrDefaultAsync() ?? throw new ResourceNotFoundException("Manager not found");
+
+            bool checkPassword = _hashHelper.Verify(oldPassword, customer.Account.Password);
+
+            if (!checkPassword)
+            {
+                throw new InvalidActionException("Incorrect password");
+            }
+            else if (oldPassword.Equals(newPassword))
+            {
+                throw new InvalidActionException("Your new password cannot be the same as your current password.");
+            }
+
+            customer.Account.Password = _hashHelper.Hash(newPassword);
+
+            try
+            {
+                await _unitOfWork.BeginTransactionAsync();
+                await _unitOfWork.CustomerRepository.UpdateAsync(customer);
+                await _unitOfWork.CommitTransactionAsync();
+            }
+            catch
+            {
+                await _unitOfWork.RollbackTransactionAsync();
+                throw;
+            }
+        }
     }
 }
