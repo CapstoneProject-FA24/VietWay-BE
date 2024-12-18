@@ -2,14 +2,16 @@
 using System.Net;
 using System.Text.Json;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Primitives;
+using VietWay.Util.CustomExceptions;
 
 namespace VietWay.Middleware
 {
-    public class ErrorHandlingMiddleware(RequestDelegate next)
+    public class ErrorHandlingMiddleware(RequestDelegate next, ILogger<ErrorHandlingMiddleware> logger)
     {
         private readonly RequestDelegate _next = next;
-
+        private readonly ILogger<ErrorHandlingMiddleware> _logger = logger;
         public async Task Invoke(HttpContext context)
         {
             try
@@ -21,14 +23,27 @@ namespace VietWay.Middleware
                 await HandleServerExceptionAsync(context, ex);
             }
         }
-        public static Task HandleServerExceptionAsync(HttpContext context, Exception ex)
+        public Task HandleServerExceptionAsync(HttpContext context, Exception ex)
         {
-            var code = HttpStatusCode.InternalServerError;
+            var code = ex switch
+            {
+                InvalidActionException => HttpStatusCode.BadRequest,
+                InvalidInfoException => HttpStatusCode.BadRequest,
+                ResourceAlreadyExistsException => HttpStatusCode.BadRequest,
+                ResourceNotFoundException => HttpStatusCode.NotFound,
+                UnauthorizedException => HttpStatusCode.Unauthorized,
+                _ => HttpStatusCode.InternalServerError
+            };
+            if (code == HttpStatusCode.InternalServerError)
+            {
+                _logger.LogError(ex, "An unhandled exception has occurred");
+            }
+            string? data = null;
             var result = JsonSerializer.Serialize(new
             {
-                error = ex.Message.Split(["\r\n", "\n"], StringSplitOptions.RemoveEmptyEntries),
-                inner = ex.InnerException?.Message.Split(["\r\n", "\n"], StringSplitOptions.RemoveEmptyEntries),
-                detail = ex.StackTrace?.Split(["\r\n","\n"], StringSplitOptions.RemoveEmptyEntries)
+                message = code != HttpStatusCode.InternalServerError ? ex.Message : "INTERNAL_SERVER_ERROR",
+                statusCode = code,
+                data
             });
             context.Response.ContentType = "application/json";
             var header = new KeyValuePair<string, StringValues>("Access-Control-Allow-Origin", "*");
