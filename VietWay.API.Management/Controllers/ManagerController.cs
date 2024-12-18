@@ -158,7 +158,7 @@ namespace VietWay.API.Management.Controllers
             return Ok(new DefaultResponseModel<ManagerDetailDTO>()
             {
                 Data = managerDetailDTO,
-                Message = "Get current customer profile successfully",
+                Message = "Get current manager profile successfully",
                 StatusCode = StatusCodes.Status200OK
             });
         }
