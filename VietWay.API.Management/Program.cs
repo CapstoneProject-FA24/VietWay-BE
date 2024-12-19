@@ -148,6 +148,7 @@ namespace VietWay.API.Management
             builder.Services.AddScoped<IPostService, PostService>();
             builder.Services.AddScoped<IEntityHistoryService, EntityHistoryService>();
             builder.Services.AddScoped<IBookingRefundService, BookingRefundService>();
+            builder.Services.AddScoped<IReportService, ReportService>();
 
             builder.Services.AddScoped<IVnPayService, VnPayService>();
             builder.Services.AddScoped<ICloudinaryService, CloudinaryService>();

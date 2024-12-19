@@ -14,6 +14,8 @@ namespace VietWay.Job.Interface
         public Task CloseTourAsync(string tourId);
         public Task ChangeTourToOngoingAsync(string tourId);
         public Task ChangeTourToCompletedAsync(string tourId);
-        
+        public Task RejectUnapprovedTourAsync(string tourId);
+
+
     }
 }
