@@ -12,8 +12,9 @@ namespace VietWay.Job.Interface
     {
         public Task SendBookingConfirmationEmail(string bookingId, DateTime paymentDeadline);
         public Task SendBookingCancellationEmail(string bookingId);
-        public Task SendBookingRefundEmail(string bookingId, string refundId);
+        public Task SendSystemCancellationEmail(string bookingId, string? reaon);
         public Task SendBookingTourChangeEmail(string bookingId, string newTourId);
         public Task SendBookingPaymentExpiredEmail(string bookingId);
+        public Task SendNewPasswordEmail(string email, string name, string newPassword);
     }
 }

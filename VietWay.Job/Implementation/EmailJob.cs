@@ -122,14 +122,56 @@ namespace VietWay.Job.Implementation
             throw new NotImplementedException();
         }
 
-        public async Task SendBookingRefundEmail(string bookingId, string refundId)
-        {
-            
-        }
 
         public Task SendBookingTourChangeEmail(string bookingId, string newTourId)
         {
             throw new NotImplementedException();
+        }
+
+        public Task SendNewPasswordEmail(string email, string name, string newPassword)
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task SendSystemCancellationEmail(string bookingId, string? reason)
+        {
+            var bookingDetail = await _unitOfWork.BookingRepository.Query()
+                .Select(x => new {
+                    x.Tour.TourTemplate.TourName,
+                    x.Tour.StartDate,
+                    x.Tour.TourTemplate.Code,
+                    x.Tour.StartLocation,
+                    x.ContactAddress,
+                    x.ContactEmail,
+                    x.ContactFullName,
+                    x.ContactPhoneNumber,
+                    x.BookingId,
+                    x.TotalPrice,
+                    x.CreatedAt,
+                    x.Status,
+                    NumberOfParticipants = x.BookingTourists.Count
+                }).SingleOrDefaultAsync();
+            if (bookingDetail == null)
+            {
+                return;
+            }
+            string template = _configuration.VietwayCancelBookingTemplate;
+            template = template
+                .Replace("{{{tourName}}}", bookingDetail.TourName)
+                .Replace("{{{startDate}}}", bookingDetail.StartDate.Value.ToString(@"F", new CultureInfo("vi-VN")))
+                .Replace("{{{reason}}}", reason??"")
+                .Replace("{{{code}}}", bookingDetail.Code)
+                .Replace("{{{startLocation}}}", bookingDetail.StartLocation)
+                .Replace("{{{contactFullName}}}", bookingDetail.ContactFullName)
+                .Replace("{{{contactEmail}}}", bookingDetail.ContactEmail)
+                .Replace("{{{contactPhoneNumber}}}", bookingDetail.ContactPhoneNumber)
+                .Replace("{{{contactAddress}}}", bookingDetail.ContactAddress)
+                .Replace("{{{totalPrice}}}", bookingDetail.TotalPrice.ToString(@"C", new CultureInfo("vi-VN")))
+                .Replace("{{{createAt}}}", bookingDetail.CreatedAt.ToString(@"F", new CultureInfo("vi-VN")))
+                .Replace("{{{numberOfParticipants}}}", bookingDetail.NumberOfParticipants.ToString())
+                .Replace("{{{bookingId}}}", bookingDetail.BookingId)
+                .Replace("{{{status}}}", bookingDetail.Status.ToString());
+            await _emailService.SendEmailAsync(bookingDetail.ContactEmail, "Hủy booking", template);
         }
     }
 }

@@ -479,6 +479,10 @@ namespace VietWay.Service.Management.Implement
                 }
                 await _unitOfWork.TourRepository.UpdateAsync(tour);
                 await _unitOfWork.CommitTransactionAsync();
+                foreach (var booking in tour.TourBookings)
+                {
+                    _backgroundJobClient.Enqueue<IEmailJob>(x => x.SendSystemCancellationEmail(booking.BookingId, reason));
+                }
             }
             catch
             {

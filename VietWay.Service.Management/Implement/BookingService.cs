@@ -1,6 +1,8 @@
 using Google.Api.Gax;
+using Hangfire;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Cryptography.X509Certificates;
+using VietWay.Job.Interface;
 using VietWay.Repository.EntityModel;
 using VietWay.Repository.EntityModel.Base;
 using VietWay.Repository.UnitOfWork;
@@ -12,12 +14,13 @@ using VietWay.Util.IdUtil;
 
 namespace VietWay.Service.Management.Implement
 {
-    public class BookingService(IUnitOfWork unitOfWork, IIdGenerator idGenerator, ITimeZoneHelper timeZoneHelper) : IBookingService
+    public class BookingService(IUnitOfWork unitOfWork, IIdGenerator idGenerator, ITimeZoneHelper timeZoneHelper, IBackgroundJobClient backgroundJobClient) : IBookingService
     {
         private readonly IUnitOfWork _unitOfWork = unitOfWork;
         private readonly IIdGenerator _idGenerator = idGenerator;
         private readonly ITimeZoneHelper _timeZoneHelper = timeZoneHelper;
-        public async Task CancelBookingAsync(string bookingId, string accountId, string? reason)
+        private readonly IBackgroundJobClient _backgroundJobClient = backgroundJobClient;
+        public async Task CancelBookingAsync(string bookingId, string accountId, string? reason, int attempts = 0)
         {
             try
             {
@@ -78,6 +81,18 @@ namespace VietWay.Service.Management.Implement
                 }
                 await _unitOfWork.BookingRepository.UpdateAsync(booking);
                 await _unitOfWork.CommitTransactionAsync();
+                _backgroundJobClient.Enqueue<IEmailJob>(x=>x.SendSystemCancellationEmail(bookingId, reason));
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (attempts < 3)
+                {
+                    await CancelBookingAsync(bookingId, accountId, reason, attempts + 1);
+                }
+                else
+                {
+                    throw new ServerErrorException("DATABASE_CONCURRENT_ERROR");
+                }
             }
             catch
             {
@@ -214,7 +229,7 @@ namespace VietWay.Service.Management.Implement
                 }).ToListAsync();
             return (count, items);
         }
-        public async Task ChangeBookingTourAsync(string accountId, string bookingId, string newTourId, string reason)
+        public async Task ChangeBookingTourAsync(string accountId, string bookingId, string newTourId, string reason, int attemps = 0)
         {
             try
             {
@@ -299,6 +314,17 @@ namespace VietWay.Service.Management.Implement
                     Reason = reason,
                 });
                 await _unitOfWork.CommitTransactionAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (attemps < 3)
+                {
+                    await ChangeBookingTourAsync(accountId, bookingId, newTourId, reason, attemps + 1);
+                }
+                else
+                {
+                    throw new ServerErrorException("DATABASE_CONCURRENT_ERROR");
+                }
             }
             catch
             {
