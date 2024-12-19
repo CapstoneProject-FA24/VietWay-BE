@@ -11,6 +11,7 @@ using VietWay.Repository.UnitOfWork;
 using VietWay.Service.Management.DataTransferObject;
 using VietWay.Service.Management.Interface;
 using VietWay.Util.CustomExceptions;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace VietWay.Service.Management.Implement
 {
@@ -38,7 +39,96 @@ namespace VietWay.Service.Management.Implement
                 PaidBookings = [],
                 PendingBookings = []
             };
+            switch (GetPeriod(startDate,endDate))
+            {
+                case ReportPeriod.Daily:
+                    for (DateTime date = startDate.Date; date <= endDate.Date; date = date.AddDays(1))
+                    {
+                        reportBookingByDay.PendingBookings.Add(
+                            await _unitOfWork.BookingRepository.Query()
+                            .CountAsync(x => x.CreatedAt >= date && x.CreatedAt < date.AddDays(1) && x.Status == BookingStatus.Pending));
+                        reportBookingByDay.CancelledBookings.Add(
+                            await _unitOfWork.BookingRepository.Query()
+                            .CountAsync(x => x.CreatedAt >= date && x.CreatedAt < date.AddDays(1) && x.Status == BookingStatus.Cancelled));
+                        reportBookingByDay.CompletedBookings.Add(
+                            await _unitOfWork.BookingRepository.Query()
+                            .CountAsync(x => x.CreatedAt >= date && x.CreatedAt < date.AddDays(1) && x.Status == BookingStatus.Completed));
+                        reportBookingByDay.DepositedBookings.Add(
+                            await _unitOfWork.BookingRepository.Query()
+                            .CountAsync(x => x.CreatedAt >= date && x.CreatedAt < date.AddDays(1) && x.Status == BookingStatus.Deposited));
+                        reportBookingByDay.PaidBookings.Add(
+                            await _unitOfWork.BookingRepository.Query()
+                            .CountAsync(x => x.CreatedAt >= date && x.CreatedAt < date.AddDays(1) && x.Status == BookingStatus.Paid));
+                    }
+                    break;
 
+                case ReportPeriod.Monthly:
+                    DateTime monthStart = new DateTime(startDate.Year, startDate.Month, 1);
+                    DateTime monthEnd = new DateTime(endDate.Year, endDate.Month, 1).AddMonths(1).AddDays(-1);
+                    for (DateTime date = monthStart; date <= monthEnd; date = date.AddMonths(1))
+                    {
+                        reportBookingByDay.PendingBookings.Add(
+                            await _unitOfWork.BookingRepository.Query()
+                            .CountAsync(x => x.CreatedAt >= date && x.CreatedAt < date.AddMonths(1) && x.Status == BookingStatus.Pending));
+                        reportBookingByDay.CancelledBookings.Add(
+                            await _unitOfWork.BookingRepository.Query()
+                            .CountAsync(x => x.CreatedAt >= date && x.CreatedAt < date.AddMonths(1) && x.Status == BookingStatus.Cancelled));
+                        reportBookingByDay.CompletedBookings.Add(
+                            await _unitOfWork.BookingRepository.Query()
+                            .CountAsync(x => x.CreatedAt >= date && x.CreatedAt < date.AddMonths(1) && x.Status == BookingStatus.Completed));
+                        reportBookingByDay.DepositedBookings.Add(
+                            await _unitOfWork.BookingRepository.Query()
+                            .CountAsync(x => x.CreatedAt >= date && x.CreatedAt < date.AddMonths(1) && x.Status == BookingStatus.Deposited));
+                        reportBookingByDay.PaidBookings.Add(
+                            await _unitOfWork.BookingRepository.Query()
+                            .CountAsync(x => x.CreatedAt >= date && x.CreatedAt < date.AddMonths(1) && x.Status == BookingStatus.Paid));
+                    }
+                    break;
+
+                case ReportPeriod.Quarterly:
+                    DateTime quarterStart = new DateTime(startDate.Year, ((startDate.Month - 1) / 3) * 3 + 1, 1);
+                    DateTime quarterEnd = new DateTime(endDate.Year, ((endDate.Month - 1) / 3) * 3 + 1, 1);
+                    for (DateTime date = quarterStart; date <= quarterEnd; date = date.AddMonths(3))
+                    {
+                        reportBookingByDay.PendingBookings.Add(
+                            await _unitOfWork.BookingRepository.Query()
+                            .CountAsync(x => x.CreatedAt >= date && x.CreatedAt < date.AddMonths(3)&& x.Status == BookingStatus.Pending));
+                        reportBookingByDay.CancelledBookings.Add(
+                            await _unitOfWork.BookingRepository.Query()
+                            .CountAsync(x => x.CreatedAt >= date && x.CreatedAt < date.AddMonths(3) && x.Status == BookingStatus.Cancelled));
+                        reportBookingByDay.CompletedBookings.Add(
+                            await _unitOfWork.BookingRepository.Query()
+                            .CountAsync(x => x.CreatedAt >= date && x.CreatedAt < date.AddMonths(3) && x.Status == BookingStatus.Completed));
+                        reportBookingByDay.DepositedBookings.Add(
+                            await _unitOfWork.BookingRepository.Query()
+                            .CountAsync(x => x.CreatedAt >= date && x.CreatedAt < date.AddMonths(3)&& x.Status == BookingStatus.Deposited));
+                        reportBookingByDay.PaidBookings.Add(
+                            await _unitOfWork.BookingRepository.Query()
+                            .CountAsync(x => x.CreatedAt >= date && x.CreatedAt < date.AddMonths(3) && x.Status == BookingStatus.Paid));
+                    }
+                    break;
+
+                case ReportPeriod.Yearly:
+                    for (int year = startDate.Year; year <= endDate.Year; year++)
+                    {
+                        reportBookingByDay.PendingBookings.Add(
+                        await _unitOfWork.BookingRepository.Query()
+                        .CountAsync(x => x.CreatedAt.Year >= year && x.CreatedAt.Year < year + 1 && x.Status == BookingStatus.Pending));
+                        reportBookingByDay.CancelledBookings.Add(
+                        await _unitOfWork.BookingRepository.Query()
+                        .CountAsync(x => x.CreatedAt.Year >= year && x.CreatedAt.Year < year + 1 && x.Status == BookingStatus.Cancelled));
+                        reportBookingByDay.CompletedBookings.Add(
+                        await _unitOfWork.BookingRepository.Query()
+                        .CountAsync(x => x.CreatedAt.Year >= year && x.CreatedAt.Year < year + 1 && x.Status == BookingStatus.Completed));
+                        reportBookingByDay.DepositedBookings.Add(
+                            await _unitOfWork.BookingRepository.Query()
+                        .CountAsync(x => x.CreatedAt.Year >= year && x.CreatedAt.Year < year + 1 && x.Status == BookingStatus.Deposited));
+                        reportBookingByDay.PaidBookings.Add(
+                            await _unitOfWork.BookingRepository.Query()
+                        .CountAsync(x => x.CreatedAt.Year >= year && x.CreatedAt.Year < year + 1 && x.Status == BookingStatus.Paid));
+                    }
+                    break;
+            }
             List<ReportBookingParticipantCountDTO> participantCounts = await _unitOfWork.BookingRepository.Query()
                 .Where(x => x.CreatedAt >= startDate && x.CreatedAt <= endDate)
                 .GroupBy(x => x.BookingTourists.Count)
@@ -150,7 +240,64 @@ namespace VietWay.Service.Management.Implement
             List<decimal> revenueByPeriods = [];
             List<decimal> refundByPeriods = [];
 
+            switch (GetPeriod(startDate,endDate))
+            {
+                case ReportPeriod.Daily:
+                    for (DateTime date = startDate.Date; date <= endDate.Date; date = date.AddDays(1))
+                    {
+                        revenueByPeriods.Add(await _unitOfWork.BookingRepository.Query()
+                            .Where(x => x.CreatedAt >= date && x.CreatedAt < date.AddDays(1))
+                            .SumAsync(x => x.PaidAmount));
+                        refundByPeriods.Add(await _unitOfWork.BookingRepository.Query()
+                            .Where(x => x.CreatedAt >= date && x.CreatedAt < date.AddDays(1))
+                            .SelectMany(x => x.BookingRefunds.Where(y => y.RefundStatus == RefundStatus.Refunded))
+                            .SumAsync(x => x.RefundAmount));
+                    }
+                    break;
 
+                case ReportPeriod.Monthly:
+                    DateTime monthStart = new DateTime(startDate.Year, startDate.Month, 1);
+                    DateTime monthEnd = new DateTime(endDate.Year, endDate.Month, 1).AddMonths(1).AddDays(-1); // Correct end date to last day of month
+                    for (DateTime date = monthStart; date <= monthEnd; date = date.AddMonths(1))
+                    {
+                        revenueByPeriods.Add(await _unitOfWork.BookingRepository.Query()
+                            .Where(x => x.CreatedAt >= date && x.CreatedAt <= date.AddMonths(1))
+                            .SumAsync(x => x.PaidAmount));
+                        refundByPeriods.Add(await _unitOfWork.BookingRepository.Query()
+                            .Where(x => x.CreatedAt >= date && x.CreatedAt <= date.AddMonths(1))
+                            .SelectMany(x => x.BookingRefunds.Where(y => y.RefundStatus == RefundStatus.Refunded))
+                            .SumAsync(x => x.RefundAmount));
+                    }
+                    break;
+
+                case ReportPeriod.Quarterly:
+                    DateTime quarterStart = new DateTime(startDate.Year, ((startDate.Month - 1) / 3) * 3 + 1, 1);
+                    DateTime quarterEnd = new DateTime(endDate.Year, ((endDate.Month - 1) / 3) * 3 + 1, 1);
+                    for (DateTime date = quarterStart; date <= quarterEnd; date = date.AddMonths(3))
+                    {
+                        revenueByPeriods.Add(await _unitOfWork.BookingRepository.Query()
+                            .Where(x => x.CreatedAt >= date && x.CreatedAt < date.AddMonths(3))
+                            .SumAsync(x => x.PaidAmount));
+                        refundByPeriods.Add(await _unitOfWork.BookingRepository.Query()
+                            .Where(x => x.CreatedAt >= date && x.CreatedAt < date.AddMonths(3))
+                            .SelectMany(x => x.BookingRefunds.Where(y => y.RefundStatus == RefundStatus.Refunded))
+                            .SumAsync(x => x.RefundAmount));
+                    }
+                    break;
+
+                case ReportPeriod.Yearly:
+                    for (int year = startDate.Year; year <= endDate.Year; year++)
+                    {
+                        revenueByPeriods.Add(await _unitOfWork.BookingRepository.Query()
+                            .Where(x => x.CreatedAt.Year >= year && x.CreatedAt.Year < year + 1)
+                            .SumAsync(x => x.PaidAmount));
+                        refundByPeriods.Add(await _unitOfWork.BookingRepository.Query()
+                            .Where(x => x.CreatedAt.Year >= year && x.CreatedAt.Year < year + 1)
+                            .SelectMany(x => x.BookingRefunds.Where(y => y.RefundStatus == RefundStatus.Refunded))
+                            .SumAsync(x => x.RefundAmount));
+                    }
+                    break;
+            }
             decimal refunds = await _unitOfWork.BookingRepository.Query()
                 .Where(x => x.CreatedAt >= startDate && x.CreatedAt <= endDate)
                 .SelectMany(x => x.BookingRefunds.Where(y => y.RefundStatus == RefundStatus.Refunded))
