@@ -17,7 +17,7 @@ namespace VietWay.API.Management.Controllers
         [Produces("application/json")]
         [ProducesResponseType<DefaultResponseModel<List<EntityHistoryDTO>>>(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [Authorize(Roles = $"{nameof(UserRole.Admin)},{nameof(UserRole.Manager)}")]
+        //[Authorize(Roles = $"{nameof(UserRole.Admin)},{nameof(UserRole.Manager)}")]
         public async Task<IActionResult> GetEntityHistoryAsync(string entityId, EntityType entityType)
         {
             return Ok(new DefaultResponseModel<List<EntityHistoryDTO>>

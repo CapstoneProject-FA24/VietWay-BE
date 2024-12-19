@@ -102,7 +102,7 @@ namespace VietWay.Service.Management.Implement
                     .SingleOrDefaultAsync(x => x.PhoneNumber.Equals(manager.Account.PhoneNumber) || x.Email.Equals(manager.Account.Email));
             if (account != null)
             {
-                throw new InvalidActionException("Phone number or Email has already been used");
+                throw new InvalidActionException("EXISTED_PHONE_OR_EMAIL");
             }
 
             try
