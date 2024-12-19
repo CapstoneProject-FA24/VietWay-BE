@@ -67,6 +67,7 @@ namespace VietWay.Service.ThirdParty.GoogleGemini
                     Attractions = x.TourTemplateSchedules.SelectMany(x=>x.AttractionSchedules).Select(x => x.Attraction.Name).ToList(),
                     Provinces = x.TourTemplateProvinces.Select(x => x.Province.Name).ToList(),
                     StartDates = x.Tours.Where(x => x.Status == TourStatus.Opened).Select(x => x.StartDate).ToList(),
+                    TourUrl = $"https://vietway.projectpioneer.id.vn/tour-du-lich/{x.TourTemplateId}"
                 })
                 .Take(5)
                 .ToListAsync();
