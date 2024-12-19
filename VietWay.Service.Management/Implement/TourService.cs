@@ -224,7 +224,9 @@ namespace VietWay.Service.Management.Implement
                     MaxParticipant = x.MaxParticipant,
                     MinParticipant = x.MinParticipant,
                     CurrentParticipant = x.CurrentParticipant,
-                    Status = x.Status
+                    Status = x.Status,
+                    RegisterCloseDate = x.RegisterCloseDate,
+                    RegisterOpenDate = x.RegisterOpenDate
                 })
                 .ToListAsync();
             return (count, items);

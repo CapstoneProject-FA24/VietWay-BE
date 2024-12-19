@@ -25,5 +25,7 @@ namespace VietWay.Service.Management.DataTransferObject
         public int? MinParticipant { get; set; }
         public int? CurrentParticipant { get; set; }
         public TourStatus Status { get; set; }
+        public DateTime? RegisterOpenDate { get; set; }
+        public DateTime? RegisterCloseDate { get; set; }
     }
 }
