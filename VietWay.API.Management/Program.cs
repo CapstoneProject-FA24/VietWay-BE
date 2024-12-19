@@ -262,6 +262,17 @@ namespace VietWay.API.Management
                 .AddOrUpdate<ITourCategoryJob>("cacheTourCategories", (x) => x.CacheTourCategoryJob(), () => "0 17 * * *");
             recurringJobManager
                 .AddOrUpdate<ITourDurationJob>("cacheTourDurations", (x) => x.CacheTourDurationJob(), () => "0 17 * * *");
+            recurringJobManager
+                .AddOrUpdate<ITourJob>("openTours", (x) => x.OpenToursAsync(), () => "0 17 * * *");
+            recurringJobManager
+                .AddOrUpdate<ITourJob>("closeTours", (x) => x.CloseToursAsync(), () => "0 17 * * *");
+            recurringJobManager
+                .AddOrUpdate<ITourJob>("changeToursOngoing", (x) => x.ChangeToursToOngoingAsync(), () => "0 17 * * *");
+            recurringJobManager
+                .AddOrUpdate<ITourJob>("changeToursCompleted", (x) => x.ChangeToursToCompletedAsync(), () => "0 17 * * *");
+            recurringJobManager
+                .AddOrUpdate<ITourJob>("rejectClosedPendingTours", (x) => x.RejectUnapprovedToursAsync(), () => "0 17 * * *");
+
 
             app.UseStaticFiles();
             #region app.UseSwagger(...);
