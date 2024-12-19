@@ -148,6 +148,7 @@ namespace VietWay.API.Management
             builder.Services.AddScoped<IPostService, PostService>();
             builder.Services.AddScoped<IEntityHistoryService, EntityHistoryService>();
             builder.Services.AddScoped<IBookingRefundService, BookingRefundService>();
+            builder.Services.AddScoped<IReportService, ReportService>();
 
             builder.Services.AddScoped<IVnPayService, VnPayService>();
             builder.Services.AddScoped<ICloudinaryService, CloudinaryService>();
@@ -215,7 +216,9 @@ namespace VietWay.API.Management
 
             builder.Services.AddSingleton(s => new EmailJobConfiguration(
                 cancelBookingTemplate: Environment.GetEnvironmentVariable("MAIL_SEND_CANCEL_TOUR_MESSAGE") ?? throw new Exception("MAIL_SEND_CANCEL_TOUR_MESSAGE is not set in environment variables"),
-                confirmBookingTemplate: Environment.GetEnvironmentVariable("MAIL_SEND_CONFIRM_TOUR_MESSAGE") ?? throw new Exception("MAIL_SEND_CONFIRM_TOUR_MESSAGE is not set in environment variables")
+                confirmBookingTemplate: Environment.GetEnvironmentVariable("MAIL_SEND_CONFIRM_TOUR_MESSAGE") ?? throw new Exception("MAIL_SEND_CONFIRM_TOUR_MESSAGE is not set in environment variables"),
+                vietwayCancelBookingTemplate: Environment.GetEnvironmentVariable("MAIL_SEND_VIETWAY_CANCEL_TOUR_MESSAGE") ?? throw new Exception("MAIL_SEND_VIETWAY_CANCEL_TOUR_MESSAGE is not set in environment variables"),
+                resetPasswordTemplate: Environment.GetEnvironmentVariable("MAIL_SEND_RESET_PASSWORD_MESSAGE") ?? throw new Exception("MAIL_SEND_RESET_PASSWORD_MESSAGE is not set in environment variables")
             ));
 
             builder.Services.AddSingleton(s => new EmailClientConfig(
@@ -259,6 +262,17 @@ namespace VietWay.API.Management
                 .AddOrUpdate<ITourCategoryJob>("cacheTourCategories", (x) => x.CacheTourCategoryJob(), () => "0 17 * * *");
             recurringJobManager
                 .AddOrUpdate<ITourDurationJob>("cacheTourDurations", (x) => x.CacheTourDurationJob(), () => "0 17 * * *");
+            recurringJobManager
+                .AddOrUpdate<ITourJob>("openTours", (x) => x.OpenToursAsync(), () => "0 17 * * *");
+            recurringJobManager
+                .AddOrUpdate<ITourJob>("closeTours", (x) => x.CloseToursAsync(), () => "0 17 * * *");
+            recurringJobManager
+                .AddOrUpdate<ITourJob>("changeToursOngoing", (x) => x.ChangeToursToOngoingAsync(), () => "0 17 * * *");
+            recurringJobManager
+                .AddOrUpdate<ITourJob>("changeToursCompleted", (x) => x.ChangeToursToCompletedAsync(), () => "0 17 * * *");
+            recurringJobManager
+                .AddOrUpdate<ITourJob>("rejectClosedPendingTours", (x) => x.RejectUnapprovedToursAsync(), () => "0 17 * * *");
+
 
             app.UseStaticFiles();
             #region app.UseSwagger(...);

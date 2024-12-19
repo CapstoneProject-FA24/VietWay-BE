@@ -19,10 +19,16 @@ namespace VietWay.Service.Management.Implement
         private readonly ITimeZoneHelper _timeZoneHelper = timeZoneHelper;
         private readonly IIdGenerator _idGenerator = idGenerator;
         private readonly IBackgroundJobClient _backgroundJobClient = backgroundJobClient;
-        public async Task<string> CreateTour(Tour tour)
+        public async Task<string> CreateTour(Tour tour, string staffId)
         {
             try
             {
+                bool isStaff = await _unitOfWork.AccountRepository.Query()
+                    .AnyAsync(x => x.AccountId.Equals(staffId) && x.Role == UserRole.Staff && x.IsDeleted == false);
+                if (!isStaff)
+                {
+                    throw new UnauthorizedException("UNAUTHORIZED");
+                }
                 await _unitOfWork.BeginTransactionAsync();
                 tour.CreatedAt = _timeZoneHelper.GetUTC7Now();
                 tour.TourId = _idGenerator.GenerateId();
@@ -38,6 +44,17 @@ namespace VietWay.Service.Management.Implement
                 }
                 await _unitOfWork.TourRepository
                     .CreateAsync(tour);
+                await _unitOfWork.EntityHistoryRepository.CreateAsync(new EntityHistory
+                {
+                    Action = EntityModifyAction.Create,
+                    EntityId = tour.TourId,
+                    EntityType = EntityType.Tour,
+                    Id = _idGenerator.GenerateId(),
+                    ModifiedBy = staffId,
+                    ModifierRole = UserRole.Staff,
+                    Reason = "",
+                    Timestamp = _timeZoneHelper.GetUTC7Now()
+                });
                 await _unitOfWork.CommitTransactionAsync();
                 return tour.TourId;
             }
@@ -48,8 +65,16 @@ namespace VietWay.Service.Management.Implement
             }
         }
 
-        public async Task EditTour(string tourId, Tour updatedTour)
+        public async Task EditTour(string tourId, Tour updatedTour, string accountId)
         {
+            UserRole role = await _unitOfWork.AccountRepository.Query()
+                .Where(x => x.AccountId.Equals(accountId))
+                .Select(x => x.Role)
+                .SingleOrDefaultAsync();
+            if (role != UserRole.Manager && role != UserRole.Staff)
+            {
+                throw new UnauthorizedException("UNAUTHORIZED");
+            }
             Tour? tour = await _unitOfWork.TourRepository.Query()
                 .Include(x => x.TourPrices)
                 .Include(x => x.TourRefundPolicies)
@@ -68,7 +93,6 @@ namespace VietWay.Service.Management.Implement
                 default:
                     break;
             }
-
             tour.StartLocation = updatedTour.StartLocation;
             tour.StartDate = updatedTour.StartDate;
             tour.DefaultTouristPrice = updatedTour.DefaultTouristPrice;
@@ -76,7 +100,6 @@ namespace VietWay.Service.Management.Implement
             tour.RegisterCloseDate = updatedTour.RegisterCloseDate;
             tour.MinParticipant = updatedTour.MinParticipant;
             tour.MaxParticipant = updatedTour.MaxParticipant;
-            tour.CreatedAt = DateTime.Now;
             tour.Status = TourStatus.Pending;
             tour.DepositPercent = updatedTour.DepositPercent;
             tour.PaymentDeadline = updatedTour.PaymentDeadline;
@@ -119,6 +142,18 @@ namespace VietWay.Service.Management.Implement
             {
                 await _unitOfWork.BeginTransactionAsync();
                 await _unitOfWork.TourRepository.UpdateAsync(tour);
+                string historyId = _idGenerator.GenerateId();
+                await _unitOfWork.EntityHistoryRepository.CreateAsync(new EntityHistory
+                {
+                    EntityId = tourId,
+                    Action = EntityModifyAction.Update,
+                    EntityType = EntityType.Tour,
+                    Id = historyId,
+                    ModifierRole = role,
+                    ModifiedBy = accountId,
+                    Reason = "",
+                    Timestamp = _timeZoneHelper.GetUTC7Now()
+                });
                 await _unitOfWork.CommitTransactionAsync();
             }
             catch
@@ -188,7 +223,9 @@ namespace VietWay.Service.Management.Implement
                     MaxParticipant = x.MaxParticipant,
                     MinParticipant = x.MinParticipant,
                     CurrentParticipant = x.CurrentParticipant,
-                    Status = x.Status
+                    Status = x.Status,
+                    RegisterCloseDate = x.RegisterCloseDate,
+                    RegisterOpenDate = x.RegisterOpenDate
                 })
                 .ToListAsync();
             return (count, items);
@@ -300,7 +337,7 @@ namespace VietWay.Service.Management.Implement
             {
                 await _unitOfWork.BeginTransactionAsync();
                 Account? account = await _unitOfWork.AccountRepository.Query()
-                    .SingleOrDefaultAsync(x => x.AccountId.Equals(accountId)) ??
+                    .SingleOrDefaultAsync(x => x.AccountId.Equals(accountId) && x.Role == UserRole.Manager) ??
                     throw new UnauthorizedException("UNAUTHORIZED");
                 Tour? tour = await _unitOfWork.TourRepository.Query()
                     .SingleOrDefaultAsync(x => x.TourId.Equals(tourId)) ??
@@ -310,27 +347,44 @@ namespace VietWay.Service.Management.Implement
                     UserRole.Manager == account.Role && TourStatus.Pending == tour.Status;
 
                 bool isRegisteredOpenedDatePass = ((DateTime)tour.RegisterOpenDate).Date <= _timeZoneHelper.GetUTC7Now().Date && TourStatus.Accepted == tourStatus;
-
-                if (isManagerAcceptedOrDenyPendingTour)
-                {
-                    tour.Status = tourStatus;
-                }
-                else
+                bool isRegisteredClosedDatePass = ((DateTime)tour.RegisterCloseDate).Date <= _timeZoneHelper.GetUTC7Now().Date && TourStatus.Pending == tour.Status;
+                if (false == isManagerAcceptedOrDenyPendingTour)
                 {
                     throw new UnauthorizedException("UNAUTHORIZED");
                 }
 
-                if (isRegisteredOpenedDatePass)
+                if (isRegisteredOpenedDatePass && tourStatus == TourStatus.Accepted)
                 {
                     tour.Status = TourStatus.Opened;
                 }
-
-                await _unitOfWork.TourRepository.UpdateAsync(tour);
-                await _unitOfWork.CommitTransactionAsync();
-                if (tour.Status == TourStatus.Accepted)
+                else if (false == isRegisteredClosedDatePass)
                 {
-                    _backgroundJobClient.Schedule<ITourJob>(x => x.OpenTourAsync(tourId),_timeZoneHelper.GetLocalTimeFromUTC7(tour.RegisterOpenDate!.Value));
+                    tour.Status = tourStatus == TourStatus.Accepted ? TourStatus.Accepted : TourStatus.Rejected;
                 }
+                else
+                {
+                    throw new InvalidActionException("INVALID_ACTION_TOUR_STATUS_CHANGE");
+                }
+                await _unitOfWork.TourRepository.UpdateAsync(tour);
+                string historyId = _idGenerator.GenerateId();
+                await _unitOfWork.EntityHistoryRepository.CreateAsync(new EntityHistory
+                {
+                    EntityId = tourId,
+                    Action = EntityModifyAction.ChangeStatus,
+                    EntityType = EntityType.Tour,
+                    Id = historyId,
+                    ModifierRole = UserRole.Manager,
+                    ModifiedBy = accountId,
+                    Reason = reason,
+                    Timestamp = _timeZoneHelper.GetUTC7Now(),
+                    StatusHistory = new EntityStatusHistory
+                    {
+                        Id = historyId,
+                        OldStatus = (int)TourStatus.Pending,
+                        NewStatus = (int)tour.Status,
+                    }
+                });
+                await _unitOfWork.CommitTransactionAsync();
             }
             catch
             {
@@ -424,6 +478,10 @@ namespace VietWay.Service.Management.Implement
                 }
                 await _unitOfWork.TourRepository.UpdateAsync(tour);
                 await _unitOfWork.CommitTransactionAsync();
+                foreach (var booking in tour.TourBookings)
+                {
+                    _backgroundJobClient.Enqueue<IEmailJob>(x => x.SendSystemCancellationEmail(booking.BookingId, reason));
+                }
             }
             catch
             {
@@ -432,7 +490,7 @@ namespace VietWay.Service.Management.Implement
             }
         }
 
-        public async Task DeleteTourAsync(string tourId)
+        public async Task DeleteTourAsync(string tourId, string accountId)
         {
             Tour? tour = await _unitOfWork.TourRepository.Query()
                 .SingleOrDefaultAsync(x => x.TourId.Equals(tourId)) ??

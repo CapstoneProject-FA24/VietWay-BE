@@ -44,7 +44,7 @@ namespace VietWay.API.Customer.Controllers
                 DefaultResponseModel<TourTemplateDetailDTO> response = new()
                 {
                     StatusCode = StatusCodes.Status200OK,
-                    Message = "Get tour template successfully",
+                    Message = "Success",
                     Data = tourTemplate
                 };
                 return Ok(response);

@@ -10,10 +10,12 @@ namespace VietWay.Job.Interface
 {
     public interface ITourJob
     {
-        public Task OpenTourAsync(string tourId);
-        public Task CloseTourAsync(string tourId);
-        public Task ChangeTourToOngoingAsync(string tourId);
-        public Task ChangeTourToCompletedAsync(string tourId);
-        
+        public Task OpenToursAsync();
+        public Task CloseToursAsync();
+        public Task ChangeToursToOngoingAsync();
+        public Task ChangeToursToCompletedAsync();
+        public Task RejectUnapprovedToursAsync();
+
+
     }
 }

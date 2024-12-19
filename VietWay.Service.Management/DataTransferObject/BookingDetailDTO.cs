@@ -35,6 +35,8 @@ namespace VietWay.Service.Management.DataTransferObject
         public DateTime? CancelAt { get; set; }
         public UserRole? CancelBy { get; set; }
         public List<TourPolicyPreview>? TourPolicies { get; set; }
+        public decimal? DepositPercent { get; set; }
+        public DateTime? PaymentDeadline { get; set; }
     }
 
     public class BookingTouristDetailDTO

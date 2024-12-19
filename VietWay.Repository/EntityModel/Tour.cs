@@ -29,7 +29,7 @@ namespace VietWay.Repository.EntityModel
         public int? MaxParticipant { get; set; }
         [Required]
         public int? MinParticipant { get; set; }
-
+        [ConcurrencyCheck]
         [Required]
         public int CurrentParticipant { get; set; }
         [Required]

@@ -179,7 +179,8 @@ namespace VietWay.API.Customer
             builder.Services.AddSingleton(s => new GeminiApiConfig(
                 apiKey: Environment.GetEnvironmentVariable("GEMINI_AI_API_KEY") ??
                     throw new Exception("GEMINI_AI_API_KEY is not set in environment variables"),
-                systemPrompt: Environment.GetEnvironmentVariable("GEMINI_AI_SYSTEM_PROMPT")
+                systemPrompt: Environment.GetEnvironmentVariable("GEMINI_AI_SYSTEM_PROMPT"),
+                infoExtractSystemPrompt: Environment.GetEnvironmentVariable("GEMINI_AI_SYSTEM_PROMPT_EXTRACTION")
             ));
             builder.Services.AddSingleton(s => new DatabaseConfig(
                 connectionString: Environment.GetEnvironmentVariable("SQL_CONNECTION_STRING") ??

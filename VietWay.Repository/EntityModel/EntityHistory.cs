@@ -21,7 +21,6 @@ namespace VietWay.Repository.EntityModel
         public string? EntityId { get; set; }
         [StringLength(20)]
         [ForeignKey(nameof(Modifier))] 
-        [Required]
         public string? ModifiedBy { get; set; }
         [Required]
         public UserRole ModifierRole { get; set; }
