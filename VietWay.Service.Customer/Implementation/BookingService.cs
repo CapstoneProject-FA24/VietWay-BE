@@ -22,7 +22,7 @@ namespace VietWay.Service.Customer.Implementation
         private readonly IBackgroundJobClient _backgroundJobClient = backgroundJobClient;
         private readonly int _pendingBookingExpireAfterMinutes = config.PendingBookingExpireAfterMinutes;
 
-        public async Task<string> BookTourAsync(Booking booking)
+        public async Task<string> BookTourAsync(Booking booking, int attempt = 0)
         {
             try
             {
@@ -32,7 +32,7 @@ namespace VietWay.Service.Customer.Implementation
                     .SingleOrDefaultAsync(x => x.TourId == booking.TourId && x.Status == TourStatus.Opened && x.IsDeleted == false)
                     ?? throw new ResourceNotFoundException("NOT_EXIST_TOUR");
                 bool isActiveBookingExisted = await _unitOfWork.BookingRepository.Query()
-                    .AnyAsync(x => x.TourId == booking.TourId && x.CustomerId == booking.CustomerId && 
+                    .AnyAsync(x => x.TourId == booking.TourId && x.CustomerId == booking.CustomerId &&
                         (x.Status == BookingStatus.Pending || x.Status == BookingStatus.Deposited || x.Status == BookingStatus.Paid));
 
                 if (isActiveBookingExisted)
@@ -79,11 +79,24 @@ namespace VietWay.Service.Customer.Implementation
                 });
                 await _unitOfWork.CommitTransactionAsync();
                 _backgroundJobClient.Schedule<IBookingJob>(
-                    x => x.CheckBookingForExpirationAsync(booking.BookingId), 
+                    x => x.CheckBookingForExpirationAsync(booking.BookingId),
                     DateTime.Now.AddMinutes(_pendingBookingExpireAfterMinutes));
-                _backgroundJobClient.Enqueue<IEmailJob>( x => 
+                _backgroundJobClient.Enqueue<IEmailJob>(x =>
                     x.SendBookingConfirmationEmail(booking.BookingId, booking.CreatedAt.AddMinutes(_pendingBookingExpireAfterMinutes)));
                 return booking.BookingId;
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                await _unitOfWork.RollbackTransactionAsync();
+                if (attempt < 3)
+                {
+                    await Task.Delay(100 * (attempt + 1));
+                    return await BookTourAsync(booking, attempt + 1);
+                } 
+                else
+                {
+                    throw new ServerErrorException("DATABASE_CONCURRENT_ERROR");
+                }
             }
             catch
             {
@@ -92,7 +105,7 @@ namespace VietWay.Service.Customer.Implementation
             }
         }
 
-        public async Task CancelBookingAsync(string customerId, string bookingId, string? reason)
+        public async Task CancelBookingAsync(string customerId, string bookingId, string? reason, int attempts = 0)
         {
             try
             {
@@ -154,6 +167,21 @@ namespace VietWay.Service.Customer.Implementation
                     }
                 });
                 await _unitOfWork.CommitTransactionAsync();
+                _backgroundJobClient.Enqueue<IEmailJob>(x =>
+                    x.SendBookingCancellationEmail(bookingId));
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                await _unitOfWork.RollbackTransactionAsync();
+                if (attempts < 3)
+                {
+                    await Task.Delay(100 * (attempts + 1));
+                    await CancelBookingAsync(customerId, bookingId, reason, attempts + 1);
+                }
+                else
+                {
+                    throw new ServerErrorException("DATABASE_CONCURRENT_ERROR");
+                }
             }
             catch
             {
@@ -366,7 +394,7 @@ namespace VietWay.Service.Customer.Implementation
             }
         }
 
-        public async Task DenyTourChangeAsync(string customerId, string bookingId)
+        public async Task DenyTourChangeAsync(string customerId, string bookingId, int attempts = 0)
         {
             Booking? booking = _unitOfWork.BookingRepository.Query()
                 .Include(x => x.Tour)
@@ -411,6 +439,19 @@ namespace VietWay.Service.Customer.Implementation
                     Timestamp = _timeZoneHelper.GetUTC7Now(),
                 });
                 await _unitOfWork.CommitTransactionAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                await _unitOfWork.RollbackTransactionAsync();
+                if (attempts < 3)
+                {
+                    await Task.Delay(100 * (attempts + 1));
+                    await DenyTourChangeAsync(customerId, bookingId, attempts + 1);
+                }
+                else
+                {
+                    throw new ServerErrorException("DATABASE_CONCURRENT_ERROR");
+                }
             }
             catch
             {

@@ -57,7 +57,7 @@ namespace VietWay.Job.Implementation
                     EntityType = EntityType.Booking,
                     Action = EntityModifyAction.ChangeStatus,
                     Id = newHistoryId,
-                    ModifiedBy = "",
+                    ModifiedBy = null,
                     ModifierRole = UserRole.Admin,
                     Reason = "Booking expired",
                     StatusHistory =  new()

@@ -116,7 +116,7 @@ namespace VietWay.API.Management.Controllers
             }
 
             Tour tour = _mapper.Map<Tour>(request);
-            string tourId = await _tourService.CreateTour(tour);
+            string tourId = await _tourService.CreateTour(tour,staffId);
 
             return Ok(new DefaultResponseModel<string>()
             {
@@ -179,12 +179,21 @@ namespace VietWay.API.Management.Controllers
 
         [HttpPut("edit-tour/{tourId}")]
         [Produces("application/json")]
+        [Authorize(Roles = $"{nameof(UserRole.Manager)},{nameof(UserRole.Staff)}")]
         [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status200OK)]
         public async Task<IActionResult> EditTourAsync(string tourId, EditTourRequest request)
         {
             Tour tour = _mapper.Map<Tour>(request);
-
-            await _tourService.EditTour(tourId, tour);
+            string? accountId = _tokenHelper.GetAccountIdFromToken(HttpContext);
+            if (string.IsNullOrWhiteSpace(accountId))
+            {
+                return Unauthorized(new DefaultResponseModel<object>
+                {
+                    Message = "Unauthorized",
+                    StatusCode = StatusCodes.Status401Unauthorized
+                });
+            }
+            await _tourService.EditTour(tourId, tour,accountId);
             return Ok(new DefaultResponseModel<string>()
             {
                 Message = "Edit tour successfully",
@@ -235,7 +244,7 @@ namespace VietWay.API.Management.Controllers
                     StatusCode = StatusCodes.Status401Unauthorized
                 });
             }
-            await _tourService.DeleteTourAsync(tourId);
+            await _tourService.DeleteTourAsync(tourId, accountId);
             return Ok(new DefaultResponseModel<object>()
             {
                 Message = "Tour template deleted successfully",
