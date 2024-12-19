@@ -7,6 +7,7 @@ using VietWay.Util.TokenUtil;
 using VietWay.Service.Management.Interface;
 using VietWay.Service.Management.DataTransferObject;
 using VietWay.API.Management.RequestModel;
+using VietWay.Service.Management.Implement;
 
 namespace VietWay.API.Management.Controllers
 {
@@ -101,6 +102,62 @@ namespace VietWay.API.Management.Controllers
 
             await _staffService.StaffChangePassword(accountId, changePasswordRequest.OldPassword, changePasswordRequest.NewPassword);
             return Ok();
+        }
+
+        [HttpPatch("admin-reset-staff-password")]
+        [Authorize(Roles = nameof(UserRole.Admin))]
+        [Produces("application/json")]
+        [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status200OK)]
+        public async Task<IActionResult> AdminResetStaffPasswordAsync(string staffId)
+        {
+            string? accountId = _tokenHelper.GetAccountIdFromToken(HttpContext);
+            if (string.IsNullOrWhiteSpace(accountId))
+            {
+                return Unauthorized(new DefaultResponseModel<object>
+                {
+                    Message = "Unauthorized",
+                    StatusCode = StatusCodes.Status401Unauthorized
+                });
+            }
+
+            await _staffService.AdminResetStaffPassword(staffId);
+            return Ok(new DefaultResponseModel<string>
+            {
+                Message = "Password successfully",
+                StatusCode = StatusCodes.Status200OK,
+            });
+        }
+
+        [HttpGet("profile")]
+        [Produces("application/json")]
+        [Authorize(Roles = nameof(UserRole.Staff))]
+        [ProducesResponseType<DefaultResponseModel<StaffDetailDTO>>(StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetCurrentStaffProfileAsync()
+        {
+            string? accountId = _tokenHelper.GetAccountIdFromToken(HttpContext);
+            if (accountId == null)
+            {
+                return Unauthorized(new DefaultResponseModel<object>()
+                {
+                    Message = "Unauthorized",
+                    StatusCode = StatusCodes.Status401Unauthorized
+                });
+            }
+            StaffDetailDTO? staffDetailDTO = await _staffService.GetStaffDetailAsync(accountId);
+            if (staffDetailDTO == null)
+            {
+                return Unauthorized(new DefaultResponseModel<object>()
+                {
+                    Message = "Unauthorized",
+                    StatusCode = StatusCodes.Status404NotFound
+                });
+            }
+            return Ok(new DefaultResponseModel<StaffDetailDTO>()
+            {
+                Data = staffDetailDTO,
+                Message = "Get current staff profile successfully",
+                StatusCode = StatusCodes.Status200OK
+            });
         }
     }
 }

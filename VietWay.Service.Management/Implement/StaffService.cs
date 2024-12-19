@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using System.Security.Cryptography;
 using VietWay.Repository.EntityModel;
 using VietWay.Repository.UnitOfWork;
 using VietWay.Service.Management.DataTransferObject;
@@ -99,6 +100,13 @@ namespace VietWay.Service.Management.Implement
 
         public async Task RegisterAccountAsync(Staff staff)
         {
+            Account? account = await _unitOfWork.AccountRepository.Query()
+                    .SingleOrDefaultAsync(x => x.PhoneNumber.Equals(staff.Account.PhoneNumber) || x.Email.Equals(staff.Account.Email));
+            if (account != null)
+            {
+                throw new InvalidActionException("EXISTED_PHONE_OR_EMAIL");
+            }
+
             try
             {
                 await _unitOfWork.BeginTransactionAsync();
@@ -135,6 +143,101 @@ namespace VietWay.Service.Management.Implement
                 await _unitOfWork.RollbackTransactionAsync();
                 throw;
             }
+        }
+        public async Task AdminResetStaffPassword(string staffId)
+        {
+            Staff? staff = await _unitOfWork.StaffRepository.Query()
+                .Where(x => x.StaffId.Equals(staffId))
+                .Include(x => x.Account)
+                .SingleOrDefaultAsync() ?? throw new ResourceNotFoundException("Staff not found");
+
+            string newPassword = GeneratePassword();
+            staff.Account.Password = _hashHelper.Hash(newPassword);
+
+            try
+            {
+                await _unitOfWork.BeginTransactionAsync();
+                await _unitOfWork.StaffRepository.UpdateAsync(staff);
+                await _unitOfWork.CommitTransactionAsync();
+            }
+            catch
+            {
+                await _unitOfWork.RollbackTransactionAsync();
+                throw;
+            }
+        }
+
+        private static string GeneratePassword()
+        {
+            int length = GenerateRandomLength(8, 16);
+
+            const string uppercase = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+            const string lowercase = "abcdefghijklmnopqrstuvwxyz";
+            const string digits = "0123456789";
+            const string special = "!@#$%^&*()-_=+[]{}|;:,.<>?/`~";
+
+            char[] password = new char[length];
+            using (var rng = RandomNumberGenerator.Create())
+            {
+                password[0] = GetRandomCharacter(rng, uppercase);
+                password[1] = GetRandomCharacter(rng, lowercase);
+                password[2] = GetRandomCharacter(rng, digits);
+                password[3] = GetRandomCharacter(rng, special);
+
+                string allCharacters = uppercase + lowercase + digits + special;
+                for (int i = 4; i < length; i++)
+                {
+                    password[i] = GetRandomCharacter(rng, allCharacters);
+                }
+
+                ShuffleArray(rng, password);
+            }
+
+            return new string(password);
+        }
+
+        private static int GenerateRandomLength(int min, int max)
+        {
+            using (var rng = RandomNumberGenerator.Create())
+            {
+                byte[] buffer = new byte[1];
+                rng.GetBytes(buffer);
+                return min + (buffer[0] % (max - min + 1));
+            }
+        }
+
+        private static char GetRandomCharacter(RandomNumberGenerator rng, string characterPool)
+        {
+            byte[] buffer = new byte[1];
+            rng.GetBytes(buffer);
+            int index = buffer[0] % characterPool.Length;
+            return characterPool[index];
+        }
+
+        private static void ShuffleArray(RandomNumberGenerator rng, char[] array)
+        {
+            for (int i = array.Length - 1; i > 0; i--)
+            {
+                byte[] buffer = new byte[1];
+                rng.GetBytes(buffer);
+                int j = buffer[0] % (i + 1);
+
+                char temp = array[i];
+                array[i] = array[j];
+                array[j] = temp;
+            }
+        }
+        public async Task<StaffDetailDTO?> GetStaffDetailAsync(string staffId)
+        {
+            return await _unitOfWork.StaffRepository
+                .Query()
+                .Where(x => x.StaffId.Equals(staffId))
+                .Select(x => new StaffDetailDTO
+                {
+                    FullName = x.FullName,
+                    PhoneNumber = x.Account.PhoneNumber,
+                    Email = x.Account.Email,
+                }).SingleOrDefaultAsync();
         }
     }
 }

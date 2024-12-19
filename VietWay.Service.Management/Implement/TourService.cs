@@ -102,6 +102,8 @@ namespace VietWay.Service.Management.Implement
             tour.MinParticipant = updatedTour.MinParticipant;
             tour.MaxParticipant = updatedTour.MaxParticipant;
             tour.Status = TourStatus.Pending;
+            tour.DepositPercent = updatedTour.DepositPercent;
+            tour.PaymentDeadline = updatedTour.PaymentDeadline;
 
             if (updatedTour.TourPrices != null)
             {

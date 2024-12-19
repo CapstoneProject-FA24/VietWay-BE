@@ -126,10 +126,19 @@ namespace VietWay.API.Management.Controllers
         [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status200OK)]
         public async Task<IActionResult> UpdatePostAsync(string postId, CreatePostRequest request)
         {
+            string? accountId = _tokenHelper.GetAccountIdFromToken(HttpContext);
+            if (string.IsNullOrWhiteSpace(accountId))
+            {
+                return Unauthorized(new DefaultResponseModel<object>
+                {
+                    Message = "Unauthorized",
+                    StatusCode = StatusCodes.Status401Unauthorized
+                });
+            }
             Post post = _mapper.Map<Post>(request);
             post.PostId = postId;
 
-            await _postService.UpdatePostAsync(post);
+            await _postService.UpdatePostAsync(post, accountId);
             return Ok();
         }
 
@@ -234,7 +243,7 @@ namespace VietWay.API.Management.Controllers
         }
 
         [HttpPatch("{postId}/images")]
-        [Authorize(Roles = nameof(UserRole.Staff))]
+        [Authorize(Roles = $"{nameof(UserRole.Manager)}, {nameof(UserRole.Staff)}")]
         [Produces("application/json")]
         public async Task<IActionResult> UpdatePostImageAsync(string postId, IFormFile? newImage)
         {

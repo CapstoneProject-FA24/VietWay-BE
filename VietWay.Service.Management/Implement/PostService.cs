@@ -1,6 +1,7 @@
 ﻿using Hangfire;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Identity.Client;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -123,11 +124,22 @@ namespace VietWay.Service.Management.Implement
             }
         }
 
-        public async Task UpdatePostAsync(Post newPost)
+        public async Task UpdatePostAsync(Post newPost, string accountId)
         {
             Post? post = await _unitOfWork.PostRepository.Query()
                 .SingleOrDefaultAsync(x => x.PostId.Equals(newPost.PostId)) ??
                 throw new ResourceNotFoundException("NOT_EXISTED_POST");
+
+            bool isManagerUpdate = await _unitOfWork.AccountRepository.Query()
+                .AnyAsync(x => x.AccountId.Equals(accountId) && x.Role == UserRole.Manager) && post.Status == PostStatus.Approved;
+
+            bool isStaffUpdate = await _unitOfWork.AccountRepository.Query()
+                .AnyAsync(x => x.AccountId.Equals(accountId) && x.Role == UserRole.Staff) && post.Status != PostStatus.Approved;
+
+            if (!isStaffUpdate && !isManagerUpdate)
+            {
+                throw new InvalidActionException("INVALID_ACTION_UPDATE_POST");
+            }
 
             post.Status = newPost.Status;
             post.Title = newPost.Title;

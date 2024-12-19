@@ -76,7 +76,8 @@ namespace VietWay.Service.Customer.Implementation
                     Provinces = x.TourTemplateProvinces.Select(y => y.Province.Name).ToList(),
                     StartDate = x.Tours.Where(x => x.Status == TourStatus.Opened && ((DateTime)x.RegisterOpenDate).Date <= _timeZoneHelper.GetUTC7Now().Date && ((DateTime)x.RegisterCloseDate).Date >= _timeZoneHelper.GetUTC7Now().Date && !x.IsDeleted).Select(y => (DateTime)y.StartDate).ToList(),
                     TourName = x.TourName,
-                    AverageRating = x.Tours.SelectMany(x => x.TourBookings).Select(x => x.TourReview).Average(x => x.Rating)
+                    AverageRating = x.Tours.SelectMany(x => x.TourBookings).Select(x => x.TourReview).Average(x => x.Rating),
+                    Transportation = x.Transportation
                 })
                 .ToListAsync();
             return new PaginatedList<TourTemplateWithTourInfoDTO>
@@ -168,7 +169,8 @@ namespace VietWay.Service.Customer.Implementation
                     Provinces = x.TourTemplateProvinces.Select(y => y.Province.Name).ToList(),
                     TourCategory = x.TourCategory.Name,
                     Price = x.Tours.Where(y => y.Status == TourStatus.Opened).Select(y => (decimal)y.DefaultTouristPrice).Min(),
-                    AverageRating = x.Tours.SelectMany(y => y.TourBookings).Select(y => y.TourReview).Average(y => y.Rating)
+                    AverageRating = x.Tours.SelectMany(y => y.TourBookings).Select(y => y.TourReview).Average(y => y.Rating),
+                    Transportation = x.Transportation
                 }).Take(previewCount)
                 .ToListAsync();
         }

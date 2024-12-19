@@ -111,6 +111,8 @@ namespace VietWay.Service.Management.Implement
                     BookingId = x.BookingId,
                     TourId = x.TourId,
                     TourName = x.Tour.TourTemplate.TourName,
+                    Duration = x.Tour.TourTemplate.TourDuration.DurationName,
+                    Transportation = x.Tour.TourTemplate.Transportation,
                     TourCode = x.Tour.TourTemplate.Code,
                     StartDate = x.Tour.StartDate,
                     StartLocation = x.Tour.StartLocation,

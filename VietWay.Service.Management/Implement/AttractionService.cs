@@ -181,11 +181,22 @@ namespace VietWay.Service.Management.Implement
                 .SingleOrDefaultAsync();
         }
 
-        public async Task UpdateAttractionAsync(Attraction newAttraction)
+        public async Task UpdateAttractionAsync(Attraction newAttraction, string accountId)
         {
             Attraction? attraction = await _unitOfWork.AttractionRepository.Query()
                 .SingleOrDefaultAsync(x => x.AttractionId.Equals(newAttraction.AttractionId) && !x.IsDeleted) ??
                 throw new ResourceNotFoundException("NOT_EXIST_ATTRACTION");
+
+            bool isManagerUpdate = await _unitOfWork.AccountRepository.Query()
+                .AnyAsync(x => x.AccountId.Equals(accountId) && x.Role == UserRole.Manager) && attraction.Status == AttractionStatus.Approved;
+
+            bool isStaffUpdate = await _unitOfWork.AccountRepository.Query()
+                .AnyAsync(x => x.AccountId.Equals(accountId) && x.Role == UserRole.Staff) && attraction.Status != AttractionStatus.Approved;
+
+            if (!isStaffUpdate && !isManagerUpdate)
+            {
+                throw new InvalidActionException("INVALID_ACTION_UPDATE_ATTRACTION");
+            }
 
             attraction.Status = newAttraction.Status;
             attraction.Name = newAttraction.Name;
@@ -298,6 +309,56 @@ namespace VietWay.Service.Management.Implement
                 await _unitOfWork.RollbackTransactionAsync();
                 throw;
             }
+        }
+
+        public async Task<PaginatedList<AttractionPreviewDTO>> GetAllApproveAttractionsAsync(
+            string? nameSearch, List<string>? provinceIds, List<string>? attractionCategoryIds, List<string>? attractionIds,
+            int pageSize, int pageIndex)
+        {
+            IQueryable<Attraction> query = _unitOfWork.AttractionRepository.Query();
+            if (false == string.IsNullOrEmpty(nameSearch))
+            {
+                query = query.Where(x => x.Name.Contains(nameSearch));
+            }
+            if (provinceIds?.Count > 0)
+            {
+                query = query.Where(x => provinceIds.Contains(x.ProvinceId));
+            }
+            if (attractionCategoryIds?.Count > 0)
+            {
+                query = query.Where(x => attractionCategoryIds.Contains(x.AttractionCategoryId));
+            }
+            if (attractionIds?.Count > 0)
+            {
+                query = query.Where(x => !attractionIds.Contains(x.AttractionId));
+            }
+            int count = await query.CountAsync();
+            List<AttractionPreviewDTO> attractions = await query
+                .Where(x => !x.IsDeleted)
+                .Include(x => x.AttractionImages)
+                .Include(x => x.Province)
+                .Include(x => x.AttractionCategory)
+                .Skip(pageSize * (pageIndex - 1))
+                .Take(pageSize)
+                .Select(x => new AttractionPreviewDTO
+                {
+                    AttractionId = x.AttractionId,
+                    Name = x.Name,
+                    Address = x.Address,
+                    Province = x.Province.Name,
+                    AttractionType = x.AttractionCategory.Name,
+                    Status = x.Status,
+                    ImageUrl = x.AttractionImages.FirstOrDefault() != null ? x.AttractionImages.FirstOrDefault().ImageUrl : null,
+                    CreatedAt = x.CreatedAt
+                })
+                .ToListAsync();
+            return new PaginatedList<AttractionPreviewDTO>
+            {
+                Items = attractions,
+                PageIndex = pageIndex,
+                PageSize = pageSize,
+                Total = count
+            };
         }
     }
 }

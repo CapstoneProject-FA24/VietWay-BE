@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using VietWay.Repository.EntityModel;
 using VietWay.Repository.EntityModel.Base;
 using VietWay.Repository.UnitOfWork;
 using VietWay.Service.Customer.DataTransferObject;
@@ -14,7 +15,7 @@ namespace VietWay.Service.Customer.Implementation
         public async Task<List<TourPreviewDTO>> GetAllToursByTemplateIdsAsync(string tourTemplateId)
         {
             return await _unitOfWork.TourRepository.Query()
-                .Where(x => false == x.IsDeleted && tourTemplateId == x.TourTemplateId && TourStatus.Opened == x.Status && ((DateTime)x.RegisterOpenDate).Date <= _timeZoneHelper.GetUTC7Now().Date && ((DateTime)x.RegisterCloseDate).Date >= _timeZoneHelper.GetUTC7Now().Date && !x.IsDeleted)
+                .Where(x => false == x.IsDeleted && tourTemplateId == x.TourTemplateId && TourStatus.Opened == x.Status && ((DateTime)x.RegisterOpenDate).Date <= _timeZoneHelper.GetUTC7Now().Date && ((DateTime)x.RegisterCloseDate).Date >= _timeZoneHelper.GetUTC7Now().Date)
                 .Select(x => new TourPreviewDTO()
                 {
                     TourId = x.TourId,
@@ -36,7 +37,7 @@ namespace VietWay.Service.Customer.Implementation
         public async Task<TourDetailDTO?> GetTourByIdAsync(string tourId)
         {
             return await _unitOfWork.TourRepository.Query()
-                .Where(x => false == x.IsDeleted && tourId == x.TourId && TourStatus.Opened == x.Status && ((DateTime)x.RegisterOpenDate).Date <= _timeZoneHelper.GetUTC7Now().Date && ((DateTime)x.RegisterCloseDate).Date >= _timeZoneHelper.GetUTC7Now().Date && !x.IsDeleted)
+                .Where(x => false == x.IsDeleted && tourId == x.TourId && TourStatus.Opened == x.Status && ((DateTime)x.RegisterOpenDate).Date <= _timeZoneHelper.GetUTC7Now().Date && ((DateTime)x.RegisterCloseDate).Date >= _timeZoneHelper.GetUTC7Now().Date)
                 .Select(x => new TourDetailDTO()
                 {
                     TourId = x.TourId,
@@ -65,7 +66,6 @@ namespace VietWay.Service.Customer.Implementation
                         RefundPercent = y.RefundPercent,
                     }).ToList(),
                 }).SingleOrDefaultAsync();
-
 
         }
 
@@ -100,6 +100,40 @@ namespace VietWay.Service.Customer.Implementation
                     StartLocationPlaceId = x.Tour.StartLocationPlaceId,
                     TourId = x.TourId,
                     TourTemplateId = x.Tour.TourTemplateId,
+                    TourTemplate = new TourTemplateInfoDTO
+                    {
+                        TourTemplateId = x.Tour.TourTemplateId,
+                        Code = x.Tour.TourTemplate.Code,
+                        TourName = x.Tour.TourTemplate.TourName,
+                        Description = x.Tour.TourTemplate.Description,
+                        Duration = x.Tour.TourTemplate.TourDuration.DurationName,
+                        TourCategory =  x.Tour.TourTemplate.TourCategory.Name,
+                        StartingProvince = x.Tour.TourTemplate.Province.Name,
+                        Note = x.Tour.TourTemplate.Note,
+                        Transportation = x.Tour.TourTemplate.Transportation,
+                        Provinces = x.Tour.TourTemplate.TourTemplateProvinces.Select(y => y.Province.Name).ToList(),
+                        Schedules = x.Tour.TourTemplate.TourTemplateSchedules.Select(y => new ScheduleDTO()
+                        {
+                            DayNumber = y.DayNumber,
+                            Title = y.Title,
+                            Description = y.Description,
+                            Attractions = y.AttractionSchedules.Select(z => new AttractionPreviewDTO()
+                            {
+                                AttractionId = z.AttractionId,
+                                Name = z.Attraction!.Name,
+                                ImageUrl = z.Attraction!.AttractionImages!.Select(x => x.ImageUrl).FirstOrDefault(),
+                                Address = z.Attraction.Address,
+                                AttractionCategory = z.Attraction!.AttractionCategory!.Name,
+                                Province = z.Attraction!.Province!.Name,
+                            }).ToList(),
+                        }).ToList(),
+                        Images = x.Tour.TourTemplate.TourTemplateImages.Select(y => new ImageDTO
+                        {
+                            ImageId = y.ImageId,
+                            Url = y.ImageUrl,
+                        }).ToList(),
+                        IsDeleted = x.Tour.TourTemplate.IsDeleted
+                    }
                 }).SingleOrDefaultAsync();
         }
     }

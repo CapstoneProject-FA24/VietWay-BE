@@ -37,8 +37,8 @@ namespace VietWay.Service.Management.Implement
                 {
                     AvatarUrl = default!,
                     FullName = fullName,
-                    Role = account.Role,
-                    Token = _tokenHelper.GenerateAuthenticationToken("1", account.Role.ToString())
+                    Role = UserRole.Admin,
+                    Token = _tokenHelper.GenerateAuthenticationToken("1", UserRole.Admin.ToString())
                 };
             }
             else

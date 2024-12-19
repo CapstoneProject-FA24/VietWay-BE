@@ -106,5 +106,61 @@ namespace VietWay.API.Management.Controllers
             await _managerService.ManagerChangePassword(accountId, changePasswordRequest.OldPassword, changePasswordRequest.NewPassword);
             return Ok();
         }
+
+        [HttpPatch("admin-reset-manager-password")]
+        [Authorize(Roles = nameof(UserRole.Admin))]
+        [Produces("application/json")]
+        [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status200OK)]
+        public async Task<IActionResult> AdminResetManagerPasswordAsync(string managerId)
+        {
+            string? accountId = _tokenHelper.GetAccountIdFromToken(HttpContext);
+            if (string.IsNullOrWhiteSpace(accountId))
+            {
+                return Unauthorized(new DefaultResponseModel<object>
+                {
+                    Message = "Unauthorized",
+                    StatusCode = StatusCodes.Status401Unauthorized
+                });
+            }
+
+            await _managerService.AdminResetManagerPassword(managerId);
+            return Ok(new DefaultResponseModel<string>
+            {
+                Message = "Password successfully",
+                StatusCode = StatusCodes.Status200OK,
+            });
+        }
+
+        [HttpGet("profile")]
+        [Produces("application/json")]
+        [Authorize(Roles = nameof(UserRole.Manager))]
+        [ProducesResponseType<DefaultResponseModel<ManagerDetailDTO>>(StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetCurrentManagerProfileAsync()
+        {
+            string? accountId = _tokenHelper.GetAccountIdFromToken(HttpContext);
+            if (accountId == null)
+            {
+                return Unauthorized(new DefaultResponseModel<object>()
+                {
+                    Message = "Unauthorized",
+                    StatusCode = StatusCodes.Status401Unauthorized
+                });
+            }
+            ManagerDetailDTO? managerDetailDTO = await _managerService.GetManagerDetailAsync(accountId);
+            if (managerDetailDTO == null)
+            {
+                return Unauthorized(new DefaultResponseModel<object>()
+                {
+                    Message = "Unauthorized",
+                    StatusCode = StatusCodes.Status404NotFound
+                });
+            }
+            return Ok(new DefaultResponseModel<ManagerDetailDTO>()
+            {
+                Data = managerDetailDTO,
+                Message = "Get current manager profile successfully",
+                StatusCode = StatusCodes.Status200OK
+            });
+        }
     }
 }

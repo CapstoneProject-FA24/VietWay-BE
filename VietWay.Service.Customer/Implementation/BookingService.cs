@@ -222,12 +222,14 @@ namespace VietWay.Service.Customer.Implementation
                     Note = x.Note,
                     PaidAmount = x.PaidAmount,
                     Transportation = x.Tour.TourTemplate.Transportation,
+                    IsReviewed = x.TourReview != null,
                     Participants = x.BookingTourists.Select(y => new TourParticipantDTO()
                     {
                         DateOfBirth = y.DateOfBirth,
                         FullName = y.FullName,
                         Gender = y.Gender,
                         PhoneNumber = y.PhoneNumber,
+                        PIN = y.PIN,
                         Price = y.Price,
                     }).ToList(),
                     Code = x.Tour.TourTemplate.Code,
@@ -272,6 +274,7 @@ namespace VietWay.Service.Customer.Implementation
                     StartDate = x.Tour!.StartDate!.Value,
                     IsReviewed = x.TourReview != null,
                     HavePendingRefund = x.BookingRefunds.Any(y => y.RefundStatus == RefundStatus.Pending),
+                    NumberOfDay = x.Tour.TourTemplate.TourDuration.NumberOfDay
                 }).ToListAsync();
             return new PaginatedList<BookingPreviewDTO>
             {
