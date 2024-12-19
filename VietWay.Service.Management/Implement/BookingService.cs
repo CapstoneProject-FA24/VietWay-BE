@@ -137,7 +137,7 @@ namespace VietWay.Service.Management.Implement
                         PaymentId = y.PaymentId,
                         Amount = y.Amount,
                         Note = y.Note,
-                        CreateAt = y.CreatedAt,
+                        CreateAt = y.CreateAt,
                         BankCode = y.BankCode,
                         BankTransactionNumber = y.BankTransactionNumber,
                         PayTime = y.PayTime,

@@ -36,12 +36,12 @@ namespace VietWay.Service.Customer.Implementation
             IQueryable<BookingPayment> query = _unitOfWork.BookingPaymentRepository.Query()
                 .Where(x => x.Booking!.CustomerId.Equals(customerId));
             int count = await query.CountAsync();
-            List<BookingPaymentDTO> items = await query.OrderByDescending(x => x.CreatedAt)
+            List<BookingPaymentDTO> items = await query.OrderByDescending(x => x.CreateAt)
                 .Select(x => new BookingPaymentDTO
                 {
                     Amount = x.Amount,
                     BookingId = x.BookingId,
-                    CreateAt = x.CreatedAt,
+                    CreateAt = x.CreateAt,
                     PaymentId = x.PaymentId,
                     Status = x.Status,
                     BankCode = x.BankCode,
@@ -64,13 +64,13 @@ namespace VietWay.Service.Customer.Implementation
             IQueryable<BookingPayment> query = _unitOfWork.BookingPaymentRepository.Query()
                 .Where(x => x.BookingId.Equals(bookingId) && x.Booking!.CustomerId.Equals(customerId));
             int count = await query.CountAsync();
-            List<BookingPaymentDTO> items = await query.OrderByDescending(x => x.CreatedAt)
+            List<BookingPaymentDTO> items = await query.OrderByDescending(x => x.CreateAt)
                 .Skip((pageIndex - 1) * pageSize).Take(pageSize)
                 .Select(x=> new BookingPaymentDTO
                 {
                     Amount = x.Amount,
                     BookingId = x.BookingId,
-                    CreateAt = x.CreatedAt,
+                    CreateAt = x.CreateAt,
                     PaymentId = x.PaymentId,
                     Status = x.Status,
                     BankCode = x.BankCode,
@@ -117,7 +117,7 @@ namespace VietWay.Service.Customer.Implementation
                     Amount = amount,
                     Status = PaymentStatus.Pending,
                     BookingId = bookingId,
-                    CreatedAt = _timeZoneHelper.GetUTC7Now(),
+                    CreateAt = _timeZoneHelper.GetUTC7Now(),
                 };
                 if (paymentMethod == PaymentMethod.PayOS)
                 {
