@@ -167,6 +167,8 @@ namespace VietWay.Service.Customer.Implementation
                     }
                 });
                 await _unitOfWork.CommitTransactionAsync();
+                _backgroundJobClient.Enqueue<IEmailJob>(x =>
+                    x.SendBookingCancellationEmail(bookingId));
             }
             catch (DbUpdateConcurrencyException)
             {
