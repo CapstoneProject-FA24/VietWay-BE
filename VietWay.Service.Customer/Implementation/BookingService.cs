@@ -274,6 +274,7 @@ namespace VietWay.Service.Customer.Implementation
                     StartDate = x.Tour!.StartDate!.Value,
                     IsReviewed = x.TourReview != null,
                     HavePendingRefund = x.BookingRefunds.Any(y => y.RefundStatus == RefundStatus.Pending),
+                    NumberOfDay = x.Tour.TourTemplate.TourDuration.NumberOfDay
                 }).ToListAsync();
             return new PaginatedList<BookingPreviewDTO>
             {

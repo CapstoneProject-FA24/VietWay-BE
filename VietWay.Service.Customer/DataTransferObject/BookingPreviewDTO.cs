@@ -22,5 +22,6 @@ namespace VietWay.Service.Customer.DataTransferObject
         public required string Code { get; set; }
         public required bool IsReviewed { get; set; }
         public required bool HavePendingRefund { get; set; }
+        public int? NumberOfDay { get; set; }
     }
 }

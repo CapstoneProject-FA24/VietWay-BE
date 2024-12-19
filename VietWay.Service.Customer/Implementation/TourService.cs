@@ -15,7 +15,7 @@ namespace VietWay.Service.Customer.Implementation
         public async Task<List<TourPreviewDTO>> GetAllToursByTemplateIdsAsync(string tourTemplateId)
         {
             return await _unitOfWork.TourRepository.Query()
-                .Where(x => false == x.IsDeleted && tourTemplateId == x.TourTemplateId && TourStatus.Opened == x.Status && ((DateTime)x.RegisterOpenDate).Date <= _timeZoneHelper.GetUTC7Now().Date && ((DateTime)x.RegisterCloseDate).Date >= _timeZoneHelper.GetUTC7Now().Date && !x.IsDeleted)
+                .Where(x => false == x.IsDeleted && tourTemplateId == x.TourTemplateId && TourStatus.Opened == x.Status && ((DateTime)x.RegisterOpenDate).Date <= _timeZoneHelper.GetUTC7Now().Date && ((DateTime)x.RegisterCloseDate).Date >= _timeZoneHelper.GetUTC7Now().Date)
                 .Select(x => new TourPreviewDTO()
                 {
                     TourId = x.TourId,
@@ -37,7 +37,7 @@ namespace VietWay.Service.Customer.Implementation
         public async Task<TourDetailDTO?> GetTourByIdAsync(string tourId)
         {
             return await _unitOfWork.TourRepository.Query()
-                .Where(x => false == x.IsDeleted && tourId == x.TourId && TourStatus.Opened == x.Status && ((DateTime)x.RegisterOpenDate).Date <= _timeZoneHelper.GetUTC7Now().Date && ((DateTime)x.RegisterCloseDate).Date >= _timeZoneHelper.GetUTC7Now().Date && !x.IsDeleted)
+                .Where(x => false == x.IsDeleted && tourId == x.TourId && TourStatus.Opened == x.Status && ((DateTime)x.RegisterOpenDate).Date <= _timeZoneHelper.GetUTC7Now().Date && ((DateTime)x.RegisterCloseDate).Date >= _timeZoneHelper.GetUTC7Now().Date)
                 .Select(x => new TourDetailDTO()
                 {
                     TourId = x.TourId,
