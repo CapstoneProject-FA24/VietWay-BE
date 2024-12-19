@@ -1,20 +1,23 @@
 ﻿using System.Text.Json;
 using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore;
+using Tweetinvi.Models;
 using VietWay.Repository.EntityModel;
 using VietWay.Repository.EntityModel.Base;
 using VietWay.Repository.UnitOfWork;
 using VietWay.Service.ThirdParty.Redis;
+using VietWay.Util.DateTimeUtil;
 
 namespace VietWay.Service.ThirdParty.GoogleGemini
 {
-    public class GeminiService(GeminiApiConfig config, HttpClient httpClient, IRedisCacheService redisCacheService, IUnitOfWork unitOfWork) : IGeminiService
+    public class GeminiService(GeminiApiConfig config, HttpClient httpClient, IRedisCacheService redisCacheService, IUnitOfWork unitOfWork, ITimeZoneHelper timeZoneHelper) : IGeminiService
     {
         private readonly string? _systemPrompt = config.SystemPrompt;
         private readonly string? _extractionSystemPrompt = config.InfoExtractSystemPrompt;
         private readonly IRedisCacheService _redisCacheService = redisCacheService;
         private readonly GeminiClient _geminiClient = new(config.ApiKey, httpClient);
         private readonly IUnitOfWork _unitOfWork = unitOfWork;
+        private readonly ITimeZoneHelper _timeZoneHelper = timeZoneHelper;
         public async Task<string> ChatAsync(List<Content> contents)
         {
             _geminiClient.SystemPrompt = await GetExtractionSystemPrompt();
@@ -23,7 +26,7 @@ namespace VietWay.Service.ThirdParty.GoogleGemini
             json = json.Replace("```json", "").Replace("```", "");
             TourExtractionResult result = FromJson(json);
             IQueryable<TourTemplate> query = _unitOfWork.TourTemplateRepository.Query()
-                .Where(x => x.Status == TourTemplateStatus.Approved && x.IsDeleted == false && x.Tours.Any(x => x.Status == TourStatus.Opened));
+                .Where(x => x.Status == TourTemplateStatus.Approved && x.IsDeleted == false && x.Tours.Any(x => x.Status == TourStatus.Opened && x.RegisterCloseDate >= _timeZoneHelper.GetUTC7Now()));
             if (result.ProvinceIds.Length > 0)
             {
                 query = query.Where(x => x.TourTemplateProvinces.Any(p=>result.ProvinceIds.Contains(p.ProvinceId)));
@@ -38,23 +41,23 @@ namespace VietWay.Service.ThirdParty.GoogleGemini
             }
             if (result.NumberOfParticipants.HasValue)
             {
-                query = query.Where(x => x.Tours.Any(x=>x.CurrentParticipant + result.NumberOfParticipants <= x.MaxParticipant && x.Status == TourStatus.Opened));
+                query = query.Where(x => x.Tours.Any(x=>x.CurrentParticipant + result.NumberOfParticipants <= x.MaxParticipant && x.Status == TourStatus.Opened && x.RegisterCloseDate >= _timeZoneHelper.GetUTC7Now()));
             }
             if (result.BudgetMin.HasValue)
             {
-                query = query.Where(x => x.Tours.Any(x => x.DefaultTouristPrice >= result.BudgetMin && x.Status == TourStatus.Opened));
+                query = query.Where(x => x.Tours.Any(x => x.DefaultTouristPrice >= result.BudgetMin && x.Status == TourStatus.Opened && x.RegisterCloseDate >= _timeZoneHelper.GetUTC7Now()));
             }
             if (result.BudgetMax.HasValue)
             {
-                query = query.Where(x => x.Tours.Any(x => x.DefaultTouristPrice <= result.BudgetMax && x.Status == TourStatus.Opened));
+                query = query.Where(x => x.Tours.Any(x => x.DefaultTouristPrice <= result.BudgetMax && x.Status == TourStatus.Opened && x.RegisterCloseDate >= _timeZoneHelper.GetUTC7Now()));
             }
             if (result.StartDate.HasValue)
             {
-                query = query.Where(x => x.Tours.Any(x => x.StartDate >= result.StartDate && x.Status == TourStatus.Opened));
+                query = query.Where(x => x.Tours.Any(x => x.StartDate >= result.StartDate && x.Status == TourStatus.Opened && x.RegisterCloseDate >= _timeZoneHelper.GetUTC7Now()));
             }
             if (result.EndDate.HasValue)
             {
-                query = query.Where(x => x.Tours.Any(x => x.StartDate <= result.EndDate && x.Status == TourStatus.Opened));
+                query = query.Where(x => x.Tours.Any(x => x.StartDate <= result.EndDate && x.Status == TourStatus.Opened && x.RegisterCloseDate >= _timeZoneHelper.GetUTC7Now()));
             }
             var relatedTours = await query
                 .Select(x => new
@@ -69,7 +72,7 @@ namespace VietWay.Service.ThirdParty.GoogleGemini
                     StartDates = x.Tours.Where(x => x.Status == TourStatus.Opened).Select(x => x.StartDate).ToList(),
                     TourUrl = $"https://vietway.projectpioneer.id.vn/tour-du-lich/{x.TourTemplateId}"
                 })
-                .Take(5)
+                .Take(50)
                 .ToListAsync();
             _geminiClient.SystemPrompt = await GetSystemPrompt(JsonSerializer.Serialize(relatedTours));
             return await _geminiClient.ChatAsync(contents);

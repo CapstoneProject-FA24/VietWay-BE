@@ -9,6 +9,5 @@ namespace VietWay.Util.DateTimeUtil
     public interface ITimeZoneHelper
     {
         public DateTime GetUTC7Now();
-        public DateTime GetLocalTimeFromUTC7(DateTime utc7Time);
     }
 }

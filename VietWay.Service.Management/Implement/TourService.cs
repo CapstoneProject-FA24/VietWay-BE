@@ -56,7 +56,6 @@ namespace VietWay.Service.Management.Implement
                     Timestamp = _timeZoneHelper.GetUTC7Now()
                 });
                 await _unitOfWork.CommitTransactionAsync();
-                _backgroundJobClient.Schedule<ITourJob>(x => x.RejectUnapprovedTourAsync(tour.TourId), _timeZoneHelper.GetLocalTimeFromUTC7(tour.RegisterCloseDate!.Value));
                 return tour.TourId;
             }
             catch
@@ -384,10 +383,6 @@ namespace VietWay.Service.Management.Implement
                     }
                 });
                 await _unitOfWork.CommitTransactionAsync();
-                if (tour.Status == TourStatus.Accepted)
-                {
-                    _backgroundJobClient.Schedule<ITourJob>(x => x.OpenTourAsync(tourId),_timeZoneHelper.GetLocalTimeFromUTC7(tour.RegisterOpenDate!.Value));
-                }
             }
             catch
             {
