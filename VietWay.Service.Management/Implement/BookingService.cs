@@ -137,7 +137,7 @@ namespace VietWay.Service.Management.Implement
                         PaymentId = y.PaymentId,
                         Amount = y.Amount,
                         Note = y.Note,
-                        CreateAt = y.CreateAt,
+                        CreateAt = y.CreatedAt,
                         BankCode = y.BankCode,
                         BankTransactionNumber = y.BankTransactionNumber,
                         PayTime = y.PayTime,
@@ -243,7 +243,7 @@ namespace VietWay.Service.Management.Implement
                         .SingleOrDefaultAsync(x => x.TourId == newTourId && x.Status == TourStatus.Opened && x.IsDeleted == false)
                         ?? throw new ResourceNotFoundException("NOT_EXIST_TOUR");
                 bool isActiveBookingExisted = await _unitOfWork.BookingRepository.Query()
-                    .AnyAsync(x => x.TourId == newTourId && x.CustomerId == booking.CustomerId && (x.Status == BookingStatus.Pending || x.Status == BookingStatus.Deposited) || x.Status == BookingStatus.Paid);
+                    .AnyAsync(x => x.TourId == newTourId && x.CustomerId == booking.CustomerId && (x.Status == BookingStatus.Pending || x.Status == BookingStatus.Deposited || x.Status == BookingStatus.Paid));
 
                 if (isActiveBookingExisted)
                 {
