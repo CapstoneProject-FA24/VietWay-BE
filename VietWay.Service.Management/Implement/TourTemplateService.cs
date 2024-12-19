@@ -27,7 +27,7 @@ namespace VietWay.Service.Management.Implement
 
             bool isDrafted = tourTemplate.Status.Equals(TourTemplateStatus.Draft);
 
-            if (!tourTemplate.Code.IsNullOrEmpty())
+            if (!tourTemplate.Code.IsNullOrEmpty() || tourTemplate.Status == TourTemplateStatus.Approved)
             {
                 var existingCode = await GetByCodeAsync(tourTemplate.Code, tourTemplate.TourTemplateId);
                 if (existingCode != null)
@@ -176,7 +176,7 @@ namespace VietWay.Service.Management.Implement
                     TourTemplateId = x.TourTemplateId,
                     Code = x.Code,
                     TourName = x.TourName,
-                    StartingProvince = x.StartingProvince,
+                    StartingProvince = x.Province.Name,
                     Duration = x.TourDuration.DurationName,
                     TourCategory = x.TourCategory.Name,
                     Status = x.Status,
@@ -272,10 +272,14 @@ namespace VietWay.Service.Management.Implement
             {
                 throw new InvalidActionException("INVALID_ACTION_TOUR_TEMPLATE_ALREADY_APPROVED");
             }
-            var existingCode = await GetByCodeAsync(newTourTemplate.Code, tourTemplateId);
-            if (existingCode != null)
+
+            if (!tourTemplate.Code.IsNullOrEmpty() || newTourTemplate.Status == TourTemplateStatus.Approved)
             {
-                throw new InvalidInfoException($"EXISTED_TOUR_TEMPLATE_CODE");
+                var existingCode = await GetByCodeAsync(tourTemplate.Code, tourTemplate.TourTemplateId);
+                if (existingCode != null)
+                {
+                    throw new InvalidInfoException($"EXISTED_TOUR_TEMPLATE_CODE");
+                }
             }
 
             tourTemplate.Code = newTourTemplate.Code;
