@@ -15,14 +15,14 @@ namespace VietWay.Service.Management.DataTransferObject
     }
     public class AttractionRatingDTO
     {
-        public required string AttractionName { get; set; }
-        public required double AverageRating { get; set; }
-        public required int TotalRating { get; set; }
+        public string? AttractionName { get; set; }
+        public double? AverageRating { get; set; }
+        public int? TotalRating { get; set; }
     }
     public class TourTemplateRatingDTO
     {
-        public required string TourTemplateName { get; set; }
-        public required double AverageRating { get; set; }
-        public required int TotalRating { get; set; }
+        public string? TourTemplateName { get; set; }
+        public double? AverageRating { get; set; }
+        public int? TotalRating { get; set; }
     }
 }

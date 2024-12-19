@@ -63,8 +63,9 @@ namespace VietWay.API.Management.Controllers
         [HttpGet("rating")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [Authorize(Roles = $"{nameof(UserRole.Manager)},{nameof(UserRole.Admin)}")]
-        public async Task<IActionResult> GetRatingReportAsync(DateTime startDate, DateTime endDate, bool isAscending)
+        public async Task<IActionResult> GetRatingReportAsync(DateTime startDate, DateTime endDate, bool? isAscending)
         {
+            isAscending ??= false;
             if (startDate > endDate)
             {
                 return BadRequest(new DefaultResponseModel<string>
@@ -78,7 +79,7 @@ namespace VietWay.API.Management.Controllers
 
             return Ok(new DefaultResponseModel<ReportRatingDTO>
             {
-                Data = await _reportService.GetReportRatingAsync(startDate, endDate, isAscending),
+                Data = await _reportService.GetReportRatingAsync(startDate, endDate, isAscending.Value),
                 StatusCode = StatusCodes.Status200OK,
                 Message = "Success"
             });

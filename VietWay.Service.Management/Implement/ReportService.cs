@@ -47,6 +47,7 @@ namespace VietWay.Service.Management.Implement
                     ParticipantCount = x.Key,
                     BookingCount = x.Count()
                 })
+                .OrderByDescending(x=> x.BookingCount)
                 .ToListAsync();
             List<ReportBookingByTourCategory> categoryBookings = await _unitOfWork.TourCategoryRepository.Query()
                 .Select(x => new ReportBookingByTourCategory
@@ -55,6 +56,7 @@ namespace VietWay.Service.Management.Implement
                     TotalBooking = x.TourTemplates.SelectMany(t => t.Tours).SelectMany(t => t.TourBookings)
                         .Where(b => b.CreatedAt >= startDate && b.CreatedAt <= endDate).Count()
                 })
+                .OrderByDescending(x => x.TotalBooking)
                 .ToListAsync();
             List<ReportBookingByTourTemplate> templateBookings = await _unitOfWork.TourTemplateRepository.Query()
                 .Select(x => new ReportBookingByTourTemplate
@@ -63,6 +65,7 @@ namespace VietWay.Service.Management.Implement
                     TotalBooking = x.Tours.SelectMany(t => t.TourBookings)
                         .Where(b => b.CreatedAt >= startDate && b.CreatedAt <= endDate).Count()
                 })
+                .OrderByDescending(x => x.TotalBooking)
                 .ToListAsync();
             return new ReportBookingDTO
             {
@@ -75,7 +78,7 @@ namespace VietWay.Service.Management.Implement
         }
 
         public async Task<ReportRatingDTO> GetReportRatingAsync(DateTime startDate, DateTime endDate, bool isAsc)
-        { 
+        {
             if (startDate > endDate)
             {
                 throw new InvalidInfoException("INVALID_INFO_START_DATE_AFTER_END_DATE");
@@ -83,42 +86,54 @@ namespace VietWay.Service.Management.Implement
             startDate = startDate.Date;
             endDate = endDate.Date.AddDays(1).AddSeconds(-1);
 
-            IQueryable<AttractionRatingDTO> attractions = _unitOfWork.AttractionRepository.Query().Select(x=>new AttractionRatingDTO
-            {
-                AttractionName = x.Name,
-                AverageRating = x.AttractionReviews.Where(r => r.CreatedAt >= startDate && r.CreatedAt <= endDate).Average(r => r.Rating),
-                TotalRating = x.AttractionReviews.Where(r => r.CreatedAt >= startDate && r.CreatedAt <= endDate).Count()
-            });
-            IQueryable<TourTemplateRatingDTO> tourTemplates = _unitOfWork.TourTemplateRepository.Query().Select(x => new TourTemplateRatingDTO
-            {
-                TourTemplateName = x.TourName,
-                AverageRating = x.Tours.SelectMany(t => t.TourBookings).Select(x=>x.TourReview).Where(r => r.CreatedAt >= startDate && r.CreatedAt <= endDate).Average(r => r.Rating),
-                TotalRating = x.Tours.SelectMany(t => t.TourBookings).Select(x => x.TourReview).Where(r => r.CreatedAt >= startDate && r.CreatedAt <= endDate).Count()
-            });
+            IQueryable<AttractionRatingDTO> attractions = _unitOfWork.AttractionRepository.Query()
+                .Where(x => x.Status == AttractionStatus.Approved)
+                .Select(x => new AttractionRatingDTO
+                {
+                    AttractionName = x.Name,
+                    AverageRating = x.AttractionReviews.Where(r => r.CreatedAt >= startDate && r.CreatedAt <= endDate).Select(r=>r.Rating).DefaultIfEmpty().Average(),
+                    TotalRating = x.AttractionReviews.Where(r => r.CreatedAt >= startDate && r.CreatedAt <= endDate).Count()
+                });
+            IQueryable<TourTemplateRatingDTO> tourTemplates = _unitOfWork.TourTemplateRepository.Query()
+                .Where(x => x.Status == TourTemplateStatus.Approved)
+                .Select(x => new TourTemplateRatingDTO
+                {
+                    TourTemplateName = x.TourName,
+                    AverageRating = x.Tours.SelectMany(t => t.TourBookings).Select(x => x.TourReview).Where(r => r.CreatedAt >= startDate && r.CreatedAt <= endDate).Select(r=>r.Rating).DefaultIfEmpty().Average(),
+                    TotalRating = x.Tours.SelectMany(t => t.TourBookings).Select(x => x.TourReview).Where(r => r.CreatedAt >= startDate && r.CreatedAt <= endDate).Count()
+                });
             attractions = isAsc ? attractions.OrderBy(x => x.AverageRating) : attractions.OrderByDescending(x => x.AverageRating);
             tourTemplates = isAsc ? tourTemplates.OrderBy(x => x.AverageRating) : tourTemplates.OrderByDescending(x => x.AverageRating);
 
-            IQueryable<AttractionRatingDTO> attractionTotal = _unitOfWork.AttractionRepository.Query().Select(x => new AttractionRatingDTO
-            {
-                AttractionName = x.Name,
-                AverageRating = x.AttractionReviews.Average(r => r.Rating),
-                TotalRating = x.AttractionReviews.Count()
-            });
-            IQueryable<TourTemplateRatingDTO> tourTemplateTotal = _unitOfWork.TourTemplateRepository.Query().Select(x => new TourTemplateRatingDTO
-            {
-                TourTemplateName = x.TourName,
-                AverageRating = x.Tours.SelectMany(t => t.TourBookings).Select(x => x.TourReview).Average(r => r.Rating),
-                TotalRating = x.Tours.SelectMany(t => t.TourBookings).Select(x => x.TourReview).Count()
-            });
+            IQueryable<AttractionRatingDTO> attractionTotal = _unitOfWork.AttractionRepository.Query()
+                .Where(x => x.Status == AttractionStatus.Approved)
+                .Select(x => new AttractionRatingDTO
+                {
+                    AttractionName = x.Name,
+                    AverageRating = x.AttractionReviews.Select(r=>r.Rating).DefaultIfEmpty().Average(),
+                    TotalRating = x.AttractionReviews.Count()
+                });
+            IQueryable<TourTemplateRatingDTO> tourTemplateTotal = _unitOfWork.TourTemplateRepository.Query()
+                .Where(x => x.Status == TourTemplateStatus.Approved)
+                .Select(x => new TourTemplateRatingDTO
+                {
+                    TourTemplateName = x.TourName,
+                    AverageRating = x.Tours.SelectMany(t => t.TourBookings).Select(x => x.TourReview.Rating).DefaultIfEmpty().Average(),
+                    TotalRating = x.Tours.SelectMany(t => t.TourBookings).Select(x => x.TourReview).Count()
+                });
             attractionTotal = isAsc ? attractions.OrderBy(x => x.AverageRating) : attractions.OrderByDescending(x => x.AverageRating);
             tourTemplateTotal = isAsc ? tourTemplates.OrderBy(x => x.AverageRating) : tourTemplates.OrderByDescending(x => x.AverageRating);
 
+            var attractionRatingInPeriod = await attractions.Take(15).ToListAsync();
+            var attractionRatingTotal = await attractionTotal.Take(15).ToListAsync();
+            var tourTemplateRatingInPeriod = await tourTemplates.Take(15).ToListAsync();
+            var tourTemplateRatingTotal = await tourTemplateTotal.Take(15).ToListAsync();
             return new ReportRatingDTO
             {
-                AttractionRatingInPeriod = await attractions.Take(15).ToListAsync(),
-                AttractionRatingTotal = await attractionTotal.Take(15).ToListAsync(),
-                TourTemplateRatingInPeriod = await tourTemplates.Take(15).ToListAsync(),
-                TourTemplateRatingTotal = await tourTemplateTotal.Take(15).ToListAsync()
+                AttractionRatingInPeriod = attractionRatingInPeriod,
+                AttractionRatingTotal = attractionRatingTotal,
+                TourTemplateRatingInPeriod = tourTemplateRatingInPeriod,
+                TourTemplateRatingTotal = tourTemplateRatingTotal
             };
         }
 
@@ -152,6 +167,7 @@ namespace VietWay.Service.Management.Implement
                         x.TourTemplates.SelectMany(t => t.Tours).SelectMany(t => t.TourBookings).SelectMany(t => t.BookingRefunds)
                         .Where(x => x.RefundStatus == RefundStatus.Refunded).Sum(x => x.RefundAmount)
                 })
+                .OrderByDescending(x => x.TotalRevenue)
                 .ToListAsync();
             List<ReportRevenueByTourTemplate> templateRevenue = await _unitOfWork.TourTemplateRepository.Query()
                 .Select(x => new ReportRevenueByTourTemplate
@@ -162,6 +178,7 @@ namespace VietWay.Service.Management.Implement
                     x.Tours.SelectMany(t => t.TourBookings).SelectMany(t => t.BookingRefunds)
                     .Where(x => x.RefundStatus == RefundStatus.Refunded).Sum(x => x.RefundAmount)
                 })
+                .OrderByDescending(x => x.TotalRevenue)
                 .ToListAsync();
             return new ReportRevenueDTO
             {
