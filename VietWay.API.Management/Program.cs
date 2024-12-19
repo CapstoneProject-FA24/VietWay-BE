@@ -216,7 +216,9 @@ namespace VietWay.API.Management
 
             builder.Services.AddSingleton(s => new EmailJobConfiguration(
                 cancelBookingTemplate: Environment.GetEnvironmentVariable("MAIL_SEND_CANCEL_TOUR_MESSAGE") ?? throw new Exception("MAIL_SEND_CANCEL_TOUR_MESSAGE is not set in environment variables"),
-                confirmBookingTemplate: Environment.GetEnvironmentVariable("MAIL_SEND_CONFIRM_TOUR_MESSAGE") ?? throw new Exception("MAIL_SEND_CONFIRM_TOUR_MESSAGE is not set in environment variables")
+                confirmBookingTemplate: Environment.GetEnvironmentVariable("MAIL_SEND_CONFIRM_TOUR_MESSAGE") ?? throw new Exception("MAIL_SEND_CONFIRM_TOUR_MESSAGE is not set in environment variables"),
+                vietwayCancelBookingTemplate: Environment.GetEnvironmentVariable("MAIL_SEND_VIETWAY_CANCEL_TOUR_MESSAGE") ?? throw new Exception("MAIL_SEND_VIETWAY_CANCEL_TOUR_MESSAGE is not set in environment variables"),
+                resetPasswordTemplate: Environment.GetEnvironmentVariable("MAIL_SEND_RESET_PASSWORD_MESSAGE") ?? throw new Exception("MAIL_SEND_RESET_PASSWORD_MESSAGE is not set in environment variables")
             ));
 
             builder.Services.AddSingleton(s => new EmailClientConfig(
