@@ -11,7 +11,6 @@ namespace VietWay.Service.Management.Interface
             int pageIndex);
         public Task<Staff?> GetStaffInfoById(string id);
         public Task StaffChangePassword(string staffId, string oldPassword, string newPassword);
-        public Task<Staff> AddStaff(Staff staffInfo);
         public Task RegisterAccountAsync(Staff staff);
         public Task ChangeStaffStatusAsync(string staffId, bool isDeleted);
         public Task AdminResetStaffPassword(string staffId);

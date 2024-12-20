@@ -36,7 +36,8 @@ namespace VietWay.Job.Implementation
                     x.ContactEmail,
                     x.ContactPhoneNumber,
                     x.ContactAddress,
-                    NumberOfParticipants = x.BookingTourists.Count
+                    NumberOfParticipants = x.BookingTourists.Count,
+                    x.PaidAmount
                 })
                 .SingleOrDefaultAsync(x => x.BookingId.Equals(bookingId));
             if (bookingDetail == null)
@@ -55,10 +56,11 @@ namespace VietWay.Job.Implementation
                 .Replace("{{{contactPhoneNumber}}}", bookingDetail.ContactPhoneNumber)
                 .Replace("{{{contactAddress}}}", bookingDetail.ContactAddress)
                 .Replace("{{{totalPrice}}}", bookingDetail.TotalPrice.ToString(@"C", new CultureInfo("vi-VN")))
-                .Replace("{{{createAt}}}", bookingDetail.CreatedAt.ToString(@"F", new CultureInfo("vi-VN")))
+                .Replace("{{{createdAt}}}", bookingDetail.CreatedAt.ToString(@"F", new CultureInfo("vi-VN")))
                 .Replace("{{{numberOfParticipants}}}", bookingDetail.NumberOfParticipants.ToString())
                 .Replace("{{{bookingId}}}", bookingDetail.BookingId)
-                .Replace("{{{status}}}", bookingDetail.Status.ToString());
+                .Replace("{{{status}}}", bookingDetail.Status.ToString())
+                .Replace("{{{paidAmount}}}",bookingDetail.PaidAmount.ToString(@"C", new CultureInfo("vi-VN")));
             await _emailService.SendEmailAsync(email, "Hủy booking", template);
         }
 
@@ -117,20 +119,118 @@ namespace VietWay.Job.Implementation
 
         }
 
-        public Task SendBookingPaymentExpiredEmail(string bookingId)
+        public async Task SendBookingPaymentExpiredEmail(string bookingId)
         {
-            throw new NotImplementedException();
+            var bookingDetail = await _unitOfWork.BookingRepository.Query()
+                .Select(x => new
+                {
+                    x.Tour.TourTemplate.Code,
+                    x.Tour.TourTemplate.TourName,
+                    x.Tour.StartDate,
+                    x.Tour.TourTemplate.TourDuration.NumberOfDay,
+                    x.Tour.StartLocation,
+                    x.BookingId,
+                    x.TotalPrice,
+                    x.CreatedAt,
+                    x.Status,
+                    x.ContactFullName,
+                    x.ContactEmail,
+                    x.ContactPhoneNumber,
+                    x.ContactAddress,
+                    NumberOfParticipants = x.BookingTourists.Count,
+                    x.PaidAmount
+                })
+                .SingleOrDefaultAsync(x => x.BookingId.Equals(bookingId));
+            if (bookingDetail == null)
+            {
+                return;
+            }
+            string template = _configuration.BookingExpiredTemplate;
+            string email = bookingDetail.ContactEmail!;
+            template = template
+                .Replace("{{{tourName}}}", bookingDetail.TourName)
+                .Replace("{{{startDate}}}", bookingDetail.StartDate.Value.ToString(@"F", new CultureInfo("vi-VN")))
+                .Replace("{{{code}}}", bookingDetail.Code)
+                .Replace("{{{startLocation}}}", bookingDetail.StartLocation)
+                .Replace("{{{contactFullName}}}", bookingDetail.ContactFullName)
+                .Replace("{{{contactEmail}}}", bookingDetail.ContactEmail)
+                .Replace("{{{contactPhoneNumber}}}", bookingDetail.ContactPhoneNumber)
+                .Replace("{{{contactAddress}}}", bookingDetail.ContactAddress)
+                .Replace("{{{totalPrice}}}", bookingDetail.TotalPrice.ToString(@"C", new CultureInfo("vi-VN")))
+                .Replace("{{{createdAt}}}", bookingDetail.CreatedAt.ToString(@"F", new CultureInfo("vi-VN")))
+                .Replace("{{{numberOfParticipants}}}", bookingDetail.NumberOfParticipants.ToString())
+                .Replace("{{{bookingId}}}", bookingDetail.BookingId)
+                .Replace("{{{status}}}", bookingDetail.Status.ToString())
+                .Replace("{{{paidAmount}}}", bookingDetail.PaidAmount.ToString(@"C", new CultureInfo("vi-VN")));
+            await _emailService.SendEmailAsync(email, "Hủy booking", template);
         }
 
-
-        public Task SendBookingTourChangeEmail(string bookingId, string newTourId)
+        public async Task SendBookingTourChangeEmail(string bookingId,string oldTourId, string newTourId)
         {
-            throw new NotImplementedException();
+            Tour? oldTour = _unitOfWork.TourRepository.Query()
+                .Include(x => x.TourTemplate)
+                .SingleOrDefault(x => x.TourId.Equals(oldTourId));
+            Tour? newTour = _unitOfWork.TourRepository.Query()
+                .Include(x => x.TourTemplate)
+                .SingleOrDefault(x => x.TourId.Equals(newTourId));
+            if (oldTour == null || newTour == null)
+            {
+                return;
+            }
+            var bookingDetail = await _unitOfWork.BookingRepository.Query()
+                .Select(x => new
+                {
+                    x.Tour.TourTemplate.Code,
+                    x.Tour.TourTemplate.TourName,
+                    x.Tour.StartDate,
+                    x.Tour.TourTemplate.TourDuration.NumberOfDay,
+                    x.Tour.StartLocation,
+                    x.BookingId,
+                    x.TotalPrice,
+                    x.CreatedAt,
+                    x.Status,
+                    x.ContactFullName,
+                    x.ContactEmail,
+                    x.ContactPhoneNumber,
+                    x.ContactAddress,
+                    NumberOfParticipants = x.BookingTourists.Count,
+                    x.PaidAmount
+                })
+                .SingleOrDefaultAsync(x => x.BookingId.Equals(bookingId));
+            if (bookingDetail == null)
+            {
+                return;
+            }
+            string template = _configuration.BookingChangedTemplate;
+            template = template.Replace("{{{oldTourCode", oldTour.TourTemplate.Code)
+                .Replace("{{{oldTourName}}", oldTour.TourTemplate.TourName)
+                .Replace("{{{oldStartDate}}", oldTour.StartDate.Value.ToString(@"F", new CultureInfo("vi-VN")))
+                .Replace("{{{oldStartLocation}}", oldTour.StartLocation)
+                .Replace("{{{newTourCode}}", newTour.TourTemplate.Code)
+                .Replace("{{{newTourName}}", newTour.TourTemplate.TourName)
+                .Replace("{{{newStartDate}}", newTour.StartDate.Value.ToString(@"F", new CultureInfo("vi-VN")))
+                .Replace("{{{newStartLocation}}", newTour.StartLocation)
+                .Replace("{{{contactFullName}}", bookingDetail.ContactFullName)
+                .Replace("{{{contactEmail}}", bookingDetail.ContactEmail)
+                .Replace("{{{contactPhoneNumber}}", bookingDetail.ContactPhoneNumber)
+                .Replace("{{{contactAddress}}", bookingDetail.ContactAddress)
+                .Replace("{{{bookingId}}}",bookingDetail.BookingId)
+                .Replace("{{{totalPrice}}", bookingDetail.TotalPrice.ToString(@"C", new CultureInfo("vi-VN")))
+                .Replace("{{{createdAt}}", bookingDetail.CreatedAt.ToString(@"F", new CultureInfo("vi-VN")))
+                .Replace("{{{numberOfParticipants}}", bookingDetail.NumberOfParticipants.ToString())
+                .Replace("{{{status}}", bookingDetail.Status.ToString())
+                .Replace("{{{remainingAmount}}}",(bookingDetail.TotalPrice-bookingDetail.PaidAmount > 0 ? bookingDetail.TotalPrice - bookingDetail.PaidAmount : 0).ToString(@"C", new CultureInfo("vi-VN")))
+                .Replace("{{{paidAmount}}", bookingDetail.PaidAmount.ToString(@"C", new CultureInfo("vi-VN")));
+                
+            await _emailService.SendEmailAsync(bookingDetail.ContactEmail, "Thay đổi tour", template);
         }
 
         public Task SendNewPasswordEmail(string email, string name, string newPassword)
         {
-            throw new NotImplementedException();
+            string template = _configuration.ResetPasswordTemplate;
+            template = template.Replace("{{{fullName}}}", name)
+                .Replace("{{{newPassword}}}", newPassword);
+            return _emailService.SendEmailAsync(email, "Mật khẩu mới", template);
         }
 
         public async Task SendSystemCancellationEmail(string bookingId, string? reason)
@@ -149,7 +249,8 @@ namespace VietWay.Job.Implementation
                     x.TotalPrice,
                     x.CreatedAt,
                     x.Status,
-                    NumberOfParticipants = x.BookingTourists.Count
+                    NumberOfParticipants = x.BookingTourists.Count,
+                    x.PaidAmount
                 }).SingleOrDefaultAsync();
             if (bookingDetail == null)
             {
@@ -167,6 +268,7 @@ namespace VietWay.Job.Implementation
                 .Replace("{{{contactPhoneNumber}}}", bookingDetail.ContactPhoneNumber)
                 .Replace("{{{contactAddress}}}", bookingDetail.ContactAddress)
                 .Replace("{{{totalPrice}}}", bookingDetail.TotalPrice.ToString(@"C", new CultureInfo("vi-VN")))
+                .Replace("{{{paidAmount}}}", bookingDetail.PaidAmount.ToString(@"C", new CultureInfo("vi-VN")))
                 .Replace("{{{createAt}}}", bookingDetail.CreatedAt.ToString(@"F", new CultureInfo("vi-VN")))
                 .Replace("{{{numberOfParticipants}}}", bookingDetail.NumberOfParticipants.ToString())
                 .Replace("{{{bookingId}}}", bookingDetail.BookingId)

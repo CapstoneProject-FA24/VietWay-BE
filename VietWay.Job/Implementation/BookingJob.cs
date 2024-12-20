@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Hangfire;
+using Microsoft.EntityFrameworkCore;
 using VietWay.Job.Interface;
 using VietWay.Repository.EntityModel;
 using VietWay.Repository.EntityModel.Base;
@@ -8,11 +9,12 @@ using VietWay.Util.IdUtil;
 
 namespace VietWay.Job.Implementation
 {
-    public class BookingJob(IUnitOfWork unitOfWork, ITimeZoneHelper timeZoneHelper, IIdGenerator idGenetator) : IBookingJob
+    public class BookingJob(IUnitOfWork unitOfWork, ITimeZoneHelper timeZoneHelper, IIdGenerator idGenetator, IBackgroundJobClient backgroundJobClient) : IBookingJob
     {
         private readonly IUnitOfWork _unitOfWork = unitOfWork;
         private readonly ITimeZoneHelper _timeZoneHelper = timeZoneHelper;
         private readonly IIdGenerator _idGenerator = idGenetator;
+        private readonly IBackgroundJobClient _backgroundJobClient = backgroundJobClient;
         public async Task CheckBookingForExpirationAsync(string bookingId)
         {
             Booking? booking = await _unitOfWork.BookingRepository
@@ -68,6 +70,7 @@ namespace VietWay.Job.Implementation
                     }
                 });
                 await _unitOfWork.CommitTransactionAsync();
+                _backgroundJobClient.Enqueue<IEmailJob>(x => x.SendBookingPaymentExpiredEmail(booking.BookingId));
             }
             catch
             {

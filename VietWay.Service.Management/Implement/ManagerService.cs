@@ -9,16 +9,19 @@ using VietWay.Util.IdUtil;
 using VietWay.Service.Management.Interface;
 using VietWay.Service.Management.DataTransferObject;
 using System.Security.Cryptography;
+using VietWay.Job.Interface;
+using Hangfire;
 
 namespace VietWay.Service.Management.Implement
 {
     public class ManagerService(IUnitOfWork unitOfWork, IHashHelper hashHelper,
-        IIdGenerator idGenerator, ITimeZoneHelper timeZoneHelper) : IManagerService
+        IIdGenerator idGenerator, ITimeZoneHelper timeZoneHelper, IBackgroundJobClient backgroundJobClient) : IManagerService
     {
         private readonly IUnitOfWork _unitOfWork = unitOfWork;
         private readonly IHashHelper _hashHelper = hashHelper;
         private readonly IIdGenerator _idGenerator = idGenerator;
         private readonly ITimeZoneHelper _timeZoneHelper = timeZoneHelper;
+        private readonly IBackgroundJobClient _backgroundJobClient = backgroundJobClient;
 
         public async Task<(int totalCount, List<ManagerPreviewDTO> items)> GetAllManagerInfos(string? nameSearch,
             int pageSize,
@@ -109,12 +112,14 @@ namespace VietWay.Service.Management.Implement
             {
                 await _unitOfWork.BeginTransactionAsync();
                 string accountId = _idGenerator.GenerateId();
+                string newPassword = GeneratePassword();
                 manager.ManagerId = accountId;
                 manager.Account.AccountId = accountId;
-                manager.Account.Password = _hashHelper.Hash("VietWay@12345");
+                manager.Account.Password = _hashHelper.Hash(newPassword);
                 manager.Account.CreatedAt = _timeZoneHelper.GetUTC7Now();
                 await _unitOfWork.ManagerRepository.CreateAsync(manager);
                 await _unitOfWork.CommitTransactionAsync();
+                _backgroundJobClient.Enqueue<IEmailJob>(x => x.SendNewPasswordEmail(manager.Account.Email, manager.FullName, newPassword));
             }
             catch
             {
@@ -156,6 +161,7 @@ namespace VietWay.Service.Management.Implement
                 await _unitOfWork.BeginTransactionAsync();
                 await _unitOfWork.ManagerRepository.UpdateAsync(manager);
                 await _unitOfWork.CommitTransactionAsync();
+                _backgroundJobClient.Enqueue<IEmailJob>(x => x.SendNewPasswordEmail(manager.Account.Email, manager.FullName, newPassword));
             }
             catch
             {
