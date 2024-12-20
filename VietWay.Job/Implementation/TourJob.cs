@@ -19,7 +19,7 @@ namespace VietWay.Job.Implementation
         public async Task OpenToursAsync()
         {
             List<Tour> tours = await _unitOfWork.TourRepository.Query()
-                    .Where(x=> x.Status == TourStatus.Accepted && x.RegisterOpenDate < _timeZoneHelper.GetUTC7Now())
+                    .Where(x=> x.Status == TourStatus.Accepted && x.RegisterOpenDate > _timeZoneHelper.GetUTC7Now())
                     .ToListAsync();
             foreach (Tour tour in tours)
             {
@@ -58,7 +58,7 @@ namespace VietWay.Job.Implementation
         public async Task CloseToursAsync()
         {
             List<Tour> tours = await _unitOfWork.TourRepository.Query()
-                    .Where(x => x.Status == TourStatus.Opened && x.RegisterCloseDate < _timeZoneHelper.GetUTC7Now())
+                    .Where(x => x.Status == TourStatus.Opened && x.RegisterCloseDate > _timeZoneHelper.GetUTC7Now())
                     .ToListAsync();
             foreach (Tour tour in tours)
             {
@@ -97,7 +97,7 @@ namespace VietWay.Job.Implementation
         public async Task ChangeToursToOngoingAsync()
         {
             List<Tour> tours = await _unitOfWork.TourRepository.Query()
-                    .Where(x => x.Status == TourStatus.Closed && x.StartDate < _timeZoneHelper.GetUTC7Now())
+                    .Where(x => x.Status == TourStatus.Closed && x.StartDate > _timeZoneHelper.GetUTC7Now())
                     .ToListAsync();
             foreach (Tour tour in tours)
             {
@@ -136,7 +136,7 @@ namespace VietWay.Job.Implementation
         public async Task ChangeToursToCompletedAsync()
         {
             List<Tour> tours = await _unitOfWork.TourRepository.Query()
-                    .Where(x => x.Status == TourStatus.OnGoing && x.StartDate.Value.AddDays(x.TourTemplate.TourDuration.NumberOfDay) < _timeZoneHelper.GetUTC7Now())
+                    .Where(x => x.Status == TourStatus.OnGoing && x.StartDate.Value.AddDays(x.TourTemplate.TourDuration.NumberOfDay) > _timeZoneHelper.GetUTC7Now())
                     .ToListAsync();
             foreach (Tour tour in tours)
             {
@@ -175,7 +175,7 @@ namespace VietWay.Job.Implementation
         public async Task RejectUnapprovedToursAsync()
         {
             List<Tour> tours = await _unitOfWork.TourRepository.Query()
-                    .Where(x => x.Status == TourStatus.Pending && x.RegisterCloseDate < _timeZoneHelper.GetUTC7Now())
+                    .Where(x => x.Status == TourStatus.Pending && x.RegisterCloseDate > _timeZoneHelper.GetUTC7Now())
                     .ToListAsync();
             foreach (Tour tour in tours)
             {
