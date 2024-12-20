@@ -86,6 +86,10 @@ namespace VietWay.Job.Implementation
                         }
                     });
                     await _unitOfWork.CommitTransactionAsync();
+                    if (tour.CurrentParticipant < tour.MinParticipant)
+                    {
+                        _backgroundJobClient.Enqueue<IEmailJob>(x => x.SendWarningMailClosedTourNotEnoughParticipantManager(tour.TourId));
+                    }
                 }
                 catch
                 {

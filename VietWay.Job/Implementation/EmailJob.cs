@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using VietWay.Job.Configuration;
 using VietWay.Job.Interface;
 using VietWay.Repository.EntityModel;
+using VietWay.Repository.EntityModel.Base;
 using VietWay.Repository.UnitOfWork;
 using VietWay.Service.ThirdParty.Email;
 
@@ -274,6 +275,36 @@ namespace VietWay.Job.Implementation
                 .Replace("{{{bookingId}}}", bookingDetail.BookingId)
                 .Replace("{{{status}}}", bookingDetail.Status.ToString());
             await _emailService.SendEmailAsync(bookingDetail.ContactEmail, "Hủy booking", template);
+        }
+
+        public async Task SendWarningMailClosedTourNotEnoughParticipantManager(string tourId)
+        {
+            List<string> managerEmails = await _unitOfWork.AccountRepository.Query()
+                .Where(x => x.Role == UserRole.Manager && x.Email!=null && x.IsDeleted == false)
+                .Select(x => x.Email)
+                .ToListAsync();
+            if (managerEmails.Count == 0)
+            {
+                return;
+            }
+            Tour? tour = await _unitOfWork.TourRepository.Query()
+                .Include(x => x.TourTemplate)
+                .SingleOrDefaultAsync(x => x.TourId.Equals(tourId));
+            if (tour == null)
+            {
+                return;
+            }
+            string template = _configuration.WarningClosedTourNotEnoughParticipantTemplate;
+            template = template.Replace("{{{code}}}",tourId)
+                .Replace("{{{tourName}}}", tour.TourTemplate.TourName)
+                .Replace("{{{endDate}}}", tour.RegisterCloseDate.Value.ToString(@"F", new CultureInfo("vi-VN")))
+                .Replace("{{{currentParticipants}}}", tour.CurrentParticipant.ToString())
+                .Replace("{{{minParticipants}}}", tour.MinParticipant.ToString())
+                .Replace("{{{startDate}}}",tour.StartDate.Value.ToString(@"F", new CultureInfo("vi-VN")));
+            foreach (var email in managerEmails)
+            {
+                await _emailService.SendEmailAsync(email, "Tour không đủ người tham gia", template);
+            }
         }
     }
 }

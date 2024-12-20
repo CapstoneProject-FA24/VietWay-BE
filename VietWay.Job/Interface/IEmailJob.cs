@@ -16,5 +16,6 @@ namespace VietWay.Job.Interface
         public Task SendBookingTourChangeEmail(string bookingId, string oldTourId, string newTourId);
         public Task SendBookingPaymentExpiredEmail(string bookingId);
         public Task SendNewPasswordEmail(string email, string name, string newPassword);
+        public Task SendWarningMailClosedTourNotEnoughParticipantManager(string tourId);
     }
 }
