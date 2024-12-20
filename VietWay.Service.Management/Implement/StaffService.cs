@@ -1,5 +1,7 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Hangfire;
+using Microsoft.EntityFrameworkCore;
 using System.Security.Cryptography;
+using VietWay.Job.Interface;
 using VietWay.Repository.EntityModel;
 using VietWay.Repository.UnitOfWork;
 using VietWay.Service.Management.DataTransferObject;
@@ -12,19 +14,14 @@ using VietWay.Util.IdUtil;
 namespace VietWay.Service.Management.Implement
 {
     public class StaffService(IUnitOfWork unitOfWork, IHashHelper hashHelper,
-        IIdGenerator idGenerator, ITimeZoneHelper timeZoneHelper) : IStaffService
+        IIdGenerator idGenerator, ITimeZoneHelper timeZoneHelper, IBackgroundJobClient backgroundJobClient) : IStaffService
     {
         private readonly IUnitOfWork _unitOfWork = unitOfWork;
         private readonly IHashHelper _hashHelper = hashHelper;
         private readonly IIdGenerator _idGenerator = idGenerator;
         private readonly ITimeZoneHelper _timeZoneHelper = timeZoneHelper;
+        private readonly IBackgroundJobClient _backgroundJobClient = backgroundJobClient;
 
-        public async Task<Staff> AddStaff(Staff staffInfo)
-        {
-            await _unitOfWork.StaffRepository
-                .CreateAsync(staffInfo);
-            return staffInfo;
-        }
 
         public async Task StaffChangePassword(string staffId, string oldPassword, string newPassword)
         {
@@ -109,14 +106,16 @@ namespace VietWay.Service.Management.Implement
 
             try
             {
+                string newPassword = GeneratePassword();
                 await _unitOfWork.BeginTransactionAsync();
                 string accountId = _idGenerator.GenerateId();
                 staff.StaffId = accountId;
                 staff.Account.AccountId = accountId;
-                staff.Account.Password = _hashHelper.Hash("VietWay@12345");
+                staff.Account.Password = _hashHelper.Hash(newPassword);
                 staff.Account.CreatedAt = _timeZoneHelper.GetUTC7Now();
                 await _unitOfWork.StaffRepository.CreateAsync(staff);
                 await _unitOfWork.CommitTransactionAsync();
+                _backgroundJobClient.Enqueue<IEmailJob>(x => x.SendNewPasswordEmail(staff.Account.Email, staff.FullName, newPassword));
             }
             catch
             {
@@ -159,6 +158,7 @@ namespace VietWay.Service.Management.Implement
                 await _unitOfWork.BeginTransactionAsync();
                 await _unitOfWork.StaffRepository.UpdateAsync(staff);
                 await _unitOfWork.CommitTransactionAsync();
+                _backgroundJobClient.Enqueue<IEmailJob>(x => x.SendNewPasswordEmail(staff.Account.Email, staff.FullName, newPassword));
             }
             catch
             {

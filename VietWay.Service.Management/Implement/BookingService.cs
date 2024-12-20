@@ -316,6 +316,7 @@ namespace VietWay.Service.Management.Implement
                     Reason = reason,
                 });
                 await _unitOfWork.CommitTransactionAsync();
+                _backgroundJobClient.Enqueue<IEmailJob>(x => x.SendBookingTourChangeEmail(bookingId, oldTour.TourId,newTour.TourId));
             }
             catch (DbUpdateConcurrencyException)
             {
