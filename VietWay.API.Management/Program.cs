@@ -220,7 +220,8 @@ namespace VietWay.API.Management
                 vietwayCancelBookingTemplate: Environment.GetEnvironmentVariable("MAIL_SEND_VIETWAY_CANCEL_TOUR_MESSAGE") ?? throw new Exception("MAIL_SEND_VIETWAY_CANCEL_TOUR_MESSAGE is not set in environment variables"),
                 resetPasswordTemplate: Environment.GetEnvironmentVariable("MAIL_SEND_RESET_PASSWORD_MESSAGE") ?? throw new Exception("MAIL_SEND_RESET_PASSWORD_MESSAGE is not set in environment variables"),
                 bookingExpiredTemplate: Environment.GetEnvironmentVariable("MAIL_SEND_BOOKING_EXPIRED_MESSAGE") ?? throw new Exception("MAIL_SEND_BOOKING_EXPIRED_MESSAGE is not set in environment variables"),
-                bookingChangedTemplate: Environment.GetEnvironmentVariable("MAIL_SEND_BOOKING_CHANGED_MESSAGE") ?? throw new Exception("MAIL_SEND_BOOKING_CHANGED_MESSAGE is not set in environment variables")
+                bookingChangedTemplate: Environment.GetEnvironmentVariable("MAIL_SEND_BOOKING_CHANGED_MESSAGE") ?? throw new Exception("MAIL_SEND_BOOKING_CHANGED_MESSAGE is not set in environment variables"),
+                warningClosedTourNotEnoughParticipant: Environment.GetEnvironmentVariable("MAIL_SEND_WARNING_CLOSED_TOUR_NOT_ENOUGH_PARTICIPANT") ?? throw new Exception("MAIL_SEND_WARNING_CLOSED_TOUR_NOT_ENOUGH_PARTICIPANT is not set in environment variables")
             ));
 
             builder.Services.AddSingleton(s => new EmailClientConfig(
