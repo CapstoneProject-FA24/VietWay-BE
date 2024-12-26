@@ -103,4 +103,15 @@
         Pending,
         Refunded,
     }
+    public enum SocialMediaSite
+    {
+        Facebook,
+        Twitter,
+    }
+    public enum SocialMediaPostEntity
+    {
+        Attraction,
+        TourTemplate,
+        Post
+    }
 }

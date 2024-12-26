@@ -12,6 +12,7 @@ namespace VietWay.Repository.DataAccessObject
         public DbSet<Attraction> Attraction { get; set; }
         public DbSet<AttractionCategory> AttractionCategory { get; set; }
         public DbSet<AttractionImage> AttractionImage { get; set; }
+        public DbSet<AttractionLike> AttractionLike { get; set; }
         public DbSet<AttractionReview> AttractionReview { get; set; }
         public DbSet<AttractionReviewLike> AttractionReviewLike { get; set; }
         public DbSet<AttractionSchedule> AttractionSchedule { get; set; }
@@ -22,11 +23,13 @@ namespace VietWay.Repository.DataAccessObject
         public DbSet<Customer> Customer { get; set; }
         public DbSet<EntityHistory> EntityHistory { get; set; }
         public DbSet<EntityStatusHistory> EntityStatusHistory { get; set; }
+        public DbSet<FacebookPostMetric> FacebookPostMetric { get; set; }
         public DbSet<Manager> Manager { get; set; }
         public DbSet<Post> Post { get; set; }
         public DbSet<PostCategory> PostCategory { get; set; }
         public DbSet<PostLike> PostLike { get; set; }
         public DbSet<Province> Province { get; set; }
+        public DbSet<SocialMediaPost> SocialMediaPost { get; set; }
         public DbSet<Staff> Staff { get; set; }
         public DbSet<Tour> Tour { get; set; }
         public DbSet<TourCategory> TourCategory { get; set; }
@@ -38,6 +41,7 @@ namespace VietWay.Repository.DataAccessObject
         public DbSet<TourTemplateImage> TourTemplateImage { get; set; }
         public DbSet<TourTemplateProvince> TourTemplateProvince { get; set; }
         public DbSet<TourTemplateSchedule> TourTemplateSchedule { get; set; }
+        public DbSet<TwitterPostMetric> TwitterPostMetric { get; set; }
         #endregion
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -65,6 +69,18 @@ namespace VietWay.Repository.DataAccessObject
                 .HasOne(x => x.AttractionReview)
                 .WithMany(x => x.AttractionReviewLikes)
                 .HasForeignKey(x => x.ReviewId);
+            modelBuilder.Entity<SocialMediaPost>()
+                .HasOne(x => x.Post)
+                .WithMany(x => x.SocialMediaPosts)
+                .HasForeignKey(x => x.EntityId);
+            modelBuilder.Entity<SocialMediaPost>()
+                .HasOne(x => x.Attraction)
+                .WithMany(x => x.SocialMediaPosts)
+                .HasForeignKey(x => x.EntityId);
+            modelBuilder.Entity<SocialMediaPost>()
+                .HasOne(x => x.TourTemplate)
+                .WithMany(x => x.SocialMediaPosts)
+                .HasForeignKey(x => x.EntityId);
         }
     }
 }
