@@ -19,7 +19,7 @@ namespace VietWay.Repository.UnitOfWork
         private IGenericRepository<AttractionReviewLike>? attractionReviewLikeRepository;
         private IGenericRepository<Booking>? bookingRepository;
         private IGenericRepository<BookingPayment>? bookingPaymentRepository;
-        private IGenericRepository<BookingRefund> bookingRefundRepository;
+        private IGenericRepository<BookingRefund>? bookingRefundRepository;
         private IGenericRepository<Customer>? customerRepository;
         private IGenericRepository<EntityHistory>? entityHistoryRepository;
         private IGenericRepository<EntityStatusHistory>? entityStatusHistoryRepository;
@@ -36,8 +36,11 @@ namespace VietWay.Repository.UnitOfWork
         private IGenericRepository<TourReview>? tourReviewRepository;
         private IGenericRepository<TourTemplate>? tourTemplateRepository;
         private IGenericRepository<TourTemplateProvince>? tourTemplateProvinceRepository;
-        private IGenericRepository<TourPrice> tourPriceRepository;
-        private IGenericRepository<TourRefundPolicy> tourRefundPolicyRepository;
+        private IGenericRepository<TourPrice>? tourPriceRepository;
+        private IGenericRepository<TourRefundPolicy>? tourRefundPolicyRepository;
+        private IGenericRepository<FacebookPostMetric>? facebookPostMetricRepository;
+        private IGenericRepository<SocialMediaPost>? socialMediaPostRepository;
+        private IGenericRepository<TwitterPostMetric>? twitterPostMetricRepository;
 
         public IGenericRepository<Account> AccountRepository
         {
@@ -276,6 +279,31 @@ namespace VietWay.Repository.UnitOfWork
                 return bookingRefundRepository;
             }
         }
+
+        public IGenericRepository<FacebookPostMetric> FacebookPostMetricRepository{
+            get
+            {
+                facebookPostMetricRepository ??= new GenericRepository<FacebookPostMetric>(_dbContext);
+                return facebookPostMetricRepository;
+            }
+        }
+
+        public IGenericRepository<SocialMediaPost> SocialMediaPostRepository
+        { 
+            get
+            {
+                socialMediaPostRepository ??= new GenericRepository<SocialMediaPost>(_dbContext);
+                return socialMediaPostRepository;
+            }
+        }
+
+        public IGenericRepository<TwitterPostMetric> TwitterPostMetricRepository
+        {
+            get
+            {
+                twitterPostMetricRepository ??= new GenericRepository<TwitterPostMetric>(_dbContext);
+                return twitterPostMetricRepository;
+            }
 
         public async Task BeginTransactionAsync()
         {
