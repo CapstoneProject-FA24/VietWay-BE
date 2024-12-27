@@ -40,7 +40,7 @@ namespace VietWay.API.Management.Controllers
             });
         }
 
-        [HttpPost("{templateId}/twitter")]
+        [HttpPost("tour-template/{templateId}/twitter")]
         [Produces("application/json")]
         [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status200OK)]
         public async Task<IActionResult> UploadTemplateTwitterAsync(string templateId)
@@ -53,7 +53,7 @@ namespace VietWay.API.Management.Controllers
             });
         }
 
-        [HttpPost("{attractionId}/twitter")]
+        [HttpPost("attraction/{attractionId}/twitter")]
         [Produces("application/json")]
         [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status200OK)]
         public async Task<IActionResult> UploadAttractionTwitterAsync(string attractionId)
