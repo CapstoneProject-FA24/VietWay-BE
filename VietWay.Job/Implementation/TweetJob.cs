@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Tweetinvi.Core.Extensions;
 using VietWay.Job.Interface;
+using VietWay.Repository.EntityModel.Base;
 using VietWay.Repository.UnitOfWork;
 using VietWay.Service.ThirdParty.Redis;
 using VietWay.Service.ThirdParty.Twitter;
@@ -14,23 +15,25 @@ namespace VietWay.Job.Implementation
         private readonly IRedisCacheService _redisCacheService = redisCacheService;
         public async Task GetPublishedTweetsJob()
         {
-            Dictionary<string, string> postTweetId = await _unitOfWork.PostRepository.Query()
-                .Where(x => x.XTweetId != null)
-                .ToDictionaryAsync(x => x.PostId!, x => x.XTweetId!);
+            var socialMediaPosts = await _unitOfWork.SocialMediaPostRepository.Query()
+                .Where(x => x.Site == SocialMediaSite.Twitter)
+                .ToListAsync();
 
-            if (postTweetId.IsNullOrEmpty())
+            if (socialMediaPosts.IsNullOrEmpty())
             {
                 return;
             }
 
-            List<TweetDTO> tweetsDetails = await _twitterService.GetTweetsAsync([.. postTweetId.Values]);
+            List<TweetDTO> tweetsDetails = await _twitterService.GetTweetsAsync(socialMediaPosts.Select(x => x.SocialPostId).ToList());
 
-            Dictionary<string, TweetDTO> keyValuePairs = postTweetId
-            .Where(pair => tweetsDetails.Any(tweet => tweet.XTweetId == pair.Value)) // Only valid matches
-            .ToDictionary(
-                pair => pair.Key,
-                pair => tweetsDetails.First(tweet => tweet.XTweetId == pair.Value)
-            );
+            var keyValuePairs = socialMediaPosts
+                .Where(post => tweetsDetails.Any(tweet => tweet.XTweetId == post.SocialPostId))
+                .GroupBy(post => post.EntityId)
+                .ToDictionary(
+                    group => group.Key!,
+                    group => group.SelectMany(post => tweetsDetails.Where(tweet => tweet.XTweetId == post.SocialPostId)).ToList()
+                );
+
             await _redisCacheService.SetMultipleAsync(keyValuePairs);
         }
     }

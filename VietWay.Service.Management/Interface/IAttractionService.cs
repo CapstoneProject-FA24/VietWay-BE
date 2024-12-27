@@ -24,5 +24,6 @@ namespace VietWay.Service.Management.Interface
         public Task<PaginatedList<AttractionPreviewDTO>> GetAllApproveAttractionsAsync(
             string? nameSearch, List<string>? provinceIds, List<string>? attractionCategoryIds, List<string>? attractionIds,
             int pageSize, int pageIndex);
+        public Task PostAttractionWithXAsync(string attractionId);
     }
 }

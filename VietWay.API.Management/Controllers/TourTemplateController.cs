@@ -6,6 +6,7 @@ using VietWay.API.Management.ResponseModel;
 using VietWay.Repository.EntityModel;
 using VietWay.Repository.EntityModel.Base;
 using VietWay.Service.Management.DataTransferObject;
+using VietWay.Service.Management.Implement;
 using VietWay.Service.Management.Interface;
 using VietWay.Util.TokenUtil;
 
@@ -307,6 +308,19 @@ namespace VietWay.API.Management.Controllers
                 StatusCode = StatusCodes.Status200OK
             };
             return Ok(response);
+        }
+
+        [HttpPost("{templateId}/twitter")]
+        [Produces("application/json")]
+        [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status200OK)]
+        public async Task<IActionResult> UploadTemplateTwitterAsync(string templateId)
+        {
+            await _tourTemplateService.PostTourTemplateWithXAsync(templateId);
+            return Ok(new DefaultResponseModel<object>
+            {
+                Message = "Post template successfully",
+                StatusCode = StatusCodes.Status200OK
+            });
         }
     }
 }

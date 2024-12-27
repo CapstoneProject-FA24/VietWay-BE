@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using System.Text.Json;
 using Tweetinvi.Core.Extensions;
+using Tweetinvi.Models.V2;
 using VietWay.Repository.EntityModel;
 using VietWay.Repository.EntityModel.Base;
 using VietWay.Repository.UnitOfWork;
@@ -13,7 +14,7 @@ using VietWay.Util.CustomExceptions;
 
 namespace VietWay.Service.Management.Implement
 {
-    public class PublishPostService(IUnitOfWork unitOfWork, ITwitterService twitterService, IFacebookService facebookService, 
+    public class PublishPostService(IUnitOfWork unitOfWork, ITwitterService twitterService, IFacebookService facebookService,
         IRedisCacheService redisCacheService) : IPublishPostService
     {
         private readonly ITwitterService _twitterService = twitterService;
@@ -26,14 +27,18 @@ namespace VietWay.Service.Management.Implement
             Post? post = await _unitOfWork.PostRepository.Query()
                 .SingleOrDefaultAsync(x => x.PostId.Equals(postId)) ??
                 throw new ResourceNotFoundException("NOT_EXISTED_POST");
-            if (post.FacebookPostId.IsNullOrEmpty())
+
+            List<SocialMediaPost> socialMediaPosts = await _unitOfWork.SocialMediaPostRepository.Query()
+               .Where(x => x.EntityType == SocialMediaPostEntity.Post && x.EntityId == post.PostId && x.Site == SocialMediaSite.Facebook).ToListAsync();
+            if (socialMediaPosts.Count <= 0)
             {
                 throw new InvalidActionException("INVALID_ACTION_POST_NOT_PUBLISHED");
             }
-            Task<int> countCommentTask = _facebookService.GetPostCommentCountAsync(post.FacebookPostId!);
-            Task<int> countShareTask = _facebookService.GetPostShareCountAsync(post.FacebookPostId!);
-            Task<int> countImpressionTask = _facebookService.GetPostImpressionCountAsync(post.FacebookPostId!);
-            Task<PostReaction> getReactionsTask = _facebookService.GetPostReactionCountByTypeAsync(post.FacebookPostId!);
+
+            Task<int> countCommentTask = _facebookService.GetPostCommentCountAsync(socialMediaPosts[0].SocialPostId!);
+            Task<int> countShareTask = _facebookService.GetPostShareCountAsync(socialMediaPosts[0].SocialPostId!);
+            Task<int> countImpressionTask = _facebookService.GetPostImpressionCountAsync(socialMediaPosts[0].SocialPostId!);
+            Task<PostReaction> getReactionsTask = _facebookService.GetPostReactionCountByTypeAsync(socialMediaPosts[0].SocialPostId!);
             await Task.WhenAll(countCommentTask, countImpressionTask, countShareTask, getReactionsTask);
             return new FacebookMetricsDTO
             {
@@ -44,13 +49,27 @@ namespace VietWay.Service.Management.Implement
             };
         }
 
-        public async Task<TweetDTO> GetPublishedTweetByIdAsync(string postId)
+        public async Task<List<TweetDTO>> GetPublishedTweetByIdAsync(string postId)
         {
-            TweetDTO? tweetDto = await _redisCacheService.GetAsync<TweetDTO>(postId);
+            List<TweetDTO> tweetDto = await _redisCacheService.GetAsync<List<TweetDTO>>(postId);
             if (null == tweetDto)
             {
                 throw new ResourceNotFoundException("POST_NOT_PUBLISHED");
             }
+
+            var socialMediaPosts = await _unitOfWork.SocialMediaPostRepository.Query()
+                .Where(x => x.EntityId == postId && x.Site == SocialMediaSite.Twitter)
+                .ToListAsync();
+
+            foreach (var tweet in tweetDto)
+            {
+                var socialMediaPost = socialMediaPosts.FirstOrDefault(post => post.SocialPostId == tweet.XTweetId);
+                if (socialMediaPost != null)
+                {
+                    tweet.CreatedAt = socialMediaPost.CreatedAt;
+                }
+            }
+
             return tweetDto;
         }
 
@@ -64,10 +83,13 @@ namespace VietWay.Service.Management.Implement
             {
                 throw new InvalidActionException("INVALID_ACTION_POST_NOT_APPROVED");
             }
-            if (!post.XTweetId.IsNullOrEmpty())
+
+            /*bool isPublished = await _unitOfWork.SocialMediaPostRepository.Query()
+                .AnyAsync(x => x.EntityType == SocialMediaPostEntity.Post && x.EntityId == post.PostId && x.Site == SocialMediaSite.Twitter);
+            if (isPublished)
             {
-                throw new ServerErrorException("INVALID_ACTION_POST_PUBLISHED");
-            }
+                throw new InvalidActionException("INVALID_ACTION_POST_PUBLISHED");
+            }*/
 
             PostTweetRequestDTO postTweetRequestDTO = new()
             {
@@ -77,16 +99,23 @@ namespace VietWay.Service.Management.Implement
             string result = await _twitterService.PostTweetAsync(postTweetRequestDTO);
             using JsonDocument document = JsonDocument.Parse(result);
             string tweetId = document.RootElement.GetProperty("data").GetProperty("id").GetString();
-            
+
             try
             {
                 if (tweetId.IsNullOrEmpty())
                 {
                     throw new ServerErrorException("Post tweet error");
                 }
-                post.XTweetId = tweetId;
                 await _unitOfWork.BeginTransactionAsync();
-                await _unitOfWork.PostRepository.UpdateAsync(post);
+                SocialMediaPost socialMediaPost = new()
+                {
+                    SocialPostId = tweetId,
+                    Site = SocialMediaSite.Twitter,
+                    EntityType = SocialMediaPostEntity.Post,
+                    EntityId = post.PostId,
+                    CreatedAt = DateTime.Now,
+                };
+                await _unitOfWork.SocialMediaPostRepository.CreateAsync(socialMediaPost);
                 await _unitOfWork.CommitTransactionAsync();
             }
             catch
@@ -106,43 +135,27 @@ namespace VietWay.Service.Management.Implement
             {
                 throw new InvalidActionException("INVALID_ACTION_POST_NOT_APPROVED");
             }
-            if (!post.FacebookPostId.IsNullOrEmpty())
+
+            /*bool isPublished = await _unitOfWork.SocialMediaPostRepository.Query()
+                .AnyAsync(x => x.EntityType == SocialMediaPostEntity.Post && x.EntityId == post.PostId && x.Site == SocialMediaSite.Facebook);
+            if (isPublished)
             {
                 throw new InvalidActionException("INVALID_ACTION_POST_PUBLISHED");
-            }
+            }*/
 
             string facebookPostId = await _facebookService.PublishPostAsync(post.Description, $"https://vietway.projectpioneer.id.vn/bai-viet/{post.PostId}");
             try
             {
                 await _unitOfWork.BeginTransactionAsync();
-                post.FacebookPostId = facebookPostId;
-                await _unitOfWork.PostRepository.UpdateAsync(post);
-                await _unitOfWork.CommitTransactionAsync();
-            }
-            catch
-            {
-                await _unitOfWork.RollbackTransactionAsync();
-                throw;
-            }
-        }
-
-        public async Task DeleteTweetWithXAsync(string postId)
-        {
-            Post? post = await _unitOfWork.PostRepository.Query()
-                .SingleOrDefaultAsync(x => x.PostId.Equals(postId)) ??
-                throw new ResourceNotFoundException("NOT_EXISTED_POST");
-
-            if (post.XTweetId.IsNullOrEmpty())
-            {
-                throw new InvalidActionException("INVALID_ACTION_POST_PUBLISHED");
-            }
-
-            try
-            {
-                await _twitterService.DeleteTweetAsync(post.XTweetId);
-                post.XTweetId = null;
-                await _unitOfWork.BeginTransactionAsync();
-                await _unitOfWork.PostRepository.UpdateAsync(post);
+                SocialMediaPost socialMediaPost = new()
+                {
+                    SocialPostId = facebookPostId,
+                    Site = SocialMediaSite.Facebook,
+                    EntityType = SocialMediaPostEntity.Post,
+                    EntityId = post.PostId,
+                    CreatedAt = DateTime.Now,
+                };
+                await _unitOfWork.SocialMediaPostRepository.CreateAsync(socialMediaPost);
                 await _unitOfWork.CommitTransactionAsync();
             }
             catch

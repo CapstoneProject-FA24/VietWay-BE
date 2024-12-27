@@ -1,12 +1,15 @@
 ﻿using Hangfire;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using System.Globalization;
+using System.Text.Json;
 using VietWay.Repository.EntityModel;
 using VietWay.Repository.EntityModel.Base;
 using VietWay.Repository.UnitOfWork;
 using VietWay.Service.Management.DataTransferObject;
 using VietWay.Service.Management.Interface;
 using VietWay.Service.ThirdParty.Cloudinary;
+using VietWay.Service.ThirdParty.Twitter;
 using VietWay.Util.CustomExceptions;
 using VietWay.Util.DateTimeUtil;
 using VietWay.Util.IdUtil;
@@ -14,13 +17,15 @@ using VietWay.Util.IdUtil;
 namespace VietWay.Service.Management.Implement
 {
     public class AttractionService(IUnitOfWork unitOfWork, ICloudinaryService cloudinaryService, IIdGenerator idGenerator,
-        IBackgroundJobClient backgroundJobClient, ITimeZoneHelper timeZoneHelper) : IAttractionService
+        IBackgroundJobClient backgroundJobClient, ITimeZoneHelper timeZoneHelper, ITwitterService twitterService) : IAttractionService
     {
         private readonly IUnitOfWork _unitOfWork = unitOfWork;
         private readonly ICloudinaryService _cloudinaryService = cloudinaryService;
         private readonly IIdGenerator _idGenerator = idGenerator;
         private readonly IBackgroundJobClient _backgroundJobClient = backgroundJobClient;
         private readonly ITimeZoneHelper _timeZoneHelper = timeZoneHelper;
+        private readonly ITwitterService _twitterService = twitterService;
+
         public async Task<string> CreateAttractionAsync(Attraction attraction)
         {
             try
@@ -74,7 +79,7 @@ namespace VietWay.Service.Management.Implement
             {
                 query = query.Where(x => attractionCategoryIds.Contains(x.AttractionCategoryId));
             }
-            if (statuses?.Count >0)
+            if (statuses?.Count > 0)
             {
                 query = query.Where(x => statuses.Contains(x.Status));
             }
@@ -98,11 +103,11 @@ namespace VietWay.Service.Management.Implement
                     CreatedAt = x.CreatedAt
                 })
                 .ToListAsync();
-            return new PaginatedList<AttractionPreviewDTO> 
-            { 
-                Items = attractions, 
-                PageIndex = pageIndex, 
-                PageSize = pageSize, 
+            return new PaginatedList<AttractionPreviewDTO>
+            {
+                Items = attractions,
+                PageIndex = pageIndex,
+                PageSize = pageSize,
                 Total = count
             };
         }
@@ -238,7 +243,7 @@ namespace VietWay.Service.Management.Implement
                         using Stream stream = imageFile.OpenReadStream();
                         using MemoryStream memoryStream = new();
                         await stream.CopyToAsync(memoryStream);
-                        enqueuedJobs.Add(async () => await _cloudinaryService.UploadImageAsync(imageId,imageFile.FileName,memoryStream.ToArray()));
+                        enqueuedJobs.Add(async () => await _cloudinaryService.UploadImageAsync(imageId, imageFile.FileName, memoryStream.ToArray()));
                         attraction.AttractionImages.Add(new AttractionImage
                         {
                             AttractionId = attraction.AttractionId,
@@ -359,6 +364,49 @@ namespace VietWay.Service.Management.Implement
                 PageSize = pageSize,
                 Total = count
             };
+        }
+
+        public async Task PostAttractionWithXAsync(string attractionId)
+        {
+            Attraction? attraction = await _unitOfWork.AttractionRepository.Query()
+                .Include(x => x.AttractionImages)
+                .Include(x => x.Province)
+                .SingleOrDefaultAsync(x => x.AttractionId.Equals(attractionId)) ??
+                throw new ResourceNotFoundException("NOT_EXIST_ATTRACTION");
+
+            if (attraction.Status != AttractionStatus.Approved || attraction.IsDeleted)
+            {
+                throw new InvalidActionException("INVALID_ACTION_ATTRACTION_CANNOT_POST");
+            }
+
+            try
+            {
+                PostTweetRequestDTO postTweetRequestDTO = new()
+                {
+                    Text = $"{attraction.Name.ToUpper()} - Trải nghiệm {attraction.Province.Name} cùng Vietway\n\n📍 {attraction.Address}\n✨ Hãy cùng VietWay khám phá {attraction.Name} tại https://vietway.projectpioneer.id.vn/diem-tham-quan/{attraction.AttractionId}?ref=x",
+                    ImageUrl = attraction.AttractionImages.Select(x => x.ImageUrl).FirstOrDefault()
+                };
+                string result = await _twitterService.PostTweetAsync(postTweetRequestDTO);
+                using JsonDocument document = JsonDocument.Parse(result);
+                string tweetId = document.RootElement.GetProperty("data").GetProperty("id").GetString();
+
+                await _unitOfWork.BeginTransactionAsync();
+                SocialMediaPost socialMediaPost = new()
+                {
+                    SocialPostId = tweetId,
+                    Site = SocialMediaSite.Twitter,
+                    EntityType = SocialMediaPostEntity.Attraction,
+                    EntityId = attraction.AttractionId,
+                    CreatedAt = DateTime.Now,
+                };
+                await _unitOfWork.SocialMediaPostRepository.CreateAsync(socialMediaPost);
+                await _unitOfWork.CommitTransactionAsync();
+            }
+            catch
+            {
+                await _unitOfWork.RollbackTransactionAsync();
+                throw;
+            }
         }
     }
 }

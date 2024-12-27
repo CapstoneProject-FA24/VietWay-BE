@@ -263,5 +263,18 @@ namespace VietWay.API.Management.Controllers
                 StatusCode = StatusCodes.Status200OK
             });
         }
+
+        [HttpPost("{attractionId}/twitter")]
+        [Produces("application/json")]
+        [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status200OK)]
+        public async Task<IActionResult> UploadTemplateTwitterAsync(string attractionId)
+        {
+            await _attractionService.PostAttractionWithXAsync(attractionId);
+            return Ok(new DefaultResponseModel<object>
+            {
+                Message = "Post attraction successfully",
+                StatusCode = StatusCodes.Status200OK
+            });
+        }
     }
 }

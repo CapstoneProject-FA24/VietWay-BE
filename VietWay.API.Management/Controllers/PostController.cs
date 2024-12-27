@@ -184,6 +184,7 @@ namespace VietWay.API.Management.Controllers
                 StatusCode = StatusCodes.Status200OK
             });
         }
+
         [HttpPost("{postId}/facebook")]
         [Produces("application/json")]
         [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status200OK)]
@@ -271,25 +272,12 @@ namespace VietWay.API.Management.Controllers
         [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status200OK)]
         public async Task<IActionResult> GetTwitterPostByPostIdAsync(string postId)
         {
-            TweetDTO result = await _publishPostService.GetPublishedTweetByIdAsync(postId);
+            List<TweetDTO> result = await _publishPostService.GetPublishedTweetByIdAsync(postId);
             return Ok(new DefaultResponseModel<object>
             {
                 Message = "Get twitter post successfully",
                 StatusCode = StatusCodes.Status200OK,
                 Data = result
-            });
-        }
-
-        [HttpDelete("{postId}/twitter")]
-        [Produces("application/json")]
-        [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status200OK)]
-        public async Task<IActionResult> DeleteTwitterPostsAsync(string postId)
-        {
-            await _publishPostService.DeleteTweetWithXAsync(postId);
-            return Ok(new DefaultResponseModel<object>
-            {
-                Message = "Get twitter posts successfully",
-                StatusCode = StatusCodes.Status200OK
             });
         }
     }
