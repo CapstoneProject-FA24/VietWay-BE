@@ -20,9 +20,6 @@ namespace VietWay.Repository.EntityModel
         public string? EntityId { get; set; }
         public DateTime CreatedAt { get; set; }
 
-        public virtual Post? Post { get; set; }
-        public virtual Attraction? Attraction { get; set; }
-        public virtual TourTemplate? TourTemplate { get; set; }
         public virtual ICollection<FacebookPostMetric>? FacebookPostMetrics { get; set; }
         public virtual ICollection<TwitterPostMetric>? TwitterPostMetrics { get; set; }
     }
