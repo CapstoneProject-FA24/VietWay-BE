@@ -15,7 +15,7 @@ using VietWay.Service.Management.Implement;
 
 namespace VietWay.API.Management.Controllers
 {
-    [Route("api/posts")]
+    [Route("api/published-posts")]
     [ApiController]
     public class PublishPostController(
         ITokenHelper tokenHelper, 
