@@ -204,7 +204,7 @@ namespace VietWay.Service.Management.Implement
 
         public async Task<TourTemplateDetailDTO?> GetTemplateByIdAsync(string id)
         {
-            return await _unitOfWork
+            TourTemplateDetailDTO tourTemplateDetailDTO = await _unitOfWork
                 .TourTemplateRepository
                 .Query()
                 .Select(x => new TourTemplateDetailDTO
@@ -257,6 +257,18 @@ namespace VietWay.Service.Management.Implement
                     MaxPrice = x.MaxPrice
                 })
                 .SingleOrDefaultAsync(x => x.TourTemplateId.Equals(id));
+
+            tourTemplateDetailDTO.SocialPostDetail = await _unitOfWork.SocialMediaPostRepository
+                .Query()
+                .Where(x => x.EntityType == SocialMediaPostEntity.TourTemplate && x.EntityId == id)
+                .Select(x => new SocialPostDetailDTO
+                {
+                    SocialPostId = x.SocialPostId,
+                    Site = x.Site,
+                    CreatedAt = x.CreatedAt,
+                })
+                .ToListAsync();
+            return tourTemplateDetailDTO;
         }
 
         public async Task UpdateTemplateAsync(string tourTemplateId, TourTemplate newTourTemplate)
@@ -484,7 +496,7 @@ namespace VietWay.Service.Management.Implement
             if (tourId != null)
             {
                 query = query.Where(x => x.Tours.Any(x => x.TourId != tourId && x.StartDate >= _timeZoneHelper.GetUTC7Now() &&
-                                             x.Status == TourStatus.Opened && ((DateTime)x.RegisterOpenDate).Date <= _timeZoneHelper.GetUTC7Now().Date 
+                                             x.Status == TourStatus.Opened && ((DateTime)x.RegisterOpenDate).Date <= _timeZoneHelper.GetUTC7Now().Date
                                              && ((DateTime)x.RegisterCloseDate).Date >= _timeZoneHelper.GetUTC7Now().Date && !x.IsDeleted));
             }
 

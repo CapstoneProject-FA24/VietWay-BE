@@ -149,7 +149,7 @@ namespace VietWay.Service.Management.Implement
 
         public async Task<AttractionDetailDTO?> GetAttractionWithCreateDateByIdAsync(string attractionId)
         {
-            return await _unitOfWork.AttractionRepository
+            AttractionDetailDTO attractionDetailDTO = await _unitOfWork.AttractionRepository
                 .Query()
                 .Where(x => x.AttractionId.Equals(attractionId) && !x.IsDeleted)
                 .Include(x => x.AttractionImages)
@@ -183,6 +183,18 @@ namespace VietWay.Service.Management.Implement
                     Website = x.Website
                 })
                 .SingleOrDefaultAsync();
+
+            attractionDetailDTO.SocialPostDetail = await _unitOfWork.SocialMediaPostRepository
+                .Query()
+                .Where(x => x.EntityType == SocialMediaPostEntity.Attraction && x.EntityId == attractionId)
+                .Select(x => new SocialPostDetailDTO
+                {
+                    SocialPostId = x.SocialPostId,
+                    Site = x.Site,
+                    CreatedAt = x.CreatedAt,
+                })
+                .ToListAsync();
+            return attractionDetailDTO;
         }
 
         public async Task UpdateAttractionAsync(Attraction newAttraction, string accountId)

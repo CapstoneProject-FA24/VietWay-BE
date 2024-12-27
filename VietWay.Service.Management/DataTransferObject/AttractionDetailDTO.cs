@@ -22,5 +22,6 @@ namespace VietWay.Service.Management.DataTransferObject
         public required ProvinceBriefPreviewDTO Province { get; set; }
         public required AttractionCategoryPreviewDTO AttractionType { get; set; }
         public virtual ICollection<ImageDTO>? Images { get; set; }
+        public List<SocialPostDetailDTO> SocialPostDetail { get; set; }
     }
 }
