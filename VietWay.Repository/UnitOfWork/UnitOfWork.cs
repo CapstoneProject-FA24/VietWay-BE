@@ -304,6 +304,7 @@ namespace VietWay.Repository.UnitOfWork
                 twitterPostMetricRepository ??= new GenericRepository<TwitterPostMetric>(_dbContext);
                 return twitterPostMetricRepository;
             }
+        }
 
         public async Task BeginTransactionAsync()
         {

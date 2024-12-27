@@ -69,18 +69,6 @@ namespace VietWay.Repository.DataAccessObject
                 .HasOne(x => x.AttractionReview)
                 .WithMany(x => x.AttractionReviewLikes)
                 .HasForeignKey(x => x.ReviewId);
-            modelBuilder.Entity<SocialMediaPost>()
-                .HasOne(x => x.Post)
-                .WithMany(x => x.SocialMediaPosts)
-                .HasForeignKey(x => x.EntityId);
-            modelBuilder.Entity<SocialMediaPost>()
-                .HasOne(x => x.Attraction)
-                .WithMany(x => x.SocialMediaPosts)
-                .HasForeignKey(x => x.EntityId);
-            modelBuilder.Entity<SocialMediaPost>()
-                .HasOne(x => x.TourTemplate)
-                .WithMany(x => x.SocialMediaPosts)
-                .HasForeignKey(x => x.EntityId);
         }
     }
 }
