@@ -309,18 +309,5 @@ namespace VietWay.API.Management.Controllers
             };
             return Ok(response);
         }
-
-        [HttpPost("{templateId}/twitter")]
-        [Produces("application/json")]
-        [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status200OK)]
-        public async Task<IActionResult> UploadTemplateTwitterAsync(string templateId)
-        {
-            await _tourTemplateService.PostTourTemplateWithXAsync(templateId);
-            return Ok(new DefaultResponseModel<object>
-            {
-                Message = "Post template successfully",
-                StatusCode = StatusCodes.Status200OK
-            });
-        }
     }
 }

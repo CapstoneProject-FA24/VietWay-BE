@@ -20,13 +20,11 @@ namespace VietWay.API.Management.Controllers
     public class PostController(
         IPostService postService, 
         ITokenHelper tokenHelper, 
-        IMapper mapper,
-        IPublishPostService publishPostService) : ControllerBase
+        IMapper mapper) : ControllerBase
     {
         private readonly IPostService _postService = postService;
         private readonly ITokenHelper _tokenHelper = tokenHelper;
         private readonly IMapper _mapper = mapper;
-        private readonly IPublishPostService _publishPostService = publishPostService;
 
         /// <summary>
         /// ✅[All] Get all posts
@@ -172,45 +170,6 @@ namespace VietWay.API.Management.Controllers
             return Ok(response);
         }
 
-        [HttpPost("{postId}/twitter")]
-        [Produces("application/json")]
-        [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status200OK)]
-        public async Task<IActionResult> UploadPostTwitterAsync(string postId)
-        {
-            await _publishPostService.PostTweetWithXAsync(postId);
-            return Ok(new DefaultResponseModel<object>
-            {
-                Message = "Post tweet successfully",
-                StatusCode = StatusCodes.Status200OK
-            });
-        }
-
-        [HttpPost("{postId}/facebook")]
-        [Produces("application/json")]
-        [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status200OK)]
-        public async Task<IActionResult> UploadPostFacebookAsync(string postId)
-        {
-            await _publishPostService.PublishPostToFacebookPageAsync(postId);
-            return Ok(new DefaultResponseModel<object>
-            {
-                Message = "Post facebook successfully",
-                StatusCode = StatusCodes.Status200OK
-            });
-        }
-        [HttpGet("{postId}/facebook/metrics")]
-        [Produces("application/json")]
-        [ProducesResponseType<DefaultResponseModel<FacebookMetricsDTO>>(StatusCodes.Status200OK)]
-        public async Task<IActionResult> GetFacebookReactionsAsync(string postId)
-        {
-
-            return Ok(new DefaultResponseModel<FacebookMetricsDTO>
-            {
-                Message = "Get facebook reaction count successfully",
-                StatusCode = StatusCodes.Status200OK,
-                Data = await _publishPostService.GetFacebookPostMetricsAsync(postId)
-            });
-        }
-
         /// <summary>
         /// ✅🔐[Manager][Staff] Change post status
         /// </summary>
@@ -264,20 +223,6 @@ namespace VietWay.API.Management.Controllers
                 Message = "Success",
                 Data = null,
                 StatusCode = StatusCodes.Status200OK
-            });
-        }
-
-        [HttpGet("{postId}/twitter/reactions-by-post-id")]
-        [Produces("application/json")]
-        [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status200OK)]
-        public async Task<IActionResult> GetTwitterPostByPostIdAsync(string postId)
-        {
-            List<TweetDTO> result = await _publishPostService.GetPublishedTweetByIdAsync(postId);
-            return Ok(new DefaultResponseModel<object>
-            {
-                Message = "Get twitter post successfully",
-                StatusCode = StatusCodes.Status200OK,
-                Data = result
             });
         }
     }

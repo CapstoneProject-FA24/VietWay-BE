@@ -28,7 +28,7 @@ namespace VietWay.Job.Implementation
 
             var keyValuePairs = socialMediaPosts
                 .Where(post => tweetsDetails.Any(tweet => tweet.XTweetId == post.SocialPostId))
-                .GroupBy(post => post.EntityId)
+                .GroupBy(post => $"{post.EntityId}-{(int)post.EntityType}")
                 .ToDictionary(
                     group => group.Key!,
                     group => group.SelectMany(post => tweetsDetails.Where(tweet => tweet.XTweetId == post.SocialPostId)).ToList()

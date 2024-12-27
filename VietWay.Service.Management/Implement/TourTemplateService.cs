@@ -9,6 +9,7 @@ using VietWay.Repository.UnitOfWork;
 using VietWay.Service.Management.DataTransferObject;
 using VietWay.Service.Management.Interface;
 using VietWay.Service.ThirdParty.Cloudinary;
+using VietWay.Service.ThirdParty.Redis;
 using VietWay.Service.ThirdParty.Twitter;
 using VietWay.Util.CustomExceptions;
 using VietWay.Util.DateTimeUtil;
@@ -17,13 +18,12 @@ using VietWay.Util.IdUtil;
 namespace VietWay.Service.Management.Implement
 {
     public class TourTemplateService(IUnitOfWork unitOfWork, IIdGenerator idGenerator,
-        ICloudinaryService cloudinaryService, ITimeZoneHelper timeZoneHelper, ITwitterService twitterService) : ITourTemplateService
+        ICloudinaryService cloudinaryService, ITimeZoneHelper timeZoneHelper) : ITourTemplateService
     {
         private readonly IUnitOfWork _unitOfWork = unitOfWork;
         private readonly IIdGenerator _idGenerator = idGenerator;
         private readonly ICloudinaryService _cloudinaryService = cloudinaryService;
         private readonly ITimeZoneHelper _timeZoneHelper = timeZoneHelper;
-        private readonly ITwitterService _twitterService = twitterService;
 
         public async Task<string> CreateTemplateAsync(TourTemplate tourTemplate)
         {
@@ -647,58 +647,6 @@ namespace VietWay.Service.Management.Implement
                 }
 
                 await _unitOfWork.TourTemplateRepository.UpdateAsync(tourTemplate);
-                await _unitOfWork.CommitTransactionAsync();
-            }
-            catch
-            {
-                await _unitOfWork.RollbackTransactionAsync();
-                throw;
-            }
-        }
-
-        public async Task PostTourTemplateWithXAsync(string tourTemplateId)
-        {
-            TourTemplate? tourTemplate = await _unitOfWork.TourTemplateRepository.Query()
-                .Include(x => x.Tours)
-                .Include(x => x.Province)
-                .Include(x => x.TourDuration)
-                .Include(x => x.TourTemplateImages)
-                .SingleOrDefaultAsync(x => x.TourTemplateId.Equals(tourTemplateId)) ??
-                throw new ResourceNotFoundException("NOT_EXIST_TOUR_TEMPLATE");
-
-            if (tourTemplate.Status != TourTemplateStatus.Approved || 
-                tourTemplate.IsDeleted || 
-                !tourTemplate.Tours.Any(y => y.Status == TourStatus.Opened && ((DateTime)y.RegisterOpenDate).Date <= _timeZoneHelper.GetUTC7Now().Date && ((DateTime)y.RegisterCloseDate).Date >= _timeZoneHelper.GetUTC7Now().Date && !y.IsDeleted))
-            {
-                throw new InvalidActionException("INVALID_ACTION_TOUR_TEMPLATE_CANNOT_POST");
-            }
-
-            decimal minPrice = tourTemplate.Tours.Where(x => x.Status == TourStatus.Opened && ((DateTime)x.RegisterOpenDate).Date <= _timeZoneHelper.GetUTC7Now().Date && ((DateTime)x.RegisterCloseDate).Date >= _timeZoneHelper.GetUTC7Now().Date && !x.IsDeleted)
-                                    .Select(y => (decimal)y.DefaultTouristPrice).Min();
-            CultureInfo vietnamCulture = new CultureInfo("vi-VN");
-            string formattedPrice = minPrice.ToString("C0", vietnamCulture);
-
-            try
-            {
-                PostTweetRequestDTO postTweetRequestDTO = new()
-                {
-                    Text = $"{tourTemplate.TourName.ToUpper()}\n\n- Thời lượng: {tourTemplate.TourDuration.DurationName}\n- Khởi hành từ: {tourTemplate.Province.Name}\n- Giá từ: {formattedPrice}\n- Đăng ký tại: https://vietway.projectpioneer.id.vn/tour-du-lich/{tourTemplate.TourTemplateId}?ref=x",
-                    ImageUrl = tourTemplate.TourTemplateImages.Select(x => x.ImageUrl).FirstOrDefault()
-                };
-                string result = await _twitterService.PostTweetAsync(postTweetRequestDTO);
-                using JsonDocument document = JsonDocument.Parse(result);
-                string tweetId = document.RootElement.GetProperty("data").GetProperty("id").GetString();
-
-                await _unitOfWork.BeginTransactionAsync();
-                SocialMediaPost socialMediaPost = new()
-                {
-                    SocialPostId = tweetId,
-                    Site = SocialMediaSite.Twitter,
-                    EntityType = SocialMediaPostEntity.TourTemplate,
-                    EntityId = tourTemplate.TourTemplateId,
-                    CreatedAt = DateTime.Now,
-                };
-                await _unitOfWork.SocialMediaPostRepository.CreateAsync(socialMediaPost);
                 await _unitOfWork.CommitTransactionAsync();
             }
             catch

@@ -17,14 +17,13 @@ using VietWay.Util.IdUtil;
 namespace VietWay.Service.Management.Implement
 {
     public class AttractionService(IUnitOfWork unitOfWork, ICloudinaryService cloudinaryService, IIdGenerator idGenerator,
-        IBackgroundJobClient backgroundJobClient, ITimeZoneHelper timeZoneHelper, ITwitterService twitterService) : IAttractionService
+        IBackgroundJobClient backgroundJobClient, ITimeZoneHelper timeZoneHelper) : IAttractionService
     {
         private readonly IUnitOfWork _unitOfWork = unitOfWork;
         private readonly ICloudinaryService _cloudinaryService = cloudinaryService;
         private readonly IIdGenerator _idGenerator = idGenerator;
         private readonly IBackgroundJobClient _backgroundJobClient = backgroundJobClient;
         private readonly ITimeZoneHelper _timeZoneHelper = timeZoneHelper;
-        private readonly ITwitterService _twitterService = twitterService;
 
         public async Task<string> CreateAttractionAsync(Attraction attraction)
         {
@@ -364,49 +363,6 @@ namespace VietWay.Service.Management.Implement
                 PageSize = pageSize,
                 Total = count
             };
-        }
-
-        public async Task PostAttractionWithXAsync(string attractionId)
-        {
-            Attraction? attraction = await _unitOfWork.AttractionRepository.Query()
-                .Include(x => x.AttractionImages)
-                .Include(x => x.Province)
-                .SingleOrDefaultAsync(x => x.AttractionId.Equals(attractionId)) ??
-                throw new ResourceNotFoundException("NOT_EXIST_ATTRACTION");
-
-            if (attraction.Status != AttractionStatus.Approved || attraction.IsDeleted)
-            {
-                throw new InvalidActionException("INVALID_ACTION_ATTRACTION_CANNOT_POST");
-            }
-
-            try
-            {
-                PostTweetRequestDTO postTweetRequestDTO = new()
-                {
-                    Text = $"{attraction.Name.ToUpper()} - Trải nghiệm {attraction.Province.Name} cùng Vietway\n\n📍 {attraction.Address}\n✨ Hãy cùng VietWay khám phá {attraction.Name} tại https://vietway.projectpioneer.id.vn/diem-tham-quan/{attraction.AttractionId}?ref=x",
-                    ImageUrl = attraction.AttractionImages.Select(x => x.ImageUrl).FirstOrDefault()
-                };
-                string result = await _twitterService.PostTweetAsync(postTweetRequestDTO);
-                using JsonDocument document = JsonDocument.Parse(result);
-                string tweetId = document.RootElement.GetProperty("data").GetProperty("id").GetString();
-
-                await _unitOfWork.BeginTransactionAsync();
-                SocialMediaPost socialMediaPost = new()
-                {
-                    SocialPostId = tweetId,
-                    Site = SocialMediaSite.Twitter,
-                    EntityType = SocialMediaPostEntity.Attraction,
-                    EntityId = attraction.AttractionId,
-                    CreatedAt = DateTime.Now,
-                };
-                await _unitOfWork.SocialMediaPostRepository.CreateAsync(socialMediaPost);
-                await _unitOfWork.CommitTransactionAsync();
-            }
-            catch
-            {
-                await _unitOfWork.RollbackTransactionAsync();
-                throw;
-            }
         }
     }
 }

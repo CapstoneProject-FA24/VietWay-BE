@@ -34,6 +34,5 @@ namespace VietWay.Service.Management.Interface
 
         Task UpdateTourTemplateImageAsync(string tourTemplateId, string staffId, List<IFormFile>? newImages, List<string>? deletedImageIds);
         public Task ChangeTourTemplateStatusAsync(string tourTemplateId, string accountId, TourTemplateStatus templateStatus, string? reason);
-        public Task PostTourTemplateWithXAsync(string tourTemplateId);
     }
 }
