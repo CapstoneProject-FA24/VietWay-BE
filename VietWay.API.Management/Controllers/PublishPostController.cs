@@ -12,6 +12,7 @@ using VietWay.Service.Management.DataTransferObject;
 using VietWay.Service.ThirdParty.Twitter;
 using Tweetinvi.Core.Web;
 using VietWay.Service.Management.Implement;
+using System.ComponentModel.DataAnnotations;
 
 namespace VietWay.API.Management.Controllers
 {
@@ -96,7 +97,7 @@ namespace VietWay.API.Management.Controllers
         [HttpGet("{entityId}/twitter/reactions")]
         [Produces("application/json")]
         [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status200OK)]
-        public async Task<IActionResult> GetTwitterPostByPostIdAsync(string entityId, [FromQuery]SocialMediaPostEntity entityType)
+        public async Task<IActionResult> GetTwitterPostByPostIdAsync(string entityId, [Required] [FromQuery]SocialMediaPostEntity entityType)
         {
             List<TweetDTO> result = await _publishPostService.GetPublishedTweetByIdAsync(entityId, entityType);
             return Ok(new DefaultResponseModel<object>
