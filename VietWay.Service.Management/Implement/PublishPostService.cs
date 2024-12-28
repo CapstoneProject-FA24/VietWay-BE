@@ -64,17 +64,36 @@ namespace VietWay.Service.Management.Implement
 
             List<TweetDTO> tweetDto = await _redisCacheService.GetAsync<List<TweetDTO>>($"{entityId}-{(int)entityType}");
             
-            if (tweetDto.IsNullOrEmpty())
+            if (tweetDto == null)
             {
-                throw new ResourceNotFoundException("NOT_EXISTED_TWEET");
+                tweetDto = new List<TweetDTO>();
             }
 
-            foreach (var tweet in tweetDto)
+            /*if (tweetDto.IsNullOrEmpty())
             {
-                var socialMediaPost = socialMediaPosts.FirstOrDefault(post => post.SocialPostId == tweet.XTweetId);
-                if (socialMediaPost != null)
+                throw new ResourceNotFoundException("NOT_EXISTED_TWEET");
+            }*/
+
+            foreach (var post in socialMediaPosts)
+            {
+                var tweet = tweetDto.FirstOrDefault(x => x.XTweetId == post.SocialPostId);
+                if (tweet != null)
                 {
-                    tweet.CreatedAt = socialMediaPost.CreatedAt;
+                    tweet.CreatedAt = post.CreatedAt;
+                }
+                else
+                {
+                    tweetDto.Add(new TweetDTO
+                    {
+                        XTweetId = post.SocialPostId,
+                        RetweetCount = 0,
+                        ReplyCount = 0,
+                        LikeCount = 0,
+                        QuoteCount = 0,
+                        BookmarkCount = 0,
+                        ImpressionCount = 0,
+                        CreatedAt = post.CreatedAt
+                    });
                 }
             }
 
