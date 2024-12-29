@@ -107,5 +107,31 @@ namespace VietWay.API.Management.Controllers
                 Message = "Success"
             });
         }
+
+        [HttpGet("promotion-summary")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [Produces("application/json")]
+        [Authorize(Roles = $"{nameof(UserRole.Manager)},{nameof(UserRole.Admin)}")]
+
+        public async Task<IActionResult> GetPromotionSummary(DateTime startDate, DateTime endDate)
+        {
+            if (startDate > endDate)
+            {
+                return BadRequest(new DefaultResponseModel<string>
+                {
+                    Message = "START_DATE_MUST_BE_BEFORE_END_DATE",
+                    StatusCode = StatusCodes.Status400BadRequest
+                });
+            }
+            startDate = startDate.Date;
+            endDate = endDate.Date.AddDays(1).AddSeconds(-1);
+            return Ok(new DefaultResponseModel<ReportPromotionSummaryDTO>
+            {
+                Data = await _reportService.GetPromotionSummaryAsync(startDate, endDate),
+                StatusCode = StatusCodes.Status200OK,
+                Message = "Success"
+            });
+            return Ok();
+        }
     }
 }

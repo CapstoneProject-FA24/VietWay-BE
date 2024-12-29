@@ -11,7 +11,6 @@ using VietWay.Repository.UnitOfWork;
 using VietWay.Service.Management.DataTransferObject;
 using VietWay.Service.Management.Interface;
 using VietWay.Util.CustomExceptions;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace VietWay.Service.Management.Implement
 {
@@ -380,6 +379,43 @@ namespace VietWay.Service.Management.Implement
                 Revenue = profit - lost
             };
         }
+
+        public async Task<ReportPromotionSummaryDTO> GetPromotionSummaryAsync(DateTime startDate, DateTime endDate)
+        {
+            startDate = startDate.Date;
+            endDate = endDate.Date.AddDays(1).AddSeconds(-1);
+            return new ReportPromotionSummaryDTO
+            {
+                FacebookCommentCount = await _unitOfWork.FacebookPostMetricRepository.Query()
+                    .Where(x => x.CreatedAt >= startDate && x.CreatedAt <= endDate)
+                    .SumAsync(x => x.CommentCount) ?? 0,
+                FacebookImpressionCount = await _unitOfWork.FacebookPostMetricRepository.Query()
+                    .Where(x => x.CreatedAt >= startDate && x.CreatedAt <= endDate)
+                    .SumAsync(x => x.ImpressionCount) ?? 0,
+                FacebookReferralCount = await _unitOfWork.FacebookPostMetricRepository.Query()
+                    .Where(x => x.CreatedAt >= startDate && x.CreatedAt <= endDate)
+                    .SumAsync(x => x.ReferralCount) ?? 0,
+                FacebookShareCount = await _unitOfWork.FacebookPostMetricRepository.Query()
+                    .Where(x => x.CreatedAt >= startDate && x.CreatedAt <= endDate)
+                    .SumAsync(x => x.ShareCount) ?? 0,
+                FacebookReactionCount = await _unitOfWork.FacebookPostMetricRepository.Query()
+                    .Where(x => x.CreatedAt >= startDate && x.CreatedAt <= endDate)
+                    .Select(x=> x.LikeCount + x.LoveCount + x.WowCount + x.HahaCount + x.SorryCount + x.AngerCount)
+                    .SumAsync() ?? 0,
+                XImpressionCount = await _unitOfWork.TwitterPostMetricRepository.Query()
+                    .Where(x => x.CreatedAt >= startDate && x.CreatedAt <= endDate)
+                    .SumAsync(x => x.ImpressionCount) ?? 0,
+                XLikeCount = await _unitOfWork.TwitterPostMetricRepository.Query()
+                    .Where(x => x.CreatedAt >= startDate && x.CreatedAt <= endDate)
+                    .SumAsync(x => x.LikeCount) ?? 0,
+                XReplyCount = await _unitOfWork.TwitterPostMetricRepository.Query()
+                    .Where(x => x.CreatedAt >= startDate && x.CreatedAt <= endDate)
+                    .SumAsync(x => x.ReplyCount) ?? 0,
+                XRetweetCount = await _unitOfWork.TwitterPostMetricRepository.Query()
+                    .Where(x => x.CreatedAt >= startDate && x.CreatedAt <= endDate)
+                    .SumAsync(x => x.RetweetCount) ?? 0
+            };
+        }
         private List<string> GetPeriodLabels(DateTime startDate, DateTime endDate)
         {
             ReportPeriod period = GetPeriod(startDate, endDate);
@@ -434,6 +470,7 @@ namespace VietWay.Service.Management.Implement
                 _ => ReportPeriod.Yearly
             };
         }
+
         enum ReportPeriod
         {
             Daily,
