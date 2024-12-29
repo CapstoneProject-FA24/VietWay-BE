@@ -25,5 +25,6 @@ namespace VietWay.Service.Management.DataTransferObject
         public List<ImageDTO>? Images { get; set; }
         public decimal? MinPrice { get; set; }
         public decimal? MaxPrice { get; set; }
+        public List<SocialPostDetailDTO> SocialPostDetail { get; set; }
     }
 }

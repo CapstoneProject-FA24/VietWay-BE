@@ -1,12 +1,15 @@
 ﻿using Hangfire;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using System.Globalization;
+using System.Text.Json;
 using VietWay.Repository.EntityModel;
 using VietWay.Repository.EntityModel.Base;
 using VietWay.Repository.UnitOfWork;
 using VietWay.Service.Management.DataTransferObject;
 using VietWay.Service.Management.Interface;
 using VietWay.Service.ThirdParty.Cloudinary;
+using VietWay.Service.ThirdParty.Twitter;
 using VietWay.Util.CustomExceptions;
 using VietWay.Util.DateTimeUtil;
 using VietWay.Util.IdUtil;
@@ -21,6 +24,7 @@ namespace VietWay.Service.Management.Implement
         private readonly IIdGenerator _idGenerator = idGenerator;
         private readonly IBackgroundJobClient _backgroundJobClient = backgroundJobClient;
         private readonly ITimeZoneHelper _timeZoneHelper = timeZoneHelper;
+
         public async Task<string> CreateAttractionAsync(Attraction attraction)
         {
             try
@@ -74,7 +78,7 @@ namespace VietWay.Service.Management.Implement
             {
                 query = query.Where(x => attractionCategoryIds.Contains(x.AttractionCategoryId));
             }
-            if (statuses?.Count >0)
+            if (statuses?.Count > 0)
             {
                 query = query.Where(x => statuses.Contains(x.Status));
             }
@@ -98,11 +102,11 @@ namespace VietWay.Service.Management.Implement
                     CreatedAt = x.CreatedAt
                 })
                 .ToListAsync();
-            return new PaginatedList<AttractionPreviewDTO> 
-            { 
-                Items = attractions, 
-                PageIndex = pageIndex, 
-                PageSize = pageSize, 
+            return new PaginatedList<AttractionPreviewDTO>
+            {
+                Items = attractions,
+                PageIndex = pageIndex,
+                PageSize = pageSize,
                 Total = count
             };
         }
@@ -145,7 +149,7 @@ namespace VietWay.Service.Management.Implement
 
         public async Task<AttractionDetailDTO?> GetAttractionWithCreateDateByIdAsync(string attractionId)
         {
-            return await _unitOfWork.AttractionRepository
+            AttractionDetailDTO attractionDetailDTO = await _unitOfWork.AttractionRepository
                 .Query()
                 .Where(x => x.AttractionId.Equals(attractionId) && !x.IsDeleted)
                 .Include(x => x.AttractionImages)
@@ -179,6 +183,18 @@ namespace VietWay.Service.Management.Implement
                     Website = x.Website
                 })
                 .SingleOrDefaultAsync();
+
+            attractionDetailDTO.SocialPostDetail = await _unitOfWork.SocialMediaPostRepository
+                .Query()
+                .Where(x => x.EntityType == SocialMediaPostEntity.Attraction && x.EntityId == attractionId)
+                .Select(x => new SocialPostDetailDTO
+                {
+                    SocialPostId = x.SocialPostId,
+                    Site = x.Site,
+                    CreatedAt = x.CreatedAt,
+                })
+                .ToListAsync();
+            return attractionDetailDTO;
         }
 
         public async Task UpdateAttractionAsync(Attraction newAttraction, string accountId)
@@ -238,7 +254,7 @@ namespace VietWay.Service.Management.Implement
                         using Stream stream = imageFile.OpenReadStream();
                         using MemoryStream memoryStream = new();
                         await stream.CopyToAsync(memoryStream);
-                        enqueuedJobs.Add(async () => await _cloudinaryService.UploadImageAsync(imageId,imageFile.FileName,memoryStream.ToArray()));
+                        enqueuedJobs.Add(async () => await _cloudinaryService.UploadImageAsync(imageId, imageFile.FileName, memoryStream.ToArray()));
                         attraction.AttractionImages.Add(new AttractionImage
                         {
                             AttractionId = attraction.AttractionId,

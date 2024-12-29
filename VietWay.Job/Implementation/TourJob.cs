@@ -86,6 +86,10 @@ namespace VietWay.Job.Implementation
                         }
                     });
                     await _unitOfWork.CommitTransactionAsync();
+                    if (tour.CurrentParticipant < tour.MinParticipant)
+                    {
+                        _backgroundJobClient.Enqueue<IEmailJob>(x => x.SendWarningMailClosedTourNotEnoughParticipantManager(tour.TourId));
+                    }
                 }
                 catch
                 {
@@ -137,12 +141,38 @@ namespace VietWay.Job.Implementation
         {
             List<Tour> tours = await _unitOfWork.TourRepository.Query()
                     .Where(x => x.Status == TourStatus.OnGoing && x.StartDate.Value.AddDays(x.TourTemplate.TourDuration.NumberOfDay) < _timeZoneHelper.GetUTC7Now())
+                    .Include(x=>x.TourBookings)
                     .ToListAsync();
             foreach (Tour tour in tours)
             {
                 try
                 {
                     await _unitOfWork.BeginTransactionAsync();
+                    foreach (Booking booking in tour.TourBookings)
+                    {
+                        if (booking.Status == BookingStatus.Paid)
+                        {
+                            booking.Status = BookingStatus.Completed;
+                            string bookingHistoryId = _idGenerator.GenerateId();
+                            await _unitOfWork.EntityHistoryRepository.CreateAsync(new EntityHistory
+                            {
+                                EntityId = booking.BookingId,
+                                Action = EntityModifyAction.ChangeStatus,
+                                EntityType = EntityType.Booking,
+                                ModifierRole = UserRole.Admin,
+                                Id = bookingHistoryId,
+                                ModifiedBy = null,
+                                Reason = "",
+                                Timestamp = _timeZoneHelper.GetUTC7Now(),
+                                StatusHistory = new EntityStatusHistory
+                                {
+                                    Id = bookingHistoryId,
+                                    NewStatus = (int)BookingStatus.Completed,
+                                    OldStatus = (int)BookingStatus.Paid
+                                }
+                            });
+                        }
+                    }
                     tour.Status = TourStatus.Completed;
                     await _unitOfWork.TourRepository.UpdateAsync(tour);
                     string historyId = _idGenerator.GenerateId();

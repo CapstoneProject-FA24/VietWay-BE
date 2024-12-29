@@ -15,5 +15,6 @@ namespace VietWay.Service.ThirdParty.Twitter
         public int QuoteCount { get; set; }
         public int BookmarkCount { get; set; }
         public int ImpressionCount { get; set; }
+        public DateTime? CreatedAt { get; set; }
     }
 }
