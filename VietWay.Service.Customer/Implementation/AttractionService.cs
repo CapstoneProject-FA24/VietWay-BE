@@ -138,7 +138,8 @@ namespace VietWay.Service.Customer.Implementation
                     await _unitOfWork.AttractionLikeRepository.CreateAsync(new AttractionLike
                     {
                         CustomerId = customerId,
-                        AttractionId = attractionId
+                        AttractionId = attractionId,
+                        CreatedAt = DateTime.Now
                     });
                 }
                 else if (null != attractionLike && false == isLike)

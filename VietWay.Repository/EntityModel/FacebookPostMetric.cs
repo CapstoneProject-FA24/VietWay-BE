@@ -25,7 +25,6 @@ namespace VietWay.Repository.EntityModel
         public int? AngerCount { get; set; }
         public int? ShareCount { get; set; }
         public int? CommentCount { get; set; }
-        public int? ReferralCount { get; set; }
         [Required]
         public DateTime CreatedAt { get; set; }
 

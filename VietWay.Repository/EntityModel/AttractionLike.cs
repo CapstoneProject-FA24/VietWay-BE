@@ -19,6 +19,8 @@ namespace VietWay.Repository.EntityModel
         [Required]
         public string? CustomerId { get; set; }
 
+        public required DateTime CreatedAt { get; set; }
+
         public virtual Attraction? Attraction { get; set; }
         public virtual Customer? Customer { get; set; }
     }

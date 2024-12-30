@@ -10,12 +10,14 @@ using VietWay.Repository.UnitOfWork;
 using VietWay.Service.Customer.DataTransferObject;
 using VietWay.Service.Customer.Interface;
 using VietWay.Util.CustomExceptions;
+using VietWay.Util.DateTimeUtil;
 
 namespace VietWay.Service.Customer.Implementation
 {
-    public class PostService(IUnitOfWork unitOfWork) : IPostService
+    public class PostService(IUnitOfWork unitOfWork, ITimeZoneHelper timeZoneHelper) : IPostService
     {
         private readonly IUnitOfWork _unitOfWork = unitOfWork;
+        private readonly ITimeZoneHelper _timeZoneHelper = timeZoneHelper;
 
         public async Task<PaginatedList<PostPreviewDTO>> GetCustomerLikedPostPreviewsAsync(string customerId, int pageSize, int pageIndex)
         {
@@ -121,6 +123,7 @@ namespace VietWay.Service.Customer.Implementation
                     {
                         CustomerId = customerId,
                         PostId = postId,
+                        CreatedAt = _timeZoneHelper.GetUTC7Now()
                     });
                 }
                 else if (null != postLike && false == isLike)
