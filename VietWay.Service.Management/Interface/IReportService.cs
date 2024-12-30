@@ -14,5 +14,6 @@ namespace VietWay.Service.Management.Interface
         public Task<ReportRatingDTO> GetReportRatingAsync(DateTime startDate, DateTime endDate, bool isAsc);
         public Task<ReportRevenueDTO> GetReportRevenueAsync(DateTime startDate, DateTime endDate);
         Task<ReportPromotionSummaryDTO> GetPromotionSummaryAsync(DateTime startDate, DateTime endDate);
+        Task<ReportSocialMediaSummaryDTO> GetSocialMediaSummaryAsync(DateTime startDate, DateTime endDate);
     }
 }
