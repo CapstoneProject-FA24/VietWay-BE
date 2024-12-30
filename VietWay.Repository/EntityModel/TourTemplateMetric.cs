@@ -22,15 +22,10 @@ namespace VietWay.Repository.EntityModel
         public int? NewFacebookReferralCount { get; set; }
         public int? NewXReferralCount { get; set; }
         public int? New5StarRatingCount { get; set; }
-        public int? New5StarRatingLikeCount { get; set; }
         public int? New4StarRatingCount { get; set; }
-        public int? New4StarRatingLikeCount { get; set; }
         public int? New3StarRatingCount { get; set; }
-        public int? New3StarRatingLikeCount { get; set; }
         public int? New2StarRatingCount { get; set; }
-        public int? New2StarRatingLikeCount { get; set; }
         public int? New1StarRatingCount { get; set; }
-        public int? New1StarRatingLikeCount { get; set; }
         public int? Score { get; set; }
         public DateTime CreatedAt { get; set; }
         public virtual TourTemplate? TourTemplate { get; set; }
