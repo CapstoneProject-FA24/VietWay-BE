@@ -25,8 +25,8 @@ namespace VietWay.Repository.EntityModel
         public int? AngerCount { get; set; }
         public int? ShareCount { get; set; }
         public int? CommentCount { get; set; }
-        [Required]
-        public DateTime CreatedAt { get; set; }
+        public int? Score { get; set; }
+        public required DateTime CreatedAt { get; set; }
 
         public virtual SocialMediaPost? SocialMediaPost { get; set; }
     }

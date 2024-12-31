@@ -21,7 +21,8 @@ namespace VietWay.Repository.EntityModel
         public int? QuoteCount { get; set; }
         public int? BookmarkCount { get; set; }
         public int? ImpressionCount { get; set; }
-        public DateTime CreatedAt { get; set; }
+        public int? Score { get; set; }
+        public required DateTime CreatedAt { get; set; }
 
         public virtual SocialMediaPost? SocialMediaPost { get; set; }
     }

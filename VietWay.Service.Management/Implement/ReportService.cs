@@ -11,6 +11,7 @@ using VietWay.Repository.UnitOfWork;
 using VietWay.Service.Management.DataTransferObject;
 using VietWay.Service.Management.Interface;
 using VietWay.Util.CustomExceptions;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace VietWay.Service.Management.Implement
 {
@@ -38,7 +39,7 @@ namespace VietWay.Service.Management.Implement
                 PaidBookings = [],
                 PendingBookings = []
             };
-            switch (GetPeriod(startDate,endDate))
+            switch (GetPeriod(startDate, endDate))
             {
                 case ReportPeriod.Daily:
                     for (DateTime date = startDate.Date; date <= endDate.Date; date = date.AddDays(1))
@@ -91,7 +92,7 @@ namespace VietWay.Service.Management.Implement
                     {
                         reportBookingByDay.PendingBookings.Add(
                             await _unitOfWork.BookingRepository.Query()
-                            .CountAsync(x => x.CreatedAt >= date && x.CreatedAt < date.AddMonths(3)&& x.Status == BookingStatus.Pending));
+                            .CountAsync(x => x.CreatedAt >= date && x.CreatedAt < date.AddMonths(3) && x.Status == BookingStatus.Pending));
                         reportBookingByDay.CancelledBookings.Add(
                             await _unitOfWork.BookingRepository.Query()
                             .CountAsync(x => x.CreatedAt >= date && x.CreatedAt < date.AddMonths(3) && x.Status == BookingStatus.Cancelled));
@@ -100,7 +101,7 @@ namespace VietWay.Service.Management.Implement
                             .CountAsync(x => x.CreatedAt >= date && x.CreatedAt < date.AddMonths(3) && x.Status == BookingStatus.Completed));
                         reportBookingByDay.DepositedBookings.Add(
                             await _unitOfWork.BookingRepository.Query()
-                            .CountAsync(x => x.CreatedAt >= date && x.CreatedAt < date.AddMonths(3)&& x.Status == BookingStatus.Deposited));
+                            .CountAsync(x => x.CreatedAt >= date && x.CreatedAt < date.AddMonths(3) && x.Status == BookingStatus.Deposited));
                         reportBookingByDay.PaidBookings.Add(
                             await _unitOfWork.BookingRepository.Query()
                             .CountAsync(x => x.CreatedAt >= date && x.CreatedAt < date.AddMonths(3) && x.Status == BookingStatus.Paid));
@@ -136,7 +137,7 @@ namespace VietWay.Service.Management.Implement
                     ParticipantCount = x.Key,
                     BookingCount = x.Count()
                 })
-                .OrderByDescending(x=> x.BookingCount)
+                .OrderByDescending(x => x.BookingCount)
                 .ToListAsync();
             List<ReportBookingByTourCategory> categoryBookings = await _unitOfWork.TourCategoryRepository.Query()
                 .Select(x => new ReportBookingByTourCategory
@@ -180,7 +181,7 @@ namespace VietWay.Service.Management.Implement
                 .Select(x => new AttractionRatingDTO
                 {
                     AttractionName = x.Name,
-                    AverageRating = x.AttractionReviews.Where(r => r.CreatedAt >= startDate && r.CreatedAt <= endDate).Select(r=>r.Rating).DefaultIfEmpty().Average(),
+                    AverageRating = x.AttractionReviews.Where(r => r.CreatedAt >= startDate && r.CreatedAt <= endDate).Select(r => r.Rating).DefaultIfEmpty().Average(),
                     TotalRating = x.AttractionReviews.Where(r => r.CreatedAt >= startDate && r.CreatedAt <= endDate).Count()
                 });
             IQueryable<TourTemplateRatingDTO> tourTemplates = _unitOfWork.TourTemplateRepository.Query()
@@ -188,7 +189,7 @@ namespace VietWay.Service.Management.Implement
                 .Select(x => new TourTemplateRatingDTO
                 {
                     TourTemplateName = x.TourName,
-                    AverageRating = x.Tours.SelectMany(t => t.TourBookings).Select(x => x.TourReview).Where(r => r.CreatedAt >= startDate && r.CreatedAt <= endDate).Select(r=>r.Rating).DefaultIfEmpty().Average(),
+                    AverageRating = x.Tours.SelectMany(t => t.TourBookings).Select(x => x.TourReview).Where(r => r.CreatedAt >= startDate && r.CreatedAt <= endDate).Select(r => r.Rating).DefaultIfEmpty().Average(),
                     TotalRating = x.Tours.SelectMany(t => t.TourBookings).Select(x => x.TourReview).Where(r => r.CreatedAt >= startDate && r.CreatedAt <= endDate).Count()
                 });
             attractions = isAsc ? attractions.OrderBy(x => x.AverageRating) : attractions.OrderByDescending(x => x.AverageRating);
@@ -199,7 +200,7 @@ namespace VietWay.Service.Management.Implement
                 .Select(x => new AttractionRatingDTO
                 {
                     AttractionName = x.Name,
-                    AverageRating = x.AttractionReviews.Select(r=>r.Rating).DefaultIfEmpty().Average(),
+                    AverageRating = x.AttractionReviews.Select(r => r.Rating).DefaultIfEmpty().Average(),
                     TotalRating = x.AttractionReviews.Count()
                 });
             IQueryable<TourTemplateRatingDTO> tourTemplateTotal = _unitOfWork.TourTemplateRepository.Query()
@@ -239,7 +240,7 @@ namespace VietWay.Service.Management.Implement
             List<decimal> revenueByPeriods = [];
             List<decimal> refundByPeriods = [];
 
-            switch (GetPeriod(startDate,endDate))
+            switch (GetPeriod(startDate, endDate))
             {
                 case ReportPeriod.Daily:
                     for (DateTime date = startDate.Date; date <= endDate.Date; date = date.AddDays(1))
@@ -397,7 +398,7 @@ namespace VietWay.Service.Management.Implement
                     .SumAsync(x => x.ShareCount) ?? 0,
                 FacebookReactionCount = await _unitOfWork.FacebookPostMetricRepository.Query()
                     .Where(x => x.CreatedAt >= startDate && x.CreatedAt <= endDate)
-                    .Select(x=> x.LikeCount + x.LoveCount + x.WowCount + x.HahaCount + x.SorryCount + x.AngerCount)
+                    .Select(x => x.LikeCount + x.LoveCount + x.WowCount + x.HahaCount + x.SorryCount + x.AngerCount)
                     .SumAsync() ?? 0,
                 XImpressionCount = await _unitOfWork.TwitterPostMetricRepository.Query()
                     .Where(x => x.CreatedAt >= startDate && x.CreatedAt <= endDate)
@@ -424,44 +425,53 @@ namespace VietWay.Service.Management.Implement
                 FacebookComments = [],
                 FacebookImpressions = [],
                 FacebookReactions = [],
-                FacebookReferrals = [],
                 FacebookShares = [],
+                FacebookScore = [],
                 XImpressions = [],
                 XLikes = [],
-                XReferrals = [],
                 XReplies = [],
-                XRetweets = []
+                XRetweets = [],
+                XScore = []
             };
             switch (GetPeriod(startDate, endDate))
             {
                 case ReportPeriod.Daily:
                     for (DateTime date = startDate.Date; date <= endDate.Date; date = date.AddDays(1))
                     {
-                        report.FacebookComments.Add(await _unitOfWork.FacebookPostMetricRepository.Query()
+                        var facebookMetrics = await _unitOfWork.FacebookPostMetricRepository.Query()
                             .Where(x => x.CreatedAt >= date && x.CreatedAt < date.AddDays(1))
-                            .SumAsync(x => x.CommentCount) ?? 0);
-                        report.FacebookImpressions.Add(await _unitOfWork.FacebookPostMetricRepository.Query()
+                            .GroupBy(x => 1)
+                            .Select(g => new
+                            {
+                                TotalComments = g.Sum(x => x.CommentCount),
+                                TotalImpressions = g.Sum(x => x.ImpressionCount),
+                                TotalShares = g.Sum(x => x.ShareCount),
+                                TotalReactions = g.Sum(x => x.LikeCount + x.LoveCount + x.WowCount + x.HahaCount + x.SorryCount + x.AngerCount),
+                                TotalScore = g.Sum(x => x.Score)
+                            })
+                            .FirstOrDefaultAsync();
+                        report.FacebookComments.Add(facebookMetrics?.TotalComments ?? 0);
+                        report.FacebookImpressions.Add(facebookMetrics?.TotalImpressions ?? 0);
+                        report.FacebookShares.Add(facebookMetrics?.TotalShares ?? 0);
+                        report.FacebookReactions.Add(facebookMetrics?.TotalReactions ?? 0);
+                        report.FacebookScore.Add(facebookMetrics?.TotalScore ?? 0);
+                        var twitterMetrics = await _unitOfWork.TwitterPostMetricRepository.Query()
                             .Where(x => x.CreatedAt >= date && x.CreatedAt < date.AddDays(1))
-                            .SumAsync(x => x.ImpressionCount) ?? 0);
-                        report.FacebookShares.Add(await _unitOfWork.FacebookPostMetricRepository.Query()
-                            .Where(x => x.CreatedAt >= date && x.CreatedAt < date.AddDays(1))
-                            .SumAsync(x => x.ShareCount) ?? 0);
-                        report.FacebookReactions.Add(await _unitOfWork.FacebookPostMetricRepository.Query()
-                            .Where(x => x.CreatedAt >= date && x.CreatedAt < date.AddDays(1))
-                            .Select(x => x.LikeCount + x.LoveCount + x.WowCount + x.HahaCount + x.SorryCount + x.AngerCount)
-                            .SumAsync() ?? 0);
-                        report.XImpressions.Add(await _unitOfWork.TwitterPostMetricRepository.Query()
-                            .Where(x => x.CreatedAt >= date && x.CreatedAt < date.AddDays(1))
-                            .SumAsync(x => x.ImpressionCount) ?? 0);
-                        report.XLikes.Add(await _unitOfWork.TwitterPostMetricRepository.Query()
-                            .Where(x => x.CreatedAt >= date && x.CreatedAt < date.AddDays(1))
-                            .SumAsync(x => x.LikeCount) ?? 0);
-                        report.XReplies.Add(await _unitOfWork.TwitterPostMetricRepository.Query()
-                            .Where(x => x.CreatedAt >= date && x.CreatedAt < date.AddDays(1))
-                            .SumAsync(x => x.ReplyCount) ?? 0);
-                        report.XRetweets.Add(await _unitOfWork.TwitterPostMetricRepository.Query()
-                            .Where(x => x.CreatedAt >= date && x.CreatedAt < date.AddDays(1))
-                            .SumAsync(x => x.RetweetCount) ?? 0);
+                            .GroupBy(x => 1)
+                            .Select(g => new
+                            {
+                                TotalImpressions = g.Sum(x => x.ImpressionCount),
+                                TotalLikes = g.Sum(x => x.LikeCount),
+                                TotalReplies = g.Sum(x => x.ReplyCount),
+                                TotalRetweets = g.Sum(x => x.RetweetCount + x.QuoteCount),
+                                TotalScore = g.Sum(x => x.Score)
+                            })
+                            .FirstOrDefaultAsync();
+                        report.XImpressions.Add(twitterMetrics?.TotalImpressions ?? 0);
+                        report.XLikes.Add(twitterMetrics?.TotalLikes ?? 0);
+                        report.XReplies.Add(twitterMetrics?.TotalReplies ?? 0);
+                        report.XRetweets.Add(twitterMetrics?.TotalRetweets ?? 0);
+                        report.XScore.Add(twitterMetrics?.TotalScore ?? 0);
                     }
                     break;
                 case ReportPeriod.Monthly:
@@ -469,31 +479,40 @@ namespace VietWay.Service.Management.Implement
                     DateTime monthEnd = new DateTime(endDate.Year, endDate.Month, 1).AddMonths(1).AddDays(-1);
                     for (DateTime date = monthStart; date <= monthEnd; date = date.AddMonths(1))
                     {
-                        report.FacebookComments.Add(await _unitOfWork.FacebookPostMetricRepository.Query()
-                            .Where(x => x.CreatedAt >= date && x.CreatedAt <= date.AddMonths(1))
-                            .SumAsync(x => x.CommentCount) ?? 0);
-                        report.FacebookImpressions.Add(await _unitOfWork.FacebookPostMetricRepository.Query()
-                            .Where(x => x.CreatedAt >= date && x.CreatedAt <= date.AddMonths(1))
-                            .SumAsync(x => x.ImpressionCount) ?? 0);
-                        report.FacebookShares.Add(await _unitOfWork.FacebookPostMetricRepository.Query()
-                            .Where(x => x.CreatedAt >= date && x.CreatedAt <= date.AddMonths(1))
-                            .SumAsync(x => x.ShareCount) ?? 0);
-                        report.FacebookReactions.Add(await _unitOfWork.FacebookPostMetricRepository.Query()
-                            .Where(x => x.CreatedAt >= date && x.CreatedAt <= date.AddMonths(1))
-                            .Select(x => x.LikeCount + x.LoveCount + x.WowCount + x.HahaCount + x.SorryCount + x.AngerCount)
-                            .SumAsync() ?? 0);
-                        report.XImpressions.Add(await _unitOfWork.TwitterPostMetricRepository.Query()
-                            .Where(x => x.CreatedAt >= date && x.CreatedAt <= date.AddMonths(1))
-                            .SumAsync(x => x.ImpressionCount) ?? 0);
-                        report.XLikes.Add(await _unitOfWork.TwitterPostMetricRepository.Query()
-                            .Where(x => x.CreatedAt >= date && x.CreatedAt <= date.AddMonths(1))
-                            .SumAsync(x => x.LikeCount) ?? 0);
-                        report.XReplies.Add(await _unitOfWork.TwitterPostMetricRepository.Query()
-                            .Where(x => x.CreatedAt >= date && x.CreatedAt <= date.AddMonths(1))
-                            .SumAsync(x => x.ReplyCount) ?? 0);
-                        report.XRetweets.Add(await _unitOfWork.TwitterPostMetricRepository.Query()
-                            .Where(x => x.CreatedAt >= date && x.CreatedAt <= date.AddMonths(1))
-                            .SumAsync(x => x.RetweetCount) ?? 0);
+                        var facebookMetrics = await _unitOfWork.FacebookPostMetricRepository.Query()
+                            .Where(x => x.CreatedAt >= date && x.CreatedAt < date.AddMonths(1))
+                            .GroupBy(x => 1)
+                            .Select(g => new
+                            {
+                                TotalComments = g.Sum(x => x.CommentCount),
+                                TotalImpressions = g.Sum(x => x.ImpressionCount),
+                                TotalShares = g.Sum(x => x.ShareCount),
+                                TotalReactions = g.Sum(x => x.LikeCount + x.LoveCount + x.WowCount + x.HahaCount + x.SorryCount + x.AngerCount),
+                                TotalScore = g.Sum(x => x.Score)
+                            })
+                            .FirstOrDefaultAsync();
+                        report.FacebookComments.Add(facebookMetrics?.TotalComments ?? 0);
+                        report.FacebookImpressions.Add(facebookMetrics?.TotalImpressions ?? 0);
+                        report.FacebookShares.Add(facebookMetrics?.TotalShares ?? 0);
+                        report.FacebookReactions.Add(facebookMetrics?.TotalReactions ?? 0);
+                        report.FacebookScore.Add(facebookMetrics?.TotalScore ?? 0);
+                        var twitterMetrics = await _unitOfWork.TwitterPostMetricRepository.Query()
+                            .Where(x => x.CreatedAt >= date && x.CreatedAt < date.AddMonths(1))
+                            .GroupBy(x => 1)
+                            .Select(g => new
+                            {
+                                TotalImpressions = g.Sum(x => x.ImpressionCount),
+                                TotalLikes = g.Sum(x => x.LikeCount),
+                                TotalReplies = g.Sum(x => x.ReplyCount),
+                                TotalRetweets = g.Sum(x => x.RetweetCount + x.QuoteCount),
+                                TotalScore = g.Sum(x => x.Score)
+                            })
+                            .FirstOrDefaultAsync();
+                        report.XImpressions.Add(twitterMetrics?.TotalImpressions ?? 0);
+                        report.XLikes.Add(twitterMetrics?.TotalLikes ?? 0);
+                        report.XReplies.Add(twitterMetrics?.TotalReplies ?? 0);
+                        report.XRetweets.Add(twitterMetrics?.TotalRetweets ?? 0);
+                        report.XScore.Add(twitterMetrics?.TotalScore ?? 0);
                     }
                     break;
                 case ReportPeriod.Quarterly:
@@ -501,61 +520,79 @@ namespace VietWay.Service.Management.Implement
                     DateTime quarterEnd = new DateTime(endDate.Year, ((endDate.Month - 1) / 3) * 3 + 1, 1);
                     for (DateTime date = quarterStar; date <= quarterEnd; date = date.AddMonths(3))
                     {
-                        report.FacebookComments.Add(await _unitOfWork.FacebookPostMetricRepository.Query()
-                            .Where(x => x.CreatedAt >= date && x.CreatedAt <= date.AddMonths(3))
-                            .SumAsync(x => x.CommentCount) ?? 0);
-                        report.FacebookImpressions.Add(await _unitOfWork.FacebookPostMetricRepository.Query()
-                            .Where(x => x.CreatedAt >= date && x.CreatedAt <= date.AddMonths(3))
-                            .SumAsync(x => x.ImpressionCount) ?? 0);
-                        report.FacebookShares.Add(await _unitOfWork.FacebookPostMetricRepository.Query()
-                            .Where(x => x.CreatedAt >= date && x.CreatedAt <= date.AddMonths(3))
-                            .SumAsync(x => x.ShareCount) ?? 0);
-                        report.FacebookReactions.Add(await _unitOfWork.FacebookPostMetricRepository.Query()
-                            .Where(x => x.CreatedAt >= date && x.CreatedAt <= date.AddMonths(3))
-                            .Select(x => x.LikeCount + x.LoveCount + x.WowCount + x.HahaCount + x.SorryCount + x.AngerCount)
-                            .SumAsync() ?? 0);
-                        report.XImpressions.Add(await _unitOfWork.TwitterPostMetricRepository.Query()
-                            .Where(x => x.CreatedAt >= date && x.CreatedAt <= date.AddMonths(3))
-                            .SumAsync(x => x.ImpressionCount) ?? 0);
-                        report.XLikes.Add(await _unitOfWork.TwitterPostMetricRepository.Query()
-                            .Where(x => x.CreatedAt >= date && x.CreatedAt <= date.AddMonths(3))
-                            .SumAsync(x => x.LikeCount) ?? 0);
-                        report.XReplies.Add(await _unitOfWork.TwitterPostMetricRepository.Query()
-                            .Where(x => x.CreatedAt >= date && x.CreatedAt <= date.AddMonths(3))
-                            .SumAsync(x => x.ReplyCount) ?? 0);
-                        report.XRetweets.Add(await _unitOfWork.TwitterPostMetricRepository.Query()
-                            .Where(x => x.CreatedAt >= date && x.CreatedAt <= date.AddMonths(3))
-                            .SumAsync(x => x.RetweetCount) ?? 0);
+                        var facebookMetrics = await _unitOfWork.FacebookPostMetricRepository.Query()
+                            .Where(x => x.CreatedAt >= date && x.CreatedAt < date.AddMonths(3))
+                            .GroupBy(x => 1)
+                            .Select(g => new
+                            {
+                                TotalComments = g.Sum(x => x.CommentCount),
+                                TotalImpressions = g.Sum(x => x.ImpressionCount),
+                                TotalShares = g.Sum(x => x.ShareCount),
+                                TotalReactions = g.Sum(x => x.LikeCount + x.LoveCount + x.WowCount + x.HahaCount + x.SorryCount + x.AngerCount),
+                                TotalScore = g.Sum(x => x.Score)
+                            })
+                            .FirstOrDefaultAsync();
+                        report.FacebookComments.Add(facebookMetrics?.TotalComments ?? 0);
+                        report.FacebookImpressions.Add(facebookMetrics?.TotalImpressions ?? 0);
+                        report.FacebookShares.Add(facebookMetrics?.TotalShares ?? 0);
+                        report.FacebookReactions.Add(facebookMetrics?.TotalReactions ?? 0);
+                        report.FacebookScore.Add(facebookMetrics?.TotalScore ?? 0);
+                        var twitterMetrics = await _unitOfWork.TwitterPostMetricRepository.Query()
+                            .Where(x => x.CreatedAt >= date && x.CreatedAt < date.AddMonths(3))
+                            .GroupBy(x => 1)
+                            .Select(g => new
+                            {
+                                TotalImpressions = g.Sum(x => x.ImpressionCount),
+                                TotalLikes = g.Sum(x => x.LikeCount),
+                                TotalReplies = g.Sum(x => x.ReplyCount),
+                                TotalRetweets = g.Sum(x => x.RetweetCount + x.QuoteCount),
+                                TotalScore = g.Sum(x => x.Score)
+                            })
+                            .FirstOrDefaultAsync();
+                        report.XImpressions.Add(twitterMetrics?.TotalImpressions ?? 0);
+                        report.XLikes.Add(twitterMetrics?.TotalLikes ?? 0);
+                        report.XReplies.Add(twitterMetrics?.TotalReplies ?? 0);
+                        report.XRetweets.Add(twitterMetrics?.TotalRetweets ?? 0);
+                        report.XScore.Add(twitterMetrics?.TotalScore ?? 0);
                     }
                     break;
                 case ReportPeriod.Yearly:
                     for (int year = startDate.Year; year <= endDate.Year; year++)
                     {
-                        report.FacebookComments.Add(await _unitOfWork.FacebookPostMetricRepository.Query()
+                        var facebookMetrics = await _unitOfWork.FacebookPostMetricRepository.Query()
                             .Where(x => x.CreatedAt.Year >= year && x.CreatedAt.Year < year + 1)
-                            .SumAsync(x => x.CommentCount) ?? 0);
-                        report.FacebookImpressions.Add(await _unitOfWork.FacebookPostMetricRepository.Query()
+                            .GroupBy(x => 1)
+                            .Select(g => new
+                            {
+                                TotalComments = g.Sum(x => x.CommentCount),
+                                TotalImpressions = g.Sum(x => x.ImpressionCount),
+                                TotalShares = g.Sum(x => x.ShareCount),
+                                TotalReactions = g.Sum(x => x.LikeCount + x.LoveCount + x.WowCount + x.HahaCount + x.SorryCount + x.AngerCount),
+                                TotalScore = g.Sum(x => x.Score)
+                            })
+                            .FirstOrDefaultAsync();
+                        report.FacebookComments.Add(facebookMetrics?.TotalComments ?? 0);
+                        report.FacebookImpressions.Add(facebookMetrics?.TotalImpressions ?? 0);
+                        report.FacebookShares.Add(facebookMetrics?.TotalShares ?? 0);
+                        report.FacebookReactions.Add(facebookMetrics?.TotalReactions ?? 0);
+                        report.FacebookScore.Add(facebookMetrics?.TotalScore ?? 0);
+                        var twitterMetrics = await _unitOfWork.TwitterPostMetricRepository.Query()
                             .Where(x => x.CreatedAt.Year >= year && x.CreatedAt.Year < year + 1)
-                            .SumAsync(x => x.ImpressionCount) ?? 0);
-                        report.FacebookShares.Add(await _unitOfWork.FacebookPostMetricRepository.Query()
-                            .Where(x => x.CreatedAt.Year >= year && x.CreatedAt.Year < year + 1)
-                            .SumAsync(x => x.ShareCount) ?? 0);
-                        report.FacebookReactions.Add(await _unitOfWork.FacebookPostMetricRepository.Query()
-                            .Where(x => x.CreatedAt.Year >= year && x.CreatedAt.Year < year + 1)
-                            .Select(x => x.LikeCount + x.LoveCount + x.WowCount + x.HahaCount + x.SorryCount + x.AngerCount)
-                            .SumAsync() ?? 0);
-                        report.XImpressions.Add(await _unitOfWork.TwitterPostMetricRepository.Query()
-                            .Where(x => x.CreatedAt.Year >= year && x.CreatedAt.Year < year + 1)
-                            .SumAsync(x => x.ImpressionCount) ?? 0);
-                        report.XLikes.Add(await _unitOfWork.TwitterPostMetricRepository.Query()
-                            .Where(x => x.CreatedAt.Year >= year && x.CreatedAt.Year < year + 1)
-                            .SumAsync(x => x.LikeCount) ?? 0);
-                        report.XReplies.Add(await _unitOfWork.TwitterPostMetricRepository.Query()
-                            .Where(x => x.CreatedAt.Year >= year && x.CreatedAt.Year < year + 1)
-                            .SumAsync(x => x.ReplyCount) ?? 0);
-                        report.XRetweets.Add(await _unitOfWork.TwitterPostMetricRepository.Query()
-                            .Where(x => x.CreatedAt.Year >= year && x.CreatedAt.Year < year + 1)
-                            .SumAsync(x => x.RetweetCount) ?? 0);
+                            .GroupBy(x => 1)
+                            .Select(g => new
+                            {
+                                TotalImpressions = g.Sum(x => x.ImpressionCount),
+                                TotalLikes = g.Sum(x => x.LikeCount),
+                                TotalReplies = g.Sum(x => x.ReplyCount),
+                                TotalRetweets = g.Sum(x => x.RetweetCount + x.QuoteCount),
+                                TotalScore = g.Sum(x => x.Score)
+                            })
+                            .FirstOrDefaultAsync();
+                        report.XImpressions.Add(twitterMetrics?.TotalImpressions ?? 0);
+                        report.XLikes.Add(twitterMetrics?.TotalLikes ?? 0);
+                        report.XReplies.Add(twitterMetrics?.TotalReplies ?? 0);
+                        report.XRetweets.Add(twitterMetrics?.TotalRetweets ?? 0);
+                        report.XScore.Add(twitterMetrics?.TotalScore ?? 0);
                     }
                     break;
             }

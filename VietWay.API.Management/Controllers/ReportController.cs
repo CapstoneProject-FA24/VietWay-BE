@@ -13,7 +13,7 @@ namespace VietWay.API.Management.Controllers
     public class ReportController(IReportService reportService) : ControllerBase
     {
         private readonly IReportService _reportService = reportService;
-        
+
         [HttpGet("summary")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [Authorize(Roles = $"{nameof(UserRole.Manager)},{nameof(UserRole.Admin)}")]
@@ -30,9 +30,9 @@ namespace VietWay.API.Management.Controllers
             startDate = startDate.Date;
             endDate = endDate.Date.AddDays(1).AddSeconds(-1);
 
-            return Ok(new DefaultResponseModel<ReportSummaryDTO> 
-            { 
-                Data = await _reportService.GetReportSummaryAsync(startDate, endDate), 
+            return Ok(new DefaultResponseModel<ReportSummaryDTO>
+            {
+                Data = await _reportService.GetReportSummaryAsync(startDate, endDate),
                 StatusCode = StatusCodes.Status200OK,
                 Message = "Success"
             });
@@ -131,7 +131,29 @@ namespace VietWay.API.Management.Controllers
                 StatusCode = StatusCodes.Status200OK,
                 Message = "Success"
             });
-            return Ok();
+        }
+        [HttpGet("social-media-summary")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [Produces("application/json")]
+        [Authorize(Roles = $"{nameof(UserRole.Manager)},{nameof(UserRole.Admin)}")]
+        public async Task<IActionResult> GetSocialMediaSummary(DateTime startDate, DateTime endDate)
+        {
+            if (startDate > endDate)
+            {
+                return BadRequest(new DefaultResponseModel<string>
+                {
+                    Message = "START_DATE_MUST_BE_BEFORE_END_DATE",
+                    StatusCode = StatusCodes.Status400BadRequest
+                });
+            }
+            startDate = startDate.Date;
+            endDate = endDate.Date.AddDays(1).AddSeconds(-1);
+            return Ok(new DefaultResponseModel<ReportSocialMediaSummaryDTO>
+            {
+                Data = await _reportService.GetSocialMediaSummaryAsync(startDate, endDate),
+                StatusCode = StatusCodes.Status200OK,
+                Message = "Success"
+            });
         }
     }
 }
