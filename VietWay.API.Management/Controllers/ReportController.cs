@@ -109,7 +109,7 @@ namespace VietWay.API.Management.Controllers
         }
 
         [HttpGet("promotion-summary")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType<DefaultResponseModel<ReportPromotionSummaryDTO>>(StatusCodes.Status200OK)]
         [Produces("application/json")]
         [Authorize(Roles = $"{nameof(UserRole.Manager)},{nameof(UserRole.Admin)}")]
 
@@ -133,9 +133,9 @@ namespace VietWay.API.Management.Controllers
             });
         }
         [HttpGet("social-media-summary")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
         [Produces("application/json")]
         [Authorize(Roles = $"{nameof(UserRole.Manager)},{nameof(UserRole.Admin)}")]
+        [ProducesResponseType<DefaultResponseModel<ReportSocialMediaSummaryDTO>>(StatusCodes.Status200OK)]
         public async Task<IActionResult> GetSocialMediaSummary(DateTime startDate, DateTime endDate)
         {
             if (startDate > endDate)
