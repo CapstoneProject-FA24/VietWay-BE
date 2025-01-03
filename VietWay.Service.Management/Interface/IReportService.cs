@@ -16,6 +16,7 @@ namespace VietWay.Service.Management.Interface
         public Task<ReportPromotionSummaryDTO> GetPromotionSummaryAsync(DateTime startDate, DateTime endDate);
         public Task<ReportSocialMediaSummaryDTO> GetSocialMediaSummaryAsync(DateTime startDate, DateTime endDate);
         public Task<List<ReportSocialMediaProvinceDTO>> GetSocialMediaProvinceReport(DateTime startDate, DateTime endDate);
-        public Task<List<ReportSocialMediaPostCategoryDTO>> ReportSocialMediaPostCategoryDTOs(DateTime startDate, DateTime endDate);
+        public Task<List<ReportSocialMediaPostCategoryDTO>> GetSocialMediaPostCategoryReport(DateTime startDate, DateTime endDate);
+        public Task<List<ReportSocialMediaAttractionCategoryDTO>> GetSocialMediaAttractionCategoryReport(DateTime startDate, DateTime endDate);
     }
 }

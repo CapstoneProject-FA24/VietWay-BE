@@ -181,7 +181,7 @@ namespace VietWay.API.Management.Controllers
         [HttpGet("social-media-post-category")]
         [Produces("application/json")]
         [Authorize(Roles = $"{nameof(UserRole.Manager)},{nameof(UserRole.Admin)}")]
-        [ProducesResponseType<DefaultResponseModel<List<ReportSocialMediaPostCategoryDTO>>(StatusCodes.Status200OK)]
+        [ProducesResponseType<DefaultResponseModel<List<ReportSocialMediaPostCategoryDTO>>>(StatusCodes.Status200OK)]
         public async Task<IActionResult> GetSocialMediaPostCategory(DateTime startDate, DateTime endDate)
         {
             if (startDate > endDate)
@@ -196,7 +196,30 @@ namespace VietWay.API.Management.Controllers
             endDate = endDate.Date.AddDays(1).AddSeconds(-1);
             return Ok(new DefaultResponseModel<List<ReportSocialMediaPostCategoryDTO>>
             {
-                Data = await _reportService.ReportSocialMediaPostCategoryDTOs(startDate, endDate),
+                Data = await _reportService.GetSocialMediaPostCategoryReport(startDate, endDate),
+                StatusCode = StatusCodes.Status200OK,
+                Message = "Success"
+            });
+        }
+        [HttpGet("social-media-attraction-category")]
+        [Produces("application/json")]
+        [Authorize(Roles = $"{nameof(UserRole.Manager)},{nameof(UserRole.Admin)}")]
+        [ProducesResponseType<DefaultResponseModel<List<ReportSocialMediaAttractionCategoryDTO>>>(StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetSocialMediaAttractionCategory(DateTime startDate, DateTime endDate)
+        {
+            if (startDate > endDate)
+            {
+                return BadRequest(new DefaultResponseModel<string>
+                {
+                    Message = "START_DATE_MUST_BE_BEFORE_END_DATE",
+                    StatusCode = StatusCodes.Status400BadRequest
+                });
+            }
+            startDate = startDate.Date;
+            endDate = endDate.Date.AddDays(1).AddSeconds(-1);
+            return Ok(new DefaultResponseModel<List<ReportSocialMediaAttractionCategoryDTO>>
+            {
+                Data = await _reportService.GetSocialMediaAttractionCategoryReport(startDate, endDate),
                 StatusCode = StatusCodes.Status200OK,
                 Message = "Success"
             });

@@ -810,7 +810,7 @@ namespace VietWay.Service.Management.Implement
             return provinces.Values.ToList();
         }
 
-        public async Task<List<ReportSocialMediaPostCategoryDTO>> ReportSocialMediaPostCategoryDTOs(DateTime startDate, DateTime endDate)
+        public async Task<List<ReportSocialMediaPostCategoryDTO>> GetSocialMediaPostCategoryReport(DateTime startDate, DateTime endDate)
         {
             startDate = startDate.Date;
             endDate = endDate.Date.AddDays(1).AddSeconds(-1);
@@ -911,6 +911,108 @@ namespace VietWay.Service.Management.Implement
                 province.AverageScore = (province.AverageFacebookScore + province.AverageXScore + province.AverageSitePostScore) / 3;
             }
             return postCategories.Values.ToList();
+        }
+        public async Task<List<ReportSocialMediaAttractionCategoryDTO>> GetSocialMediaAttractionCategoryReport(DateTime startDate, DateTime endDate)
+        {
+            startDate = startDate.Date;
+            endDate = endDate.Date.AddDays(1).AddSeconds(-1);
+
+            var facebookReports = await _unitOfWork.FacebookPostMetricRepository
+                .Query()
+                .Where(x => x.CreatedAt >= startDate && x.CreatedAt <= endDate && x.SocialMediaPost.EntityType == SocialMediaPostEntity.Attraction)
+                .GroupBy(x => x.SocialMediaPost.EntityId)
+                .Select(g => new
+                {
+                    EntityId = g.Key,
+                    TotalScore = g.Sum(x => x.Score),
+                    TotalPost = g.Count(),
+                }).ToListAsync();
+            var twitterReports = await _unitOfWork.TwitterPostMetricRepository
+                .Query()
+                .Where(x => x.CreatedAt >= startDate && x.CreatedAt <= endDate && x.SocialMediaPost.EntityType == SocialMediaPostEntity.Attraction)
+                .GroupBy(x => x.SocialMediaPost.EntityId)
+                .Select(g => new
+                {
+                    EntityId = g.Key,
+                    TotalScore = g.Sum(x => x.Score),
+                    TotalPost = g.Count(),
+                }).ToListAsync();
+            var attractionMetrics = await _unitOfWork.AttractionMetricRepository
+                .Query()
+                .Where(x => x.CreatedAt >= startDate && x.CreatedAt <= endDate)
+                .Select(x => new
+                {
+                    x.AttractionId,
+                    x.Score,
+                    x.Attraction.AttractionCategoryId
+                }).ToListAsync();
+
+            HashSet<string> attractionIds = new();
+            foreach (var report in facebookReports)
+            {
+                attractionIds.Add(report.EntityId!);
+            }
+            foreach (var report in twitterReports)
+            {
+                attractionIds.Add(report.EntityId!);
+            }
+
+            var attractionCategory = await _unitOfWork.AttractionRepository.Query()
+                .Where(x => attractionIds.Contains(x.AttractionId!))
+                .ToDictionaryAsync(x => x.AttractionId!, x => x.AttractionCategoryId!);
+
+            Dictionary<string, ReportSocialMediaAttractionCategoryDTO> attractionCategories = (await _unitOfWork.AttractionCategoryRepository
+                .Query()
+                .Select(x => new { x.AttractionCategoryId, x.Name })
+                .ToListAsync())
+                .ToDictionary(
+                    x => x.AttractionCategoryId!,
+                    x => new ReportSocialMediaAttractionCategoryDTO
+                    {
+                        AttractionCategoryId = x.AttractionCategoryId,
+                        AttractionCategoryName = x.Name,
+                        AverageFacebookScore = 0,
+                        AverageAttractionScore = 0,
+                        AverageScore = 0,
+                        AverageXScore = 0,
+                        TotalFacebookPost = 0,
+                        TotalAttraction = 0,
+                        TotalXPost = 0
+                    }
+                );
+
+            foreach (var report in facebookReports)
+            {
+                if (attractionCategories.TryGetValue(attractionCategory[report.EntityId], out ReportSocialMediaAttractionCategoryDTO? value))
+                {
+                    value.TotalFacebookPost += report.TotalPost;
+                    value.AverageFacebookScore += report.TotalScore;
+                }
+            }
+            foreach (var report in twitterReports)
+            {
+                if (attractionCategories.TryGetValue(attractionCategory[report.EntityId], out ReportSocialMediaAttractionCategoryDTO? value))
+                {
+                    value.TotalXPost += report.TotalPost;
+                    value.AverageXScore += report.TotalScore;
+                }
+            }
+            foreach (var report in attractionMetrics)
+            {
+                if (attractionCategories.TryGetValue(report.AttractionCategoryId, out ReportSocialMediaAttractionCategoryDTO? value))
+                {
+                    value.TotalAttraction++;
+                    value.AverageAttractionScore += report.Score;
+                }
+            }
+            foreach (var province in attractionCategories.Values)
+            {
+                province.AverageFacebookScore = province.TotalFacebookPost == 0 ? 0 : province.AverageFacebookScore / province.TotalFacebookPost;
+                province.AverageXScore = province.TotalXPost == 0 ? 0 : province.AverageXScore / province.TotalXPost;
+                province.AverageFacebookScore = province.TotalAttraction == 0 ? 0 : province.AverageFacebookScore / province.TotalAttraction;
+                province.AverageScore = (province.AverageFacebookScore + province.AverageXScore + province.AverageAttractionScore) / 3;
+            }
+            return attractionCategories.Values.ToList();
         }
         private List<string> GetPeriodLabels(DateTime startDate, DateTime endDate)
         {
