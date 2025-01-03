@@ -157,7 +157,7 @@ namespace VietWay.API.Management.Controllers
         }
         [HttpGet("social-media-province")]
         [Produces("application/json")]
-        //[Authorize(Roles = $"{nameof(UserRole.Manager)},{nameof(UserRole.Admin)}")]
+        [Authorize(Roles = $"{nameof(UserRole.Manager)},{nameof(UserRole.Admin)}")]
         [ProducesResponseType<DefaultResponseModel<List<ReportSocialMediaProvinceDTO>>>(StatusCodes.Status200OK)] 
         public async Task<IActionResult> GetSocialMediaProvince(DateTime startDate, DateTime endDate)
         {
@@ -174,6 +174,29 @@ namespace VietWay.API.Management.Controllers
             return Ok(new DefaultResponseModel<List<ReportSocialMediaProvinceDTO>>
             {
                 Data = await _reportService.GetSocialMediaProvinceReport(startDate, endDate),
+                StatusCode = StatusCodes.Status200OK,
+                Message = "Success"
+            });
+        }
+        [HttpGet("social-media-post-category")]
+        [Produces("application/json")]
+        [Authorize(Roles = $"{nameof(UserRole.Manager)},{nameof(UserRole.Admin)}")]
+        [ProducesResponseType<DefaultResponseModel<List<ReportSocialMediaPostCategoryDTO>>(StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetSocialMediaPostCategory(DateTime startDate, DateTime endDate)
+        {
+            if (startDate > endDate)
+            {
+                return BadRequest(new DefaultResponseModel<string>
+                {
+                    Message = "START_DATE_MUST_BE_BEFORE_END_DATE",
+                    StatusCode = StatusCodes.Status400BadRequest
+                });
+            }
+            startDate = startDate.Date;
+            endDate = endDate.Date.AddDays(1).AddSeconds(-1);
+            return Ok(new DefaultResponseModel<List<ReportSocialMediaPostCategoryDTO>>
+            {
+                Data = await _reportService.ReportSocialMediaPostCategoryDTOs(startDate, endDate),
                 StatusCode = StatusCodes.Status200OK,
                 Message = "Success"
             });
