@@ -707,7 +707,8 @@ namespace VietWay.Service.Management.Implement
                 .ToDictionaryAsync(x => x.AttractionId!, x => x.ProvinceId!);
             var tourTemplateProvinces = await _unitOfWork.TourTemplateRepository.Query()
                 .Where(x => tourTemplateIds.Contains(x.TourTemplateId!))
-                .ToDictionaryAsync(x => x.TourTemplateId!, x => x.TourTemplateProvinces.Select(x => x.ProvinceId!).ToList());
+                .Select(x=> new { x.TourTemplateId, TourTemplateProvinces = x.TourTemplateProvinces.SelectMany(x=>x.ProvinceId).ToList() })
+                .ToDictionaryAsync(x => x.TourTemplateId!, x => x.TourTemplateProvinces);
 
             Dictionary<string, ReportSocialMediaProvinceDTO> provinces = (await _unitOfWork.ProvinceRepository
                 .Query()
