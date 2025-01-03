@@ -9,6 +9,7 @@ namespace VietWay.Repository.UnitOfWork
         public IGenericRepository<Attraction> AttractionRepository { get; }
         public IGenericRepository<AttractionCategory> AttractionCategoryRepository { get; }
         public IGenericRepository<AttractionLike> AttractionLikeRepository { get; }
+        public IGenericRepository<AttractionMetric> AttractionMetricRepository { get; }
         public IGenericRepository<AttractionReview> AttractionReviewRepository { get; }
         public IGenericRepository<AttractionReviewLike> AttractionReviewLikeRepository { get; }
         public IGenericRepository<Booking> BookingRepository { get; }
@@ -23,6 +24,7 @@ namespace VietWay.Repository.UnitOfWork
         public IGenericRepository<Post> PostRepository { get; }
         public IGenericRepository<PostCategory> PostCategoryRepository { get; }
         public IGenericRepository<PostLike> PostLikeRepository { get; }
+        public IGenericRepository<PostMetric> PostMetricRepository { get; }
         public IGenericRepository<Province> ProvinceRepository { get; }
         public IGenericRepository<Staff> StaffRepository { get; }
         public IGenericRepository<SocialMediaPost> SocialMediaPostRepository { get; }
@@ -31,6 +33,7 @@ namespace VietWay.Repository.UnitOfWork
         public IGenericRepository<TourDuration> TourDurationRepository { get; }
         public IGenericRepository<TourReview> TourReviewRepository { get; }
         public IGenericRepository<TourTemplate> TourTemplateRepository { get; }
+        public IGenericRepository<TourTemplateMetric> TourTemplateMetricRepository { get; }
         public IGenericRepository<TourTemplateProvince> TourTemplateProvinceRepository { get; }
         public IGenericRepository<TourPrice> TourPriceRepository { get; }   
         public IGenericRepository<TourRefundPolicy> TourRefundPolicyRepository { get; }

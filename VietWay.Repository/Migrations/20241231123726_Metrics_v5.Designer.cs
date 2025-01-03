@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using VietWay.Repository.DataAccessObject;
 
@@ -11,9 +12,11 @@ using VietWay.Repository.DataAccessObject;
 namespace VietWay.Repository.Migrations
 {
     [DbContext(typeof(VietWayDbContext))]
-    partial class VietWayDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241231123726_Metrics_v5")]
+    partial class Metrics_v5
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -774,7 +777,7 @@ namespace VietWay.Repository.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<int?>("NewFacebookReferralCount")
+                    b.Property<int?>("FacebookReferralCount")
                         .HasColumnType("int");
 
                     b.Property<int?>("NewSaveCount")
@@ -783,15 +786,15 @@ namespace VietWay.Repository.Migrations
                     b.Property<int?>("NewViewCount")
                         .HasColumnType("int");
 
-                    b.Property<int?>("NewXReferralCount")
-                        .HasColumnType("int");
-
                     b.Property<string>("PostId")
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
 
                     b.Property<decimal?>("Score")
                         .HasColumnType("decimal(18,2)");
+
+                    b.Property<int?>("XReferralCount")
+                        .HasColumnType("int");
 
                     b.HasKey("MetricId");
 

@@ -32,7 +32,8 @@ namespace VietWay.Repository.EntityModel
         public int? New1StarRatingCount { get; set; }
         public int? New1StarRatingLikeCount { get; set; }
         [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
-        public int? Score { get; set; }
+        [Column(TypeName = "decimal(18,2)")]
+        public decimal? Score { get; set; }
         public DateTime CreatedAt { get; set; }
 
         public virtual Attraction? Attraction { get; set; }

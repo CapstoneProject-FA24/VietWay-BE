@@ -13,11 +13,11 @@ namespace VietWay.Service.Management.DataTransferObject
         public List<int>? FacebookShares { get; set; }
         public List<int>? FacebookReactions { get; set; }
         public List<int>? FacebookImpressions { get; set; }
-        public List<int>? FacebookScore { get; set; }
+        public List<decimal>? FacebookScore { get; set; }
         public List<int>? XRetweets { get; set; }
         public List<int>? XReplies { get; set; }
         public List<int>? XLikes { get; set; }
         public List<int>? XImpressions { get; set; }
-        public List<int>? XScore { get; set; }
+        public List<decimal>? XScore { get; set; }
     }
 }

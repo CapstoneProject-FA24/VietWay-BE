@@ -18,9 +18,10 @@ namespace VietWay.Repository.EntityModel
         public string? PostId { get; set; }
         public int? NewViewCount { get; set; }
         public int? NewSaveCount { get; set; }
-        public int? FacebookReferralCount { get; set; }
-        public int? XReferralCount { get; set; }
-        public int? Score { get; set; }
+        public int? NewFacebookReferralCount { get; set; }
+        public int? NewXReferralCount { get; set; }
+        [Column(TypeName = "decimal(18,2)")]
+        public decimal? Score { get; set; }
         public DateTime CreatedAt { get; set; }
 
         public virtual Post? Post { get; set; }

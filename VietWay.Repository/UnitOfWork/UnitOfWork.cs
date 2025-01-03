@@ -41,6 +41,9 @@ namespace VietWay.Repository.UnitOfWork
         private IGenericRepository<FacebookPostMetric>? facebookPostMetricRepository;
         private IGenericRepository<SocialMediaPost>? socialMediaPostRepository;
         private IGenericRepository<TwitterPostMetric>? twitterPostMetricRepository;
+        private IGenericRepository<AttractionMetric>? attractionMetricRepository;
+        private IGenericRepository<PostMetric>? postMetricRepository;
+        private IGenericRepository<TourTemplateMetric>? tourTemplateMetricRepository;
 
         public IGenericRepository<Account> AccountRepository
         {
@@ -303,6 +306,33 @@ namespace VietWay.Repository.UnitOfWork
             {
                 twitterPostMetricRepository ??= new GenericRepository<TwitterPostMetric>(_dbContext);
                 return twitterPostMetricRepository;
+            }
+        }
+
+        public IGenericRepository<AttractionMetric> AttractionMetricRepository
+        {
+            get
+            {
+                attractionMetricRepository ??= new GenericRepository<AttractionMetric>(_dbContext);
+                return attractionMetricRepository;
+            }
+        }
+
+        public IGenericRepository<PostMetric> PostMetricRepository
+        {
+            get
+            {
+                postMetricRepository ??= new GenericRepository<PostMetric>(_dbContext);
+                return postMetricRepository;
+            }
+        }
+
+        public IGenericRepository<TourTemplateMetric> TourTemplateMetricRepository
+        {
+            get
+            {
+                tourTemplateMetricRepository ??= new GenericRepository<TourTemplateMetric>(_dbContext);
+                return tourTemplateMetricRepository;
             }
         }
 

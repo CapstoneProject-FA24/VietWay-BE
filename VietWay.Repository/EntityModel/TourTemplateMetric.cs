@@ -26,7 +26,8 @@ namespace VietWay.Repository.EntityModel
         public int? New3StarRatingCount { get; set; }
         public int? New2StarRatingCount { get; set; }
         public int? New1StarRatingCount { get; set; }
-        public int? Score { get; set; }
+        [Column(TypeName = "decimal(18,2)")]
+        public decimal? Score { get; set; }
         public DateTime CreatedAt { get; set; }
         public virtual TourTemplate? TourTemplate { get; set; }
     }
