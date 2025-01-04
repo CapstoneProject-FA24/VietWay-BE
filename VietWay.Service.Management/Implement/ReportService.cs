@@ -1062,7 +1062,7 @@ namespace VietWay.Service.Management.Implement
             }
 
             var attractionCategory = await _unitOfWork.TourTemplateRepository.Query()
-                .Where(x => tourTemplateIds.Contains(x.TourCategoryId!))
+                .Where(x => tourTemplateIds.Contains(x.TourTemplateId!))
                 .ToDictionaryAsync(x => x.TourTemplateId!, x => x.TourCategoryId!);
 
             Dictionary<string, ReportSocialMediaTourCategoryDTO> attractionCategories = (await _unitOfWork.TourCategoryRepository
