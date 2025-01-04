@@ -224,5 +224,28 @@ namespace VietWay.API.Management.Controllers
                 Message = "Success"
             });
         }
+        [HttpGet("social-media-tour-category")]
+        [Produces("application/json")]
+        [Authorize(Roles = $"{nameof(UserRole.Manager)},{nameof(UserRole.Admin)}")]
+        [ProducesResponseType<DefaultResponseModel<List<ReportSocialMediaAttractionCategoryDTO>>>(StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetSocialMediaTourCategoryAsync(DateTime startDate, DateTime endDate)
+        {
+            if (startDate > endDate)
+            {
+                return BadRequest(new DefaultResponseModel<string>
+                {
+                    Message = "START_DATE_MUST_BE_BEFORE_END_DATE",
+                    StatusCode = StatusCodes.Status400BadRequest
+                });
+            }
+            startDate = startDate.Date;
+            endDate = endDate.Date.AddDays(1).AddSeconds(-1);
+            return Ok(new DefaultResponseModel<List<ReportSocialMediaTourCategoryDTO>>
+            {
+                Data = await _reportService.GetSocialMediaTourTemplateCategoryReport(startDate, endDate),
+                StatusCode = StatusCodes.Status200OK,
+                Message = "Success"
+            });
+        }
     }
 }
