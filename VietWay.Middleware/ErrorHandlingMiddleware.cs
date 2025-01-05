@@ -41,7 +41,8 @@ namespace VietWay.Middleware
             string? data = null;
             var result = JsonSerializer.Serialize(new
             {
-                message = code != HttpStatusCode.InternalServerError ? ex.Message : "INTERNAL_SERVER_ERROR",
+                //message = code != HttpStatusCode.InternalServerError ? ex.Message : "INTERNAL_SERVER_ERROR",
+                message = ex.Message,
                 statusCode = code,
                 data
             });
