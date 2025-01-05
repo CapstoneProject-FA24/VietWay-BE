@@ -48,7 +48,9 @@ namespace VietWay.Service.Management.Implement
                     CommentCount = countCommentTask.Result,
                     ImpressionCount = countImpressionTask.Result,
                     PostReactions = getReactionsTask.Result,
-                    ShareCount = countShareTask.Result
+                    ShareCount = countShareTask.Result,
+                    CreatedAt = socialMediaPost.CreatedAt,
+                    FacebookPostId = socialMediaPost.SocialPostId
                 });
             }
 
