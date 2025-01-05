@@ -1,0 +1,156 @@
+@startuml BookTour
+actor Client
+participant "<u>:ErrorHandlingMiddleware" as middleware
+participant "<u>:BookingController" as controller
+participant "<u>:TokenHelper" as tokenHelper
+participant "<u>:Mapper" as mapper
+participant "<u>:BookingService" as service
+participant "<u>:UnitOfWork" as uow
+participant "<u>:GenericRepository<Tour>" as tourRepo
+participant "<u>:GenericRepository<Booking>" as bookingRepo
+participant "<u>:GenericRepository<EntityHistory>" as historyRepo
+participant "<u>:IdGenerator" as idGen
+participant "<u>:TimeZoneHelper" as timeHelper
+participant "<u>:BackgroundJobClient" as jobClient
+database Database
+
+Client -> middleware: POST /api/bookings
+activate middleware
+
+middleware -> controller: Invoke()
+activate controller
+
+controller -> tokenHelper: GetAccountIdFromToken()
+activate tokenHelper
+tokenHelper --> controller: customerId
+deactivate tokenHelper
+
+alt customerId == null
+    controller --> middleware: 401 Unauthorized
+    middleware --> Client: 401 Unauthorized
+else valid customer
+    controller -> mapper: Map<Booking>(request)
+    activate mapper
+    mapper --> controller: booking
+    deactivate mapper
+
+    controller ->> service: BookTourAsync(booking)
+    activate service
+
+    service ->> uow: BeginTransactionAsync()
+    activate uow
+    uow ->> Database: BeginTransaction
+    activate Database
+    Database -->> uow: transaction started
+    deactivate Database
+
+    service ->> uow: TourRepository.Query()
+    opt tourRepository == null
+        create tourRepo
+        uow -> tourRepo: new GenericRepository<Tour>(_dbContext)
+        activate tourRepo
+    end
+    uow ->> tourRepo: Query()
+    tourRepo ->> Database: Include(TourPrices)\n.SingleOrDefaultAsync()
+    activate Database
+    Database -->> tourRepo: tour
+    deactivate Database
+    tourRepo -->> uow: tour
+
+    service ->> uow: BookingRepository.Query()
+    opt bookingRepository == null
+        create bookingRepo
+        uow -> bookingRepo: new GenericRepository<Booking>(_dbContext)
+        activate bookingRepo
+    end
+    uow ->> bookingRepo: Query()
+    bookingRepo ->> Database: AnyAsync(activeBooking)
+    activate Database
+    Database -->> bookingRepo: isActiveBookingExisted
+    deactivate Database
+    bookingRepo -->> uow: isActiveBookingExisted
+
+    alt tour not found
+        service -->> controller: throws ResourceNotFoundException
+        controller --> middleware: Exception
+        middleware ->> middleware: HandleExceptionAsync()
+        middleware -->> Client: 404 Not Found
+    else tour is full || active booking exists
+        service -->> controller: throws InvalidActionException
+        controller --> middleware: Exception
+        middleware ->> middleware: HandleExceptionAsync()
+        middleware -->> Client: 400 Bad Request
+    else can book
+        service ->> uow: BookingRepository.CreateAsync()
+        uow ->> bookingRepo: CreateAsync(booking)
+        bookingRepo ->> Database: Create Booking
+        activate Database
+        Database -->> bookingRepo: success
+        deactivate Database
+        bookingRepo -->> uow: success
+
+        service ->> uow: TourRepository.UpdateAsync()
+        uow ->> tourRepo: UpdateAsync(tour)
+        tourRepo ->> Database: Update Tour
+        activate Database
+        Database -->> tourRepo: success
+        deactivate Database
+        tourRepo -->> uow: success
+
+        service -> idGen: GenerateId()
+        activate idGen
+        idGen --> service: historyId
+        deactivate idGen
+
+        service -> timeHelper: GetUTC7Now()
+        activate timeHelper
+        timeHelper --> service: timestamp
+        deactivate timeHelper
+
+        service ->> uow: EntityHistoryRepository.CreateAsync()
+        opt entityHistoryRepository == null
+            create historyRepo
+            uow -> historyRepo: new GenericRepository<EntityHistory>(_dbContext)
+            activate historyRepo
+        end
+        uow ->> historyRepo: CreateAsync(history)
+        historyRepo ->> Database: Create History
+        activate Database
+        Database -->> historyRepo: success
+        deactivate Database
+        historyRepo -->> uow: success
+
+        service ->> uow: CommitTransactionAsync()
+        uow ->> Database: Commit
+        activate Database
+        alt commit failed
+            Database -->> uow: error
+            uow ->> Database: Rollback
+            Database -->> uow: transaction rolled back
+            service -->> controller: throws Exception
+            controller --> middleware: Exception
+            middleware ->> middleware: HandleExceptionAsync()
+            middleware -->> Client: 500 Internal Server Error
+        else commit succeeded
+            Database -->> uow: committed
+            deactivate Database
+
+            service -> jobClient: Schedule(CheckBookingForExpiration)
+            service -> jobClient: Enqueue(SendEmail)
+
+            service -->> controller: bookingId
+            controller --> middleware: 200 OK + bookingId
+            middleware --> Client: 200 OK + bookingId
+        end
+    end
+
+    deactivate historyRepo
+    deactivate bookingRepo
+    deactivate tourRepo
+    deactivate service
+    deactivate uow
+end
+
+deactivate controller
+deactivate middleware
+@enduml 
