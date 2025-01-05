@@ -13,6 +13,7 @@ using VietWay.Service.ThirdParty.Twitter;
 using Tweetinvi.Core.Web;
 using VietWay.Service.Management.Implement;
 using System.ComponentModel.DataAnnotations;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace VietWay.API.Management.Controllers
 {
@@ -36,7 +37,7 @@ namespace VietWay.API.Management.Controllers
             await _publishPostService.PublishPostWithXAsync(postId);
             return Ok(new DefaultResponseModel<object>
             {
-                Message = "Post tweet successfully",
+                Message = "Publish post to X successfully",
                 StatusCode = StatusCodes.Status200OK
             });
         }
@@ -49,7 +50,7 @@ namespace VietWay.API.Management.Controllers
             await _publishPostService.PublishTourTemplateWithXAsync(templateId);
             return Ok(new DefaultResponseModel<object>
             {
-                Message = "Post template successfully",
+                Message = "Publish template to X successfully",
                 StatusCode = StatusCodes.Status200OK
             });
         }
@@ -62,7 +63,7 @@ namespace VietWay.API.Management.Controllers
             await _publishPostService.PublishAttractionWithXAsync(attractionId);
             return Ok(new DefaultResponseModel<object>
             {
-                Message = "Post attraction successfully",
+                Message = "Publish attraction to X successfully",
                 StatusCode = StatusCodes.Status200OK
             });
         }
@@ -75,22 +76,48 @@ namespace VietWay.API.Management.Controllers
             await _publishPostService.PublishPostToFacebookPageAsync(postId);
             return Ok(new DefaultResponseModel<object>
             {
-                Message = "Post facebook successfully",
+                Message = "Publish post to Facebook successfully",
                 StatusCode = StatusCodes.Status200OK
             });
         }
 
-        [HttpGet("{postId}/facebook/metrics")]
+        [HttpPost("attraction/{attractionId}/facebook")]
+        [Produces("application/json")]
+        [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status200OK)]
+        public async Task<IActionResult> UploadAttractionFacebookAsync(string attractionId)
+        {
+            await _publishPostService.PublishAttractionToFacebookPageAsync(attractionId);
+            return Ok(new DefaultResponseModel<object>
+            {
+                Message = "Publish attraction to Facebook successfully",
+                StatusCode = StatusCodes.Status200OK
+            });
+        }
+
+        [HttpPost("tour-template/{templateId}/facebook")]
+        [Produces("application/json")]
+        [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status200OK)]
+        public async Task<IActionResult> UploadTemplateFacebookAsync(string templateId)
+        {
+            await _publishPostService.PublishTourTemplateToFacebookPageAsync(templateId);
+            return Ok(new DefaultResponseModel<object>
+            {
+                Message = "Publish tour template to Facebook successfully",
+                StatusCode = StatusCodes.Status200OK
+            });
+        }
+
+        [HttpGet("{entityId}/facebook/metrics")]
         [Produces("application/json")]
         [ProducesResponseType<DefaultResponseModel<FacebookMetricsDTO>>(StatusCodes.Status200OK)]
-        public async Task<IActionResult> GetFacebookReactionsAsync(string postId)
+        public async Task<IActionResult> GetFacebookReactionsAsync(string entityId, [Required][FromQuery] SocialMediaPostEntity entityType)
         {
 
-            return Ok(new DefaultResponseModel<FacebookMetricsDTO>
+            return Ok(new DefaultResponseModel<List<FacebookMetricsDTO>>
             {
                 Message = "Get facebook reaction count successfully",
                 StatusCode = StatusCodes.Status200OK,
-                Data = await _publishPostService.GetFacebookPostMetricsAsync(postId)
+                Data = await _publishPostService.GetFacebookPostMetricsAsync(entityId, entityType)
             });
         }
 

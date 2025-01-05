@@ -13,5 +13,7 @@ namespace VietWay.Service.Management.DataTransferObject
         public int ShareCount { get; set; } = 0;
         public int CommentCount { get; set; } = 0;
         public PostReaction PostReactions { get; set; } = default!;
+        public DateTime CreatedAt { get; set; }
+        public string FacebookPostId { get; set; }
     }
 }

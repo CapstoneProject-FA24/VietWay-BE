@@ -67,6 +67,7 @@ namespace VietWay.Service.ThirdParty.Facebook
                 return 0;
             }
         }
+
         public async Task<PostReaction> GetPostReactionCountByTypeAsync(string facebookPostId)
         {
             try
