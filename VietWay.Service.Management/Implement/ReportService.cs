@@ -19,6 +19,7 @@ namespace VietWay.Service.Management.Implement
     {
         private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
+        #region Revenue reports
         public async Task<ReportBookingDTO> GetReportBookingAsync(DateTime startDate, DateTime endDate)
         {
             if (startDate > endDate)
@@ -380,7 +381,9 @@ namespace VietWay.Service.Management.Implement
                 Revenue = profit - lost
             };
         }
+        #endregion
 
+        #region Social media reports
         public async Task<ReportPromotionSummaryDTO> GetPromotionSummaryAsync(DateTime startDate, DateTime endDate)
         {
             startDate = startDate.Date;
@@ -422,7 +425,7 @@ namespace VietWay.Service.Management.Implement
                 XImpressionCount = xPosts.TotalImpressions ?? 0,
                 XLikeCount = xPosts.TotalLikes ?? 0,
                 XReplyCount = xPosts.TotalReplies ?? 0,
-                XRetweetCount = xPosts.TotalRetweets ?? 0
+                XRetweetCount = xPosts.TotalRetweets ?? 0,
             };
         }
 
@@ -1118,9 +1121,494 @@ namespace VietWay.Service.Management.Implement
             }
             return attractionCategories.Values.ToList();
         }
+        #endregion
+
+        #region Province media report detail
+
+        public async Task<ReportSocialMediaProvinceDetailDTO> GetSocialMediaProvinceDetailReport(DateTime startDate, DateTime endDate, string provinceId)
+        {
+            startDate = startDate.Date;
+            endDate = endDate.Date.AddDays(1).AddSeconds(-1);
+
+            ReportSocialMediaProvinceDetailDTO report = await _unitOfWork.ProvinceRepository.Query()
+                .Where(x => x.ProvinceId == provinceId)
+                .Select(x => new ReportSocialMediaProvinceDetailDTO
+                {
+                    ProvinceId = x.ProvinceId,
+                    ProvinceName = x.Name,
+                })
+                .SingleOrDefaultAsync() ?? throw new ResourceNotFoundException("NOT_EXIST_PROVINCE");
+
+            report.AttractionCategories = new();
+            report.PostCategories = new();
+            report.TourTemplateCategories = new();
+
+            var allEntityIds = await _unitOfWork.SocialMediaPostRepository
+                .Query()
+                .Where(x => x.FacebookPostMetrics.Any(f=>f.CreatedAt >= startDate && f.CreatedAt <= endDate) || 
+                            x.TwitterPostMetrics.Any(t => t.CreatedAt >= startDate && t.CreatedAt <= endDate))
+                .Select(x => new
+                {
+                    x.EntityId,
+                    x.EntityType,
+                }).ToListAsync();
+            List<string> postIds = allEntityIds.Where(e => e.EntityType == SocialMediaPostEntity.Post).Select(x => x.EntityId).ToList();
+            List<string> attractionIds = allEntityIds.Where(e => e.EntityType == SocialMediaPostEntity.Attraction).Select(x => x.EntityId).ToList();
+            List<string> tourTemplateIds = allEntityIds.Where(e => e.EntityType == SocialMediaPostEntity.TourTemplate).Select(x => x.EntityId).ToList();
+            var posts = await _unitOfWork.PostRepository
+                .Query()
+                .Where(x => postIds.Contains(x.PostId) && x.ProvinceId == provinceId)
+                .Select(x => new
+                {
+                    x.PostId,
+                    x.PostCategoryId,
+                })
+                .Distinct()
+                .ToDictionaryAsync(x=>x.PostId!,x=>x.PostCategoryId!);
+            var attractions = await _unitOfWork.AttractionRepository
+                .Query()
+                .Where(x => attractionIds.Contains(x.AttractionId) && x.ProvinceId == provinceId)
+                .Select(x => new
+                {
+                    x.AttractionId,
+                    x.AttractionCategoryId,
+                })
+                .Distinct()
+                .ToDictionaryAsync(x=>x.AttractionId!,x=>x.AttractionCategoryId);
+            var tourTemplates = await _unitOfWork.TourTemplateRepository
+                .Query()
+                .Where(x => tourTemplateIds.Contains(x.TourTemplateId) && x.TourTemplateProvinces.Any(x=>x.ProvinceId == provinceId))
+                .Select(x => new
+                {
+                    x.TourTemplateId,
+                    x.TourCategoryId,
+                })
+                .Distinct()
+                .ToDictionaryAsync(x=>x.TourTemplateId,x=>x.TourCategoryId);
+
+            var provinceEntityIds = posts.Keys.Concat(attractions.Keys).Concat(tourTemplates.Keys).ToList();
+
+            var facebookReports = await _unitOfWork.FacebookPostMetricRepository
+                .Query()
+                .Where(x => x.CreatedAt >= startDate && x.CreatedAt <= endDate && provinceEntityIds.Contains(x.SocialMediaPost.EntityId))
+                .Select(x => new
+                {
+                    x.SocialPostId,
+                    x.SocialMediaPost.EntityId,
+                    x.SocialMediaPost.EntityType,
+                    x.Score,
+                    x.CommentCount,
+                    x.ImpressionCount,
+                    x.ShareCount,
+                    x.CreatedAt,
+                    ReactionCount = x.LikeCount + x.LoveCount + x.WowCount + x.HahaCount + x.SorryCount + x.AngerCount,
+                }).ToListAsync();
+            var twitterReports = await _unitOfWork.TwitterPostMetricRepository
+                .Query()
+                .Where(x => x.CreatedAt >= startDate && x.CreatedAt <= endDate && provinceEntityIds.Contains(x.SocialMediaPost.EntityId))
+                .Select(x => new
+                {
+                    x.SocialPostId,
+                    x.SocialMediaPost.EntityId,
+                    x.SocialMediaPost.EntityType,
+                    x.Score,
+                    x.ImpressionCount,
+                    x.LikeCount,
+                    x.ReplyCount,
+                    x.CreatedAt,
+                    RetweetCount = x.QuoteCount + x.RetweetCount,
+                }).ToListAsync();
+            var postMetrics = await _unitOfWork.PostMetricRepository
+                .Query()
+                .Where(x => x.CreatedAt >= startDate && x.CreatedAt <= endDate && x.Post.ProvinceId == provinceId)
+                .Select(x => new
+                {
+                    x.PostId,
+                    x.Score,
+                    x.Post.PostCategoryId
+                }).ToListAsync();
+            var attractionMetrics = await _unitOfWork.AttractionMetricRepository
+                .Query()
+                .Where(x => x.CreatedAt >= startDate && x.CreatedAt <= endDate && x.Attraction.ProvinceId == provinceId)
+                .Select(x => new
+                {
+                    x.AttractionId,
+                    x.Score,
+                    x.Attraction.AttractionCategoryId,
+                }).ToListAsync();
+            var tourTemplateMetrics = await _unitOfWork.TourTemplateMetricRepository
+                .Query()
+                .Where(x => x.CreatedAt >= startDate && x.CreatedAt <= endDate && x.TourTemplate.TourTemplateProvinces.Any(t=>t.ProvinceId == provinceId))
+                .Select(x => new
+                {
+                    x.TourTemplateId,
+                    x.Score,
+                    x.TourTemplate.TourCategoryId
+                }).ToListAsync();
+            Dictionary<string, ReportSocialMediaPostCategoryDTO> postCategories = (await _unitOfWork.PostCategoryRepository
+                .Query()
+                .Select(x => new { x.PostCategoryId, x.Name })
+                .ToListAsync())
+                .ToDictionary(
+                    x => x.PostCategoryId!,
+                    x => new ReportSocialMediaPostCategoryDTO
+                    {
+                        PostCategoryId = x.PostCategoryId,
+                        PostCategoryName = x.Name,
+                        AverageFacebookScore = 0,
+                        AverageSitePostScore = 0,
+                        AverageScore = 0,
+                        AverageXScore = 0,
+                        TotalFacebookPost = 0,
+                        TotalSitePost = 0,
+                        TotalXPost = 0
+                    }
+                );
+            Dictionary<string, ReportSocialMediaAttractionCategoryDTO> attractionCategories = (await _unitOfWork.AttractionCategoryRepository
+                .Query()
+                .Select(x => new { x.AttractionCategoryId, x.Name })
+                .ToListAsync())
+                .ToDictionary(
+                    x => x.AttractionCategoryId!,
+                    x => new ReportSocialMediaAttractionCategoryDTO
+                    {
+                        AttractionCategoryId = x.AttractionCategoryId,
+                        AttractionCategoryName = x.Name,
+                        AverageFacebookScore = 0,
+                        AverageAttractionScore = 0,
+                        AverageScore = 0,
+                        AverageXScore = 0,
+                        TotalFacebookPost = 0,
+                        TotalAttraction = 0,
+                        TotalXPost = 0
+                    }
+                );
+            Dictionary<string, ReportSocialMediaTourCategoryDTO> tourCategories = (await _unitOfWork.TourCategoryRepository
+                .Query()
+                .Select(x => new { x.TourCategoryId, x.Name })
+                .ToListAsync())
+                .ToDictionary(
+                    x => x.TourCategoryId!,
+                    x => new ReportSocialMediaTourCategoryDTO
+                    {
+                        TourCategoryId = x.TourCategoryId,
+                        TourCategoryName = x.Name,
+                        AverageFacebookScore = 0,
+                        AverageTourTemplateScore = 0,
+                        AverageScore = 0,
+                        AverageXScore = 0,
+                        TotalFacebookPost = 0,
+                        TotalTourTemplate = 0,
+                        TotalXPost = 0
+                    }
+                );
 
 
-        List<string> GetPeriodLabels(DateTime startDate, DateTime endDate)
+            report.TotalXPost = twitterReports.DistinctBy(x=>x.SocialPostId).Count() ;
+            report.TotalTourTemplate = tourTemplateMetrics.DistinctBy(x=>x.TourTemplateId).Count();
+            report.TotalSitePost = postMetrics.DistinctBy(x=>x.PostId).Count();
+            report.TotalFacebookPost = facebookReports.DistinctBy(x=>x.SocialPostId).Count();
+            report.TotalAttraction = attractionMetrics.DistinctBy(x=>x.AttractionId).Count();
+            report.AverageXScore = twitterReports.GroupBy(x=>x.SocialPostId).Select(g=>g.Sum(x=>x.Score)).Average();
+            report.AverageTourTemplateScore = tourTemplateMetrics.GroupBy(x=>x.TourTemplateId).Select(g=>g.Sum(x=>x.Score)).Average();
+            report.AverageSitePostScore = postMetrics.GroupBy(x => x.PostId).Select(g => g.Sum(x => x.Score)).Average();
+            report.AverageAttractionScore = attractionMetrics.GroupBy(x=>x.AttractionId).Select(g => g.Sum(x => x.Score)).Average();
+            report.AverageFacebookScore = facebookReports.GroupBy(x => x.SocialPostId).Select(g => g.Sum(x => x.Score)).Average();
+            report.AverageScore = (report.AverageXScore + report.AverageTourTemplateScore + report.AverageSitePostScore + report.AverageAttractionScore + report.AverageFacebookScore) / 5;
+
+            List<string> periodLabels = GetPeriodLabels(startDate, endDate);
+
+            report.ReportSocialMediaSummary = new ReportSocialMediaSummaryDTO
+            {
+                Dates = periodLabels,
+                FacebookComments = [],
+                FacebookImpressions = [],
+                FacebookReactions = [],
+                FacebookScore = [],
+                FacebookShares = [],
+                XImpressions = [],
+                XLikes = [],
+                XReplies = [],
+                XRetweets = [],
+                XScore = [],
+            };
+
+            switch (GetPeriod(startDate, endDate))
+            {
+                case ReportPeriod.Daily:
+                    for (DateTime date = startDate.Date; date <= endDate.Date; date = date.AddDays(1))
+                    {
+                        var facebookMetrics = facebookReports
+                            .Where(x => x.CreatedAt >= date && x.CreatedAt < date.AddDays(1))
+                            .GroupBy(x => 1)
+                            .Select(g => new
+                            {
+                                TotalComments = g.Sum(x => x.CommentCount),
+                                TotalImpressions = g.Sum(x => x.ImpressionCount),
+                                TotalShares = g.Sum(x => x.ShareCount),
+                                TotalReactions = g.Sum(x => x.ReactionCount),
+                                TotalScore = g.Sum(x => x.Score)
+                            })
+                            .FirstOrDefault();
+                        report.ReportSocialMediaSummary.FacebookComments.Add(facebookMetrics?.TotalComments ?? 0);
+                        report.ReportSocialMediaSummary.FacebookImpressions.Add(facebookMetrics?.TotalImpressions ?? 0);
+                        report.ReportSocialMediaSummary.FacebookShares.Add(facebookMetrics?.TotalShares ?? 0);
+                        report.ReportSocialMediaSummary.FacebookReactions.Add(facebookMetrics?.TotalReactions ?? 0);
+                        report.ReportSocialMediaSummary.FacebookScore.Add(facebookMetrics?.TotalScore ?? 0);
+                        var twitterMetrics = twitterReports
+                            .Where(x => x.CreatedAt >= date && x.CreatedAt < date.AddDays(1))
+                            .GroupBy(x => 1)
+                            .Select(g => new
+                            {
+                                TotalImpressions = g.Sum(x => x.ImpressionCount),
+                                TotalLikes = g.Sum(x => x.LikeCount),
+                                TotalReplies = g.Sum(x => x.ReplyCount),
+                                TotalRetweets = g.Sum(x => x.RetweetCount),
+                                TotalScore = g.Sum(x => x.Score)
+                            })
+                            .FirstOrDefault();
+                        report.ReportSocialMediaSummary.XImpressions.Add(twitterMetrics?.TotalImpressions ?? 0);
+                        report.ReportSocialMediaSummary.XLikes.Add(twitterMetrics?.TotalLikes ?? 0);
+                        report.ReportSocialMediaSummary.XReplies.Add(twitterMetrics?.TotalReplies ?? 0);
+                        report.ReportSocialMediaSummary.XRetweets.Add(twitterMetrics?.TotalRetweets ?? 0);
+                        report.ReportSocialMediaSummary.XScore.Add(twitterMetrics?.TotalScore ?? 0);
+                    }
+                    break;
+                case ReportPeriod.Monthly:
+                    DateTime monthStart = new DateTime(startDate.Year, startDate.Month, 1);
+                    DateTime monthEnd = new DateTime(endDate.Year, endDate.Month, 1).AddMonths(1).AddDays(-1);
+                    for (DateTime date = monthStart; date <= monthEnd; date = date.AddMonths(1))
+                    {
+                        var facebookMetrics = facebookReports
+                            .Where(x => x.CreatedAt >= date && x.CreatedAt < date.AddMonths(1))
+                            .GroupBy(x => 1)
+                            .Select(g => new
+                            {
+                                TotalComments = g.Sum(x => x.CommentCount),
+                                TotalImpressions = g.Sum(x => x.ImpressionCount),
+                                TotalShares = g.Sum(x => x.ShareCount),
+                                TotalReactions = g.Sum(x => x.ReactionCount),
+                                TotalScore = g.Sum(x => x.Score)
+                            })
+                            .FirstOrDefault();
+                        report.ReportSocialMediaSummary.FacebookComments.Add(facebookMetrics?.TotalComments ?? 0);
+                        report.ReportSocialMediaSummary.FacebookImpressions.Add(facebookMetrics?.TotalImpressions ?? 0);
+                        report.ReportSocialMediaSummary.FacebookShares.Add(facebookMetrics?.TotalShares ?? 0);
+                        report.ReportSocialMediaSummary.FacebookReactions.Add(facebookMetrics?.TotalReactions ?? 0);
+                        report.ReportSocialMediaSummary.FacebookScore.Add(facebookMetrics?.TotalScore ?? 0);
+                        var twitterMetrics = twitterReports
+                            .Where(x => x.CreatedAt >= date && x.CreatedAt < date.AddMonths(1))
+                            .GroupBy(x => 1)
+                            .Select(g => new
+                            {
+                                TotalImpressions = g.Sum(x => x.ImpressionCount),
+                                TotalLikes = g.Sum(x => x.LikeCount),
+                                TotalReplies = g.Sum(x => x.ReplyCount),
+                                TotalRetweets = g.Sum(x => x.RetweetCount),
+                                TotalScore = g.Sum(x => x.Score)
+                            })
+                            .FirstOrDefault();
+                        report.ReportSocialMediaSummary.XImpressions.Add(twitterMetrics?.TotalImpressions ?? 0);
+                        report.ReportSocialMediaSummary.XLikes.Add(twitterMetrics?.TotalLikes ?? 0);
+                        report.ReportSocialMediaSummary.XReplies.Add(twitterMetrics?.TotalReplies ?? 0);
+                        report.ReportSocialMediaSummary.XRetweets.Add(twitterMetrics?.TotalRetweets ?? 0);
+                        report.ReportSocialMediaSummary.XScore.Add(twitterMetrics?.TotalScore ?? 0);
+                    }
+                    break;
+                case ReportPeriod.Quarterly:
+                    DateTime quarterStar = new DateTime(startDate.Year, ((startDate.Month - 1) / 3) * 3 + 1, 1);
+                    DateTime quarterEnd = new DateTime(endDate.Year, ((endDate.Month - 1) / 3) * 3 + 1, 1);
+                    for (DateTime date = quarterStar; date <= quarterEnd; date = date.AddMonths(3))
+                    {
+                        var facebookMetrics = facebookReports
+                            .Where(x => x.CreatedAt >= date && x.CreatedAt < date.AddMonths(3))
+                            .GroupBy(x => 1)
+                            .Select(g => new
+                            {
+                                TotalComments = g.Sum(x => x.CommentCount),
+                                TotalImpressions = g.Sum(x => x.ImpressionCount),
+                                TotalShares = g.Sum(x => x.ShareCount),
+                                TotalReactions = g.Sum(x => x.ReactionCount),
+                                TotalScore = g.Sum(x => x.Score)
+                            })
+                            .FirstOrDefault();
+                        report.ReportSocialMediaSummary.FacebookComments.Add(facebookMetrics?.TotalComments ?? 0);
+                        report.ReportSocialMediaSummary.FacebookImpressions.Add(facebookMetrics?.TotalImpressions ?? 0);
+                        report.ReportSocialMediaSummary.FacebookShares.Add(facebookMetrics?.TotalShares ?? 0);
+                        report.ReportSocialMediaSummary.FacebookReactions.Add(facebookMetrics?.TotalReactions ?? 0);
+                        report.ReportSocialMediaSummary.FacebookScore.Add(facebookMetrics?.TotalScore ?? 0);
+                        var twitterMetrics = twitterReports
+                            .Where(x => x.CreatedAt >= date && x.CreatedAt < date.AddMonths(3))
+                            .GroupBy(x => 1)
+                            .Select(g => new
+                            {
+                                TotalImpressions = g.Sum(x => x.ImpressionCount),
+                                TotalLikes = g.Sum(x => x.LikeCount),
+                                TotalReplies = g.Sum(x => x.ReplyCount),
+                                TotalRetweets = g.Sum(x => x.RetweetCount),
+                                TotalScore = g.Sum(x => x.Score)
+                            })
+                            .FirstOrDefault();
+                        report.ReportSocialMediaSummary.XImpressions.Add(twitterMetrics?.TotalImpressions ?? 0);
+                        report.ReportSocialMediaSummary.XLikes.Add(twitterMetrics?.TotalLikes ?? 0);
+                        report.ReportSocialMediaSummary.XReplies.Add(twitterMetrics?.TotalReplies ?? 0);
+                        report.ReportSocialMediaSummary.XRetweets.Add(twitterMetrics?.TotalRetweets ?? 0);
+                        report.ReportSocialMediaSummary.XScore.Add(twitterMetrics?.TotalScore ?? 0);
+                    }
+                    break;
+                case ReportPeriod.Yearly:
+                    for (int year = startDate.Year; year <= endDate.Year; year++)
+                    {
+                        var facebookMetrics = facebookReports
+                            .Where(x => x.CreatedAt.Year >= year && x.CreatedAt.Year < year + 1)
+                            .GroupBy(x => 1)
+                            .Select(g => new
+                            {
+                                TotalComments = g.Sum(x => x.CommentCount),
+                                TotalImpressions = g.Sum(x => x.ImpressionCount),
+                                TotalShares = g.Sum(x => x.ShareCount),
+                                TotalReactions = g.Sum(x => x.ReactionCount),
+                                TotalScore = g.Sum(x => x.Score)
+                            })
+                            .FirstOrDefault();
+                        report.ReportSocialMediaSummary.FacebookComments.Add(facebookMetrics?.TotalComments ?? 0);
+                        report.ReportSocialMediaSummary.FacebookImpressions.Add(facebookMetrics?.TotalImpressions ?? 0);
+                        report.ReportSocialMediaSummary.FacebookShares.Add(facebookMetrics?.TotalShares ?? 0);
+                        report.ReportSocialMediaSummary.FacebookReactions.Add(facebookMetrics?.TotalReactions ?? 0);
+                        report.ReportSocialMediaSummary.FacebookScore.Add(facebookMetrics?.TotalScore ?? 0);
+                        var twitterMetrics = twitterReports
+                            .Where(x => x.CreatedAt.Year >= year && x.CreatedAt.Year < year + 1)
+                            .GroupBy(x => 1)
+                            .Select(g => new
+                            {
+                                TotalImpressions = g.Sum(x => x.ImpressionCount),
+                                TotalLikes = g.Sum(x => x.LikeCount),
+                                TotalReplies = g.Sum(x => x.ReplyCount),
+                                TotalRetweets = g.Sum(x => x.RetweetCount),
+                                TotalScore = g.Sum(x => x.Score)
+                            })
+                            .FirstOrDefault();
+                        report.ReportSocialMediaSummary.XImpressions.Add(twitterMetrics?.TotalImpressions ?? 0);
+                        report.ReportSocialMediaSummary.XLikes.Add(twitterMetrics?.TotalLikes ?? 0);
+                        report.ReportSocialMediaSummary.XReplies.Add(twitterMetrics?.TotalReplies ?? 0);
+                        report.ReportSocialMediaSummary.XRetweets.Add(twitterMetrics?.TotalRetweets ?? 0);
+                        report.ReportSocialMediaSummary.XScore.Add(twitterMetrics?.TotalScore ?? 0);
+                    }
+                    break;
+            }
+
+            foreach (var facebookReport in facebookReports.GroupBy(x=> new { x.SocialPostId }).Select(g=>new {EntityType = g.Select(x=>x.EntityType).Distinct().Single(), EntityId = g.Select(x=>x.EntityId).Distinct().Single() , Score = g.Sum(x=>x.Score)}).ToList())
+            {
+                switch (facebookReport.EntityType)
+                {
+                    case SocialMediaPostEntity.Attraction:
+                        if (attractionCategories.TryGetValue(attractions[facebookReport.EntityId], out ReportSocialMediaAttractionCategoryDTO attractionCategoryDTO))
+                        {
+                            attractionCategoryDTO.TotalFacebookPost++;
+                            attractionCategoryDTO.AverageFacebookScore += facebookReport.Score;
+                        }
+                        break;
+                    case SocialMediaPostEntity.Post:
+                        if (postCategories.TryGetValue(posts[facebookReport.EntityId], out ReportSocialMediaPostCategoryDTO postCategoryDTO))
+                        {
+                            postCategoryDTO.TotalFacebookPost++;
+                            postCategoryDTO.AverageFacebookScore += facebookReport.Score;
+                        }
+                        break;
+                    case SocialMediaPostEntity.TourTemplate:
+                        if (tourCategories.TryGetValue(tourTemplates[facebookReport.EntityId], out ReportSocialMediaTourCategoryDTO tourCategoryDTO))
+                        {
+                            tourCategoryDTO.TotalFacebookPost++;
+                            tourCategoryDTO.AverageFacebookScore += facebookReport.Score;
+                        }
+                        break;
+                }
+            }
+            foreach (var twitterReport in twitterReports.GroupBy(x => new { x.SocialPostId }).Select(g => new { EntityType = g.Select(x => x.EntityType).Distinct().Single(), EntityId = g.Select(x => x.EntityId).Distinct().Single(), Score = g.Sum(x => x.Score) }).ToList())
+            {
+                switch (twitterReport.EntityType)
+                {
+                    case SocialMediaPostEntity.Attraction:
+                        if (attractionCategories.TryGetValue(attractions[twitterReport.EntityId], out ReportSocialMediaAttractionCategoryDTO attractionCategoryDTO))
+                        {
+                            attractionCategoryDTO.TotalXPost++;
+                            attractionCategoryDTO.AverageXScore += twitterReport.Score;
+                        }
+                        break;
+                    case SocialMediaPostEntity.Post:
+                        if (postCategories.TryGetValue(posts[twitterReport.EntityId], out ReportSocialMediaPostCategoryDTO postCategoryDTO))
+                        {
+                            postCategoryDTO.TotalXPost++;
+                            postCategoryDTO.AverageXScore += twitterReport.Score;
+                        }
+                        break;
+                    case SocialMediaPostEntity.TourTemplate:
+                        if (tourCategories.TryGetValue(tourTemplates[twitterReport.EntityId], out ReportSocialMediaTourCategoryDTO tourCategoryDTO))
+                        {
+                            tourCategoryDTO.TotalXPost++;
+                            tourCategoryDTO.AverageXScore += twitterReport.Score;
+                        }
+                        break;
+                }
+            }
+
+            foreach (var postMetric in postMetrics)
+            {
+                if (postCategories.TryGetValue(postMetric.PostCategoryId, out ReportSocialMediaPostCategoryDTO postCategoryDTO))
+                {
+                    postCategoryDTO.TotalSitePost++;
+                    postCategoryDTO.AverageSitePostScore += postMetric.Score;
+                }
+            }
+            foreach (var attractionMetric in attractionMetrics)
+            {
+                if (attractionCategories.TryGetValue(attractionMetric.AttractionCategoryId, out ReportSocialMediaAttractionCategoryDTO attractionCategoryDTO))
+                {
+                    attractionCategoryDTO.TotalAttraction++;
+                    attractionCategoryDTO.AverageAttractionScore += attractionMetric.Score;
+                }
+            }
+            foreach (var tourTemplateMetric in tourTemplateMetrics)
+            {
+                if (tourCategories.TryGetValue(tourTemplateMetric.TourCategoryId, out ReportSocialMediaTourCategoryDTO tourCategoryDTO))
+                {
+                    tourCategoryDTO.TotalTourTemplate++;
+                    tourCategoryDTO.AverageTourTemplateScore += tourTemplateMetric.Score;
+                }
+            }
+            foreach (var postCategory in postCategories.Values)
+            {
+                postCategory.AverageFacebookScore = postCategory.TotalFacebookPost == 0 ? 0 : postCategory.AverageFacebookScore / postCategory.TotalFacebookPost;
+                postCategory.AverageXScore = postCategory.TotalXPost == 0 ? 0 : postCategory.AverageXScore / postCategory.TotalXPost;
+                postCategory.AverageSitePostScore = postCategory.TotalSitePost == 0 ? 0 : postCategory.AverageSitePostScore / postCategory.TotalSitePost;
+                postCategory.AverageScore = (postCategory.AverageFacebookScore + postCategory.AverageXScore + postCategory.AverageSitePostScore) / 3;
+            }
+            foreach (var attractionCategory in attractionCategories.Values)
+            {
+                attractionCategory.AverageFacebookScore = attractionCategory.TotalFacebookPost == 0 ? 0 : attractionCategory.AverageFacebookScore / attractionCategory.TotalFacebookPost;
+                attractionCategory.AverageXScore = attractionCategory.TotalXPost == 0 ? 0 : attractionCategory.AverageXScore / attractionCategory.TotalXPost;
+                attractionCategory.AverageAttractionScore = attractionCategory.TotalAttraction == 0 ? 0 : attractionCategory.AverageAttractionScore / attractionCategory.TotalAttraction;
+                attractionCategory.AverageScore = (attractionCategory.AverageFacebookScore + attractionCategory.AverageXScore + attractionCategory.AverageAttractionScore) / 3;
+            }
+            foreach (var tourCategory in tourCategories.Values)
+            {
+                tourCategory.AverageFacebookScore = tourCategory.TotalFacebookPost == 0 ? 0 : tourCategory.AverageFacebookScore / tourCategory.TotalFacebookPost;
+                tourCategory.AverageXScore = tourCategory.TotalXPost == 0 ? 0 : tourCategory.AverageXScore / tourCategory.TotalXPost;
+                tourCategory.AverageTourTemplateScore = tourCategory.TotalTourTemplate == 0 ? 0 : tourCategory.AverageTourTemplateScore / tourCategory.TotalTourTemplate;
+                tourCategory.AverageScore = (tourCategory.AverageFacebookScore + tourCategory.AverageXScore + tourCategory.AverageTourTemplateScore) / 3;
+            }
+            report.AttractionCategories = attractionCategories.Values.ToList();
+            report.PostCategories = postCategories.Values.ToList();
+            report.TourTemplateCategories = tourCategories.Values.ToList();
+
+
+            return report;
+        }
+
+            #endregion
+
+            #region Helper methods
+            List<string> GetPeriodLabels(DateTime startDate, DateTime endDate)
         {
             ReportPeriod period = GetPeriod(startDate, endDate);
             List<string> periods = [];
@@ -1180,5 +1668,6 @@ namespace VietWay.Service.Management.Implement
             Quarterly,
             Yearly
         }
+        #endregion
     }
 }
