@@ -4,6 +4,7 @@ using VietWay.Service.Customer.Interface;
 using VietWay.API.Customer.ResponseModel;
 using VietWay.Repository.EntityModel;
 using VietWay.Service.Customer.DataTransferObject;
+using VietWay.Repository.EntityModel.Base;
 
 namespace VietWay.API.Customer.Controllers
 {
@@ -26,10 +27,10 @@ namespace VietWay.API.Customer.Controllers
         [Produces("application/json")]
         [ProducesResponseType<DefaultResponseModel<DefaultResponseModel<TourTemplateDetailDTO>>>(StatusCodes.Status200OK)]
         [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> GetTourTemplateById(string tourTemplateId)
+        public async Task<IActionResult> GetTourTemplateById(string tourTemplateId, [FromQuery] SocialMediaSite? socialMediaSite)
         {
             TourTemplateDetailDTO? tourTemplate = await _tourTemplateService
-                .GetTemplateByIdAsync(tourTemplateId);
+                .GetTemplateByIdAsync(tourTemplateId, socialMediaSite);
             if (tourTemplate == null)
             {
                 DefaultResponseModel<object> response = new()

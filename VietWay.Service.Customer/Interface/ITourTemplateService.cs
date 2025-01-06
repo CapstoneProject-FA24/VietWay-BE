@@ -1,4 +1,5 @@
-﻿using VietWay.Service.Customer.DataTransferObject;
+﻿using VietWay.Repository.EntityModel.Base;
+using VietWay.Service.Customer.DataTransferObject;
 namespace VietWay.Service.Customer.Interface
 {
     public interface ITourTemplateService
@@ -6,7 +7,7 @@ namespace VietWay.Service.Customer.Interface
         Task<PaginatedList<TourTemplateWithTourInfoDTO>> GetTourTemplatesWithActiveToursAsync(string? nameSearch, 
             List<string>? templateCategoryIds, List<string>? provinceIds, List<int>? numberOfDay, DateTime? startDateFrom, DateTime? startDateTo, 
             decimal? minPrice, decimal? maxPrice, int pageSize, int pageIndex);
-        Task<TourTemplateDetailDTO?> GetTemplateByIdAsync(string tourTemplateId);
+        Task<TourTemplateDetailDTO?> GetTemplateByIdAsync(string tourTemplateId, SocialMediaSite? socialMediaSite);
         public Task<List<TourTemplatePreviewDTO>> GetTourTemplatePreviewsByAttractionId(string attractionId, int previewCount);
     }
 }

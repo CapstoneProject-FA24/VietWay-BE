@@ -3,13 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using VietWay.Repository.EntityModel.Base;
 using VietWay.Service.Customer.DataTransferObject;
 
 namespace VietWay.Service.Customer.Interface
 {
     public interface IPostService
     {
-        Task<PostDetailDTO?> GetPostDetailAsync(string postId,string? customerId);
+        Task<PostDetailDTO?> GetPostDetailAsync(string postId,string? customerId, SocialMediaSite? socialMediaSite);
         public Task<PaginatedList<PostPreviewDTO>> GetCustomerLikedPostPreviewsAsync(string customerId, int pageSize, int pageIndex);
         public Task<PaginatedList<PostPreviewDTO>> GetPostPreviewsAsync(string? nameSearch, List<string>? provinceIds, 
             List<string>? postCategoryIds, string? customerId, int pageSize, int pageIndex);

@@ -47,10 +47,10 @@ namespace VietWay.API.Customer.Controllers
         [HttpGet("{postId}")]
         [Produces("application/json")]
         [ProducesResponseType<DefaultResponseModel<PostDetailDTO>>(StatusCodes.Status200OK)]
-        public async Task<IActionResult> GetPostDetailAsync(string postId)
+        public async Task<IActionResult> GetPostDetailAsync(string postId, [FromQuery] SocialMediaSite? socialMediaSite)
         {
             string? customerId = _tokenHelper.GetAccountIdFromToken(HttpContext);
-            PostDetailDTO? postDetail = await _postService.GetPostDetailAsync(postId,customerId);
+            PostDetailDTO? postDetail = await _postService.GetPostDetailAsync(postId, customerId, socialMediaSite);
             if (postDetail == null)
             {
                 return NotFound(new DefaultResponseModel<object>()
