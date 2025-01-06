@@ -2260,7 +2260,6 @@ namespace VietWay.Service.Management.Implement
                 .Query()
                 .Where(x => tourTemplateIds.Contains(x.TourTemplateId) && x.TourCategoryId.Equals(tourCategoryId))
                 .Select(x => new { x.TourTemplateId, ProvinceIds = x.TourTemplateProvinces.Select(x=>x.ProvinceId).ToList()})
-                .Distinct()
                 .ToDictionaryAsync(x => x.TourTemplateId!, x => x.ProvinceIds!);
 
             var facebookReports = await _unitOfWork.FacebookPostMetricRepository
