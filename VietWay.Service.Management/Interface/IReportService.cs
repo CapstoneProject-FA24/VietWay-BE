@@ -20,5 +20,8 @@ namespace VietWay.Service.Management.Interface
         public Task<List<ReportSocialMediaAttractionCategoryDTO>> GetSocialMediaAttractionCategoryReport(DateTime startDate, DateTime endDate);
         public Task<List<ReportSocialMediaTourCategoryDTO>> GetSocialMediaTourTemplateCategoryReport(DateTime startDate, DateTime endDate);
         public Task<ReportSocialMediaProvinceDetailDTO> GetSocialMediaProvinceDetailReport(DateTime startDate, DateTime endDate, string provinceId);
+        public Task<ReportSocialMediaAttractionCategoryDetailDTO> GetSocialMediaAttractionCategoryDetailReport(DateTime startDate, DateTime endDate, string attractionCategoryId);
+        public Task<ReportSocialMediaPostCategoryDetailDTO> GetSocialMediaPostCategoryDetailReport(DateTime startDate, DateTime endDate, string postCategoryId);
+        public Task<ReportSocialMediaTourCategoryDetailDTO> GetSocialMediaTourCategoryDetailReport(DateTime startDate, DateTime endDate, string tourCategoryId);
     }
 }

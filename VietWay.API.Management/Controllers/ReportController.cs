@@ -270,5 +270,74 @@ namespace VietWay.API.Management.Controllers
                 Message = "Success"
             });
         }
+        [HttpGet("social-media-attraction-category-detail/{attractionCategoryId}")]
+        [Produces("application/json")]
+        [Authorize(Roles = $"{nameof(UserRole.Manager)},{nameof(UserRole.Admin)}")]
+        [ProducesResponseType<DefaultResponseModel<ReportSocialMediaAttractionCategoryDetailDTO>>(StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetSocialMediaAttractionCategoryDetailAsync(DateTime startDate, DateTime endDate, string attractionCategoryId)
+        {
+            if (startDate > endDate)
+            {
+                return BadRequest(new DefaultResponseModel<string>
+                {
+                    Message = "START_DATE_MUST_BE_BEFORE_END_DATE",
+                    StatusCode = StatusCodes.Status400BadRequest
+                });
+            }
+            startDate = startDate.Date;
+            endDate = endDate.Date.AddDays(1).AddSeconds(-1);
+            return Ok(new DefaultResponseModel<ReportSocialMediaAttractionCategoryDetailDTO>
+            {
+                Data = await _reportService.GetSocialMediaAttractionCategoryDetailReport(startDate, endDate, attractionCategoryId),
+                StatusCode = StatusCodes.Status200OK,
+                Message = "Success"
+            });
+        }
+        [HttpGet("social-media-post-category-detail/{postCategoryId}")]
+        [Produces("application/json")]
+        [Authorize(Roles = $"{nameof(UserRole.Manager)},{nameof(UserRole.Admin)}")]
+        [ProducesResponseType<DefaultResponseModel<ReportSocialMediaPostCategoryDetailDTO>>(StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetSocialMediaPostCategoryDetailAsync(DateTime startDate, DateTime endDate, string postCategoryId)
+        {
+            if (startDate > endDate)
+            {
+                return BadRequest(new DefaultResponseModel<string>
+                {
+                    Message = "START_DATE_MUST_BE_BEFORE_END_DATE",
+                    StatusCode = StatusCodes.Status400BadRequest
+                });
+            }
+            startDate = startDate.Date;
+            endDate = endDate.Date.AddDays(1).AddSeconds(-1);
+            return Ok(new DefaultResponseModel<ReportSocialMediaPostCategoryDetailDTO>
+            {
+                Data = await _reportService.GetSocialMediaPostCategoryDetailReport(startDate, endDate, postCategoryId),
+                StatusCode = StatusCodes.Status200OK,
+                Message = "Success"
+            });
+        }
+        [HttpGet("social-media-tour-category-detail/{tourCategoryId}")]
+        [Produces("application/json")]
+        [Authorize(Roles = $"{nameof(UserRole.Manager)},{nameof(UserRole.Admin)}")]
+        [ProducesResponseType<DefaultResponseModel<ReportSocialMediaTourCategoryDetailDTO>>(StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetSocialMediaTourCategoryDetailAsync(DateTime startDate, DateTime endDate, string tourCategoryId)
+        {
+            if (startDate > endDate)
+            {
+                return BadRequest(new DefaultResponseModel<string>
+                {
+                    Message = "START_DATE_MUST_BE_BEFORE_END_DATE",
+                    StatusCode = StatusCodes.Status400BadRequest
+                });
+            }
+            startDate = startDate.Date;
+            endDate = endDate.Date.AddDays(1).AddSeconds(-1);
+            return Ok(new DefaultResponseModel<ReportSocialMediaTourCategoryDetailDTO>
+            {
+                Data = await _reportService.GetSocialMediaTourCategoryDetailReport(startDate, endDate, tourCategoryId),
+                StatusCode = StatusCodes.Status200OK,
+                Message = "Success"
+            });
+        }
     }
 }
