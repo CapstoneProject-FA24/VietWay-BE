@@ -1,19 +1,22 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using IdGen;
+using Microsoft.EntityFrameworkCore;
 using VietWay.Repository.EntityModel;
 using VietWay.Repository.EntityModel.Base;
 using VietWay.Repository.UnitOfWork;
 using VietWay.Service.Customer.DataTransferObject;
 using VietWay.Service.Customer.Interface;
+using VietWay.Service.ThirdParty.Redis;
 using VietWay.Util.CustomExceptions;
 
 namespace VietWay.Service.Customer.Implementation
 {
-    public class AttractionService(IUnitOfWork unitOfWork) : IAttractionService
+    public class AttractionService(IUnitOfWork unitOfWork, IRedisCacheService redisCacheService) : IAttractionService
     {
         private readonly IUnitOfWork _unitOfWork = unitOfWork;
-        public async Task<AttractionDetailDTO?> GetAttractionDetailByIdAsync(string attractionId, string? customerId)
+        private readonly IRedisCacheService _redisCacheService = redisCacheService;
+        public async Task<AttractionDetailDTO?> GetAttractionDetailByIdAsync(string attractionId, string? customerId, SocialMediaSite? socialMediaSite)
         {
-            return await _unitOfWork.AttractionRepository
+            AttractionDetailDTO attraction = await _unitOfWork.AttractionRepository
                 .Query()
                 .Where(x => x.AttractionId.Equals(attractionId) && x.Status == AttractionStatus.Approved && x.IsDeleted == false)
                 .Select(x => new AttractionDetailDTO
@@ -50,7 +53,30 @@ namespace VietWay.Service.Customer.Implementation
                     LikeCount = x.AttractionLikes.Count(),
                     IsLiked = customerId != null && x.AttractionLikes.Any(x => x.CustomerId.Equals(customerId))
                 })
-                .SingleOrDefaultAsync();
+                .SingleOrDefaultAsync() ?? throw new ResourceNotFoundException("NOT_EXISTED_ATTRACTION");
+
+            try
+            {
+                if (socialMediaSite != null)
+                {
+                    if (socialMediaSite != SocialMediaSite.Vietway)
+                    {
+                        SocialMediaPost socialMediaPost = await _unitOfWork.SocialMediaPostRepository.Query()
+                        .FirstOrDefaultAsync(x => x.EntityId == attractionId && x.EntityType == SocialMediaPostEntity.Attraction && x.Site == socialMediaSite) ??
+                        throw new ResourceNotFoundException("NOT_EXISTED_SOCIAL_MEDIA_POST");
+                    }
+
+                    int count = await _redisCacheService.GetAsync<int>($"{(int)SocialMediaPostEntity.Attraction}-{attractionId}-{(int)socialMediaSite}");
+                    _redisCacheService.SetAsync($"{(int)SocialMediaPostEntity.Attraction}-{attractionId}-{(int)socialMediaSite}", ++count, TimeSpan.FromDays(1));
+                }
+
+            }
+            catch
+            {
+                throw;
+            }
+
+            return attraction;
         }
 
         public async Task<PaginatedList<AttractionPreviewDTO>> GetAttractionsPreviewAsync(string? nameSearch, List<string>? provinceIds, 

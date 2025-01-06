@@ -107,6 +107,7 @@
     {
         Facebook,
         Twitter,
+        Vietway
     }
     public enum SocialMediaPostEntity
     {

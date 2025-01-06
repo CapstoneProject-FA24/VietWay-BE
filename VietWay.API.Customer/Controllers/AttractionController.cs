@@ -51,10 +51,10 @@ namespace VietWay.API.Customer.Controllers
         [Produces("application/json")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(DefaultResponseModel<object>))]
         [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(DefaultResponseModel<object>))]
-        public async Task<IActionResult> GetAttractionById(string attractionId)
+        public async Task<IActionResult> GetAttractionById(string attractionId, [FromQuery] SocialMediaSite? socialMediaSite)
         {
             string? customerId = _tokenHelper.GetAccountIdFromToken(HttpContext);
-            AttractionDetailDTO? attractionDetailDTO = await _attractionService.GetAttractionDetailByIdAsync(attractionId,customerId);
+            AttractionDetailDTO? attractionDetailDTO = await _attractionService.GetAttractionDetailByIdAsync(attractionId, customerId, socialMediaSite);
             if (attractionDetailDTO == null)
             {
                 return NotFound(new DefaultResponseModel<object>
