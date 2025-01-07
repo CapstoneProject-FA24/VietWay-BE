@@ -114,4 +114,10 @@
         TourTemplate,
         Post
     }
+    public enum CategoryType
+    {
+        Attraction, //0
+        Tour,      //1
+        Post       //2
+    }
 }

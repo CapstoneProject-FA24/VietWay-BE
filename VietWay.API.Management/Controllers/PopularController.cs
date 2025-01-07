@@ -24,10 +24,24 @@ namespace VietWay.API.Management.Controllers
         [Produces("application/json")]
         [ProducesResponseType<DefaultResponseModel<List<PopularProvinceDTO>>>(StatusCodes.Status200OK)]
         [ProducesResponseType<DefaultResponseModel<string>>(StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> GetPopularProvinces()
+        public async Task<IActionResult> GetPopularProvinces(string? categoryId, int? categoryType)
         {
-            var provinces = await _popularService.GetPopularProvincesAsync();
-            
+            List<PopularProvinceDTO> provinces;
+            switch (categoryType)
+            {
+                case 0: //AttractionCategory
+                    provinces = await _popularService.GetPopularProvincesAsync();
+                    break;
+                case 1: //TourCategory
+                    provinces = await _popularService.GetPopularProvincesAsync();
+                    break;
+                case 2: //PostCategory
+                    provinces = await _popularService.GetPopularProvincesAsync();
+                    break;
+                default:
+                    provinces = await _popularService.GetPopularProvincesAsync();
+                    break;
+            }
             return Ok(new DefaultResponseModel<List<PopularProvinceDTO>>
             {
                 Message = "Get popular provinces successfully",
