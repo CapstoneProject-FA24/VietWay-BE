@@ -11,13 +11,15 @@ using VietWay.Service.Customer.DataTransferObject;
 using VietWay.Service.Customer.Interface;
 using VietWay.Util.CustomExceptions;
 using VietWay.Util.DateTimeUtil;
+using VietWay.Service.ThirdParty.Redis;
 
 namespace VietWay.Service.Customer.Implementation
 {
-    public class PostService(IUnitOfWork unitOfWork, ITimeZoneHelper timeZoneHelper) : IPostService
+    public class PostService(IUnitOfWork unitOfWork, ITimeZoneHelper timeZoneHelper, IRedisCacheService redisCacheService) : IPostService
     {
         private readonly IUnitOfWork _unitOfWork = unitOfWork;
         private readonly ITimeZoneHelper _timeZoneHelper = timeZoneHelper;
+        private readonly IRedisCacheService _redisCacheService = redisCacheService;
 
         public async Task<PaginatedList<PostPreviewDTO>> GetCustomerLikedPostPreviewsAsync(string customerId, int pageSize, int pageIndex)
         {
@@ -48,9 +50,9 @@ namespace VietWay.Service.Customer.Implementation
             };
         }
 
-        public async Task<PostDetailDTO?> GetPostDetailAsync(string postId, string? customerId)
+        public async Task<PostDetailDTO?> GetPostDetailAsync(string postId, string? customerId, SocialMediaSite? socialMediaSite)
         {
-            return await _unitOfWork.PostRepository.Query()
+            PostDetailDTO post = await _unitOfWork.PostRepository.Query()
                 .Select(x => new PostDetailDTO
                 {
                     PostId = x.PostId,
@@ -66,6 +68,29 @@ namespace VietWay.Service.Customer.Implementation
                     IsLiked = customerId != null && x.PostLikes.Any(y => y.CustomerId.Equals(customerId))
                 })
                 .SingleOrDefaultAsync(x => x.PostId.Equals(postId));
+
+            try
+            {
+                if (socialMediaSite != null)
+                {
+                    if (socialMediaSite != SocialMediaSite.Vietway)
+                    {
+                        SocialMediaPost socialMediaPost = await _unitOfWork.SocialMediaPostRepository.Query()
+                        .FirstOrDefaultAsync(x => x.EntityId == postId && x.EntityType == SocialMediaPostEntity.TourTemplate && x.Site == socialMediaSite) ??
+                        throw new ResourceNotFoundException("NOT_EXISTED_SOCIAL_MEDIA_POST");
+                    }
+
+                    int count = await _redisCacheService.GetAsync<int>($"{(int)SocialMediaPostEntity.Post}-{postId}-{(int)socialMediaSite}");
+                    _redisCacheService.SetAsync($"{(int)SocialMediaPostEntity.Post}-{postId}-{(int)socialMediaSite}", ++count, TimeSpan.FromDays(1));
+                }
+
+            }
+            catch
+            {
+                throw;
+            }
+
+            return post;
         }
 
         public async Task<PaginatedList<PostPreviewDTO>> GetPostPreviewsAsync(string? nameSearch, List<string>? provinceIds, 
