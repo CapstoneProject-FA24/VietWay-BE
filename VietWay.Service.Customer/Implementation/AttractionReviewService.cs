@@ -134,7 +134,8 @@ namespace VietWay.Service.Customer.Implementation
                     await _unitOfWork.AttractionReviewLikeRepository.CreateAsync(new AttractionReviewLike
                     {
                         CustomerId = customerId,
-                        ReviewId = reviewId
+                        ReviewId = reviewId,
+                        CreatedAt = _timeZoneHelper.GetUTC7Now()
                     });
                 }
                 else if (null != attractionReviewLike && false == isLike)

@@ -63,5 +63,10 @@ namespace VietWay.Service.ThirdParty.Redis
         {
             return await _database.StringGetAsync($"int32Id:{id}");
         }
+
+        public async Task IncrementAsync(string key)
+        {
+            _ = await _database.StringIncrementAsync(key);
+        }
     }
 }

@@ -19,7 +19,7 @@ namespace VietWay.Repository.UnitOfWork
         private IGenericRepository<AttractionReviewLike>? attractionReviewLikeRepository;
         private IGenericRepository<Booking>? bookingRepository;
         private IGenericRepository<BookingPayment>? bookingPaymentRepository;
-        private IGenericRepository<BookingRefund> bookingRefundRepository;
+        private IGenericRepository<BookingRefund>? bookingRefundRepository;
         private IGenericRepository<Customer>? customerRepository;
         private IGenericRepository<EntityHistory>? entityHistoryRepository;
         private IGenericRepository<EntityStatusHistory>? entityStatusHistoryRepository;
@@ -36,8 +36,14 @@ namespace VietWay.Repository.UnitOfWork
         private IGenericRepository<TourReview>? tourReviewRepository;
         private IGenericRepository<TourTemplate>? tourTemplateRepository;
         private IGenericRepository<TourTemplateProvince>? tourTemplateProvinceRepository;
-        private IGenericRepository<TourPrice> tourPriceRepository;
-        private IGenericRepository<TourRefundPolicy> tourRefundPolicyRepository;
+        private IGenericRepository<TourPrice>? tourPriceRepository;
+        private IGenericRepository<TourRefundPolicy>? tourRefundPolicyRepository;
+        private IGenericRepository<FacebookPostMetric>? facebookPostMetricRepository;
+        private IGenericRepository<SocialMediaPost>? socialMediaPostRepository;
+        private IGenericRepository<TwitterPostMetric>? twitterPostMetricRepository;
+        private IGenericRepository<AttractionMetric>? attractionMetricRepository;
+        private IGenericRepository<PostMetric>? postMetricRepository;
+        private IGenericRepository<TourTemplateMetric>? tourTemplateMetricRepository;
 
         public IGenericRepository<Account> AccountRepository
         {
@@ -274,6 +280,59 @@ namespace VietWay.Repository.UnitOfWork
             {
                 bookingRefundRepository ??= new GenericRepository<BookingRefund>(_dbContext);
                 return bookingRefundRepository;
+            }
+        }
+
+        public IGenericRepository<FacebookPostMetric> FacebookPostMetricRepository{
+            get
+            {
+                facebookPostMetricRepository ??= new GenericRepository<FacebookPostMetric>(_dbContext);
+                return facebookPostMetricRepository;
+            }
+        }
+
+        public IGenericRepository<SocialMediaPost> SocialMediaPostRepository
+        { 
+            get
+            {
+                socialMediaPostRepository ??= new GenericRepository<SocialMediaPost>(_dbContext);
+                return socialMediaPostRepository;
+            }
+        }
+
+        public IGenericRepository<TwitterPostMetric> TwitterPostMetricRepository
+        {
+            get
+            {
+                twitterPostMetricRepository ??= new GenericRepository<TwitterPostMetric>(_dbContext);
+                return twitterPostMetricRepository;
+            }
+        }
+
+        public IGenericRepository<AttractionMetric> AttractionMetricRepository
+        {
+            get
+            {
+                attractionMetricRepository ??= new GenericRepository<AttractionMetric>(_dbContext);
+                return attractionMetricRepository;
+            }
+        }
+
+        public IGenericRepository<PostMetric> PostMetricRepository
+        {
+            get
+            {
+                postMetricRepository ??= new GenericRepository<PostMetric>(_dbContext);
+                return postMetricRepository;
+            }
+        }
+
+        public IGenericRepository<TourTemplateMetric> TourTemplateMetricRepository
+        {
+            get
+            {
+                tourTemplateMetricRepository ??= new GenericRepository<TourTemplateMetric>(_dbContext);
+                return tourTemplateMetricRepository;
             }
         }
 

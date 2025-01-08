@@ -19,7 +19,7 @@ using VietWay.Util.IdUtil;
 
 namespace VietWay.Service.Management.Implement
 {
-    public class PostService(IUnitOfWork unitOfWork, 
+    public class PostService(IUnitOfWork unitOfWork,
         ITimeZoneHelper timeZoneHelper,
         ICloudinaryService cloudinaryService,
         IIdGenerator idGenerator, IBackgroundJobClient backgroundJobClient) : IPostService
@@ -161,28 +161,39 @@ namespace VietWay.Service.Management.Implement
         }
         public async Task<PostDetailDTO?> GetPostByIdAsync(string postId)
         {
-            return await _unitOfWork.PostRepository
+            PostDetailDTO post = await _unitOfWork.PostRepository
+            .Query()
+            .Where(x => x.PostId.Equals(postId))
+            .Include(x => x.Province)
+            .Include(x => x.PostCategory)
+            .Select(x => new PostDetailDTO
+            {
+                PostId = x.PostId,
+                Title = x.Title,
+                ImageUrl = x.ImageUrl,
+                Content = x.Content,
+                CreateAt = x.CreatedAt,
+                PostCategoryId = x.PostCategoryId,
+                PostCategoryName = x.PostCategory.Name,
+                ProvinceId = x.ProvinceId,
+                ProvinceName = x.Province.Name,
+                Description = x.Description,
+                Status = x.Status,
+            })
+            .SingleOrDefaultAsync();
+
+            post.SocialPostDetail = await _unitOfWork.SocialMediaPostRepository
                 .Query()
-                .Where(x => x.PostId.Equals(postId))
-                .Include(x => x.Province)
-                .Include(x => x.PostCategory)
-                .Select(x => new PostDetailDTO
+                .Where(x => x.EntityType == SocialMediaPostEntity.Post && x.PostId == postId)
+                .Select(x => new SocialPostDetailDTO
                 {
-                    PostId = x.PostId,
-                    Title = x.Title,
-                    ImageUrl = x.ImageUrl,
-                    Content = x.Content,
-                    CreateAt = x.CreatedAt,
-                    PostCategoryId = x.PostCategoryId,
-                    PostCategoryName = x.PostCategory.Name,
-                    ProvinceId = x.ProvinceId,
-                    ProvinceName = x.Province.Name,
-                    Description = x.Description,
-                    Status = x.Status,
-                    XTweetId = x.XTweetId,
-                    FacebookPostId = x.FacebookPostId
+                    SocialPostId = x.SocialPostId,
+                    Site = x.Site,
+                    CreatedAt = x.CreatedAt,
                 })
-                .SingleOrDefaultAsync();
+                .ToListAsync();
+
+            return post;
         }
 
         public async Task ChangePostStatusAsync(string postId, string accountId, PostStatus postStatus, string? reason)

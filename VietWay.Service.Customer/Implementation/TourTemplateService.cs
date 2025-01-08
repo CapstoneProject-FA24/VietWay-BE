@@ -9,14 +9,17 @@ using VietWay.Repository.EntityModel.Base;
 using VietWay.Repository.UnitOfWork;
 using VietWay.Service.Customer.DataTransferObject;
 using VietWay.Service.Customer.Interface;
+using VietWay.Service.ThirdParty.Redis;
+using VietWay.Util.CustomExceptions;
 using VietWay.Util.DateTimeUtil;
 
 namespace VietWay.Service.Customer.Implementation
 {
-    public class TourTemplateService(IUnitOfWork unitOfWork, ITimeZoneHelper timeZoneHelper) : ITourTemplateService
+    public class TourTemplateService(IUnitOfWork unitOfWork, ITimeZoneHelper timeZoneHelper, IRedisCacheService redisCacheService) : ITourTemplateService
     {
         private readonly IUnitOfWork _unitOfWork = unitOfWork;
         private readonly ITimeZoneHelper _timeZoneHelper = timeZoneHelper;
+        private readonly IRedisCacheService _redisCacheService = redisCacheService;
         public async Task<PaginatedList<TourTemplateWithTourInfoDTO>> GetTourTemplatesWithActiveToursAsync(string? nameSearch, 
             List<string>? templateCategoryIds,  List<string>? provinceIds, List<int>? numberOfDay, DateTime? startDateFrom, DateTime? startDateTo, 
             decimal? minPrice, decimal? maxPrice, int pageSize, int pageIndex)
@@ -89,9 +92,9 @@ namespace VietWay.Service.Customer.Implementation
             };
         }
 
-        public async Task<TourTemplateDetailDTO?> GetTemplateByIdAsync(string tourTemplateId)
+        public async Task<TourTemplateDetailDTO?> GetTemplateByIdAsync(string tourTemplateId, SocialMediaSite? socialMediaSite)
         {
-            return await _unitOfWork.TourTemplateRepository.Query()
+            TourTemplateDetailDTO tourTemplateDetailDTO = await _unitOfWork.TourTemplateRepository.Query()
                 .Where(x => x.TourTemplateId == tourTemplateId && false == x.IsDeleted && TourTemplateStatus.Approved == x.Status)
                 .Select(x => new TourTemplateDetailDTO()
                 {
@@ -151,6 +154,20 @@ namespace VietWay.Service.Customer.Implementation
                         }).ToList(),
                     Transportation = x.Transportation
                 }).SingleOrDefaultAsync();
+
+            switch (socialMediaSite)
+            {
+                case SocialMediaSite.Facebook:
+                    await _redisCacheService.IncrementAsync($"facebookReferrence-{SocialMediaPostEntity.TourTemplate}-{tourTemplateId}");
+                    break;
+                case SocialMediaSite.Twitter:
+                    await _redisCacheService.IncrementAsync($"twitterReferrence-{SocialMediaPostEntity.TourTemplate}-{tourTemplateId}");
+                    break;
+                default:
+                    await _redisCacheService.IncrementAsync($"siteReferrence-{SocialMediaPostEntity.TourTemplate}-{tourTemplateId}");
+                    break;
+            }
+            return tourTemplateDetailDTO;
         }
         public Task<List<TourTemplatePreviewDTO>> GetTourTemplatePreviewsByAttractionId(string attractionId, int previewCount)
         {

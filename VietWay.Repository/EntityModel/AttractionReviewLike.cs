@@ -12,7 +12,7 @@ namespace VietWay.Repository.EntityModel
         [StringLength(20)]
         [Required]
         public string? CustomerId { get; set; }
-
+        public required DateTime CreatedAt { get; set; }
         public virtual AttractionReview? AttractionReview { get; set; }
         public virtual Customer? Customer { get; set; }
     }

@@ -174,11 +174,233 @@ namespace VietWay.Repository.Migrations
                     b.Property<string>("CustomerId")
                         .HasColumnType("nvarchar(20)");
 
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
                     b.HasKey("AttractionId", "CustomerId");
 
                     b.HasIndex("CustomerId");
 
                     b.ToTable("AttractionLike");
+                });
+
+            modelBuilder.Entity("VietWay.Repository.EntityModel.AttractionMetric", b =>
+                {
+                    b.Property<string>("MetricId")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<string>("AttractionId")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("New1StarRatingCount")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("New1StarRatingLikeCount")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("New2StarRatingCount")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("New2StarRatingLikeCount")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("New3StarRatingCount")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("New3StarRatingLikeCount")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("New4StarRatingCount")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("New4StarRatingLikeCount")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("New5StarRatingCount")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("New5StarRatingLikeCount")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("NewFacebookReferralCount")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("NewLikeCount")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("NewViewCount")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("NewXReferralCount")
+                        .HasColumnType("int");
+
+                    b.Property<decimal?>("Score")
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("decimal(18,2)");
+
+                    b.HasKey("MetricId");
+
+                    b.HasIndex("AttractionId");
+
+                    b.ToTable("AttractionMetric");
+                });
+
+            modelBuilder.Entity("VietWay.Repository.EntityModel.AttractionReport", b =>
+                {
+                    b.Property<string>("ReportId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("AttractionCategoryId")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<double>("AverageScore")
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("float");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("FacebookAngerCount")
+                        .HasColumnType("int");
+
+                    b.Property<double>("FacebookCTR")
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("float");
+
+                    b.Property<int>("FacebookClickCount")
+                        .HasColumnType("int");
+
+                    b.Property<int>("FacebookCommentCount")
+                        .HasColumnType("int");
+
+                    b.Property<int>("FacebookHahaCount")
+                        .HasColumnType("int");
+
+                    b.Property<int>("FacebookImpressionCount")
+                        .HasColumnType("int");
+
+                    b.Property<int>("FacebookLikeCount")
+                        .HasColumnType("int");
+
+                    b.Property<int>("FacebookLoveCount")
+                        .HasColumnType("int");
+
+                    b.Property<int>("FacebookReactionCount")
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("int");
+
+                    b.Property<int>("FacebookReferralCount")
+                        .HasColumnType("int");
+
+                    b.Property<double>("FacebookScore")
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("float");
+
+                    b.Property<int>("FacebookShareCount")
+                        .HasColumnType("int");
+
+                    b.Property<int>("FacebookSorryCount")
+                        .HasColumnType("int");
+
+                    b.Property<int>("FacebookWowCount")
+                        .HasColumnType("int");
+
+                    b.Property<int>("FiveStarRatingCount")
+                        .HasColumnType("int");
+
+                    b.Property<int>("FiveStarRatingLikeCount")
+                        .HasColumnType("int");
+
+                    b.Property<int>("FourStarRatingCount")
+                        .HasColumnType("int");
+
+                    b.Property<int>("FourStarRatingLikeCount")
+                        .HasColumnType("int");
+
+                    b.Property<int>("OneStarRatingCount")
+                        .HasColumnType("int");
+
+                    b.Property<int>("OneStarRatingLikeCount")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ProvinceId")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<string>("ReportLabel")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("ReportPeriod")
+                        .HasColumnType("int");
+
+                    b.Property<int>("SiteLikeCount")
+                        .HasColumnType("int");
+
+                    b.Property<int>("SiteReferralCount")
+                        .HasColumnType("int");
+
+                    b.Property<double>("SiteScore")
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("float");
+
+                    b.Property<int>("ThreeStarRatingCount")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ThreeStarRatingLikeCount")
+                        .HasColumnType("int");
+
+                    b.Property<int>("TwoStarRatingCount")
+                        .HasColumnType("int");
+
+                    b.Property<int>("TwoStarRatingLikeCount")
+                        .HasColumnType("int");
+
+                    b.Property<int>("XBookmarkCount")
+                        .HasColumnType("int");
+
+                    b.Property<double>("XCTR")
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("float");
+
+                    b.Property<int>("XImpressionCount")
+                        .HasColumnType("int");
+
+                    b.Property<int>("XLikeCount")
+                        .HasColumnType("int");
+
+                    b.Property<int>("XQuoteCount")
+                        .HasColumnType("int");
+
+                    b.Property<int>("XReferralCount")
+                        .HasColumnType("int");
+
+                    b.Property<int>("XReplyCount")
+                        .HasColumnType("int");
+
+                    b.Property<int>("XRetweetCount")
+                        .HasColumnType("int");
+
+                    b.Property<double>("XScore")
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("float");
+
+                    b.HasKey("ReportId");
+
+                    b.HasIndex("AttractionCategoryId");
+
+                    b.HasIndex("ProvinceId");
+
+                    b.ToTable("AttractionReport");
                 });
 
             modelBuilder.Entity("VietWay.Repository.EntityModel.AttractionReview", b =>
@@ -228,6 +450,9 @@ namespace VietWay.Repository.Migrations
                     b.Property<string>("CustomerId")
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
 
                     b.HasKey("ReviewId", "CustomerId");
 
@@ -534,6 +759,176 @@ namespace VietWay.Repository.Migrations
                     b.ToTable("EntityStatusHistory");
                 });
 
+            modelBuilder.Entity("VietWay.Repository.EntityModel.FacebookPostMetric", b =>
+                {
+                    b.Property<string>("MetricId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int?>("AngerCount")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("CommentCount")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("HahaCount")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("ImpressionCount")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("LikeCount")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("LoveCount")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("PostClickCount")
+                        .HasColumnType("int");
+
+                    b.Property<decimal?>("Score")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int?>("ShareCount")
+                        .HasColumnType("int");
+
+                    b.Property<string>("SocialPostId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int?>("SorryCount")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("WowCount")
+                        .HasColumnType("int");
+
+                    b.HasKey("MetricId");
+
+                    b.HasIndex("SocialPostId");
+
+                    b.ToTable("FacebookPostMetric");
+                });
+
+            modelBuilder.Entity("VietWay.Repository.EntityModel.Hashtag", b =>
+                {
+                    b.Property<string>("HashtagId")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("HashtagName")
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
+
+                    b.HasKey("HashtagId");
+
+                    b.ToTable("Hashtag");
+                });
+
+            modelBuilder.Entity("VietWay.Repository.EntityModel.HashtagReport", b =>
+                {
+                    b.Property<string>("ReportId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("FacebookAngerCount")
+                        .HasColumnType("int");
+
+                    b.Property<double>("FacebookCTR")
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("float");
+
+                    b.Property<int>("FacebookClickCount")
+                        .HasColumnType("int");
+
+                    b.Property<int>("FacebookCommentCount")
+                        .HasColumnType("int");
+
+                    b.Property<int>("FacebookHahaCount")
+                        .HasColumnType("int");
+
+                    b.Property<int>("FacebookImpressionCount")
+                        .HasColumnType("int");
+
+                    b.Property<int>("FacebookLikeCount")
+                        .HasColumnType("int");
+
+                    b.Property<int>("FacebookLoveCount")
+                        .HasColumnType("int");
+
+                    b.Property<int>("FacebookReactionCount")
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("int");
+
+                    b.Property<int>("FacebookReferralCount")
+                        .HasColumnType("int");
+
+                    b.Property<double>("FacebookScore")
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("float");
+
+                    b.Property<int>("FacebookShareCount")
+                        .HasColumnType("int");
+
+                    b.Property<int>("FacebookSorryCount")
+                        .HasColumnType("int");
+
+                    b.Property<int>("FacebookWowCount")
+                        .HasColumnType("int");
+
+                    b.Property<string>("HashtagId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<string>("ReportLabel")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("ReportPeriod")
+                        .HasColumnType("int");
+
+                    b.Property<int>("XBookmarkCount")
+                        .HasColumnType("int");
+
+                    b.Property<double>("XCTR")
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("float");
+
+                    b.Property<int>("XImpressionCount")
+                        .HasColumnType("int");
+
+                    b.Property<int>("XLikeCount")
+                        .HasColumnType("int");
+
+                    b.Property<int>("XQuoteCount")
+                        .HasColumnType("int");
+
+                    b.Property<int>("XReferralCount")
+                        .HasColumnType("int");
+
+                    b.Property<int>("XReplyCount")
+                        .HasColumnType("int");
+
+                    b.Property<int>("XRetweetCount")
+                        .HasColumnType("int");
+
+                    b.Property<double>("XScore")
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("float");
+
+                    b.HasKey("ReportId");
+
+                    b.HasIndex("HashtagId");
+
+                    b.ToTable("HashtagReport");
+                });
+
             modelBuilder.Entity("VietWay.Repository.EntityModel.Manager", b =>
                 {
                     b.Property<string>("ManagerId")
@@ -568,9 +963,6 @@ namespace VietWay.Repository.Migrations
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("FacebookPostId")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("ImageUrl")
                         .HasColumnType("nvarchar(max)");
 
@@ -587,9 +979,6 @@ namespace VietWay.Repository.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("Title")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("XTweetId")
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("PostId");
@@ -636,11 +1025,171 @@ namespace VietWay.Repository.Migrations
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
 
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
                     b.HasKey("PostId", "CustomerId");
 
                     b.HasIndex("CustomerId");
 
                     b.ToTable("PostLike");
+                });
+
+            modelBuilder.Entity("VietWay.Repository.EntityModel.PostMetric", b =>
+                {
+                    b.Property<string>("MetricId")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("NewFacebookReferralCount")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("NewSaveCount")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("NewViewCount")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("NewXReferralCount")
+                        .HasColumnType("int");
+
+                    b.Property<string>("PostId")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<decimal?>("Score")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.HasKey("MetricId");
+
+                    b.HasIndex("PostId");
+
+                    b.ToTable("PostMetric");
+                });
+
+            modelBuilder.Entity("VietWay.Repository.EntityModel.PostReport", b =>
+                {
+                    b.Property<string>("ReportId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<double>("AverageScore")
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("float");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("FacebookAngerCount")
+                        .HasColumnType("int");
+
+                    b.Property<double>("FacebookCTR")
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("float");
+
+                    b.Property<int>("FacebookClickCount")
+                        .HasColumnType("int");
+
+                    b.Property<int>("FacebookCommentCount")
+                        .HasColumnType("int");
+
+                    b.Property<int>("FacebookHahaCount")
+                        .HasColumnType("int");
+
+                    b.Property<int>("FacebookImpressionCount")
+                        .HasColumnType("int");
+
+                    b.Property<int>("FacebookLikeCount")
+                        .HasColumnType("int");
+
+                    b.Property<int>("FacebookLoveCount")
+                        .HasColumnType("int");
+
+                    b.Property<int>("FacebookReactionCount")
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("int");
+
+                    b.Property<int>("FacebookReferralCount")
+                        .HasColumnType("int");
+
+                    b.Property<double>("FacebookScore")
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("float");
+
+                    b.Property<int>("FacebookShareCount")
+                        .HasColumnType("int");
+
+                    b.Property<int>("FacebookSorryCount")
+                        .HasColumnType("int");
+
+                    b.Property<int>("FacebookWowCount")
+                        .HasColumnType("int");
+
+                    b.Property<string>("PostCategoryId")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<string>("ProvinceId")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<string>("ReportLabel")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("ReportPeriod")
+                        .HasColumnType("int");
+
+                    b.Property<int>("SiteLikeCount")
+                        .HasColumnType("int");
+
+                    b.Property<int>("SiteReferralCount")
+                        .HasColumnType("int");
+
+                    b.Property<double>("SiteScore")
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("float");
+
+                    b.Property<int>("XBookmarkCount")
+                        .HasColumnType("int");
+
+                    b.Property<double>("XCTR")
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("float");
+
+                    b.Property<int>("XImpressionCount")
+                        .HasColumnType("int");
+
+                    b.Property<int>("XLikeCount")
+                        .HasColumnType("int");
+
+                    b.Property<int>("XQuoteCount")
+                        .HasColumnType("int");
+
+                    b.Property<int>("XReferralCount")
+                        .HasColumnType("int");
+
+                    b.Property<int>("XReplyCount")
+                        .HasColumnType("int");
+
+                    b.Property<int>("XRetweetCount")
+                        .HasColumnType("int");
+
+                    b.Property<double>("XScore")
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("float");
+
+                    b.HasKey("ReportId");
+
+                    b.HasIndex("PostCategoryId");
+
+                    b.HasIndex("ProvinceId");
+
+                    b.ToTable("PostReport");
                 });
 
             modelBuilder.Entity("VietWay.Repository.EntityModel.Province", b =>
@@ -672,6 +1221,56 @@ namespace VietWay.Repository.Migrations
                     b.HasKey("ProvinceId");
 
                     b.ToTable("Province");
+                });
+
+            modelBuilder.Entity("VietWay.Repository.EntityModel.SocialMediaPost", b =>
+                {
+                    b.Property<string>("SocialPostId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("AttractionId")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("EntityType")
+                        .HasColumnType("int");
+
+                    b.Property<string>("PostId")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<int>("Site")
+                        .HasColumnType("int");
+
+                    b.Property<string>("TourTemplateId")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.HasKey("SocialPostId");
+
+                    b.HasIndex("AttractionId");
+
+                    b.HasIndex("PostId");
+
+                    b.HasIndex("TourTemplateId");
+
+                    b.ToTable("SocialMediaPost");
+                });
+
+            modelBuilder.Entity("VietWay.Repository.EntityModel.SocialMediaPostHashtag", b =>
+                {
+                    b.Property<string>("SocialPostId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("HashtagId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("SocialPostId", "HashtagId");
+
+                    b.ToTable("SocialMediaPostHashtag");
                 });
 
             modelBuilder.Entity("VietWay.Repository.EntityModel.Staff", b =>
@@ -981,6 +1580,59 @@ namespace VietWay.Repository.Migrations
                     b.ToTable("TourTemplateImage");
                 });
 
+            modelBuilder.Entity("VietWay.Repository.EntityModel.TourTemplateMetric", b =>
+                {
+                    b.Property<string>("MetricId")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("New1StarRatingCount")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("New2StarRatingCount")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("New3StarRatingCount")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("New4StarRatingCount")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("New5StarRatingCount")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("NewBookingCount")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("NewCancellationCount")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("NewFacebookReferralCount")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("NewViewCount")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("NewXReferralCount")
+                        .HasColumnType("int");
+
+                    b.Property<decimal?>("Score")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("TourTemplateId")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.HasKey("MetricId");
+
+                    b.HasIndex("TourTemplateId");
+
+                    b.ToTable("TourTemplateMetric");
+                });
+
             modelBuilder.Entity("VietWay.Repository.EntityModel.TourTemplateProvince", b =>
                 {
                     b.Property<string>("TourTemplateId")
@@ -994,6 +1646,149 @@ namespace VietWay.Repository.Migrations
                     b.HasIndex("ProvinceId");
 
                     b.ToTable("TourTemplateProvince");
+                });
+
+            modelBuilder.Entity("VietWay.Repository.EntityModel.TourTemplateReport", b =>
+                {
+                    b.Property<string>("ReportId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<double>("AverageScore")
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("float");
+
+                    b.Property<int>("BookingCount")
+                        .HasColumnType("int");
+
+                    b.Property<int>("CancellationCount")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("FacebookAngerCount")
+                        .HasColumnType("int");
+
+                    b.Property<double>("FacebookCTR")
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("float");
+
+                    b.Property<int>("FacebookClickCount")
+                        .HasColumnType("int");
+
+                    b.Property<int>("FacebookCommentCount")
+                        .HasColumnType("int");
+
+                    b.Property<int>("FacebookHahaCount")
+                        .HasColumnType("int");
+
+                    b.Property<int>("FacebookImpressionCount")
+                        .HasColumnType("int");
+
+                    b.Property<int>("FacebookLikeCount")
+                        .HasColumnType("int");
+
+                    b.Property<int>("FacebookLoveCount")
+                        .HasColumnType("int");
+
+                    b.Property<int>("FacebookReactionCount")
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("int");
+
+                    b.Property<int>("FacebookReferralCount")
+                        .HasColumnType("int");
+
+                    b.Property<double>("FacebookScore")
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("float");
+
+                    b.Property<int>("FacebookShareCount")
+                        .HasColumnType("int");
+
+                    b.Property<int>("FacebookSorryCount")
+                        .HasColumnType("int");
+
+                    b.Property<int>("FacebookWowCount")
+                        .HasColumnType("int");
+
+                    b.Property<int>("FiveStarRatingCount")
+                        .HasColumnType("int");
+
+                    b.Property<int>("FourStarRatingCount")
+                        .HasColumnType("int");
+
+                    b.Property<int>("OneStarRatingCount")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ProvinceId")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<string>("ReportLabel")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("ReportPeriod")
+                        .HasColumnType("int");
+
+                    b.Property<int>("SiteLikeCount")
+                        .HasColumnType("int");
+
+                    b.Property<int>("SiteReferralCount")
+                        .HasColumnType("int");
+
+                    b.Property<double>("SiteScore")
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("float");
+
+                    b.Property<int>("ThreeStarRatingCount")
+                        .HasColumnType("int");
+
+                    b.Property<string>("TourCategoryId")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<int>("TwoStarRatingCount")
+                        .HasColumnType("int");
+
+                    b.Property<int>("XBookmarkCount")
+                        .HasColumnType("int");
+
+                    b.Property<double>("XCTR")
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("float");
+
+                    b.Property<int>("XImpressionCount")
+                        .HasColumnType("int");
+
+                    b.Property<int>("XLikeCount")
+                        .HasColumnType("int");
+
+                    b.Property<int>("XQuoteCount")
+                        .HasColumnType("int");
+
+                    b.Property<int>("XReferralCount")
+                        .HasColumnType("int");
+
+                    b.Property<int>("XReplyCount")
+                        .HasColumnType("int");
+
+                    b.Property<int>("XRetweetCount")
+                        .HasColumnType("int");
+
+                    b.Property<double>("XScore")
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("float");
+
+                    b.HasKey("ReportId");
+
+                    b.HasIndex("ProvinceId");
+
+                    b.HasIndex("TourCategoryId");
+
+                    b.ToTable("TourTemplateReport");
                 });
 
             modelBuilder.Entity("VietWay.Repository.EntityModel.TourTemplateSchedule", b =>
@@ -1015,6 +1810,46 @@ namespace VietWay.Repository.Migrations
                     b.HasKey("TourTemplateId", "DayNumber");
 
                     b.ToTable("TourTemplateSchedule");
+                });
+
+            modelBuilder.Entity("VietWay.Repository.EntityModel.TwitterPostMetric", b =>
+                {
+                    b.Property<string>("MetricId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int?>("BookmarkCount")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("ImpressionCount")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("LikeCount")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("QuoteCount")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("ReplyCount")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("RetweetCount")
+                        .HasColumnType("int");
+
+                    b.Property<decimal?>("Score")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("SocialPostId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("MetricId");
+
+                    b.HasIndex("SocialPostId");
+
+                    b.ToTable("TwitterPostMetric");
                 });
 
             modelBuilder.Entity("VietWay.Repository.EntityModel.Attraction", b =>
@@ -1060,6 +1895,36 @@ namespace VietWay.Repository.Migrations
                     b.Navigation("Attraction");
 
                     b.Navigation("Customer");
+                });
+
+            modelBuilder.Entity("VietWay.Repository.EntityModel.AttractionMetric", b =>
+                {
+                    b.HasOne("VietWay.Repository.EntityModel.Attraction", "Attraction")
+                        .WithMany("AttractionMetrics")
+                        .HasForeignKey("AttractionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Attraction");
+                });
+
+            modelBuilder.Entity("VietWay.Repository.EntityModel.AttractionReport", b =>
+                {
+                    b.HasOne("VietWay.Repository.EntityModel.AttractionCategory", "AttractionCategory")
+                        .WithMany()
+                        .HasForeignKey("AttractionCategoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("VietWay.Repository.EntityModel.Province", "Province")
+                        .WithMany()
+                        .HasForeignKey("ProvinceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("AttractionCategory");
+
+                    b.Navigation("Province");
                 });
 
             modelBuilder.Entity("VietWay.Repository.EntityModel.AttractionReview", b =>
@@ -1210,6 +2075,28 @@ namespace VietWay.Repository.Migrations
                     b.Navigation("EntityHistory");
                 });
 
+            modelBuilder.Entity("VietWay.Repository.EntityModel.FacebookPostMetric", b =>
+                {
+                    b.HasOne("VietWay.Repository.EntityModel.SocialMediaPost", "SocialMediaPost")
+                        .WithMany("FacebookPostMetrics")
+                        .HasForeignKey("SocialPostId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("SocialMediaPost");
+                });
+
+            modelBuilder.Entity("VietWay.Repository.EntityModel.HashtagReport", b =>
+                {
+                    b.HasOne("VietWay.Repository.EntityModel.Hashtag", "Hashtag")
+                        .WithMany()
+                        .HasForeignKey("HashtagId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Hashtag");
+                });
+
             modelBuilder.Entity("VietWay.Repository.EntityModel.Manager", b =>
                 {
                     b.HasOne("VietWay.Repository.EntityModel.Account", "Account")
@@ -1253,6 +2140,55 @@ namespace VietWay.Repository.Migrations
                     b.Navigation("Customer");
 
                     b.Navigation("Post");
+                });
+
+            modelBuilder.Entity("VietWay.Repository.EntityModel.PostMetric", b =>
+                {
+                    b.HasOne("VietWay.Repository.EntityModel.Post", "Post")
+                        .WithMany("PostMetrics")
+                        .HasForeignKey("PostId");
+
+                    b.Navigation("Post");
+                });
+
+            modelBuilder.Entity("VietWay.Repository.EntityModel.PostReport", b =>
+                {
+                    b.HasOne("VietWay.Repository.EntityModel.PostCategory", "PostCategory")
+                        .WithMany()
+                        .HasForeignKey("PostCategoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("VietWay.Repository.EntityModel.Province", "Province")
+                        .WithMany()
+                        .HasForeignKey("ProvinceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("PostCategory");
+
+                    b.Navigation("Province");
+                });
+
+            modelBuilder.Entity("VietWay.Repository.EntityModel.SocialMediaPost", b =>
+                {
+                    b.HasOne("VietWay.Repository.EntityModel.Attraction", "Attraction")
+                        .WithMany("SocialMediaPosts")
+                        .HasForeignKey("AttractionId");
+
+                    b.HasOne("VietWay.Repository.EntityModel.Post", "Post")
+                        .WithMany("SocialMediaPosts")
+                        .HasForeignKey("PostId");
+
+                    b.HasOne("VietWay.Repository.EntityModel.TourTemplate", "TourTemplate")
+                        .WithMany("SocialMediaPosts")
+                        .HasForeignKey("TourTemplateId");
+
+                    b.Navigation("Attraction");
+
+                    b.Navigation("Post");
+
+                    b.Navigation("TourTemplate");
                 });
 
             modelBuilder.Entity("VietWay.Repository.EntityModel.Staff", b =>
@@ -1342,6 +2278,15 @@ namespace VietWay.Repository.Migrations
                     b.Navigation("TourTemplate");
                 });
 
+            modelBuilder.Entity("VietWay.Repository.EntityModel.TourTemplateMetric", b =>
+                {
+                    b.HasOne("VietWay.Repository.EntityModel.TourTemplate", "TourTemplate")
+                        .WithMany()
+                        .HasForeignKey("TourTemplateId");
+
+                    b.Navigation("TourTemplate");
+                });
+
             modelBuilder.Entity("VietWay.Repository.EntityModel.TourTemplateProvince", b =>
                 {
                     b.HasOne("VietWay.Repository.EntityModel.Province", "Province")
@@ -1361,6 +2306,25 @@ namespace VietWay.Repository.Migrations
                     b.Navigation("TourTemplate");
                 });
 
+            modelBuilder.Entity("VietWay.Repository.EntityModel.TourTemplateReport", b =>
+                {
+                    b.HasOne("VietWay.Repository.EntityModel.Province", "Province")
+                        .WithMany()
+                        .HasForeignKey("ProvinceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("VietWay.Repository.EntityModel.TourCategory", "TourCategory")
+                        .WithMany()
+                        .HasForeignKey("TourCategoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Province");
+
+                    b.Navigation("TourCategory");
+                });
+
             modelBuilder.Entity("VietWay.Repository.EntityModel.TourTemplateSchedule", b =>
                 {
                     b.HasOne("VietWay.Repository.EntityModel.TourTemplate", "TourTemplate")
@@ -1370,6 +2334,17 @@ namespace VietWay.Repository.Migrations
                         .IsRequired();
 
                     b.Navigation("TourTemplate");
+                });
+
+            modelBuilder.Entity("VietWay.Repository.EntityModel.TwitterPostMetric", b =>
+                {
+                    b.HasOne("VietWay.Repository.EntityModel.SocialMediaPost", "SocialMediaPost")
+                        .WithMany("TwitterPostMetrics")
+                        .HasForeignKey("SocialPostId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("SocialMediaPost");
                 });
 
             modelBuilder.Entity("VietWay.Repository.EntityModel.Account", b =>
@@ -1387,7 +2362,11 @@ namespace VietWay.Repository.Migrations
 
                     b.Navigation("AttractionLikes");
 
+                    b.Navigation("AttractionMetrics");
+
                     b.Navigation("AttractionReviews");
+
+                    b.Navigation("SocialMediaPosts");
                 });
 
             modelBuilder.Entity("VietWay.Repository.EntityModel.AttractionCategory", b =>
@@ -1430,6 +2409,10 @@ namespace VietWay.Repository.Migrations
             modelBuilder.Entity("VietWay.Repository.EntityModel.Post", b =>
                 {
                     b.Navigation("PostLikes");
+
+                    b.Navigation("PostMetrics");
+
+                    b.Navigation("SocialMediaPosts");
                 });
 
             modelBuilder.Entity("VietWay.Repository.EntityModel.PostCategory", b =>
@@ -1444,6 +2427,13 @@ namespace VietWay.Repository.Migrations
                     b.Navigation("Posts");
 
                     b.Navigation("TourTemplateProvinces");
+                });
+
+            modelBuilder.Entity("VietWay.Repository.EntityModel.SocialMediaPost", b =>
+                {
+                    b.Navigation("FacebookPostMetrics");
+
+                    b.Navigation("TwitterPostMetrics");
                 });
 
             modelBuilder.Entity("VietWay.Repository.EntityModel.Tour", b =>
@@ -1462,6 +2452,8 @@ namespace VietWay.Repository.Migrations
 
             modelBuilder.Entity("VietWay.Repository.EntityModel.TourTemplate", b =>
                 {
+                    b.Navigation("SocialMediaPosts");
+
                     b.Navigation("TourTemplateImages");
 
                     b.Navigation("TourTemplateProvinces");

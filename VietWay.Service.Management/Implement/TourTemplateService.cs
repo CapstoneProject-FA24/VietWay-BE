@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using System.Globalization;
+using System.Text.Json;
 using Tweetinvi.Core.Extensions;
 using VietWay.Repository.EntityModel;
 using VietWay.Repository.EntityModel.Base;
@@ -7,6 +9,8 @@ using VietWay.Repository.UnitOfWork;
 using VietWay.Service.Management.DataTransferObject;
 using VietWay.Service.Management.Interface;
 using VietWay.Service.ThirdParty.Cloudinary;
+using VietWay.Service.ThirdParty.Redis;
+using VietWay.Service.ThirdParty.Twitter;
 using VietWay.Util.CustomExceptions;
 using VietWay.Util.DateTimeUtil;
 using VietWay.Util.IdUtil;
@@ -20,6 +24,7 @@ namespace VietWay.Service.Management.Implement
         private readonly IIdGenerator _idGenerator = idGenerator;
         private readonly ICloudinaryService _cloudinaryService = cloudinaryService;
         private readonly ITimeZoneHelper _timeZoneHelper = timeZoneHelper;
+
         public async Task<string> CreateTemplateAsync(TourTemplate tourTemplate)
         {
             tourTemplate.TourTemplateId = _idGenerator.GenerateId();
@@ -199,7 +204,7 @@ namespace VietWay.Service.Management.Implement
 
         public async Task<TourTemplateDetailDTO?> GetTemplateByIdAsync(string id)
         {
-            return await _unitOfWork
+            TourTemplateDetailDTO tourTemplateDetailDTO = await _unitOfWork
                 .TourTemplateRepository
                 .Query()
                 .Select(x => new TourTemplateDetailDTO
@@ -252,6 +257,18 @@ namespace VietWay.Service.Management.Implement
                     MaxPrice = x.MaxPrice
                 })
                 .SingleOrDefaultAsync(x => x.TourTemplateId.Equals(id));
+
+            tourTemplateDetailDTO.SocialPostDetail = await _unitOfWork.SocialMediaPostRepository
+                .Query()
+                .Where(x => x.EntityType == SocialMediaPostEntity.TourTemplate && x.TourTemplateId == id)
+                .Select(x => new SocialPostDetailDTO
+                {
+                    SocialPostId = x.SocialPostId,
+                    Site = x.Site,
+                    CreatedAt = x.CreatedAt,
+                })
+                .ToListAsync();
+            return tourTemplateDetailDTO;
         }
 
         public async Task UpdateTemplateAsync(string tourTemplateId, TourTemplate newTourTemplate)
@@ -479,7 +496,7 @@ namespace VietWay.Service.Management.Implement
             if (tourId != null)
             {
                 query = query.Where(x => x.Tours.Any(x => x.TourId != tourId && x.StartDate >= _timeZoneHelper.GetUTC7Now() &&
-                                             x.Status == TourStatus.Opened && ((DateTime)x.RegisterOpenDate).Date <= _timeZoneHelper.GetUTC7Now().Date 
+                                             x.Status == TourStatus.Opened && ((DateTime)x.RegisterOpenDate).Date <= _timeZoneHelper.GetUTC7Now().Date
                                              && ((DateTime)x.RegisterCloseDate).Date >= _timeZoneHelper.GetUTC7Now().Date && !x.IsDeleted));
             }
 
