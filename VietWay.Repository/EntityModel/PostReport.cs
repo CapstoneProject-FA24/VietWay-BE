@@ -25,10 +25,11 @@ namespace VietWay.Repository.EntityModel
         [ForeignKey(nameof(PostCategory))]
         [Required]
         public string? PostCategoryId { get; set; }
+        public DateTime CreatedAt { get; set; }
 
         public int SiteReferralCount { get; set; }
         public int FacebookReferralCount { get; set; }
-        public int TwitterReferralCount { get; set; }
+        public int XReferralCount { get; set; }
 
         public int SiteLikeCount { get; set; }
 
@@ -45,17 +46,17 @@ namespace VietWay.Repository.EntityModel
         [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
         public int FacebookReactionCount { get; set; }
 
-        public int RetweetCount { get; set; }
-        public int ReplyCount { get; set; }
-        public int LikeCount { get; set; }
-        public int QuoteCount { get; set; }
-        public int BookmarkCount { get; set; }
-        public int ImpressionCount { get; set; }
+        public int XRetweetCount { get; set; }
+        public int XReplyCount { get; set; }
+        public int XLikeCount { get; set; }
+        public int XQuoteCount { get; set; }
+        public int XBookmarkCount { get; set; }
+        public int XImpressionCount { get; set; }
 
         [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
         public double FacebookScore { get; set; }
         [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
-        public double TwitterScore { get; set; }
+        public double XScore { get; set; }
         [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
         public double SiteScore { get; set; }
         [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
@@ -63,7 +64,7 @@ namespace VietWay.Repository.EntityModel
         [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
         public double FacebookCTR { get; set; }
         [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
-        public double TwitterCTR { get; set; }
+        public double XCTR { get; set; }
         [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
 
         public virtual Province? Province { get; set; }

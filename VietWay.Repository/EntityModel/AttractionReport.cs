@@ -24,7 +24,7 @@ namespace VietWay.Repository.EntityModel
 
         public int SiteReferralCount { get; set; }
         public int FacebookReferralCount { get; set; }
-        public int TwitterReferralCount { get; set; }
+        public int XReferralCount { get; set; }
 
         public int SiteLikeCount { get; set; }
         public int FiveStarRatingCount { get; set; }

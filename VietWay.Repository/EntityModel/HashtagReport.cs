@@ -49,11 +49,11 @@ namespace VietWay.Repository.EntityModel
         [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
         public double FacebookScore { get; set; }
         [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
-        public double TwitterScore { get; set; }
+        public double XScore { get; set; }
         [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
         public double FacebookCTR { get; set; }
         [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
-        public double TwitterCTR { get; set; }
+        public double XCTR { get; set; }
         [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
 
         public virtual Hashtag? Hashtag { get; set; }
