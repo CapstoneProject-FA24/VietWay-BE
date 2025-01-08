@@ -143,19 +143,6 @@ namespace VietWay.Repository.Migrations
                     b.ToTable("AttractionCategory");
                 });
 
-            modelBuilder.Entity("VietWay.Repository.EntityModel.AttractionHashtag", b =>
-                {
-                    b.Property<string>("AttractionId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("HashtagId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("AttractionId", "HashtagId");
-
-                    b.ToTable("AttractionHashtag");
-                });
-
             modelBuilder.Entity("VietWay.Repository.EntityModel.AttractionImage", b =>
                 {
                     b.Property<string>("ImageId")
@@ -776,19 +763,6 @@ namespace VietWay.Repository.Migrations
                     b.ToTable("PostCategory");
                 });
 
-            modelBuilder.Entity("VietWay.Repository.EntityModel.PostHashtag", b =>
-                {
-                    b.Property<string>("PostId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("HashtagId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("PostId", "HashtagId");
-
-                    b.ToTable("PostHashtag");
-                });
-
             modelBuilder.Entity("VietWay.Repository.EntityModel.PostLike", b =>
                 {
                     b.Property<string>("PostId")
@@ -897,6 +871,19 @@ namespace VietWay.Repository.Migrations
                     b.HasKey("SocialPostId");
 
                     b.ToTable("SocialMediaPost");
+                });
+
+            modelBuilder.Entity("VietWay.Repository.EntityModel.SocialMediaPostHashtag", b =>
+                {
+                    b.Property<string>("SocialPostId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("HashtagId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("SocialPostId", "HashtagId");
+
+                    b.ToTable("SocialMediaPostHashtag");
                 });
 
             modelBuilder.Entity("VietWay.Repository.EntityModel.Staff", b =>
@@ -1183,19 +1170,6 @@ namespace VietWay.Repository.Migrations
                     b.HasIndex("TourCategoryId");
 
                     b.ToTable("TourTemplate");
-                });
-
-            modelBuilder.Entity("VietWay.Repository.EntityModel.TourTemplateHashtag", b =>
-                {
-                    b.Property<string>("TourTemplateId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("HashtagId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("TourTemplateId", "HashtagId");
-
-                    b.ToTable("TourTemplateHashtag");
                 });
 
             modelBuilder.Entity("VietWay.Repository.EntityModel.TourTemplateImage", b =>
