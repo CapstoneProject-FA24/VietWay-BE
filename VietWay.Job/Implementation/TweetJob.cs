@@ -26,12 +26,17 @@ namespace VietWay.Job.Implementation
 
             List<TweetDTO> tweetsDetails = await _twitterService.GetTweetsAsync(socialMediaPosts.Select(x => x.SocialPostId).ToList());
 
+            var tweetLookup = tweetsDetails.ToLookup(x => x.XTweetId);
+
             var keyValuePairs = socialMediaPosts
-                .Where(post => tweetsDetails.Any(tweet => tweet.XTweetId == post.SocialPostId))
-                .GroupBy(post => $"{post.EntityId}-{(int)post.EntityType}")
-                .ToDictionary(
+                .Where(post => tweetLookup.Contains(post.SocialPostId))
+                .GroupBy(post => post.EntityType switch { 
+                    SocialMediaPostEntity.Attraction => $"{post.AttractionId}-{(int)post.EntityType}",
+                    SocialMediaPostEntity.Post => $"{post.PostId}-{(int)post.EntityType}",
+                    SocialMediaPostEntity.TourTemplate => $"{post.TourTemplateId}-{(int)post.EntityType}",
+                }).ToDictionary(
                     group => group.Key!,
-                    group => group.SelectMany(post => tweetsDetails.Where(tweet => tweet.XTweetId == post.SocialPostId)).ToList()
+                    group => group.SelectMany(post => tweetLookup[post.SocialPostId]).ToList()
                 );
 
             await _redisCacheService.SetMultipleAsync(keyValuePairs);

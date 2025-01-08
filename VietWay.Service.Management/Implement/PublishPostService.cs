@@ -27,14 +27,26 @@ namespace VietWay.Service.Management.Implement
 
         public async Task<List<FacebookMetricsDTO>> GetFacebookPostMetricsAsync(string entityId, SocialMediaPostEntity entityType)
         {
-            List<SocialMediaPost> socialMediaPosts = await _unitOfWork.SocialMediaPostRepository.Query()
-               .Where(x => x.EntityType == entityType && x.EntityId == entityId && x.Site == SocialMediaSite.Facebook).ToListAsync();
+            var query = _unitOfWork.SocialMediaPostRepository.Query();
+            List<SocialMediaPost> socialMediaPosts = entityType switch
+            {
+                SocialMediaPostEntity.Post => await query
+                    .Where(x => x.EntityType == SocialMediaPostEntity.Post && x.PostId == entityId && x.Site == SocialMediaSite.Facebook)
+                    .ToListAsync(),
+                SocialMediaPostEntity.Attraction => await query
+                    .Where(x => x.EntityType == SocialMediaPostEntity.Attraction && x.AttractionId == entityId && x.Site == SocialMediaSite.Facebook)
+                    .ToListAsync(),
+                SocialMediaPostEntity.TourTemplate => await query
+                    .Where(x => x.EntityType == SocialMediaPostEntity.TourTemplate && x.TourTemplateId == entityId && x.Site == SocialMediaSite.Facebook)
+                    .ToListAsync(),
+                _ => throw new InvalidActionException("INVALID_ACTION_ENTITY_TYPE")
+            };
             if (socialMediaPosts.Count <= 0)
             {
                 throw new InvalidActionException("INVALID_ACTION_POST_NOT_PUBLISHED");
             }
 
-            List<FacebookMetricsDTO> facebookMetrics = new List<FacebookMetricsDTO>();
+            List<FacebookMetricsDTO> facebookMetrics = [];
 
             foreach (var socialMediaPost in socialMediaPosts)
             {
@@ -59,29 +71,32 @@ namespace VietWay.Service.Management.Implement
 
         public async Task<List<TweetDTO>> GetPublishedTweetByIdAsync(string entityId, SocialMediaPostEntity entityType)
         {
-            var socialMediaPosts = await _unitOfWork.SocialMediaPostRepository.Query()
-                .Where(x => x.EntityId == entityId && x.Site == SocialMediaSite.Twitter && x.EntityType == entityType)
-                .ToListAsync();
+            var query = _unitOfWork.SocialMediaPostRepository.Query();
+            List<SocialMediaPost> socialMediaPosts = entityType switch
+            {
+                SocialMediaPostEntity.Post => await query
+                    .Where(x => x.EntityType == SocialMediaPostEntity.Post && x.PostId == entityId && x.Site == SocialMediaSite.Twitter)
+                    .ToListAsync(),
+                SocialMediaPostEntity.Attraction => await query
+                    .Where(x => x.EntityType == SocialMediaPostEntity.Attraction && x.AttractionId == entityId && x.Site == SocialMediaSite.Twitter)
+                    .ToListAsync(),
+                SocialMediaPostEntity.TourTemplate => await query
+                    .Where(x => x.EntityType == SocialMediaPostEntity.TourTemplate && x.TourTemplateId == entityId && x.Site == SocialMediaSite.Twitter)
+                    .ToListAsync(),
+                _ => throw new InvalidActionException("INVALID_ACTION_ENTITY_TYPE")
+            };
+
             if (socialMediaPosts.IsNullOrEmpty())
             {
                 throw new ResourceNotFoundException($"{entityType.ToString().ToUpper()}_NOT_PUBLISHED");
             }
 
-            List<TweetDTO> tweetDto = await _redisCacheService.GetAsync<List<TweetDTO>>($"{entityId}-{(int)entityType}");
+            List<TweetDTO>? tweetDto = await _redisCacheService.GetAsync<List<TweetDTO>>($"{entityId}-{(int)entityType}");
 
-            if (tweetDto == null)
-            {
-                tweetDto = new List<TweetDTO>();
-            }
-
-            /*if (tweetDto.IsNullOrEmpty())
-            {
-                throw new ResourceNotFoundException("NOT_EXISTED_TWEET");
-            }*/
-
+            tweetDto ??= [];
             foreach (var post in socialMediaPosts)
             {
-                var tweet = tweetDto.FirstOrDefault(x => x.XTweetId == post.SocialPostId);
+                var tweet = tweetDto.SingleOrDefault(x => x.XTweetId == post.SocialPostId);
                 if (tweet != null)
                 {
                     tweet.CreatedAt = post.CreatedAt;
@@ -144,7 +159,7 @@ namespace VietWay.Service.Management.Implement
                     SocialPostId = tweetId,
                     Site = SocialMediaSite.Twitter,
                     EntityType = SocialMediaPostEntity.Post,
-                    EntityId = post.PostId,
+                    PostId = post.PostId,
                     CreatedAt = _timeZoneHelper.GetUTC7Now(),
                 };
                 await _unitOfWork.SocialMediaPostRepository.CreateAsync(socialMediaPost);
@@ -187,7 +202,7 @@ namespace VietWay.Service.Management.Implement
                     SocialPostId = tweetId,
                     Site = SocialMediaSite.Twitter,
                     EntityType = SocialMediaPostEntity.Attraction,
-                    EntityId = attraction.AttractionId,
+                    AttractionId = attraction.AttractionId,
                     CreatedAt = _timeZoneHelper.GetUTC7Now(),
                 };
                 await _unitOfWork.SocialMediaPostRepository.CreateAsync(socialMediaPost);
@@ -239,7 +254,7 @@ namespace VietWay.Service.Management.Implement
                     SocialPostId = tweetId,
                     Site = SocialMediaSite.Twitter,
                     EntityType = SocialMediaPostEntity.TourTemplate,
-                    EntityId = tourTemplate.TourTemplateId,
+                    TourTemplateId = tourTemplate.TourTemplateId,
                     CreatedAt = _timeZoneHelper.GetUTC7Now(),
                 };
                 await _unitOfWork.SocialMediaPostRepository.CreateAsync(socialMediaPost);
@@ -279,7 +294,7 @@ namespace VietWay.Service.Management.Implement
                     SocialPostId = facebookPostId,
                     Site = SocialMediaSite.Facebook,
                     EntityType = SocialMediaPostEntity.Post,
-                    EntityId = post.PostId,
+                    PostId = post.PostId,
                     CreatedAt = _timeZoneHelper.GetUTC7Now(),
                 };
                 await _unitOfWork.SocialMediaPostRepository.CreateAsync(socialMediaPost);
@@ -320,7 +335,7 @@ namespace VietWay.Service.Management.Implement
                     SocialPostId = facebookPostId,
                     Site = SocialMediaSite.Facebook,
                     EntityType = SocialMediaPostEntity.Attraction,
-                    EntityId = attraction.AttractionId,
+                    AttractionId = attraction.AttractionId,
                     CreatedAt = _timeZoneHelper.GetUTC7Now(),
                 };
                 await _unitOfWork.SocialMediaPostRepository.CreateAsync(socialMediaPost);
@@ -370,7 +385,7 @@ namespace VietWay.Service.Management.Implement
                     SocialPostId = facebookPostId,
                     Site = SocialMediaSite.Facebook,
                     EntityType = SocialMediaPostEntity.TourTemplate,
-                    EntityId = tourTemplate.TourTemplateId,
+                    TourTemplateId = tourTemplate.TourTemplateId,
                     CreatedAt = _timeZoneHelper.GetUTC7Now(),
                 };
                 await _unitOfWork.SocialMediaPostRepository.CreateAsync(socialMediaPost);

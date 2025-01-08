@@ -68,26 +68,17 @@ namespace VietWay.Service.Customer.Implementation
                     IsLiked = customerId != null && x.PostLikes.Any(y => y.CustomerId.Equals(customerId))
                 })
                 .SingleOrDefaultAsync(x => x.PostId.Equals(postId));
-
-            try
+            switch (socialMediaSite)
             {
-                if (socialMediaSite != null)
-                {
-                    if (socialMediaSite != SocialMediaSite.Vietway)
-                    {
-                        SocialMediaPost socialMediaPost = await _unitOfWork.SocialMediaPostRepository.Query()
-                        .FirstOrDefaultAsync(x => x.EntityId == postId && x.EntityType == SocialMediaPostEntity.TourTemplate && x.Site == socialMediaSite) ??
-                        throw new ResourceNotFoundException("NOT_EXISTED_SOCIAL_MEDIA_POST");
-                    }
-
-                    int count = await _redisCacheService.GetAsync<int>($"{(int)SocialMediaPostEntity.Post}-{postId}-{(int)socialMediaSite}");
-                    _redisCacheService.SetAsync($"{(int)SocialMediaPostEntity.Post}-{postId}-{(int)socialMediaSite}", ++count, TimeSpan.FromDays(1));
-                }
-
-            }
-            catch
-            {
-                throw;
+                case SocialMediaSite.Facebook:
+                    await _redisCacheService.IncrementAsync($"facebookReferrence-{SocialMediaPostEntity.Post}-{postId}");
+                    break;
+                case SocialMediaSite.Twitter:
+                    await _redisCacheService.IncrementAsync($"twitterReferrence-{SocialMediaPostEntity.Post} - {postId}");
+                    break;
+                default:
+                    await _redisCacheService.IncrementAsync($"siteReferrence-{SocialMediaPostEntity.Post} - {postId}");
+                    break;
             }
 
             return post;

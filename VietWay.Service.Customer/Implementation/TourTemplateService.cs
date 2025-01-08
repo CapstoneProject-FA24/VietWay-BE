@@ -155,27 +155,18 @@ namespace VietWay.Service.Customer.Implementation
                     Transportation = x.Transportation
                 }).SingleOrDefaultAsync();
 
-            try
+            switch (socialMediaSite)
             {
-                if (socialMediaSite != null)
-                {
-                    if (socialMediaSite != SocialMediaSite.Vietway)
-                    {
-                        SocialMediaPost socialMediaPost = await _unitOfWork.SocialMediaPostRepository.Query()
-                        .FirstOrDefaultAsync(x => x.EntityId == tourTemplateId && x.EntityType == SocialMediaPostEntity.TourTemplate && x.Site == socialMediaSite) ??
-                        throw new ResourceNotFoundException("NOT_EXISTED_SOCIAL_MEDIA_POST");
-                    }
-
-                    int count = await _redisCacheService.GetAsync<int>($"{(int)SocialMediaPostEntity.TourTemplate}-{tourTemplateId}-{(int)socialMediaSite}");
-                    _redisCacheService.SetAsync($"{(int)SocialMediaPostEntity.TourTemplate}-{tourTemplateId}-{(int)socialMediaSite}", ++count, TimeSpan.FromDays(1));
-                }
-
+                case SocialMediaSite.Facebook:
+                    await _redisCacheService.IncrementAsync($"facebookReferrence-{SocialMediaPostEntity.TourTemplate}-{tourTemplateId}");
+                    break;
+                case SocialMediaSite.Twitter:
+                    await _redisCacheService.IncrementAsync($"twitterReferrence-{SocialMediaPostEntity.TourTemplate}-{tourTemplateId}");
+                    break;
+                default:
+                    await _redisCacheService.IncrementAsync($"siteReferrence-{SocialMediaPostEntity.TourTemplate}-{tourTemplateId}");
+                    break;
             }
-            catch
-            {
-                throw;
-            }
-
             return tourTemplateDetailDTO;
         }
         public Task<List<TourTemplatePreviewDTO>> GetTourTemplatePreviewsByAttractionId(string attractionId, int previewCount)

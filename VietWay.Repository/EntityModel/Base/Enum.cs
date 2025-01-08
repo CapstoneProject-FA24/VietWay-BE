@@ -121,4 +121,10 @@
         Tour,      //1
         Post       //2
     }
+    public enum ReportPeriod {
+        Daily,
+        Monthly,
+        Quarterly,
+        Yearly
+    }
 }
