@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace VietWay.Repository.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCreate : Migration
+    public partial class Init : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -44,21 +44,16 @@ namespace VietWay.Repository.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "EntityHistory",
+                name: "Hashtag",
                 columns: table => new
                 {
-                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    EntityType = table.Column<int>(type: "int", nullable: false),
-                    EntityId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
-                    ModifiedBy = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
-                    ModifierRole = table.Column<int>(type: "int", nullable: false),
-                    Reason = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Action = table.Column<int>(type: "int", nullable: false),
-                    Timestamp = table.Column<DateTime>(type: "datetime2", nullable: false)
+                    HashtagId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
+                    HashtagName = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: true),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_EntityHistory", x => x.Id);
+                    table.PrimaryKey("PK_Hashtag", x => x.HashtagId);
                 });
 
             migrationBuilder.CreateTable(
@@ -123,6 +118,29 @@ namespace VietWay.Repository.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "EntityHistory",
+                columns: table => new
+                {
+                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    EntityType = table.Column<int>(type: "int", nullable: false),
+                    EntityId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
+                    ModifiedBy = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true),
+                    ModifierRole = table.Column<int>(type: "int", nullable: false),
+                    Reason = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Action = table.Column<int>(type: "int", nullable: false),
+                    Timestamp = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_EntityHistory", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_EntityHistory_Account_ModifiedBy",
+                        column: x => x.ModifiedBy,
+                        principalTable: "Account",
+                        principalColumn: "AccountId");
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Manager",
                 columns: table => new
                 {
@@ -161,21 +179,46 @@ namespace VietWay.Repository.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "EntityStatusHistory",
+                name: "HashtagReport",
                 columns: table => new
                 {
-                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    OldStatus = table.Column<int>(type: "int", nullable: false),
-                    NewStatus = table.Column<int>(type: "int", nullable: false)
+                    ReportId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    ReportLabel = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ReportPeriod = table.Column<int>(type: "int", nullable: false),
+                    HashtagId = table.Column<string>(type: "nvarchar(20)", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    FacebookReferralCount = table.Column<int>(type: "int", nullable: false),
+                    XReferralCount = table.Column<int>(type: "int", nullable: false),
+                    FacebookClickCount = table.Column<int>(type: "int", nullable: false),
+                    FacebookImpressionCount = table.Column<int>(type: "int", nullable: false),
+                    FacebookLikeCount = table.Column<int>(type: "int", nullable: false),
+                    FacebookLoveCount = table.Column<int>(type: "int", nullable: false),
+                    FacebookWowCount = table.Column<int>(type: "int", nullable: false),
+                    FacebookHahaCount = table.Column<int>(type: "int", nullable: false),
+                    FacebookSorryCount = table.Column<int>(type: "int", nullable: false),
+                    FacebookAngerCount = table.Column<int>(type: "int", nullable: false),
+                    FacebookShareCount = table.Column<int>(type: "int", nullable: false),
+                    FacebookCommentCount = table.Column<int>(type: "int", nullable: false),
+                    FacebookReactionCount = table.Column<int>(type: "int", nullable: false),
+                    XRetweetCount = table.Column<int>(type: "int", nullable: false),
+                    XReplyCount = table.Column<int>(type: "int", nullable: false),
+                    XLikeCount = table.Column<int>(type: "int", nullable: false),
+                    XQuoteCount = table.Column<int>(type: "int", nullable: false),
+                    XBookmarkCount = table.Column<int>(type: "int", nullable: false),
+                    XImpressionCount = table.Column<int>(type: "int", nullable: false),
+                    FacebookScore = table.Column<double>(type: "float", nullable: false),
+                    XScore = table.Column<double>(type: "float", nullable: false),
+                    FacebookCTR = table.Column<double>(type: "float", nullable: false),
+                    XCTR = table.Column<double>(type: "float", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_EntityStatusHistory", x => x.Id);
+                    table.PrimaryKey("PK_HashtagReport", x => x.ReportId);
                     table.ForeignKey(
-                        name: "FK_EntityStatusHistory_EntityHistory_Id",
-                        column: x => x.Id,
-                        principalTable: "EntityHistory",
-                        principalColumn: "Id",
+                        name: "FK_HashtagReport_Hashtag_HashtagId",
+                        column: x => x.HashtagId,
+                        principalTable: "Hashtag",
+                        principalColumn: "HashtagId",
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -186,7 +229,7 @@ namespace VietWay.Repository.Migrations
                     AttractionId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
                     Name = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),
                     Address = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),
-                    ContactInfo = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
+                    ContactInfo = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Website = table.Column<string>(type: "nvarchar(2048)", maxLength: 2048, nullable: true),
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     ProvinceId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true),
@@ -209,6 +252,71 @@ namespace VietWay.Repository.Migrations
                         column: x => x.ProvinceId,
                         principalTable: "Province",
                         principalColumn: "ProvinceId");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "AttractionReport",
+                columns: table => new
+                {
+                    ReportId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    ReportLabel = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ReportPeriod = table.Column<int>(type: "int", nullable: false),
+                    ProvinceId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
+                    AttractionCategoryId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    SiteReferralCount = table.Column<int>(type: "int", nullable: false),
+                    FacebookReferralCount = table.Column<int>(type: "int", nullable: false),
+                    XReferralCount = table.Column<int>(type: "int", nullable: false),
+                    SiteLikeCount = table.Column<int>(type: "int", nullable: false),
+                    FiveStarRatingCount = table.Column<int>(type: "int", nullable: false),
+                    FiveStarRatingLikeCount = table.Column<int>(type: "int", nullable: false),
+                    FourStarRatingCount = table.Column<int>(type: "int", nullable: false),
+                    FourStarRatingLikeCount = table.Column<int>(type: "int", nullable: false),
+                    ThreeStarRatingCount = table.Column<int>(type: "int", nullable: false),
+                    ThreeStarRatingLikeCount = table.Column<int>(type: "int", nullable: false),
+                    TwoStarRatingCount = table.Column<int>(type: "int", nullable: false),
+                    TwoStarRatingLikeCount = table.Column<int>(type: "int", nullable: false),
+                    OneStarRatingCount = table.Column<int>(type: "int", nullable: false),
+                    OneStarRatingLikeCount = table.Column<int>(type: "int", nullable: false),
+                    FacebookClickCount = table.Column<int>(type: "int", nullable: false),
+                    FacebookImpressionCount = table.Column<int>(type: "int", nullable: false),
+                    FacebookLikeCount = table.Column<int>(type: "int", nullable: false),
+                    FacebookLoveCount = table.Column<int>(type: "int", nullable: false),
+                    FacebookWowCount = table.Column<int>(type: "int", nullable: false),
+                    FacebookHahaCount = table.Column<int>(type: "int", nullable: false),
+                    FacebookSorryCount = table.Column<int>(type: "int", nullable: false),
+                    FacebookAngerCount = table.Column<int>(type: "int", nullable: false),
+                    FacebookShareCount = table.Column<int>(type: "int", nullable: false),
+                    FacebookCommentCount = table.Column<int>(type: "int", nullable: false),
+                    FacebookReactionCount = table.Column<int>(type: "int", nullable: false),
+                    XRetweetCount = table.Column<int>(type: "int", nullable: false),
+                    XReplyCount = table.Column<int>(type: "int", nullable: false),
+                    XLikeCount = table.Column<int>(type: "int", nullable: false),
+                    XQuoteCount = table.Column<int>(type: "int", nullable: false),
+                    XBookmarkCount = table.Column<int>(type: "int", nullable: false),
+                    XImpressionCount = table.Column<int>(type: "int", nullable: false),
+                    FacebookScore = table.Column<double>(type: "float", nullable: false),
+                    XScore = table.Column<double>(type: "float", nullable: false),
+                    SiteScore = table.Column<double>(type: "float", nullable: false),
+                    AverageScore = table.Column<double>(type: "float", nullable: false),
+                    FacebookCTR = table.Column<double>(type: "float", nullable: false),
+                    XCTR = table.Column<double>(type: "float", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_AttractionReport", x => x.ReportId);
+                    table.ForeignKey(
+                        name: "FK_AttractionReport_AttractionCategory_AttractionCategoryId",
+                        column: x => x.AttractionCategoryId,
+                        principalTable: "AttractionCategory",
+                        principalColumn: "AttractionCategoryId",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_AttractionReport_Province_ProvinceId",
+                        column: x => x.ProvinceId,
+                        principalTable: "Province",
+                        principalColumn: "ProvinceId",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -252,8 +360,6 @@ namespace VietWay.Repository.Migrations
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     Status = table.Column<int>(type: "int", nullable: false),
-                    XTweetId = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    FacebookPostId = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     IsDeleted = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
@@ -272,15 +378,134 @@ namespace VietWay.Repository.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "PostReport",
+                columns: table => new
+                {
+                    ReportId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    ReportLabel = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ReportPeriod = table.Column<int>(type: "int", nullable: false),
+                    ProvinceId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
+                    PostCategoryId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    SiteReferralCount = table.Column<int>(type: "int", nullable: false),
+                    FacebookReferralCount = table.Column<int>(type: "int", nullable: false),
+                    XReferralCount = table.Column<int>(type: "int", nullable: false),
+                    SiteLikeCount = table.Column<int>(type: "int", nullable: false),
+                    FacebookClickCount = table.Column<int>(type: "int", nullable: false),
+                    FacebookImpressionCount = table.Column<int>(type: "int", nullable: false),
+                    FacebookLikeCount = table.Column<int>(type: "int", nullable: false),
+                    FacebookLoveCount = table.Column<int>(type: "int", nullable: false),
+                    FacebookWowCount = table.Column<int>(type: "int", nullable: false),
+                    FacebookHahaCount = table.Column<int>(type: "int", nullable: false),
+                    FacebookSorryCount = table.Column<int>(type: "int", nullable: false),
+                    FacebookAngerCount = table.Column<int>(type: "int", nullable: false),
+                    FacebookShareCount = table.Column<int>(type: "int", nullable: false),
+                    FacebookCommentCount = table.Column<int>(type: "int", nullable: false),
+                    FacebookReactionCount = table.Column<int>(type: "int", nullable: false),
+                    XRetweetCount = table.Column<int>(type: "int", nullable: false),
+                    XReplyCount = table.Column<int>(type: "int", nullable: false),
+                    XLikeCount = table.Column<int>(type: "int", nullable: false),
+                    XQuoteCount = table.Column<int>(type: "int", nullable: false),
+                    XBookmarkCount = table.Column<int>(type: "int", nullable: false),
+                    XImpressionCount = table.Column<int>(type: "int", nullable: false),
+                    FacebookScore = table.Column<double>(type: "float", nullable: false),
+                    XScore = table.Column<double>(type: "float", nullable: false),
+                    SiteScore = table.Column<double>(type: "float", nullable: false),
+                    AverageScore = table.Column<double>(type: "float", nullable: false),
+                    FacebookCTR = table.Column<double>(type: "float", nullable: false),
+                    XCTR = table.Column<double>(type: "float", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_PostReport", x => x.ReportId);
+                    table.ForeignKey(
+                        name: "FK_PostReport_PostCategory_PostCategoryId",
+                        column: x => x.PostCategoryId,
+                        principalTable: "PostCategory",
+                        principalColumn: "PostCategoryId",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_PostReport_Province_ProvinceId",
+                        column: x => x.ProvinceId,
+                        principalTable: "Province",
+                        principalColumn: "ProvinceId",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "TourTemplateReport",
+                columns: table => new
+                {
+                    ReportId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    ReportLabel = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ReportPeriod = table.Column<int>(type: "int", nullable: false),
+                    ProvinceId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
+                    TourCategoryId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    SiteReferralCount = table.Column<int>(type: "int", nullable: false),
+                    FacebookReferralCount = table.Column<int>(type: "int", nullable: false),
+                    XReferralCount = table.Column<int>(type: "int", nullable: false),
+                    SiteLikeCount = table.Column<int>(type: "int", nullable: false),
+                    BookingCount = table.Column<int>(type: "int", nullable: false),
+                    CancellationCount = table.Column<int>(type: "int", nullable: false),
+                    FiveStarRatingCount = table.Column<int>(type: "int", nullable: false),
+                    FourStarRatingCount = table.Column<int>(type: "int", nullable: false),
+                    ThreeStarRatingCount = table.Column<int>(type: "int", nullable: false),
+                    TwoStarRatingCount = table.Column<int>(type: "int", nullable: false),
+                    OneStarRatingCount = table.Column<int>(type: "int", nullable: false),
+                    FacebookClickCount = table.Column<int>(type: "int", nullable: false),
+                    FacebookImpressionCount = table.Column<int>(type: "int", nullable: false),
+                    FacebookLikeCount = table.Column<int>(type: "int", nullable: false),
+                    FacebookLoveCount = table.Column<int>(type: "int", nullable: false),
+                    FacebookWowCount = table.Column<int>(type: "int", nullable: false),
+                    FacebookHahaCount = table.Column<int>(type: "int", nullable: false),
+                    FacebookSorryCount = table.Column<int>(type: "int", nullable: false),
+                    FacebookAngerCount = table.Column<int>(type: "int", nullable: false),
+                    FacebookShareCount = table.Column<int>(type: "int", nullable: false),
+                    FacebookCommentCount = table.Column<int>(type: "int", nullable: false),
+                    FacebookReactionCount = table.Column<int>(type: "int", nullable: false),
+                    XRetweetCount = table.Column<int>(type: "int", nullable: false),
+                    XReplyCount = table.Column<int>(type: "int", nullable: false),
+                    XLikeCount = table.Column<int>(type: "int", nullable: false),
+                    XQuoteCount = table.Column<int>(type: "int", nullable: false),
+                    XBookmarkCount = table.Column<int>(type: "int", nullable: false),
+                    XImpressionCount = table.Column<int>(type: "int", nullable: false),
+                    FacebookScore = table.Column<double>(type: "float", nullable: false),
+                    XScore = table.Column<double>(type: "float", nullable: false),
+                    SiteScore = table.Column<double>(type: "float", nullable: false),
+                    AverageScore = table.Column<double>(type: "float", nullable: false),
+                    FacebookCTR = table.Column<double>(type: "float", nullable: false),
+                    XCTR = table.Column<double>(type: "float", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_TourTemplateReport", x => x.ReportId);
+                    table.ForeignKey(
+                        name: "FK_TourTemplateReport_Province_ProvinceId",
+                        column: x => x.ProvinceId,
+                        principalTable: "Province",
+                        principalColumn: "ProvinceId",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_TourTemplateReport_TourCategory_TourCategoryId",
+                        column: x => x.TourCategoryId,
+                        principalTable: "TourCategory",
+                        principalColumn: "TourCategoryId",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "TourTemplate",
                 columns: table => new
                 {
                     TourTemplateId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
                     Code = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true),
                     TourName = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
+                    StartingProvince = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true),
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     DurationId = table.Column<string>(type: "nvarchar(20)", nullable: true),
                     TourCategoryId = table.Column<string>(type: "nvarchar(20)", nullable: true),
+                    Transportation = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Note = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Status = table.Column<int>(type: "int", nullable: false),
                     MinPrice = table.Column<decimal>(type: "decimal(18,2)", nullable: true),
@@ -292,6 +517,11 @@ namespace VietWay.Repository.Migrations
                 {
                     table.PrimaryKey("PK_TourTemplate", x => x.TourTemplateId);
                     table.ForeignKey(
+                        name: "FK_TourTemplate_Province_StartingProvince",
+                        column: x => x.StartingProvince,
+                        principalTable: "Province",
+                        principalColumn: "ProvinceId");
+                    table.ForeignKey(
                         name: "FK_TourTemplate_TourCategory_TourCategoryId",
                         column: x => x.TourCategoryId,
                         principalTable: "TourCategory",
@@ -301,6 +531,25 @@ namespace VietWay.Repository.Migrations
                         column: x => x.DurationId,
                         principalTable: "TourDuration",
                         principalColumn: "DurationId");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "EntityStatusHistory",
+                columns: table => new
+                {
+                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    OldStatus = table.Column<int>(type: "int", nullable: false),
+                    NewStatus = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_EntityStatusHistory", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_EntityStatusHistory_EntityHistory_Id",
+                        column: x => x.Id,
+                        principalTable: "EntityHistory",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -323,11 +572,46 @@ namespace VietWay.Repository.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "AttractionMetric",
+                columns: table => new
+                {
+                    MetricId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
+                    AttractionId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
+                    SiteReferralCount = table.Column<int>(type: "int", nullable: false),
+                    SiteLikeCount = table.Column<int>(type: "int", nullable: false),
+                    FacebookReferralCount = table.Column<int>(type: "int", nullable: false),
+                    XReferralCount = table.Column<int>(type: "int", nullable: false),
+                    FiveStarRatingCount = table.Column<int>(type: "int", nullable: false),
+                    FiveStarRatingLikeCount = table.Column<int>(type: "int", nullable: false),
+                    FourStarRatingCount = table.Column<int>(type: "int", nullable: false),
+                    FourStarRatingLikeCount = table.Column<int>(type: "int", nullable: false),
+                    ThreeStarRatingCount = table.Column<int>(type: "int", nullable: false),
+                    ThreeStarRatingLikeCount = table.Column<int>(type: "int", nullable: false),
+                    TwoStarRatingCount = table.Column<int>(type: "int", nullable: false),
+                    TwoStarRatingLikeCount = table.Column<int>(type: "int", nullable: false),
+                    OneStarRatingCount = table.Column<int>(type: "int", nullable: false),
+                    OneStarRatingLikeCount = table.Column<int>(type: "int", nullable: false),
+                    Score = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_AttractionMetric", x => x.MetricId);
+                    table.ForeignKey(
+                        name: "FK_AttractionMetric_Attraction_AttractionId",
+                        column: x => x.AttractionId,
+                        principalTable: "Attraction",
+                        principalColumn: "AttractionId",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "AttractionLike",
                 columns: table => new
                 {
                     AttractionId = table.Column<string>(type: "nvarchar(20)", nullable: false),
-                    CustomerId = table.Column<string>(type: "nvarchar(20)", nullable: false)
+                    CustomerId = table.Column<string>(type: "nvarchar(20)", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -380,7 +664,8 @@ namespace VietWay.Repository.Migrations
                 columns: table => new
                 {
                     PostId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
-                    CustomerId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false)
+                    CustomerId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -400,21 +685,79 @@ namespace VietWay.Repository.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "PostMetric",
+                columns: table => new
+                {
+                    MetricId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
+                    PostId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true),
+                    SiteReferralCount = table.Column<int>(type: "int", nullable: false),
+                    SiteSaveCount = table.Column<int>(type: "int", nullable: false),
+                    FacebookReferralCount = table.Column<int>(type: "int", nullable: false),
+                    XReferralCount = table.Column<int>(type: "int", nullable: false),
+                    Score = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_PostMetric", x => x.MetricId);
+                    table.ForeignKey(
+                        name: "FK_PostMetric_Post_PostId",
+                        column: x => x.PostId,
+                        principalTable: "Post",
+                        principalColumn: "PostId");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "SocialMediaPost",
+                columns: table => new
+                {
+                    SocialPostId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    Site = table.Column<int>(type: "int", nullable: false),
+                    EntityType = table.Column<int>(type: "int", nullable: false),
+                    AttractionId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true),
+                    PostId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true),
+                    TourTemplateId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_SocialMediaPost", x => x.SocialPostId);
+                    table.ForeignKey(
+                        name: "FK_SocialMediaPost_Attraction_AttractionId",
+                        column: x => x.AttractionId,
+                        principalTable: "Attraction",
+                        principalColumn: "AttractionId");
+                    table.ForeignKey(
+                        name: "FK_SocialMediaPost_Post_PostId",
+                        column: x => x.PostId,
+                        principalTable: "Post",
+                        principalColumn: "PostId");
+                    table.ForeignKey(
+                        name: "FK_SocialMediaPost_TourTemplate_TourTemplateId",
+                        column: x => x.TourTemplateId,
+                        principalTable: "TourTemplate",
+                        principalColumn: "TourTemplateId");
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Tour",
                 columns: table => new
                 {
                     TourId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
                     TourTemplateId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
-                    StartLocation = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),
-                    StartDate = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    StartLocation = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    StartLocationPlaceId = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    StartDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     DefaultTouristPrice = table.Column<decimal>(type: "decimal(18,2)", nullable: true),
-                    RegisterOpenDate = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    RegisterCloseDate = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    MaxParticipant = table.Column<int>(type: "int", nullable: true),
-                    MinParticipant = table.Column<int>(type: "int", nullable: true),
+                    RegisterOpenDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    RegisterCloseDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    MaxParticipant = table.Column<int>(type: "int", nullable: false),
+                    MinParticipant = table.Column<int>(type: "int", nullable: false),
                     CurrentParticipant = table.Column<int>(type: "int", nullable: false),
                     Status = table.Column<int>(type: "int", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    DepositPercent = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    PaymentDeadline = table.Column<DateTime>(type: "datetime2", nullable: true),
                     IsDeleted = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
@@ -445,6 +788,35 @@ namespace VietWay.Repository.Migrations
                         principalTable: "TourTemplate",
                         principalColumn: "TourTemplateId",
                         onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "TourTemplateMetric",
+                columns: table => new
+                {
+                    MetricId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
+                    TourTemplateId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true),
+                    SiteReferralCount = table.Column<int>(type: "int", nullable: false),
+                    BookingCount = table.Column<int>(type: "int", nullable: false),
+                    CancellationCount = table.Column<int>(type: "int", nullable: false),
+                    FacebookReferralCount = table.Column<int>(type: "int", nullable: false),
+                    XReferralCount = table.Column<int>(type: "int", nullable: false),
+                    FiveStarRatingCount = table.Column<int>(type: "int", nullable: false),
+                    FourStarRatingCount = table.Column<int>(type: "int", nullable: false),
+                    ThreeStarRatingCount = table.Column<int>(type: "int", nullable: false),
+                    TwoStarRatingCount = table.Column<int>(type: "int", nullable: false),
+                    OneStarRatingCount = table.Column<int>(type: "int", nullable: false),
+                    Score = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_TourTemplateMetric", x => x.MetricId);
+                    table.ForeignKey(
+                        name: "FK_TourTemplateMetric_TourTemplate_TourTemplateId",
+                        column: x => x.TourTemplateId,
+                        principalTable: "TourTemplate",
+                        principalColumn: "TourTemplateId");
                 });
 
             migrationBuilder.CreateTable(
@@ -496,7 +868,8 @@ namespace VietWay.Repository.Migrations
                 columns: table => new
                 {
                     ReviewId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
-                    CustomerId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false)
+                    CustomerId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -516,6 +889,86 @@ namespace VietWay.Repository.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "FacebookPostMetric",
+                columns: table => new
+                {
+                    MetricId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    SocialPostId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    PostClickCount = table.Column<int>(type: "int", nullable: false),
+                    ImpressionCount = table.Column<int>(type: "int", nullable: false),
+                    LikeCount = table.Column<int>(type: "int", nullable: false),
+                    LoveCount = table.Column<int>(type: "int", nullable: false),
+                    WowCount = table.Column<int>(type: "int", nullable: false),
+                    HahaCount = table.Column<int>(type: "int", nullable: false),
+                    SorryCount = table.Column<int>(type: "int", nullable: false),
+                    AngerCount = table.Column<int>(type: "int", nullable: false),
+                    ShareCount = table.Column<int>(type: "int", nullable: false),
+                    CommentCount = table.Column<int>(type: "int", nullable: false),
+                    Score = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_FacebookPostMetric", x => x.MetricId);
+                    table.ForeignKey(
+                        name: "FK_FacebookPostMetric_SocialMediaPost_SocialPostId",
+                        column: x => x.SocialPostId,
+                        principalTable: "SocialMediaPost",
+                        principalColumn: "SocialPostId",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "SocialMediaPostHashtag",
+                columns: table => new
+                {
+                    SocialPostId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    HashtagId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_SocialMediaPostHashtag", x => new { x.SocialPostId, x.HashtagId });
+                    table.ForeignKey(
+                        name: "FK_SocialMediaPostHashtag_Hashtag_HashtagId",
+                        column: x => x.HashtagId,
+                        principalTable: "Hashtag",
+                        principalColumn: "HashtagId",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_SocialMediaPostHashtag_SocialMediaPost_SocialPostId",
+                        column: x => x.SocialPostId,
+                        principalTable: "SocialMediaPost",
+                        principalColumn: "SocialPostId",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "TwitterPostMetric",
+                columns: table => new
+                {
+                    MetricId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    SocialPostId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    RetweetCount = table.Column<int>(type: "int", nullable: false),
+                    ReplyCount = table.Column<int>(type: "int", nullable: false),
+                    LikeCount = table.Column<int>(type: "int", nullable: false),
+                    QuoteCount = table.Column<int>(type: "int", nullable: false),
+                    BookmarkCount = table.Column<int>(type: "int", nullable: false),
+                    ImpressionCount = table.Column<int>(type: "int", nullable: false),
+                    Score = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_TwitterPostMetric", x => x.MetricId);
+                    table.ForeignKey(
+                        name: "FK_TwitterPostMetric_SocialMediaPost_SocialPostId",
+                        column: x => x.SocialPostId,
+                        principalTable: "SocialMediaPost",
+                        principalColumn: "SocialPostId",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Booking",
                 columns: table => new
                 {
@@ -528,6 +981,7 @@ namespace VietWay.Repository.Migrations
                     ContactPhoneNumber = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: false),
                     ContactAddress = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),
                     TotalPrice = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    PaidAmount = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     Status = table.Column<int>(type: "int", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     Note = table.Column<string>(type: "nvarchar(max)", nullable: true)
@@ -643,6 +1097,32 @@ namespace VietWay.Repository.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "BookingRefund",
+                columns: table => new
+                {
+                    RefundId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
+                    BookingId = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
+                    RefundAmount = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    RefundStatus = table.Column<int>(type: "int", nullable: false),
+                    RefundDate = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    RefundReason = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    RefundNote = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    BankCode = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    BankTransactionNumber = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_BookingRefund", x => x.RefundId);
+                    table.ForeignKey(
+                        name: "FK_BookingRefund_Booking_BookingId",
+                        column: x => x.BookingId,
+                        principalTable: "Booking",
+                        principalColumn: "BookingId",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "BookingTourist",
                 columns: table => new
                 {
@@ -654,6 +1134,7 @@ namespace VietWay.Repository.Migrations
                     DateOfBirth = table.Column<DateTime>(type: "datetime2", nullable: false),
                     HasAttended = table.Column<bool>(type: "bit", nullable: true),
                     Price = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    PIN = table.Column<string>(type: "nvarchar(12)", maxLength: 12, nullable: true),
                     Note = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
@@ -724,6 +1205,21 @@ namespace VietWay.Repository.Migrations
                 column: "CustomerId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_AttractionMetric_AttractionId",
+                table: "AttractionMetric",
+                column: "AttractionId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AttractionReport_AttractionCategoryId",
+                table: "AttractionReport",
+                column: "AttractionCategoryId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AttractionReport_ProvinceId",
+                table: "AttractionReport",
+                column: "ProvinceId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_AttractionReview_AttractionId_CustomerId",
                 table: "AttractionReview",
                 columns: new[] { "AttractionId", "CustomerId" },
@@ -760,6 +1256,11 @@ namespace VietWay.Repository.Migrations
                 column: "BookingId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_BookingRefund_BookingId",
+                table: "BookingRefund",
+                column: "BookingId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_BookingTourist_BookingId",
                 table: "BookingTourist",
                 column: "BookingId");
@@ -768,6 +1269,21 @@ namespace VietWay.Repository.Migrations
                 name: "IX_Customer_ProvinceId",
                 table: "Customer",
                 column: "ProvinceId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_EntityHistory_ModifiedBy",
+                table: "EntityHistory",
+                column: "ModifiedBy");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_FacebookPostMetric_SocialPostId",
+                table: "FacebookPostMetric",
+                column: "SocialPostId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_HashtagReport_HashtagId",
+                table: "HashtagReport",
+                column: "HashtagId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Post_PostCategoryId",
@@ -783,6 +1299,41 @@ namespace VietWay.Repository.Migrations
                 name: "IX_PostLike_CustomerId",
                 table: "PostLike",
                 column: "CustomerId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_PostMetric_PostId",
+                table: "PostMetric",
+                column: "PostId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_PostReport_PostCategoryId",
+                table: "PostReport",
+                column: "PostCategoryId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_PostReport_ProvinceId",
+                table: "PostReport",
+                column: "ProvinceId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_SocialMediaPost_AttractionId",
+                table: "SocialMediaPost",
+                column: "AttractionId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_SocialMediaPost_PostId",
+                table: "SocialMediaPost",
+                column: "PostId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_SocialMediaPost_TourTemplateId",
+                table: "SocialMediaPost",
+                column: "TourTemplateId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_SocialMediaPostHashtag_HashtagId",
+                table: "SocialMediaPostHashtag",
+                column: "HashtagId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Tour_TourTemplateId",
@@ -811,6 +1362,11 @@ namespace VietWay.Repository.Migrations
                 column: "DurationId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_TourTemplate_StartingProvince",
+                table: "TourTemplate",
+                column: "StartingProvince");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_TourTemplate_TourCategoryId",
                 table: "TourTemplate",
                 column: "TourCategoryId");
@@ -821,9 +1377,29 @@ namespace VietWay.Repository.Migrations
                 column: "TourTemplateId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_TourTemplateMetric_TourTemplateId",
+                table: "TourTemplateMetric",
+                column: "TourTemplateId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_TourTemplateProvince_ProvinceId",
                 table: "TourTemplateProvince",
                 column: "ProvinceId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_TourTemplateReport_ProvinceId",
+                table: "TourTemplateReport",
+                column: "ProvinceId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_TourTemplateReport_TourCategoryId",
+                table: "TourTemplateReport",
+                column: "TourCategoryId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_TwitterPostMetric_SocialPostId",
+                table: "TwitterPostMetric",
+                column: "SocialPostId");
         }
 
         /// <inheritdoc />
@@ -836,6 +1412,12 @@ namespace VietWay.Repository.Migrations
                 name: "AttractionLike");
 
             migrationBuilder.DropTable(
+                name: "AttractionMetric");
+
+            migrationBuilder.DropTable(
+                name: "AttractionReport");
+
+            migrationBuilder.DropTable(
                 name: "AttractionReviewLike");
 
             migrationBuilder.DropTable(
@@ -845,16 +1427,34 @@ namespace VietWay.Repository.Migrations
                 name: "BookingPayment");
 
             migrationBuilder.DropTable(
+                name: "BookingRefund");
+
+            migrationBuilder.DropTable(
                 name: "BookingTourist");
 
             migrationBuilder.DropTable(
                 name: "EntityStatusHistory");
 
             migrationBuilder.DropTable(
+                name: "FacebookPostMetric");
+
+            migrationBuilder.DropTable(
+                name: "HashtagReport");
+
+            migrationBuilder.DropTable(
                 name: "Manager");
 
             migrationBuilder.DropTable(
                 name: "PostLike");
+
+            migrationBuilder.DropTable(
+                name: "PostMetric");
+
+            migrationBuilder.DropTable(
+                name: "PostReport");
+
+            migrationBuilder.DropTable(
+                name: "SocialMediaPostHashtag");
 
             migrationBuilder.DropTable(
                 name: "Staff");
@@ -872,7 +1472,16 @@ namespace VietWay.Repository.Migrations
                 name: "TourTemplateImage");
 
             migrationBuilder.DropTable(
+                name: "TourTemplateMetric");
+
+            migrationBuilder.DropTable(
                 name: "TourTemplateProvince");
+
+            migrationBuilder.DropTable(
+                name: "TourTemplateReport");
+
+            migrationBuilder.DropTable(
+                name: "TwitterPostMetric");
 
             migrationBuilder.DropTable(
                 name: "AttractionReview");
@@ -884,16 +1493,13 @@ namespace VietWay.Repository.Migrations
                 name: "EntityHistory");
 
             migrationBuilder.DropTable(
-                name: "Post");
+                name: "Hashtag");
 
             migrationBuilder.DropTable(
                 name: "Booking");
 
             migrationBuilder.DropTable(
-                name: "Attraction");
-
-            migrationBuilder.DropTable(
-                name: "PostCategory");
+                name: "SocialMediaPost");
 
             migrationBuilder.DropTable(
                 name: "Customer");
@@ -902,16 +1508,25 @@ namespace VietWay.Repository.Migrations
                 name: "Tour");
 
             migrationBuilder.DropTable(
-                name: "AttractionCategory");
+                name: "Attraction");
+
+            migrationBuilder.DropTable(
+                name: "Post");
 
             migrationBuilder.DropTable(
                 name: "Account");
 
             migrationBuilder.DropTable(
-                name: "Province");
+                name: "TourTemplate");
 
             migrationBuilder.DropTable(
-                name: "TourTemplate");
+                name: "AttractionCategory");
+
+            migrationBuilder.DropTable(
+                name: "PostCategory");
+
+            migrationBuilder.DropTable(
+                name: "Province");
 
             migrationBuilder.DropTable(
                 name: "TourCategory");
