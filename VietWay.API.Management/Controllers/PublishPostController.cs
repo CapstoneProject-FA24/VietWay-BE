@@ -32,9 +32,9 @@ namespace VietWay.API.Management.Controllers
         [HttpPost("post/{postId}/twitter")]
         [Produces("application/json")]
         [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status200OK)]
-        public async Task<IActionResult> UploadPostTwitterAsync(string postId)
+        public async Task<IActionResult> UploadPostTwitterAsync(string postId, [FromBody] List<string> hashtagName)
         {
-            await _publishPostService.PublishPostWithXAsync(postId);
+            await _publishPostService.PublishPostWithXAsync(postId, hashtagName);
             return Ok(new DefaultResponseModel<object>
             {
                 Message = "Publish post to X successfully",

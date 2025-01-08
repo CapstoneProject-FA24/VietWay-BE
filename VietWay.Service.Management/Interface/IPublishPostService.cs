@@ -7,7 +7,7 @@ namespace VietWay.Service.Management.Interface
     public interface IPublishPostService
     {
         public Task<List<FacebookMetricsDTO>> GetFacebookPostMetricsAsync(string entityId, SocialMediaPostEntity entityType);
-        public Task PublishPostWithXAsync(string postId);
+        public Task PublishPostWithXAsync(string postId, List<string> hashtagName);
         Task PublishPostToFacebookPageAsync(string postId);
         public Task<List<TweetDTO>> GetPublishedTweetByIdAsync(string entityId, SocialMediaPostEntity entityType);
         public Task PublishAttractionWithXAsync(string attractionId);

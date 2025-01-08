@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using IdGen;
+using Microsoft.EntityFrameworkCore;
 using System.Globalization;
 using System.Text.Json;
 using Tweetinvi.Core.Extensions;
@@ -13,17 +14,19 @@ using VietWay.Service.ThirdParty.Redis;
 using VietWay.Service.ThirdParty.Twitter;
 using VietWay.Util.CustomExceptions;
 using VietWay.Util.DateTimeUtil;
+using VietWay.Util.IdUtil;
 
 namespace VietWay.Service.Management.Implement
 {
     public class PublishPostService(IUnitOfWork unitOfWork, ITwitterService twitterService, IFacebookService facebookService,
-        IRedisCacheService redisCacheService, ITimeZoneHelper timeZoneHelper) : IPublishPostService
+        IRedisCacheService redisCacheService, ITimeZoneHelper timeZoneHelper, IIdGenerator idGenerator) : IPublishPostService
     {
         private readonly ITwitterService _twitterService = twitterService;
         private readonly IUnitOfWork _unitOfWork = unitOfWork;
         private readonly IFacebookService _facebookService = facebookService;
         private readonly IRedisCacheService _redisCacheService = redisCacheService;
         private readonly ITimeZoneHelper _timeZoneHelper = timeZoneHelper;
+        private readonly IIdGenerator _idGenerator = idGenerator;
 
         public async Task<List<FacebookMetricsDTO>> GetFacebookPostMetricsAsync(string entityId, SocialMediaPostEntity entityType)
         {
@@ -105,7 +108,7 @@ namespace VietWay.Service.Management.Implement
             return tweetDto;
         }
 
-        public async Task PublishPostWithXAsync(string postId)
+        public async Task PublishPostWithXAsync(string postId, List<string> hashtagName)
         {
             Post? post = await _unitOfWork.PostRepository.Query()
                 .SingleOrDefaultAsync(x => x.PostId.Equals(postId)) ??
@@ -116,16 +119,9 @@ namespace VietWay.Service.Management.Implement
                 throw new InvalidActionException("INVALID_ACTION_POST_NOT_APPROVED");
             }
 
-            /*bool isPublished = await _unitOfWork.SocialMediaPostRepository.Query()
-                .AnyAsync(x => x.EntityType == SocialMediaPostEntity.Post && x.EntityId == post.PostId && x.Site == SocialMediaSite.Twitter);
-            if (isPublished)
-            {
-                throw new InvalidActionException("INVALID_ACTION_POST_PUBLISHED");
-            }*/
-
             PostTweetRequestDTO postTweetRequestDTO = new()
             {
-                Text = $"{post.Title.ToUpper()}\n\nXem thêm tại: https://vietway.projectpioneer.id.vn/bai-viet/{post.PostId}",
+                Text = $"{post.Title.ToUpper()}\n\nXem thêm tại: https://vietway.projectpioneer.id.vn/bai-viet/{post.PostId}\n{string.Join(" ", hashtagName)}",
                 ImageUrl = post.ImageUrl
             };
             string result = await _twitterService.PostTweetAsync(postTweetRequestDTO);
@@ -139,6 +135,7 @@ namespace VietWay.Service.Management.Implement
                     throw new ServerErrorException("Post tweet error");
                 }
                 await _unitOfWork.BeginTransactionAsync();
+
                 SocialMediaPost socialMediaPost = new()
                 {
                     SocialPostId = tweetId,
@@ -148,6 +145,27 @@ namespace VietWay.Service.Management.Implement
                     CreatedAt = _timeZoneHelper.GetUTC7Now(),
                 };
                 await _unitOfWork.SocialMediaPostRepository.CreateAsync(socialMediaPost);
+
+                foreach (var hashtag in hashtagName)
+                {
+                    Hashtag? tag = await _unitOfWork.HashtagRepository.Query()
+                        .SingleOrDefaultAsync(x => x.HashtagName.Equals(hashtagName));
+                    if (tag == null)
+                    {
+                        tag = new Hashtag();
+                        tag.HashtagId = _idGenerator.GenerateId();
+                        tag.HashtagName = hashtag;
+                        tag.CreatedAt = _timeZoneHelper.GetUTC7Now();
+                        await _unitOfWork.HashtagRepository.CreateAsync(tag);
+                    }
+                    SocialMediaPostHashtag socialMediaPostHashtag = new()
+                    {
+                        SocialPostId = tweetId,
+                        HashtagId = tag.HashtagId
+                    };
+                    await _unitOfWork.SocialMediaPostHashtagRepository.CreateAsync(socialMediaPostHashtag);
+                }
+                
                 await _unitOfWork.CommitTransactionAsync();
             }
             catch
