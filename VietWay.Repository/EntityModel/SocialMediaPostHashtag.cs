@@ -9,12 +9,12 @@ using System.Threading.Tasks;
 
 namespace VietWay.Repository.EntityModel
 {
-    [PrimaryKey(nameof(AttractionId),nameof(HashtagId))]
-    public class AttractionHashtag
+    [PrimaryKey(nameof(SocialPostId),nameof(HashtagId))]
+    public class SocialMediaPostHashtag
     {
-        [ForeignKey(nameof(Attraction))]
+        [ForeignKey(nameof(SocialMediaPost))]
         [Required]
-        public string AttractionId { get; set; }
+        public string SocialPostId { get; set; }
         [ForeignKey(nameof(Hashtag))]
         [Required]
         public string HashtagId { get; set; }
