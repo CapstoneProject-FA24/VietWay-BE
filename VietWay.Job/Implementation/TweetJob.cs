@@ -45,30 +45,22 @@ namespace VietWay.Job.Implementation
 
         public async Task GetPopularHashtagJob()
         {
-            var hashtags = await _unitOfWork.HashtagRepository.Query().ToListAsync();
+            var hashtag = await _unitOfWork.HashtagRepository.Query().FirstOrDefaultAsync();
 
-            if (hashtags.IsNullOrEmpty())
+            if (hashtag == null)
             {
                 return;
             }
 
-            Dictionary<string, int> hashtagCount = await _twitterService.GetHashtagCountsAsync(hashtags.Select(x => x.HashtagName).ToList());
+            int hashtagCount = await _twitterService.GetHashtagCountsAsync(hashtag.HashtagName);
+            Dictionary<string, int> hashtagCounts = await _redisCacheService.GetAsync<Dictionary<string, int>>("hashtagCounts");
+            if(hashtagCounts == null)
+            {
+                hashtagCounts = new Dictionary<string, int>();
+            }
+            hashtagCounts.Add(hashtag.HashtagId, hashtagCount);
 
-            var systemHashtagNames = hashtags.Select(h => h.HashtagName).ToHashSet(StringComparer.OrdinalIgnoreCase);
-
-            var topHashtags = hashtagCount
-                .Where(kvp => systemHashtagNames.Contains(kvp.Key))
-                .OrderByDescending(kvp => kvp.Value)
-                .Take(5)
-                .Select(kvp => kvp.Key)
-                .ToList();
-
-            var topHashtagIds = hashtags
-                .Where(h => topHashtags.Contains(h.HashtagName))
-                .Select(h => h.HashtagId)
-                .ToList();
-
-            await _redisCacheService.SetAsync("popularHashtag", topHashtagIds);
+            await _redisCacheService.SetAsync("hashtagCounts", hashtagCounts);
         }
     }
 }

@@ -18,7 +18,7 @@ namespace VietWay.Service.Management.Implement
         private const string ATTRACTION_CATEGORY_REDIS_KEY = "popularAttractionCategories";
         private const string POST_CATEGORY_REDIS_KEY = "popularPostCategories";
         private const string TOUR_CATEGORY_REDIS_KEY = "popularTourCategories";
-        private const string HASHTAG_REDIS_KEY = "popularHashtag";
+        private const string HASHTAG_REDIS_KEY = "hashtagCounts";
 
         public PopularService(
             IUnitOfWork unitOfWork,
@@ -230,35 +230,34 @@ namespace VietWay.Service.Management.Implement
             }
         }
 
-        public async Task<List<string>> GetPopularHashtagsAsync()
+        public async Task<List<string>> GetPopularHashtagsAsync(bool isTwitter)
         {
-            try
+            var hashtagCounts = await _redisCacheService.GetAsync<Dictionary<string, int>>(HASHTAG_REDIS_KEY);
+            if (hashtagCounts != null && hashtagCounts.Any() && isTwitter)
             {
-                var xPopularHashtag = await _redisCacheService.GetAsync<List<string>>(HASHTAG_REDIS_KEY);
-                if (xPopularHashtag != null && xPopularHashtag.Any())
-                {
-                    return xPopularHashtag;
-                }
-                else
-                {
-                    var topHashtags = await _unitOfWork.SocialMediaPostHashtagRepository.Query()
-                        .Include(smph => smph.Hashtag)
-                        .GroupBy(smph => smph.Hashtag.HashtagId)
-                        .Select(group => new
-                        {
-                            HashtagId = group.Key,
-                            Count = group.Count()
-                        })
-                        .OrderByDescending(x => x.Count)
-                        .Take(5)
-                        .ToListAsync();
+                var topHashtags = hashtagCounts
+                    .OrderByDescending(kvp => kvp.Value)
+                    .Take(5)
+                    .Select(kvp => kvp.Key)
+                    .ToList();
 
-                    return topHashtags.Select(x => x.HashtagId).ToList();
-                }
+                return topHashtags;
             }
-            catch (Exception)
+            else
             {
-                throw;
+                var topHashtags = await _unitOfWork.SocialMediaPostHashtagRepository.Query()
+                    .Include(smph => smph.Hashtag)
+                    .GroupBy(smph => smph.Hashtag.HashtagId)
+                    .Select(group => new
+                    {
+                        HashtagId = group.Key,
+                        Count = group.Count()
+                    })
+                    .OrderByDescending(x => x.Count)
+                    .Take(5)
+                    .ToListAsync();
+
+                return topHashtags.Select(x => x.HashtagId).ToList();
             }
         }
     }
