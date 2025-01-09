@@ -184,7 +184,7 @@ namespace VietWay.Service.Management.Implement
 
             post.SocialPostDetail = await _unitOfWork.SocialMediaPostRepository
                 .Query()
-                .Where(x => x.EntityType == SocialMediaPostEntity.Post && x.EntityId == postId)
+                .Where(x => x.EntityType == SocialMediaPostEntity.Post && x.PostId == postId)
                 .Select(x => new SocialPostDetailDTO
                 {
                     SocialPostId = x.SocialPostId,

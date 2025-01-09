@@ -260,7 +260,7 @@ namespace VietWay.Service.Management.Implement
 
             tourTemplateDetailDTO.SocialPostDetail = await _unitOfWork.SocialMediaPostRepository
                 .Query()
-                .Where(x => x.EntityType == SocialMediaPostEntity.TourTemplate && x.EntityId == id)
+                .Where(x => x.EntityType == SocialMediaPostEntity.TourTemplate && x.TourTemplateId == id)
                 .Select(x => new SocialPostDetailDTO
                 {
                     SocialPostId = x.SocialPostId,
