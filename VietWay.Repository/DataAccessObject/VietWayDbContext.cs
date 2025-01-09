@@ -45,6 +45,12 @@ namespace VietWay.Repository.DataAccessObject
         public DbSet<TourTemplateProvince> TourTemplateProvince { get; set; }
         public DbSet<TourTemplateSchedule> TourTemplateSchedule { get; set; }
         public DbSet<TwitterPostMetric> TwitterPostMetric { get; set; }
+        public DbSet<Hashtag> Hashtag { get; set; }
+        public DbSet<SocialMediaPostHashtag> SocialMediaPostHashtag { get; set; }
+        public DbSet<HashtagReport> HashtagReport { get; set; }
+        public DbSet<PostReport> PostReport { get; set; }
+        public DbSet<AttractionReport> AttractionReport { get; set; }
+        public DbSet<TourTemplateReport> TourTemplateReport { get; set; }
         #endregion
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

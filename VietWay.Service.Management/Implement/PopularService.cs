@@ -18,6 +18,7 @@ namespace VietWay.Service.Management.Implement
         private const string ATTRACTION_CATEGORY_REDIS_KEY = "popularAttractionCategories";
         private const string POST_CATEGORY_REDIS_KEY = "popularPostCategories";
         private const string TOUR_CATEGORY_REDIS_KEY = "popularTourCategories";
+        private const string HASHTAG_REDIS_KEY = "popularHashtag";
 
         public PopularService(
             IUnitOfWork unitOfWork,
@@ -221,6 +222,38 @@ namespace VietWay.Service.Management.Implement
                         TOUR_CATEGORY_REDIS_KEY,
                         categoryIds
                     );
+                }
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        public async Task<List<string>> GetPopularHashtagsAsync()
+        {
+            try
+            {
+                var xPopularHashtag = await _redisCacheService.GetAsync<List<string>>(HASHTAG_REDIS_KEY);
+                if (xPopularHashtag != null && xPopularHashtag.Any())
+                {
+                    return xPopularHashtag;
+                }
+                else
+                {
+                    var topHashtags = await _unitOfWork.SocialMediaPostHashtagRepository.Query()
+                        .Include(smph => smph.Hashtag)
+                        .GroupBy(smph => smph.Hashtag.HashtagId)
+                        .Select(group => new
+                        {
+                            HashtagId = group.Key,
+                            Count = group.Count()
+                        })
+                        .OrderByDescending(x => x.Count)
+                        .Take(5)
+                        .ToListAsync();
+
+                    return topHashtags.Select(x => x.HashtagId).ToList();
                 }
             }
             catch (Exception)

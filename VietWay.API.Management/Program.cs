@@ -261,6 +261,8 @@ namespace VietWay.API.Management
             recurringJobManager
                 .AddOrUpdate<ITweetJob>("getTweetsDetail", (x) => x.GetPublishedTweetsJob(), () => "*/20 * * * *");
             recurringJobManager
+                .AddOrUpdate<ITweetJob>("getPopularHashtag", (x) => x.GetPublishedTweetsJob(), () => "*/16 * * * *");
+            recurringJobManager
                 .AddOrUpdate<IProvinceJob>("cacheProvinces", (x) => x.CacheProvinceJob(), () => "0 17 * * *");
             recurringJobManager
                 .AddOrUpdate<ITourCategoryJob>("cacheTourCategories", (x) => x.CacheTourCategoryJob(), () => "0 17 * * *");

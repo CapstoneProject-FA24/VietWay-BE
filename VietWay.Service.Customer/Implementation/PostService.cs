@@ -11,13 +11,15 @@ using VietWay.Service.Customer.DataTransferObject;
 using VietWay.Service.Customer.Interface;
 using VietWay.Util.CustomExceptions;
 using VietWay.Util.DateTimeUtil;
+using VietWay.Service.ThirdParty.Redis;
 
 namespace VietWay.Service.Customer.Implementation
 {
-    public class PostService(IUnitOfWork unitOfWork, ITimeZoneHelper timeZoneHelper) : IPostService
+    public class PostService(IUnitOfWork unitOfWork, ITimeZoneHelper timeZoneHelper, IRedisCacheService redisCacheService) : IPostService
     {
         private readonly IUnitOfWork _unitOfWork = unitOfWork;
         private readonly ITimeZoneHelper _timeZoneHelper = timeZoneHelper;
+        private readonly IRedisCacheService _redisCacheService = redisCacheService;
 
         public async Task<PaginatedList<PostPreviewDTO>> GetCustomerLikedPostPreviewsAsync(string customerId, int pageSize, int pageIndex)
         {
@@ -48,9 +50,9 @@ namespace VietWay.Service.Customer.Implementation
             };
         }
 
-        public async Task<PostDetailDTO?> GetPostDetailAsync(string postId, string? customerId)
+        public async Task<PostDetailDTO?> GetPostDetailAsync(string postId, string? customerId, SocialMediaSite? socialMediaSite)
         {
-            return await _unitOfWork.PostRepository.Query()
+            PostDetailDTO post = await _unitOfWork.PostRepository.Query()
                 .Select(x => new PostDetailDTO
                 {
                     PostId = x.PostId,
@@ -66,6 +68,20 @@ namespace VietWay.Service.Customer.Implementation
                     IsLiked = customerId != null && x.PostLikes.Any(y => y.CustomerId.Equals(customerId))
                 })
                 .SingleOrDefaultAsync(x => x.PostId.Equals(postId));
+            switch (socialMediaSite)
+            {
+                case SocialMediaSite.Facebook:
+                    await _redisCacheService.IncrementAsync($"facebookReferrence-{SocialMediaPostEntity.Post}-{postId}");
+                    break;
+                case SocialMediaSite.Twitter:
+                    await _redisCacheService.IncrementAsync($"twitterReferrence-{SocialMediaPostEntity.Post} - {postId}");
+                    break;
+                default:
+                    await _redisCacheService.IncrementAsync($"siteReferrence-{SocialMediaPostEntity.Post} - {postId}");
+                    break;
+            }
+
+            return post;
         }
 
         public async Task<PaginatedList<PostPreviewDTO>> GetPostPreviewsAsync(string? nameSearch, List<string>? provinceIds, 

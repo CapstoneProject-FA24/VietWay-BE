@@ -15,5 +15,6 @@ namespace VietWay.Service.ThirdParty.Redis
         public Task SetMultipleAsync<T>(Dictionary<string, T> keyValues);
         public Task<int> CreateIntId(string value, TimeSpan? expiry = null);
         public Task<string?> GetValueFromIntId(int id);
+        public Task IncrementAsync(string key);
     }
 }

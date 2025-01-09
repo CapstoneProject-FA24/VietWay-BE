@@ -10,7 +10,6 @@ namespace VietWay.Service.Management.DataTransferObject
     {
         public int TotalFacebookPost { get; set; }
         public int FacebookImpressionCount { get; set; }
-        public int FacebookReferralCount { get; set; }
         public int FacebookCommentCount { get; set; }
         public int FacebookShareCount { get; set; }
         public int FacebookReactionCount { get; set; }
@@ -19,7 +18,6 @@ namespace VietWay.Service.Management.DataTransferObject
         public int XReplyCount { get; set; }
         public int XLikeCount { get; set; }
         public int XImpressionCount { get; set; }
-        public int XReferralCount { get; set; }
     }
 }
         

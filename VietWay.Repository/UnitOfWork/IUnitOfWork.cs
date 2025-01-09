@@ -38,6 +38,8 @@ namespace VietWay.Repository.UnitOfWork
         public IGenericRepository<TourPrice> TourPriceRepository { get; }   
         public IGenericRepository<TourRefundPolicy> TourRefundPolicyRepository { get; }
         public IGenericRepository<TwitterPostMetric> TwitterPostMetricRepository { get; }
+        public IGenericRepository<Hashtag> HashtagRepository { get; }
+        public IGenericRepository<SocialMediaPostHashtag> SocialMediaPostHashtagRepository { get; }
         public Task BeginTransactionAsync();
         public Task CommitTransactionAsync();
         public Task RollbackTransactionAsync();

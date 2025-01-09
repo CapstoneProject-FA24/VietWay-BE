@@ -107,11 +107,24 @@
     {
         Facebook,
         Twitter,
+        Vietway
     }
     public enum SocialMediaPostEntity
     {
         Attraction,
         TourTemplate,
         Post
+    }
+    public enum CategoryType
+    {
+        Attraction, //0
+        Tour,      //1
+        Post       //2
+    }
+    public enum ReportPeriod {
+        Daily,
+        Monthly,
+        Quarterly,
+        Yearly
     }
 }
