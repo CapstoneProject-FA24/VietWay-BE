@@ -186,7 +186,7 @@ namespace VietWay.Service.Management.Implement
 
             if (rawCategories != null && rawCategories.Any())
             {
-                return rawCategories;
+                return rawCategories.Take(10).ToList();
             }
             else
             {
