@@ -170,7 +170,7 @@ namespace VietWay.Service.Management.Implement
                     {
                         tag = new Hashtag();
                         tag.HashtagId = _idGenerator.GenerateId();
-                        tag.HashtagName = hashtag.ToLower();
+                        tag.HashtagName = hashtag.Replace("#", "").ToLower();
                         tag.CreatedAt = _timeZoneHelper.GetUTC7Now();
                         await _unitOfWork.HashtagRepository.CreateAsync(tag);
                     }
@@ -234,7 +234,7 @@ namespace VietWay.Service.Management.Implement
                     {
                         tag = new Hashtag();
                         tag.HashtagId = _idGenerator.GenerateId();
-                        tag.HashtagName = hashtag.ToLower();
+                        tag.HashtagName = hashtag.Replace("#", "").ToLower();
                         tag.CreatedAt = _timeZoneHelper.GetUTC7Now();
                         await _unitOfWork.HashtagRepository.CreateAsync(tag);
                     }
@@ -307,7 +307,7 @@ namespace VietWay.Service.Management.Implement
                     {
                         tag = new Hashtag();
                         tag.HashtagId = _idGenerator.GenerateId();
-                        tag.HashtagName = hashtag.ToLower();
+                        tag.HashtagName = hashtag.Replace("#", "").ToLower();
                         tag.CreatedAt = _timeZoneHelper.GetUTC7Now();
                         await _unitOfWork.HashtagRepository.CreateAsync(tag);
                     }
@@ -361,7 +361,7 @@ namespace VietWay.Service.Management.Implement
                     {
                         tag = new Hashtag();
                         tag.HashtagId = _idGenerator.GenerateId();
-                        tag.HashtagName = hashtag.ToLower();
+                        tag.HashtagName = hashtag.Replace("#", "").ToLower();
                         tag.CreatedAt = _timeZoneHelper.GetUTC7Now();
                         await _unitOfWork.HashtagRepository.CreateAsync(tag);
                     }
@@ -417,7 +417,7 @@ namespace VietWay.Service.Management.Implement
                     {
                         tag = new Hashtag();
                         tag.HashtagId = _idGenerator.GenerateId();
-                        tag.HashtagName = hashtag.ToLower();
+                        tag.HashtagName = hashtag.Replace("#", "").ToLower();
                         tag.CreatedAt = _timeZoneHelper.GetUTC7Now();
                         await _unitOfWork.HashtagRepository.CreateAsync(tag);
                     }
@@ -488,7 +488,7 @@ namespace VietWay.Service.Management.Implement
                     {
                         tag = new Hashtag();
                         tag.HashtagId = _idGenerator.GenerateId();
-                        tag.HashtagName = hashtag.ToLower();
+                        tag.HashtagName = hashtag.Replace("#", "").ToLower();
                         tag.CreatedAt = _timeZoneHelper.GetUTC7Now();
                         await _unitOfWork.HashtagRepository.CreateAsync(tag);
                     }

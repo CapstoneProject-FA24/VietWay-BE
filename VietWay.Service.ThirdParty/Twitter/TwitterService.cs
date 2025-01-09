@@ -108,12 +108,11 @@ namespace VietWay.Service.ThirdParty.Twitter
             }
         }
 
-        public async Task<Dictionary<string, int>> GetHashtagCountsAsync(List<string> tags)
+        public async Task<int> GetHashtagCountsAsync(string tag)
         {
             using var httpClient = new HttpClient();
             httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _bearerToken);
-            string hashTags = string.Join("%20OR%20", tags.Select(tag => $"%23{tag.TrimStart('#')}"));
-            var response = await httpClient.GetAsync($"https://api.twitter.com/2/tweets/search/recent?query={hashTags}&tweet.fields=public_metrics");
+            var response = await httpClient.GetAsync($"https://api.twitter.com/2/tweets/search/recent?query=%23{tag.Replace("#", "")}&tweet.fields=public_metrics");
 
             if (!response.IsSuccessStatusCode)
             {
@@ -123,26 +122,22 @@ namespace VietWay.Service.ThirdParty.Twitter
             using JsonDocument document = await JsonDocument.ParseAsync(await response.Content.ReadAsStreamAsync());
             if (!document.RootElement.TryGetProperty("data", out JsonElement tweetData))
             {
-                return null;
+                return 0;
             }
 
-            var hashtagCounts = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
-
+            var hashtagCount = 0;
             foreach (var tweet in tweetData.EnumerateArray())
             {
                 string text = tweet.GetProperty("text").GetString();
                 var hashtags = ExtractHashtags(text);
-
                 foreach (var hashtag in hashtags)
                 {
-                    if (hashtagCounts.ContainsKey(hashtag))
-                        hashtagCounts[hashtag]++;
-                    else
-                        hashtagCounts[hashtag] = 1;
+                    if(hashtag.Equals(tag))
+                        hashtagCount++;
                 }
             }
 
-            return hashtagCounts;
+            return hashtagCount;
         }
 
         private List<string> ExtractHashtags(string input)

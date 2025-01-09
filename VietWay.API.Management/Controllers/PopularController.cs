@@ -112,13 +112,13 @@ namespace VietWay.API.Management.Controllers
         [Produces("application/json")]
         [ProducesResponseType<DefaultResponseModel<List<PopularTourCategoryDTO>>>(StatusCodes.Status200OK)]
         [ProducesResponseType<DefaultResponseModel<string>>(StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> GetPopularHashtag()
+        public async Task<IActionResult> GetPopularHashtag([FromQuery] bool isTwitter)
         {
 
             return Ok(new DefaultResponseModel<List<string>>
             {
                 Message = "Get popular tour categories successfully",
-                Data = await _popularService.GetPopularHashtagsAsync(),
+                Data = await _popularService.GetPopularHashtagsAsync(isTwitter),
                 StatusCode = StatusCodes.Status200OK
             });
         }
