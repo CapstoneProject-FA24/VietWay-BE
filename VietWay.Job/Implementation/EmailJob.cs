@@ -151,6 +151,7 @@ namespace VietWay.Job.Implementation
             template = template
                 .Replace("{{{tourName}}}", bookingDetail.TourName)
                 .Replace("{{{startDate}}}", bookingDetail.StartDate.Value.ToString(@"F", new CultureInfo("vi-VN")))
+                .Replace("{{{endDate}}}", bookingDetail.StartDate.Value.AddDays(bookingDetail.NumberOfDay).ToString(@"F", new CultureInfo("vi-VN")))
                 .Replace("{{{code}}}", bookingDetail.Code)
                 .Replace("{{{startLocation}}}", bookingDetail.StartLocation)
                 .Replace("{{{contactFullName}}}", bookingDetail.ContactFullName)
