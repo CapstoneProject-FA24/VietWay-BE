@@ -30,7 +30,8 @@ namespace VietWay.Job.Implementation
 
             var keyValuePairs = socialMediaPosts
                 .Where(post => tweetLookup.Contains(post.SocialPostId))
-                .GroupBy(post => post.EntityType switch { 
+                .GroupBy(post => post.EntityType switch
+                {
                     SocialMediaPostEntity.Attraction => $"{post.AttractionId}-{(int)post.EntityType}",
                     SocialMediaPostEntity.Post => $"{post.PostId}-{(int)post.EntityType}",
                     SocialMediaPostEntity.TourTemplate => $"{post.TourTemplateId}-{(int)post.EntityType}",
@@ -40,6 +41,34 @@ namespace VietWay.Job.Implementation
                 );
 
             await _redisCacheService.SetMultipleAsync(keyValuePairs);
+        }
+
+        public async Task GetPopularHashtagJob()
+        {
+            var hashtags = await _unitOfWork.HashtagRepository.Query().ToListAsync();
+
+            if (hashtags.IsNullOrEmpty())
+            {
+                return;
+            }
+
+            Dictionary<string, int> hashtagCount = await _twitterService.GetHashtagCountsAsync(hashtags.Select(x => x.HashtagName).ToList());
+
+            var systemHashtagNames = hashtags.Select(h => h.HashtagName).ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+            var topHashtags = hashtagCount
+                .Where(kvp => systemHashtagNames.Contains(kvp.Key))
+                .OrderByDescending(kvp => kvp.Value)
+                .Take(5)
+                .Select(kvp => kvp.Key)
+                .ToList();
+
+            var topHashtagIds = hashtags
+                .Where(h => topHashtags.Contains(h.HashtagName))
+                .Select(h => h.HashtagId)
+                .ToList();
+
+            await _redisCacheService.SetAsync("popularHashtag", topHashtagIds);
         }
     }
 }

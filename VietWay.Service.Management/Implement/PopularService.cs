@@ -18,6 +18,7 @@ namespace VietWay.Service.Management.Implement
         private const string ATTRACTION_REDIS_KEY = "popularAttractionCategories";
         private const string POST_CATEGORY_REDIS_KEY = "popularPostCategories";
         private const string TOUR_CATEGORY_REDIS_KEY = "popularTourCategories";
+        private const string HASHTAG_REDIS_KEY = "popularHashtag";
 
         public PopularService(
             IUnitOfWork unitOfWork,
@@ -224,42 +225,28 @@ namespace VietWay.Service.Management.Implement
             }
         }
 
-        public async Task<List<PopularTourCategoryDTO>> GetPopularTourCategoriesAsync()
+        public async Task<List<string>> GetPopularTourCategoriesAsync()
         {
-            try
+            var rawCategories = await _redisCacheService.GetAsync<List<string>>(TOUR_CATEGORY_REDIS_KEY);
+            var categories = new List<string>();
+
+            if (rawCategories != null && rawCategories.Any())
             {
-                var rawCategories = await _redisCacheService.GetAsync<List<string>>(TOUR_CATEGORY_REDIS_KEY);
-                var categories = new List<PopularTourCategoryDTO>();
-
-                if (rawCategories != null && rawCategories.Any())
-                {
-                    categories = rawCategories.Select(id => new PopularTourCategoryDTO(id)).ToList();
-                }
-                else
-                {
-                    categories = await _unitOfWork.TourCategoryRepository.Query()
-                        .Where(x => !x.IsDeleted)
-                        .OrderBy(x => x.Name)
-                        .Select(x => new PopularTourCategoryDTO(x.TourCategoryId ?? string.Empty))
-                        .ToListAsync();
-
-                    if (categories != null && categories.Any())
-                    {
-                        var categoryIds = categories.Select(p => p.TourCategoryId).ToList();
-                        await _redisCacheService.SetAsync(
-                            TOUR_CATEGORY_REDIS_KEY,
-                            categoryIds,
-                            TimeSpan.FromDays(1)
-                        );
-                    }
-                }
-
-                return categories.Take(10).ToList();
+                return rawCategories;
             }
-            catch (Exception)
+            else
             {
-                return new List<PopularTourCategoryDTO>();
+                categories = await _unitOfWork.TourCategoryRepository.Query()
+                    .Where(x => !x.IsDeleted)
+                    .OrderBy(x => x.Name)
+                    .Take(10)
+                    .Select(x => x.TourCategoryId!)
+                    .ToListAsync();
+
+                await _redisCacheService.SetAsync(TOUR_CATEGORY_REDIS_KEY, categories);
             }
+
+            return categories;
         }
 
         public async Task CachePopularTourCategoriesAsync()
@@ -281,6 +268,38 @@ namespace VietWay.Service.Management.Implement
                         categoryIds,
                         TimeSpan.FromDays(1)
                     );
+                }
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        public async Task<List<string>> GetPopularHashtagsAsync()
+        {
+            try
+            {
+                var xPopularHashtag = await _redisCacheService.GetAsync<List<string>>(HASHTAG_REDIS_KEY);
+                if (xPopularHashtag != null && xPopularHashtag.Any())
+                {
+                    return xPopularHashtag;
+                }
+                else
+                {
+                    var topHashtags = await _unitOfWork.SocialMediaPostHashtagRepository.Query()
+                        .Include(smph => smph.Hashtag)
+                        .GroupBy(smph => smph.Hashtag.HashtagId)
+                        .Select(group => new
+                        {
+                            HashtagId = group.Key,
+                            Count = group.Count()
+                        })
+                        .OrderByDescending(x => x.Count)
+                        .Take(5)
+                        .ToListAsync();
+
+                    return topHashtags.Select(x => x.HashtagId).ToList();
                 }
             }
             catch (Exception)

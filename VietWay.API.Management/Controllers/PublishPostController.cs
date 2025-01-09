@@ -45,9 +45,9 @@ namespace VietWay.API.Management.Controllers
         [HttpPost("tour-template/{templateId}/twitter")]
         [Produces("application/json")]
         [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status200OK)]
-        public async Task<IActionResult> UploadTemplateTwitterAsync(string templateId)
+        public async Task<IActionResult> UploadTemplateTwitterAsync(string templateId, [FromBody] List<string> hashtagName)
         {
-            await _publishPostService.PublishTourTemplateWithXAsync(templateId);
+            await _publishPostService.PublishTourTemplateWithXAsync(templateId, hashtagName);
             return Ok(new DefaultResponseModel<object>
             {
                 Message = "Publish template to X successfully",
@@ -58,9 +58,9 @@ namespace VietWay.API.Management.Controllers
         [HttpPost("attraction/{attractionId}/twitter")]
         [Produces("application/json")]
         [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status200OK)]
-        public async Task<IActionResult> UploadAttractionTwitterAsync(string attractionId)
+        public async Task<IActionResult> UploadAttractionTwitterAsync(string attractionId, [FromBody] List<string> hashtagName)
         {
-            await _publishPostService.PublishAttractionWithXAsync(attractionId);
+            await _publishPostService.PublishAttractionWithXAsync(attractionId, hashtagName);
             return Ok(new DefaultResponseModel<object>
             {
                 Message = "Publish attraction to X successfully",
@@ -71,9 +71,9 @@ namespace VietWay.API.Management.Controllers
         [HttpPost("post/{postId}/facebook")]
         [Produces("application/json")]
         [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status200OK)]
-        public async Task<IActionResult> UploadPostFacebookAsync(string postId)
+        public async Task<IActionResult> UploadPostFacebookAsync(string postId, [FromBody] List<string> hashtagName)
         {
-            await _publishPostService.PublishPostToFacebookPageAsync(postId);
+            await _publishPostService.PublishPostToFacebookPageAsync(postId, hashtagName);
             return Ok(new DefaultResponseModel<object>
             {
                 Message = "Publish post to Facebook successfully",
@@ -84,9 +84,9 @@ namespace VietWay.API.Management.Controllers
         [HttpPost("attraction/{attractionId}/facebook")]
         [Produces("application/json")]
         [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status200OK)]
-        public async Task<IActionResult> UploadAttractionFacebookAsync(string attractionId)
+        public async Task<IActionResult> UploadAttractionFacebookAsync(string attractionId, [FromBody] List<string> hashtagName)
         {
-            await _publishPostService.PublishAttractionToFacebookPageAsync(attractionId);
+            await _publishPostService.PublishAttractionToFacebookPageAsync(attractionId, hashtagName);
             return Ok(new DefaultResponseModel<object>
             {
                 Message = "Publish attraction to Facebook successfully",
@@ -97,9 +97,9 @@ namespace VietWay.API.Management.Controllers
         [HttpPost("tour-template/{templateId}/facebook")]
         [Produces("application/json")]
         [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status200OK)]
-        public async Task<IActionResult> UploadTemplateFacebookAsync(string templateId)
+        public async Task<IActionResult> UploadTemplateFacebookAsync(string templateId, [FromBody] List<string> hashtagName)
         {
-            await _publishPostService.PublishTourTemplateToFacebookPageAsync(templateId);
+            await _publishPostService.PublishTourTemplateToFacebookPageAsync(templateId, hashtagName);
             return Ok(new DefaultResponseModel<object>
             {
                 Message = "Publish tour template to Facebook successfully",
@@ -132,6 +132,19 @@ namespace VietWay.API.Management.Controllers
                 Message = "Get twitter post successfully",
                 StatusCode = StatusCodes.Status200OK,
                 Data = result
+            });
+        }
+
+        [HttpGet("hashtag")]
+        [Produces("application/json")]
+        [ProducesResponseType<DefaultResponseModel<object>>(StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetHashtags()
+        {
+            return Ok(new DefaultResponseModel<List<HashtagDTO>>
+            {
+                Message = "Get twitter post successfully",
+                StatusCode = StatusCodes.Status200OK,
+                Data = await _publishPostService.GetHashtags()
             });
         }
     }

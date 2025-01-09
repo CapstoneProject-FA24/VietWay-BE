@@ -10,7 +10,8 @@ namespace VietWay.Service.Management.Interface
         Task CachePopularAttractionCategoriesAsync();
         Task<List<PopularPostCategoryDTO>> GetPopularPostCategoriesAsync();
         Task CachePopularPostCategoriesAsync();
-        Task<List<PopularTourCategoryDTO>> GetPopularTourCategoriesAsync();
+        Task<List<string>> GetPopularTourCategoriesAsync();
         Task CachePopularTourCategoriesAsync();
+        public Task<List<string>> GetPopularHashtagsAsync();
     }
 }
