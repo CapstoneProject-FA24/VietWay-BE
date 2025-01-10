@@ -31,7 +31,7 @@ namespace VietWay.Service.Management.Implement
 
         public async Task<List<FacebookMetricsDTO>> GetFacebookPostMetricsAsync(string entityId, SocialMediaPostEntity entityType)
         {
-            var query = _unitOfWork.SocialMediaPostRepository.Query();
+            var query = _unitOfWork.SocialMediaPostRepository.Query().Include(x => x.SocialMediaPostHashtags).ThenInclude(x => x.Hashtag);
             List<SocialMediaPost> socialMediaPosts = entityType switch
             {
                 SocialMediaPostEntity.Post => await query
@@ -66,7 +66,8 @@ namespace VietWay.Service.Management.Implement
                     PostReactions = getReactionsTask.Result,
                     ShareCount = countShareTask.Result,
                     CreatedAt = socialMediaPost.CreatedAt,
-                    FacebookPostId = socialMediaPost.SocialPostId
+                    FacebookPostId = socialMediaPost.SocialPostId,
+                    Hashtags = socialMediaPost.SocialMediaPostHashtags.Select(x => x.Hashtag.HashtagName).ToList()
                 });
             }
 
@@ -75,7 +76,7 @@ namespace VietWay.Service.Management.Implement
 
         public async Task<List<TweetDTO>> GetPublishedTweetByIdAsync(string entityId, SocialMediaPostEntity entityType)
         {
-            var query = _unitOfWork.SocialMediaPostRepository.Query();
+            var query = _unitOfWork.SocialMediaPostRepository.Query().Include(x => x.SocialMediaPostHashtags).ThenInclude(x => x.Hashtag);
             List<SocialMediaPost> socialMediaPosts = entityType switch
             {
                 SocialMediaPostEntity.Post => await query
@@ -104,6 +105,7 @@ namespace VietWay.Service.Management.Implement
                 if (tweet != null)
                 {
                     tweet.CreatedAt = post.CreatedAt;
+                    tweet.Hashtags = post.SocialMediaPostHashtags.Select(x => x.Hashtag.HashtagName).ToList();
                 }
                 else
                 {
@@ -116,7 +118,8 @@ namespace VietWay.Service.Management.Implement
                         QuoteCount = 0,
                         BookmarkCount = 0,
                         ImpressionCount = 0,
-                        CreatedAt = post.CreatedAt
+                        CreatedAt = post.CreatedAt,
+                        Hashtags = post.SocialMediaPostHashtags.Select(x => x.Hashtag.HashtagName).ToList()
                     });
                 }
             }

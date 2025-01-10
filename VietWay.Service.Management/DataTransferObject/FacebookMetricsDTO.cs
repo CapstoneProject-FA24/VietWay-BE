@@ -15,5 +15,6 @@ namespace VietWay.Service.Management.DataTransferObject
         public PostReaction PostReactions { get; set; } = default!;
         public DateTime CreatedAt { get; set; }
         public string FacebookPostId { get; set; }
+        public List<string> Hashtags { get; set; }
     }
 }
