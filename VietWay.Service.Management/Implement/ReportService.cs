@@ -10,8 +10,6 @@ using VietWay.Repository.EntityModel.Base;
 using VietWay.Repository.UnitOfWork;
 using VietWay.Service.Management.DataTransferObject;
 using VietWay.Service.Management.Interface;
-using VietWay.Util.CustomExceptions;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace VietWay.Service.Management.Implement
 {
@@ -52,6 +50,25 @@ namespace VietWay.Service.Management.Implement
         public Task<List<ReportSocialMediaAttractionCategoryDTO>> GetSocialMediaAttractionCategoryReport(DateTime startDate, DateTime endDate)
         {
             throw new NotImplementedException();
+        }
+
+        public async Task<List<ReportSocialMediaHashtagDTO>> GetSocialMediaHashtagReport(DateTime startDate, DateTime endDate)
+        {
+            return await _unitOfWork.HashtagRepository.Query()
+                .Where(x => true)
+                .Select(x => new ReportSocialMediaHashtagDTO
+                {
+                    HashtagName = x.HashtagName,
+                    AverageFacebookScore = 1,
+                    AverageScore = 1,
+                    AverageXScore = 1,
+                    FacebookCTR = 1,
+                    HashtagId = x.HashtagId,
+                    XCTR = 1,
+                    TotalFacebookPost = 1,
+                    TotalXPost = 1
+                })
+                .ToListAsync();
         }
 
         public Task<ReportSocialMediaPostCategoryDetailDTO> GetSocialMediaPostCategoryDetailReport(DateTime startDate, DateTime endDate, string postCategoryId)

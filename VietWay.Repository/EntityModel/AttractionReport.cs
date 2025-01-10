@@ -48,6 +48,7 @@ namespace VietWay.Repository.EntityModel
         public int FacebookAngerCount { get; set; }
         public int FacebookShareCount { get; set; }
         public int FacebookCommentCount { get; set; }
+
         [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
         public int FacebookReactionCount { get; set; }
 

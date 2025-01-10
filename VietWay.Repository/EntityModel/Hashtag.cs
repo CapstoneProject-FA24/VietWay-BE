@@ -17,5 +17,7 @@ namespace VietWay.Repository.EntityModel
         public string? HashtagName { get; set; }
         [Required]
         public DateTime CreatedAt { get; set; }
+        public virtual ICollection<SocialMediaPostHashtag>? SocialMediaPostHashtags { get; set; }
+        public virtual ICollection<HashtagReport>? HashtagReports { get; set; }
     }
 }
