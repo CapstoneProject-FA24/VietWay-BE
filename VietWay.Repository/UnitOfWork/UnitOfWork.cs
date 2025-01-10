@@ -45,7 +45,7 @@ namespace VietWay.Repository.UnitOfWork
         private IGenericRepository<TourTemplateMetric>? tourTemplateMetricRepository;
         private IGenericRepository<SocialMediaPostHashtag>? socialMediaPostHashtagRepository;
         private IGenericRepository<AttractionReport>? attractionReportRepository;
-        private IGenericRepository<Hashtag>? hashtagRepository;
+        private IGenericRepository<Hashtag>? hashtagRepository; 
         private IGenericRepository<HashtagReport>? hashtagReportRepository;
         private IGenericRepository<PostReport>? postReportRepository;
         private IGenericRepository<TourTemplateReport>? tourTemplateReportRepository;
@@ -345,8 +345,8 @@ namespace VietWay.Repository.UnitOfWork
         {
             get
             {
-                hashTagRepository ??= new GenericRepository<Hashtag>(_dbContext);
-                return hashTagRepository;
+                hashtagRepository ??= new GenericRepository<Hashtag>(_dbContext);
+                return hashtagRepository;
             }
         }
 

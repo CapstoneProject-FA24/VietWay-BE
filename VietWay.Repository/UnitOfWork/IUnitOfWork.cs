@@ -31,6 +31,7 @@ namespace VietWay.Repository.UnitOfWork
         public IGenericRepository<Province> ProvinceRepository { get; }
         public IGenericRepository<Staff> StaffRepository { get; }
         public IGenericRepository<SocialMediaPost> SocialMediaPostRepository { get; }
+        public IGenericRepository<SocialMediaPostHashtag> SocialMediaPostHashtagRepository { get; }
         public IGenericRepository<Tour> TourRepository { get; }
         public IGenericRepository<TourCategory> TourCategoryRepository { get; }
         public IGenericRepository<TourDuration> TourDurationRepository { get; }
@@ -42,8 +43,6 @@ namespace VietWay.Repository.UnitOfWork
         public IGenericRepository<TourPrice> TourPriceRepository { get; }   
         public IGenericRepository<TourRefundPolicy> TourRefundPolicyRepository { get; }
         public IGenericRepository<TwitterPostMetric> TwitterPostMetricRepository { get; }
-        public IGenericRepository<Hashtag> HashtagRepository { get; }
-        public IGenericRepository<SocialMediaPostHashtag> SocialMediaPostHashtagRepository { get; }
         public Task BeginTransactionAsync();
         public Task CommitTransactionAsync();
         public Task RollbackTransactionAsync();
