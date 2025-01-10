@@ -26,7 +26,7 @@ namespace VietWay.Repository.EntityModel
         public int ThreeStarRatingCount { get; set; }
         public int TwoStarRatingCount { get; set; }
         public int OneStarRatingCount { get; set; }
-        [Column(TypeName = "decimal(18,2)")]
+        [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
         public double Score { get; set; }
         public DateTime CreatedAt { get; set; }
         public virtual TourTemplate? TourTemplate { get; set; }

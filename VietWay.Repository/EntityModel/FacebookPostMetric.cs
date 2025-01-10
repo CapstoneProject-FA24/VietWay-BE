@@ -26,6 +26,7 @@ namespace VietWay.Repository.EntityModel
         public int ShareCount { get; set; }
         public int CommentCount { get; set; }
         [Column(TypeName = "decimal(18,2)")]
+        [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
         public double Score { get; set; }
         public required DateTime CreatedAt { get; set; }
 

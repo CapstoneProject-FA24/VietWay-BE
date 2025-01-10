@@ -20,7 +20,7 @@ namespace VietWay.Repository.EntityModel
         public int SiteSaveCount { get; set; }
         public int FacebookReferralCount { get; set; }
         public int XReferralCount { get; set; }
-        [Column(TypeName = "decimal(18,2)")]
+        [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
         public double Score { get; set; }
         public DateTime CreatedAt { get; set; }
 

@@ -23,7 +23,6 @@ namespace VietWay.Repository.UnitOfWork
         private IGenericRepository<Customer>? customerRepository;
         private IGenericRepository<EntityHistory>? entityHistoryRepository;
         private IGenericRepository<EntityStatusHistory>? entityStatusHistoryRepository;
-        private IGenericRepository<TourReview>? feedbackRepository;
         private IGenericRepository<Manager>? managerRepository;
         private IGenericRepository<Post>? postRepository;
         private IGenericRepository<PostCategory>? postCategoryRepository;
@@ -44,8 +43,12 @@ namespace VietWay.Repository.UnitOfWork
         private IGenericRepository<AttractionMetric>? attractionMetricRepository;
         private IGenericRepository<PostMetric>? postMetricRepository;
         private IGenericRepository<TourTemplateMetric>? tourTemplateMetricRepository;
-        private IGenericRepository<Hashtag>? hashTagRepository;
         private IGenericRepository<SocialMediaPostHashtag>? socialMediaPostHashtagRepository;
+        private IGenericRepository<AttractionReport>? attractionReportRepository;
+        private IGenericRepository<Hashtag>? hashtagRepository;
+        private IGenericRepository<HashtagReport>? hashtagReportRepository;
+        private IGenericRepository<PostReport>? postReportRepository;
+        private IGenericRepository<TourTemplateReport>? tourTemplateReportRepository;
 
         public IGenericRepository<Account> AccountRepository
         {
@@ -143,15 +146,6 @@ namespace VietWay.Repository.UnitOfWork
             {
                 entityStatusHistoryRepository ??= new GenericRepository<EntityStatusHistory>(_dbContext);
                 return entityStatusHistoryRepository;
-            }
-        }
-
-        public IGenericRepository<TourReview> FeedbackRepository
-        {
-            get
-            {
-                feedbackRepository ??= new GenericRepository<TourReview>(_dbContext);
-                return feedbackRepository;
             }
         }
 
@@ -338,6 +332,15 @@ namespace VietWay.Repository.UnitOfWork
             }
         }
 
+        public IGenericRepository<AttractionReport> AttractionReportRepository 
+        {
+            get
+            {
+                attractionReportRepository ??= new GenericRepository<AttractionReport>(_dbContext);
+                return attractionReportRepository;
+            }
+        }
+
         public IGenericRepository<Hashtag> HashtagRepository
         {
             get
@@ -356,6 +359,33 @@ namespace VietWay.Repository.UnitOfWork
             }
         }
 
+        public IGenericRepository<HashtagReport> HashtagReportRepository
+        {
+            get
+            {
+                hashtagReportRepository ??= new GenericRepository<HashtagReport>(_dbContext);
+                return hashtagReportRepository;
+            }
+        }
+
+        public IGenericRepository<PostReport> PostReportRepository 
+        {
+            get
+            {
+                postReportRepository ??= new GenericRepository<PostReport>(_dbContext);
+                return postReportRepository;
+            }
+        }
+
+        public IGenericRepository<TourTemplateReport> TourTemplateReportRepository
+        {
+            get
+            {
+                tourTemplateReportRepository ??= new GenericRepository<TourTemplateReport>(_dbContext);
+                return tourTemplateReportRepository;
+            }
+        }
+        
         public async Task BeginTransactionAsync()
         {
             if (transaction != null)

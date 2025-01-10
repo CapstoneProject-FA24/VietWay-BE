@@ -12,7 +12,7 @@ namespace VietWay.Service.Management.Implement
         public async Task<(int totalCount, List<TourReview> items)> GetAllCustomerFeedback(int pageSize, int pageIndex)
         {
             var query = _unitOfWork
-                .FeedbackRepository
+                .TourReviewRepository
                 .Query();
             int count = await query.CountAsync();
             List<TourReview> items = await query
