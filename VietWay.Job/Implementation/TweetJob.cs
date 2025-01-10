@@ -30,7 +30,8 @@ namespace VietWay.Job.Implementation
 
             var keyValuePairs = socialMediaPosts
                 .Where(post => tweetLookup.Contains(post.SocialPostId))
-                .GroupBy(post => post.EntityType switch { 
+                .GroupBy(post => post.EntityType switch
+                {
                     SocialMediaPostEntity.Attraction => $"{post.AttractionId}-{(int)post.EntityType}",
                     SocialMediaPostEntity.Post => $"{post.PostId}-{(int)post.EntityType}",
                     SocialMediaPostEntity.TourTemplate => $"{post.TourTemplateId}-{(int)post.EntityType}",
@@ -40,6 +41,26 @@ namespace VietWay.Job.Implementation
                 );
 
             await _redisCacheService.SetMultipleAsync(keyValuePairs);
+        }
+
+        public async Task GetPopularHashtagJob()
+        {
+            var hashtag = await _unitOfWork.HashtagRepository.Query().FirstOrDefaultAsync();
+
+            if (hashtag == null)
+            {
+                return;
+            }
+
+            int hashtagCount = await _twitterService.GetHashtagCountsAsync(hashtag.HashtagName);
+            Dictionary<string, int> hashtagCounts = await _redisCacheService.GetAsync<Dictionary<string, int>>("hashtagCounts");
+            if(hashtagCounts == null)
+            {
+                hashtagCounts = new Dictionary<string, int>();
+            }
+            hashtagCounts.Add(hashtag.HashtagId, hashtagCount);
+
+            await _redisCacheService.SetAsync("hashtagCounts", hashtagCounts);
         }
     }
 }

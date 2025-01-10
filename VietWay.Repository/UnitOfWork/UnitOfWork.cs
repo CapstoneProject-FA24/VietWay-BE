@@ -43,12 +43,12 @@ namespace VietWay.Repository.UnitOfWork
         private IGenericRepository<AttractionMetric>? attractionMetricRepository;
         private IGenericRepository<PostMetric>? postMetricRepository;
         private IGenericRepository<TourTemplateMetric>? tourTemplateMetricRepository;
+        private IGenericRepository<SocialMediaPostHashtag>? socialMediaPostHashtagRepository;
         private IGenericRepository<AttractionReport>? attractionReportRepository;
-        private IGenericRepository<Hashtag>? hashtagRepository;
+        private IGenericRepository<Hashtag>? hashtagRepository; 
         private IGenericRepository<HashtagReport>? hashtagReportRepository;
         private IGenericRepository<PostReport>? postReportRepository;
         private IGenericRepository<TourTemplateReport>? tourTemplateReportRepository;
-
 
         public IGenericRepository<Account> AccountRepository
         {
@@ -350,6 +350,15 @@ namespace VietWay.Repository.UnitOfWork
             }
         }
 
+        public IGenericRepository<SocialMediaPostHashtag> SocialMediaPostHashtagRepository
+        {
+            get
+            {
+                socialMediaPostHashtagRepository ??= new GenericRepository<SocialMediaPostHashtag>(_dbContext);
+                return socialMediaPostHashtagRepository;
+            }
+        }
+
         public IGenericRepository<HashtagReport> HashtagReportRepository
         {
             get
@@ -376,6 +385,7 @@ namespace VietWay.Repository.UnitOfWork
                 return tourTemplateReportRepository;
             }
         }
+        
         public async Task BeginTransactionAsync()
         {
             if (transaction != null)

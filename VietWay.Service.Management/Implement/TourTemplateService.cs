@@ -18,12 +18,13 @@ using VietWay.Util.IdUtil;
 namespace VietWay.Service.Management.Implement
 {
     public class TourTemplateService(IUnitOfWork unitOfWork, IIdGenerator idGenerator,
-        ICloudinaryService cloudinaryService, ITimeZoneHelper timeZoneHelper) : ITourTemplateService
+        ICloudinaryService cloudinaryService, ITimeZoneHelper timeZoneHelper, IRedisCacheService redisCacheService) : ITourTemplateService
     {
         private readonly IUnitOfWork _unitOfWork = unitOfWork;
         private readonly IIdGenerator _idGenerator = idGenerator;
         private readonly ICloudinaryService _cloudinaryService = cloudinaryService;
         private readonly ITimeZoneHelper _timeZoneHelper = timeZoneHelper;
+        private readonly IRedisCacheService _redisCacheService = redisCacheService;
 
         public async Task<string> CreateTemplateAsync(TourTemplate tourTemplate)
         {
@@ -151,6 +152,7 @@ namespace VietWay.Service.Management.Implement
                 .TourTemplateRepository
                 .Query()
                 .Where(x => x.IsDeleted == false);
+
             if (!string.IsNullOrEmpty(nameSearch))
             {
                 query = query.Where(x => x.TourName.Contains(nameSearch));
@@ -171,9 +173,21 @@ namespace VietWay.Service.Management.Implement
             {
                 query = query.Where(x => statuses.Contains(x.Status));
             }
+
+            List<string>? popularTourIds = await _redisCacheService.GetAsync<List<string>>("popularTourTemplate");
+            if (popularTourIds != null && popularTourIds.Count > 0)
+            {
+                query = query.OrderBy(x => !popularTourIds.Contains(x.TourTemplateId)) 
+                             .ThenByDescending(x => x.CreatedAt); 
+            }
+            else
+            {
+                query = query.OrderByDescending(x => x.CreatedAt);
+            }
+
             int count = await query.CountAsync();
+
             List<TourTemplatePreviewDTO> items = await query
-                .OrderByDescending(x => x.CreatedAt)
                 .Skip((pageIndex - 1) * pageSize)
                 .Take(pageSize)
                 .Select(x => new TourTemplatePreviewDTO
@@ -190,9 +204,11 @@ namespace VietWay.Service.Management.Implement
                     CreatedAt = x.CreatedAt,
                     ImageUrl = x.TourTemplateImages.FirstOrDefault().ImageUrl,
                     Provinces = x.TourTemplateProvinces.Select(y => y.Province.Name).ToList(),
-                    Transportation = x.Transportation
+                    Transportation = x.Transportation,
+                    IsPopular = popularTourIds != null && popularTourIds.Contains(x.TourTemplateId)
                 })
                 .ToListAsync();
+
             return new PaginatedList<TourTemplatePreviewDTO>
             {
                 Total = count,
