@@ -167,13 +167,14 @@ namespace VietWay.Service.Management.Implement
 
                 foreach (var hashtag in hashtagName)
                 {
+                    string newHashtag = hashtag.Replace("#", "").ToLower();
                     Hashtag? tag = await _unitOfWork.HashtagRepository.Query()
-                        .SingleOrDefaultAsync(x => x.HashtagName.Equals(hashtag.ToLower()));
+                        .SingleOrDefaultAsync(x => x.HashtagName.Equals(newHashtag));
                     if (tag == null)
                     {
                         tag = new Hashtag();
                         tag.HashtagId = _idGenerator.GenerateId();
-                        tag.HashtagName = hashtag.Replace("#", "").ToLower();
+                        tag.HashtagName = newHashtag;
                         tag.CreatedAt = _timeZoneHelper.GetUTC7Now();
                         await _unitOfWork.HashtagRepository.CreateAsync(tag);
                     }
@@ -184,7 +185,7 @@ namespace VietWay.Service.Management.Implement
                     };
                     await _unitOfWork.SocialMediaPostHashtagRepository.CreateAsync(socialMediaPostHashtag);
                 }
-                
+
                 await _unitOfWork.CommitTransactionAsync();
             }
             catch
@@ -231,13 +232,14 @@ namespace VietWay.Service.Management.Implement
 
                 foreach (var hashtag in hashtagName)
                 {
+                    string newHashtag = hashtag.Replace("#", "").ToLower();
                     Hashtag? tag = await _unitOfWork.HashtagRepository.Query()
-                        .SingleOrDefaultAsync(x => x.HashtagName.Equals(hashtag.ToLower()));
+                        .SingleOrDefaultAsync(x => x.HashtagName.Equals(newHashtag));
                     if (tag == null)
                     {
                         tag = new Hashtag();
                         tag.HashtagId = _idGenerator.GenerateId();
-                        tag.HashtagName = hashtag.Replace("#", "").ToLower();
+                        tag.HashtagName = newHashtag;
                         tag.CreatedAt = _timeZoneHelper.GetUTC7Now();
                         await _unitOfWork.HashtagRepository.CreateAsync(tag);
                     }
@@ -304,13 +306,14 @@ namespace VietWay.Service.Management.Implement
 
                 foreach (var hashtag in hashtagName)
                 {
+                    string newHashtag = hashtag.Replace("#", "").ToLower();
                     Hashtag? tag = await _unitOfWork.HashtagRepository.Query()
-                        .SingleOrDefaultAsync(x => x.HashtagName.Equals(hashtag.ToLower()));
+                        .SingleOrDefaultAsync(x => x.HashtagName.Equals(newHashtag));
                     if (tag == null)
                     {
                         tag = new Hashtag();
                         tag.HashtagId = _idGenerator.GenerateId();
-                        tag.HashtagName = hashtag.Replace("#", "").ToLower();
+                        tag.HashtagName = newHashtag;
                         tag.CreatedAt = _timeZoneHelper.GetUTC7Now();
                         await _unitOfWork.HashtagRepository.CreateAsync(tag);
                     }
@@ -358,13 +361,14 @@ namespace VietWay.Service.Management.Implement
 
                 foreach (var hashtag in hashtagName)
                 {
+                    string newHashtag = hashtag.Replace("#", "").ToLower();
                     Hashtag? tag = await _unitOfWork.HashtagRepository.Query()
-                        .SingleOrDefaultAsync(x => x.HashtagName.Equals(hashtag.ToLower()));
+                        .SingleOrDefaultAsync(x => x.HashtagName.Equals(newHashtag));
                     if (tag == null)
                     {
                         tag = new Hashtag();
                         tag.HashtagId = _idGenerator.GenerateId();
-                        tag.HashtagName = hashtag.Replace("#", "").ToLower();
+                        tag.HashtagName = newHashtag;
                         tag.CreatedAt = _timeZoneHelper.GetUTC7Now();
                         await _unitOfWork.HashtagRepository.CreateAsync(tag);
                     }
@@ -414,13 +418,14 @@ namespace VietWay.Service.Management.Implement
 
                 foreach (var hashtag in hashtagName)
                 {
+                    string newHashtag = hashtag.Replace("#", "").ToLower();
                     Hashtag? tag = await _unitOfWork.HashtagRepository.Query()
-                        .SingleOrDefaultAsync(x => x.HashtagName.Equals(hashtag.ToLower()));
+                        .SingleOrDefaultAsync(x => x.HashtagName.Equals(newHashtag));
                     if (tag == null)
                     {
                         tag = new Hashtag();
                         tag.HashtagId = _idGenerator.GenerateId();
-                        tag.HashtagName = hashtag.Replace("#", "").ToLower();
+                        tag.HashtagName = newHashtag;
                         tag.CreatedAt = _timeZoneHelper.GetUTC7Now();
                         await _unitOfWork.HashtagRepository.CreateAsync(tag);
                     }
@@ -485,13 +490,14 @@ namespace VietWay.Service.Management.Implement
 
                 foreach (var hashtag in hashtagName)
                 {
+                    string newHashtag = hashtag.Replace("#", "").ToLower();
                     Hashtag? tag = await _unitOfWork.HashtagRepository.Query()
-                        .SingleOrDefaultAsync(x => x.HashtagName.Equals(hashtag.ToLower()));
+                        .SingleOrDefaultAsync(x => x.HashtagName.Equals(newHashtag));
                     if (tag == null)
                     {
                         tag = new Hashtag();
                         tag.HashtagId = _idGenerator.GenerateId();
-                        tag.HashtagName = hashtag.Replace("#", "").ToLower();
+                        tag.HashtagName = newHashtag;
                         tag.CreatedAt = _timeZoneHelper.GetUTC7Now();
                         await _unitOfWork.HashtagRepository.CreateAsync(tag);
                     }
