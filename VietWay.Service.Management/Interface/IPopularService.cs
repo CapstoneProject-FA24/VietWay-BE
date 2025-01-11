@@ -4,13 +4,14 @@ namespace VietWay.Service.Management.Interface
 {
     public interface IPopularService
     {
-        Task<List<PopularProvinceDTO>> GetPopularProvincesAsync();
+        Task<List<string>> GetPopularProvincesAsync();
         Task CachePopularProvincesAsync();
-        Task<List<PopularAttractionCategoryDTO>> GetPopularAttractionCategoriesAsync();
+        Task<List<string>> GetPopularAttractionCategoriesAsync();
         Task CachePopularAttractionCategoriesAsync();
-        Task<List<PopularPostCategoryDTO>> GetPopularPostCategoriesAsync();
+        Task<List<string>> GetPopularPostCategoriesAsync();
         Task CachePopularPostCategoriesAsync();
-        Task<List<PopularTourCategoryDTO>> GetPopularTourCategoriesAsync();
+        Task<List<string>> GetPopularTourCategoriesAsync();
         Task CachePopularTourCategoriesAsync();
+        public Task<List<string>> GetPopularHashtagsAsync(bool isTwitter);
     }
 }

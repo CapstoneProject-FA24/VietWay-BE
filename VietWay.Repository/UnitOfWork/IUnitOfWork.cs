@@ -31,6 +31,7 @@ namespace VietWay.Repository.UnitOfWork
         public IGenericRepository<Province> ProvinceRepository { get; }
         public IGenericRepository<Staff> StaffRepository { get; }
         public IGenericRepository<SocialMediaPost> SocialMediaPostRepository { get; }
+        public IGenericRepository<SocialMediaPostHashtag> SocialMediaPostHashtagRepository { get; }
         public IGenericRepository<Tour> TourRepository { get; }
         public IGenericRepository<TourCategory> TourCategoryRepository { get; }
         public IGenericRepository<TourDuration> TourDurationRepository { get; }

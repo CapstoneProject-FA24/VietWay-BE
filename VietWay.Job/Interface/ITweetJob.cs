@@ -11,5 +11,7 @@ namespace VietWay.Job.Interface
     {
         [AutomaticRetry(Attempts = 0)]
         public Task GetPublishedTweetsJob();
+        [AutomaticRetry(Attempts = 0)]
+        public Task GetPopularHashtagJob();
     }
 }

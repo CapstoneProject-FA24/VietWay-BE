@@ -107,5 +107,51 @@ namespace VietWay.Service.ThirdParty.Twitter
                 return await response.Content.ReadAsStringAsync();
             }
         }
+
+        public async Task<int> GetHashtagCountsAsync(string tag)
+        {
+            using var httpClient = new HttpClient();
+            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _bearerToken);
+            var response = await httpClient.GetAsync($"https://api.twitter.com/2/tweets/search/recent?query=%23{tag.Replace("#", "")}&tweet.fields=public_metrics");
+
+            if (!response.IsSuccessStatusCode)
+            {
+                throw new ServerErrorException($"Failed to fetch tweets: {response.ReasonPhrase}");
+            }
+
+            using JsonDocument document = await JsonDocument.ParseAsync(await response.Content.ReadAsStreamAsync());
+            if (!document.RootElement.TryGetProperty("data", out JsonElement tweetData))
+            {
+                return 0;
+            }
+
+            var hashtagCount = 0;
+            foreach (var tweet in tweetData.EnumerateArray())
+            {
+                string text = tweet.GetProperty("text").GetString();
+                var hashtags = ExtractHashtags(text);
+                foreach (var hashtag in hashtags)
+                {
+                    if(hashtag.Equals(tag))
+                        hashtagCount++;
+                }
+            }
+
+            return hashtagCount;
+        }
+
+        private List<string> ExtractHashtags(string input)
+        {
+            List<string> hashtags = new List<string>();
+            Regex regex = new Regex(@"#\w+");
+            MatchCollection matches = regex.Matches(input);
+
+            foreach (Match match in matches)
+            {
+                hashtags.Add(match.Value.Substring(1).ToLower());
+            }
+
+            return hashtags;
+        }
     }
 }
