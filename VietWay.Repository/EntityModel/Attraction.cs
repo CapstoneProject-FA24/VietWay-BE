@@ -38,6 +38,5 @@ namespace VietWay.Repository.EntityModel
         public virtual ICollection<AttractionLike>? AttractionLikes { get; set; }
         public virtual ICollection<AttractionMetric>? AttractionMetrics { get; set; }
         public virtual ICollection<SocialMediaPost>? SocialMediaPosts { get; set; }
-        public virtual ICollection<AttractionReport>? AttractionReports { get; set; }
     }
 }
