@@ -24,5 +24,8 @@ namespace VietWay.Repository.EntityModel
         public virtual ICollection<Attraction>? Attractions { get; set; }
         public virtual ICollection<Post>? Posts { get; set; }
         public virtual ICollection<TourTemplateProvince>? TourTemplateProvinces { get; set; }
+        public virtual ICollection<AttractionReport>? AttractionReports { get; set; }
+        public virtual ICollection<PostReport>? PostReports { get; set; }
+        public virtual ICollection<TourTemplateReport>? TourTemplateReports { get;set; }
     }
 }

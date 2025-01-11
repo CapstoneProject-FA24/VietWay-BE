@@ -12,7 +12,7 @@ using VietWay.Repository.DataAccessObject;
 namespace VietWay.Repository.Migrations
 {
     [DbContext(typeof(VietWayDbContext))]
-    [Migration("20250108160138_Init")]
+    [Migration("20250111031113_Init")]
     partial class Init
     {
         /// <inheritdoc />
@@ -224,7 +224,8 @@ namespace VietWay.Repository.Migrations
 
                     b.Property<decimal>("Score")
                         .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("decimal(18,2)");
+                        .HasColumnType("decimal(18,2)")
+                        .HasComputedColumnSql("\r\n                    CAST(\r\n                        COALESCE([SiteReferralCount], 0)*2 + \r\n                        COALESCE([SiteLikeCount], 0)*5 + \r\n                        COALESCE([FacebookReferralCount], 0)*1 + \r\n                        COALESCE([XReferralCount], 0)*1 + \r\n                        COALESCE([FiveStarRatingCount], 0)*3 + \r\n                        COALESCE([FiveStarRatingLikeCount], 0)*3 + \r\n                        COALESCE([FourStarRatingCount], 0)*1 + \r\n                        COALESCE([FourStarRatingLikeCount], 0)*1 + \r\n                        COALESCE([ThreeStarRatingCount], 0)*0 + \r\n                        COALESCE([ThreeStarRatingLikeCount], 0)*0 + \r\n                        COALESCE([TwoStarRatingCount], 0)*(-1) + \r\n                        COALESCE([TwoStarRatingLikeCount], 0)*(-1) + \r\n                        COALESCE([OneStarRatingCount], 0)*(-3) + \r\n                        COALESCE([OneStarRatingLikeCount], 0)*(-3)\r\n                    AS decimal(18,2))", true);
 
                     b.Property<int>("SiteLikeCount")
                         .HasColumnType("int");
@@ -264,9 +265,10 @@ namespace VietWay.Repository.Migrations
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
 
-                    b.Property<double>("AverageScore")
+                    b.Property<decimal>("AverageScore")
                         .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("float");
+                        .HasColumnType("decimal(18,2)")
+                        .HasComputedColumnSql("\r\n                    CAST(\r\n                        (CAST(\r\n                            COALESCE([FacebookClickCount], 0)*1 +\r\n                            COALESCE([FacebookImpressionCount], 0)*0.5 +\r\n                            COALESCE([FacebookLikeCount], 0)*1 + \r\n                            COALESCE([FacebookLoveCount], 0)*2 + \r\n                            COALESCE([FacebookWowCount], 0)*1.5 + \r\n                            COALESCE([FacebookHahaCount], 0)*1.5 + \r\n                            COALESCE([FacebookSorryCount], 0)*(-1) + \r\n                            COALESCE([FacebookAngerCount], 0)*(-2) + \r\n                            COALESCE([FacebookShareCount], 0)*3 + \r\n                            COALESCE([FacebookCommentCount], 0)*2\r\n                        AS decimal(18,2)) +\r\n                        CAST(\r\n                            COALESCE([SiteReferralCount], 0)*2 +\r\n                            COALESCE([FacebookReferralCount], 0)*1 +\r\n                            COALESCE([XReferralCount], 0)*1 +\r\n                            COALESCE([SiteLikeCount], 0)*5 +\r\n                            COALESCE([FiveStarRatingCount], 0)*3 +\r\n                            COALESCE([FiveStarRatingLikeCount], 0)*3 +\r\n                            COALESCE([FourStarRatingCount], 0)*1 +\r\n                            COALESCE([FourStarRatingLikeCount], 0)*1 +\r\n                            COALESCE([ThreeStarRatingCount], 0)*0 +\r\n                            COALESCE([ThreeStarRatingLikeCount], 0)*0 +\r\n                            COALESCE([TwoStarRatingCount], 0)*(-1) +\r\n                            COALESCE([TwoStarRatingLikeCount], 0)*(-1) +\r\n                            COALESCE([OneStarRatingCount], 0)*(-3) +\r\n                            COALESCE([OneStarRatingLikeCount], 0)*(-3)\r\n                        AS decimal(18,2)) +\r\n                        CAST(\r\n                            COALESCE([XRetweetCount], 0)*3 +\r\n                            COALESCE([XReplyCount], 0)*2 + \r\n                            COALESCE([XLikeCount], 0)*1.5 + \r\n                            COALESCE([XQuoteCount], 0)*3 + \r\n                            COALESCE([XBookmarkCount], 0)*2 + \r\n                            COALESCE([XImpressionCount], 0)*0.5\r\n                        AS decimal(18,2))) / 3.00\r\n                    AS decimal(18,2))", true);
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
@@ -274,9 +276,10 @@ namespace VietWay.Repository.Migrations
                     b.Property<int>("FacebookAngerCount")
                         .HasColumnType("int");
 
-                    b.Property<double>("FacebookCTR")
+                    b.Property<decimal>("FacebookCTR")
                         .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("float");
+                        .HasColumnType("decimal(18,2)")
+                        .HasComputedColumnSql("\r\n                    CAST(\r\n	                    CASE\r\n		                    WHEN ISNULL([FacebookImpressionCount],0) = 0 THEN 0\r\n		                    ELSE COALESCE(CAST([FacebookReferralCount] AS decimal(18,2)) / CAST([FacebookImpressionCount] AS decimal(18,2)), 0)\r\n	                    END \r\n                    AS decimal(18,2))", true);
 
                     b.Property<int>("FacebookClickCount")
                         .HasColumnType("int");
@@ -298,14 +301,16 @@ namespace VietWay.Repository.Migrations
 
                     b.Property<int>("FacebookReactionCount")
                         .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("int");
+                        .HasColumnType("int")
+                        .HasComputedColumnSql("\r\n                    COALESCE([FacebookLikeCount], 0) + \r\n                    COALESCE([FacebookLoveCount], 0) + \r\n                    COALESCE([FacebookWowCount], 0) + \r\n                    COALESCE([FacebookHahaCount], 0) + \r\n                    COALESCE([FacebookSorryCount], 0) + \r\n                    COALESCE([FacebookAngerCount], 0)", true);
 
                     b.Property<int>("FacebookReferralCount")
                         .HasColumnType("int");
 
-                    b.Property<double>("FacebookScore")
+                    b.Property<decimal>("FacebookScore")
                         .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("float");
+                        .HasColumnType("decimal(18,2)")
+                        .HasComputedColumnSql("\r\n                    CAST(\r\n                        COALESCE([FacebookClickCount], 0)*1 +\r\n                        COALESCE([FacebookImpressionCount], 0)*0.5 +\r\n                        COALESCE([FacebookLikeCount], 0)*1 + \r\n                        COALESCE([FacebookLoveCount], 0)*2 + \r\n                        COALESCE([FacebookWowCount], 0)*1.5 + \r\n                        COALESCE([FacebookHahaCount], 0)*1.5 + \r\n                        COALESCE([FacebookSorryCount], 0)*(-1) + \r\n                        COALESCE([FacebookAngerCount], 0)*(-2) + \r\n                        COALESCE([FacebookShareCount], 0)*3 + \r\n                        COALESCE([FacebookCommentCount], 0)*2\r\n                    AS decimal(18,2))", true);
 
                     b.Property<int>("FacebookShareCount")
                         .HasColumnType("int");
@@ -352,9 +357,10 @@ namespace VietWay.Repository.Migrations
                     b.Property<int>("SiteReferralCount")
                         .HasColumnType("int");
 
-                    b.Property<double>("SiteScore")
+                    b.Property<decimal>("SiteScore")
                         .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("float");
+                        .HasColumnType("decimal(18,2)")
+                        .HasComputedColumnSql("\r\n                    CAST(\r\n                        COALESCE([SiteReferralCount], 0)*2 +\r\n                        COALESCE([FacebookReferralCount], 0)*1 +\r\n                        COALESCE([XReferralCount], 0)*1 +\r\n                        COALESCE([SiteLikeCount], 0)*5 +\r\n                        COALESCE([FiveStarRatingCount], 0)*3 +\r\n                        COALESCE([FiveStarRatingLikeCount], 0)*3 +\r\n                        COALESCE([FourStarRatingCount], 0)*1 +\r\n                        COALESCE([FourStarRatingLikeCount], 0)*1 +\r\n                        COALESCE([ThreeStarRatingCount], 0)*0 +\r\n                        COALESCE([ThreeStarRatingLikeCount], 0)*0 +\r\n                        COALESCE([TwoStarRatingCount], 0)*(-1) +\r\n                        COALESCE([TwoStarRatingLikeCount], 0)*(-1) +\r\n                        COALESCE([OneStarRatingCount], 0)*(-3) +\r\n                        COALESCE([OneStarRatingLikeCount], 0)*(-3)\r\n                    AS decimal(18,2))", true);
 
                     b.Property<int>("ThreeStarRatingCount")
                         .HasColumnType("int");
@@ -371,9 +377,10 @@ namespace VietWay.Repository.Migrations
                     b.Property<int>("XBookmarkCount")
                         .HasColumnType("int");
 
-                    b.Property<double>("XCTR")
+                    b.Property<decimal>("XCTR")
                         .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("float");
+                        .HasColumnType("decimal(18,2)")
+                        .HasComputedColumnSql("\r\n                    CAST(\r\n                        CASE\r\n                            WHEN ISNULL([XImpressionCount],0) = 0 THEN 0\r\n                            ELSE COALESCE(CAST([XReferralCount] AS decimal(18,2)) / CAST([XImpressionCount] AS decimal(18,2)), 0)\r\n                        END \r\n                    AS decimal(18,2))", true);
 
                     b.Property<int>("XImpressionCount")
                         .HasColumnType("int");
@@ -393,9 +400,10 @@ namespace VietWay.Repository.Migrations
                     b.Property<int>("XRetweetCount")
                         .HasColumnType("int");
 
-                    b.Property<double>("XScore")
+                    b.Property<decimal>("XScore")
                         .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("float");
+                        .HasColumnType("decimal(18,2)")
+                        .HasComputedColumnSql("\r\n                    CAST(\r\n                        COALESCE([XRetweetCount], 0)*3 +\r\n                        COALESCE([XReplyCount], 0)*2 + \r\n                        COALESCE([XLikeCount], 0)*1.5 + \r\n                        COALESCE([XQuoteCount], 0)*3 + \r\n                        COALESCE([XBookmarkCount], 0)*2 + \r\n                        COALESCE([XImpressionCount], 0)*0.5\r\n                    AS decimal(18,2))", true);
 
                     b.HasKey("ReportId");
 
@@ -792,7 +800,9 @@ namespace VietWay.Repository.Migrations
                         .HasColumnType("int");
 
                     b.Property<decimal>("Score")
-                        .HasColumnType("decimal(18,2)");
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("decimal(18,2)")
+                        .HasComputedColumnSql("\r\n                    CAST(\r\n                        COALESCE([PostClickCount], 0)*1 +\r\n                        COALESCE([ImpressionCount], 0)*0.5 +\r\n                        COALESCE([LikeCount], 0)*1 + \r\n                        COALESCE([LoveCount], 0)*2 + \r\n                        COALESCE([WowCount], 0)*1.5 + \r\n                        COALESCE([HahaCount], 0)*1.5 + \r\n                        COALESCE([SorryCount], 0)*(-1) + \r\n                        COALESCE([AngerCount], 0)*(-2) + \r\n                        COALESCE([ShareCount], 0)*3 + \r\n                        COALESCE([CommentCount], 0)*2\r\n                    AS decimal(18,2))", true);
 
                     b.Property<int>("ShareCount")
                         .HasColumnType("int");
@@ -843,9 +853,10 @@ namespace VietWay.Repository.Migrations
                     b.Property<int>("FacebookAngerCount")
                         .HasColumnType("int");
 
-                    b.Property<double>("FacebookCTR")
+                    b.Property<decimal>("FacebookCTR")
                         .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("float");
+                        .HasColumnType("decimal(18,2)")
+                        .HasComputedColumnSql("\r\n                    CAST(\r\n                        CASE\r\n                            WHEN ISNULL([FacebookImpressionCount],0) = 0 THEN 0\r\n                            ELSE COALESCE(CAST([FacebookReferralCount] AS decimal(18,2)) / CAST([FacebookImpressionCount] AS decimal(18,2)), 0)\r\n                        END \r\n                    AS decimal(18,2))", true);
 
                     b.Property<int>("FacebookClickCount")
                         .HasColumnType("int");
@@ -867,14 +878,16 @@ namespace VietWay.Repository.Migrations
 
                     b.Property<int>("FacebookReactionCount")
                         .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("int");
+                        .HasColumnType("int")
+                        .HasComputedColumnSql("\r\n                    COALESCE([FacebookLikeCount], 0) + \r\n                    COALESCE([FacebookLoveCount], 0) + \r\n                    COALESCE([FacebookWowCount], 0) + \r\n                    COALESCE([FacebookHahaCount], 0) + \r\n                    COALESCE([FacebookSorryCount], 0) + \r\n                    COALESCE([FacebookAngerCount], 0)", true);
 
                     b.Property<int>("FacebookReferralCount")
                         .HasColumnType("int");
 
-                    b.Property<double>("FacebookScore")
+                    b.Property<decimal>("FacebookScore")
                         .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("float");
+                        .HasColumnType("decimal(18,2)")
+                        .HasComputedColumnSql("\r\n                    CAST(\r\n                        COALESCE([FacebookClickCount], 0)*1 +\r\n                        COALESCE([FacebookImpressionCount], 0)*0.5 +\r\n                        COALESCE([FacebookLikeCount], 0)*1 + \r\n                        COALESCE([FacebookLoveCount], 0)*2 + \r\n                        COALESCE([FacebookWowCount], 0)*1.5 + \r\n                        COALESCE([FacebookHahaCount], 0)*1.5 + \r\n                        COALESCE([FacebookSorryCount], 0)*(-1) + \r\n                        COALESCE([FacebookAngerCount], 0)*(-2) + \r\n                        COALESCE([FacebookShareCount], 0)*3 + \r\n                        COALESCE([FacebookCommentCount], 0)*2\r\n                    AS decimal(18,2))", true);
 
                     b.Property<int>("FacebookShareCount")
                         .HasColumnType("int");
@@ -899,9 +912,10 @@ namespace VietWay.Repository.Migrations
                     b.Property<int>("XBookmarkCount")
                         .HasColumnType("int");
 
-                    b.Property<double>("XCTR")
+                    b.Property<decimal>("XCTR")
                         .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("float");
+                        .HasColumnType("decimal(18,2)")
+                        .HasComputedColumnSql("\r\n                    CAST(\r\n                        CASE\r\n                            WHEN ISNULL([XImpressionCount],0) = 0 THEN 0\r\n                            ELSE COALESCE(CAST([XReferralCount] AS decimal(18,2)) / CAST([XImpressionCount] AS decimal(18,2)), 0)\r\n                        END \r\n                    AS decimal(18,2))", true);
 
                     b.Property<int>("XImpressionCount")
                         .HasColumnType("int");
@@ -921,9 +935,10 @@ namespace VietWay.Repository.Migrations
                     b.Property<int>("XRetweetCount")
                         .HasColumnType("int");
 
-                    b.Property<double>("XScore")
+                    b.Property<decimal>("XScore")
                         .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("float");
+                        .HasColumnType("decimal(18,2)")
+                        .HasComputedColumnSql("\r\n                    CAST(\r\n                        COALESCE([XRetweetCount], 0)*3 +\r\n                        COALESCE([XReplyCount], 0)*2 + \r\n                        COALESCE([XLikeCount], 0)*1.5 + \r\n                        COALESCE([XQuoteCount], 0)*3 + \r\n                        COALESCE([XBookmarkCount], 0)*2 + \r\n                        COALESCE([XImpressionCount], 0)*0.5\r\n                    AS decimal(18,2))", true);
 
                     b.HasKey("ReportId");
 
@@ -1055,7 +1070,9 @@ namespace VietWay.Repository.Migrations
                         .HasColumnType("nvarchar(20)");
 
                     b.Property<decimal>("Score")
-                        .HasColumnType("decimal(18,2)");
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("decimal(18,2)")
+                        .HasComputedColumnSql("\r\n                    CAST(\r\n                        COALESCE([SiteReferralCount], 0)*2 + \r\n                        COALESCE([SiteSaveCount], 0)*5 + \r\n                        COALESCE([FacebookReferralCount], 0)*1 + \r\n                        COALESCE([XReferralCount], 0)*1\r\n                    AS decimal(18,2))", true);
 
                     b.Property<int>("SiteReferralCount")
                         .HasColumnType("int");
@@ -1078,9 +1095,10 @@ namespace VietWay.Repository.Migrations
                     b.Property<string>("ReportId")
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<double>("AverageScore")
+                    b.Property<decimal>("AverageScore")
                         .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("float");
+                        .HasColumnType("decimal(18,2)")
+                        .HasComputedColumnSql("\r\n                    CAST(\r\n                        (CAST(\r\n                            COALESCE([SiteReferralCount], 0)*2 +\r\n                            COALESCE([SiteLikeCount], 0)*5 +\r\n                            COALESCE([FacebookReferralCount], 0)*1 +\r\n                            COALESCE([XReferralCount], 0)*1\r\n                        AS decimal(18,2)) + \r\n                        CAST(\r\n                            COALESCE([FacebookClickCount], 0)*1 +\r\n                            COALESCE([FacebookImpressionCount], 0)*0.5 +\r\n                            COALESCE([FacebookLikeCount], 0)*1 + \r\n                            COALESCE([FacebookLoveCount], 0)*2 + \r\n                            COALESCE([FacebookWowCount], 0)*1.5 + \r\n                            COALESCE([FacebookHahaCount], 0)*1.5 + \r\n                            COALESCE([FacebookSorryCount], 0)*(-1) + \r\n                            COALESCE([FacebookAngerCount], 0)*(-2) + \r\n                            COALESCE([FacebookShareCount], 0)*3 + \r\n                            COALESCE([FacebookCommentCount], 0)*2\r\n                        AS decimal(18,2)) + \r\n                        CAST(\r\n                            COALESCE([XRetweetCount], 0)*3 +\r\n                            COALESCE([XReplyCount], 0)*2 + \r\n                            COALESCE([XLikeCount], 0)*1.5 + \r\n                            COALESCE([XQuoteCount], 0)*3 + \r\n                            COALESCE([XBookmarkCount], 0)*2 + \r\n                            COALESCE([XImpressionCount], 0)*0.5\r\n                        AS decimal(18,2))) / 3.00\r\n                    AS decimal(18,2))", true);
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
@@ -1088,9 +1106,10 @@ namespace VietWay.Repository.Migrations
                     b.Property<int>("FacebookAngerCount")
                         .HasColumnType("int");
 
-                    b.Property<double>("FacebookCTR")
+                    b.Property<decimal>("FacebookCTR")
                         .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("float");
+                        .HasColumnType("decimal(18,2)")
+                        .HasComputedColumnSql("\r\n                    CAST(\r\n                        CASE\r\n                            WHEN ISNULL([FacebookImpressionCount],0) = 0 THEN 0\r\n                            ELSE COALESCE(CAST([FacebookReferralCount] AS decimal(18,2)) / CAST([FacebookImpressionCount] AS decimal(18,2)), 0)\r\n                        END \r\n                    AS decimal(18,2))", true);
 
                     b.Property<int>("FacebookClickCount")
                         .HasColumnType("int");
@@ -1112,14 +1131,16 @@ namespace VietWay.Repository.Migrations
 
                     b.Property<int>("FacebookReactionCount")
                         .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("int");
+                        .HasColumnType("int")
+                        .HasComputedColumnSql("\r\n                    COALESCE([FacebookLikeCount], 0) + \r\n                    COALESCE([FacebookLoveCount], 0) + \r\n                    COALESCE([FacebookWowCount], 0) + \r\n                    COALESCE([FacebookHahaCount], 0) + \r\n                    COALESCE([FacebookSorryCount], 0) + \r\n                    COALESCE([FacebookAngerCount], 0)", true);
 
                     b.Property<int>("FacebookReferralCount")
                         .HasColumnType("int");
 
-                    b.Property<double>("FacebookScore")
+                    b.Property<decimal>("FacebookScore")
                         .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("float");
+                        .HasColumnType("decimal(18,2)")
+                        .HasComputedColumnSql("\r\n                    CAST(\r\n                        COALESCE([FacebookClickCount], 0)*1 +\r\n                        COALESCE([FacebookImpressionCount], 0)*0.5 +\r\n                        COALESCE([FacebookLikeCount], 0)*1 + \r\n                        COALESCE([FacebookLoveCount], 0)*2 + \r\n                        COALESCE([FacebookWowCount], 0)*1.5 + \r\n                        COALESCE([FacebookHahaCount], 0)*1.5 + \r\n                        COALESCE([FacebookSorryCount], 0)*(-1) + \r\n                        COALESCE([FacebookAngerCount], 0)*(-2) + \r\n                        COALESCE([FacebookShareCount], 0)*3 + \r\n                        COALESCE([FacebookCommentCount], 0)*2\r\n                    AS decimal(18,2))", true);
 
                     b.Property<int>("FacebookShareCount")
                         .HasColumnType("int");
@@ -1153,16 +1174,18 @@ namespace VietWay.Repository.Migrations
                     b.Property<int>("SiteReferralCount")
                         .HasColumnType("int");
 
-                    b.Property<double>("SiteScore")
+                    b.Property<decimal>("SiteScore")
                         .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("float");
+                        .HasColumnType("decimal(18,2)")
+                        .HasComputedColumnSql("\r\n                    CAST(\r\n                        COALESCE([SiteReferralCount], 0)*2 +\r\n                        COALESCE([SiteLikeCount], 0)*5 +\r\n                        COALESCE([FacebookReferralCount], 0)*1 +\r\n                        COALESCE([XReferralCount], 0)*1\r\n                    AS decimal(18,2))", true);
 
                     b.Property<int>("XBookmarkCount")
                         .HasColumnType("int");
 
-                    b.Property<double>("XCTR")
+                    b.Property<decimal>("XCTR")
                         .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("float");
+                        .HasColumnType("decimal(18,2)")
+                        .HasComputedColumnSql("\r\n                    CAST(\r\n                        CASE\r\n                            WHEN ISNULL([XImpressionCount],0) = 0 THEN 0\r\n                            ELSE COALESCE(CAST([XReferralCount] AS decimal(18,2)) / CAST([XImpressionCount] AS decimal(18,2)), 0)\r\n                        END \r\n                    AS decimal(18,2))", true);
 
                     b.Property<int>("XImpressionCount")
                         .HasColumnType("int");
@@ -1182,9 +1205,10 @@ namespace VietWay.Repository.Migrations
                     b.Property<int>("XRetweetCount")
                         .HasColumnType("int");
 
-                    b.Property<double>("XScore")
+                    b.Property<decimal>("XScore")
                         .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("float");
+                        .HasColumnType("decimal(18,2)")
+                        .HasComputedColumnSql("\r\n                    CAST(\r\n                        COALESCE([XRetweetCount], 0)*3 +\r\n                        COALESCE([XReplyCount], 0)*2 + \r\n                        COALESCE([XLikeCount], 0)*1.5 + \r\n                        COALESCE([XQuoteCount], 0)*3 + \r\n                        COALESCE([XBookmarkCount], 0)*2 + \r\n                        COALESCE([XImpressionCount], 0)*0.5\r\n                    AS decimal(18,2))", true);
 
                     b.HasKey("ReportId");
 
@@ -1614,7 +1638,9 @@ namespace VietWay.Repository.Migrations
                         .HasColumnType("int");
 
                     b.Property<decimal>("Score")
-                        .HasColumnType("decimal(18,2)");
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("decimal(18,2)")
+                        .HasComputedColumnSql("\r\n                    CAST(\r\n                        COALESCE([SiteReferralCount], 0)*2 + \r\n                        COALESCE([BookingCount], 0)*8 + \r\n                        COALESCE([CancellationCount], 0)*(-4) + \r\n                        COALESCE([FacebookReferralCount], 0)*1 + \r\n                        COALESCE([XReferralCount], 0)*1 + \r\n                        COALESCE([FiveStarRatingCount], 0)*3 + \r\n                        COALESCE([FourStarRatingCount], 0)*1 + \r\n                        COALESCE([ThreeStarRatingCount], 0)*0 + \r\n                        COALESCE([TwoStarRatingCount], 0)*(-1) + \r\n                        COALESCE([OneStarRatingCount], 0)*(-3)\r\n                    AS decimal(18,2))", true);
 
                     b.Property<int>("SiteReferralCount")
                         .HasColumnType("int");
@@ -1659,9 +1685,10 @@ namespace VietWay.Repository.Migrations
                     b.Property<string>("ReportId")
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<double>("AverageScore")
+                    b.Property<decimal>("AverageScore")
                         .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("float");
+                        .HasColumnType("decimal(18,2)")
+                        .HasComputedColumnSql("\r\n                    CAST(\r\n                        (CAST(\r\n                            COALESCE([SiteReferralCount], 0)*2 +\r\n                            COALESCE([BookingCount], 0)*8 +\r\n                            COALESCE([CancellationCount], 0)*(-4) +\r\n                            COALESCE([FacebookReferralCount], 0)*1 +\r\n                            COALESCE([XReferralCount], 0)*1 +\r\n                            COALESCE([FiveStarRatingCount], 0)*3 +\r\n                            COALESCE([FourStarRatingCount], 0)*1 +\r\n                            COALESCE([ThreeStarRatingCount], 0)*0 +\r\n                            COALESCE([TwoStarRatingCount], 0)*(-1) +\r\n                            COALESCE([OneStarRatingCount], 0)*(-3)\r\n                        AS decimal(18,2)) + \r\n                        CAST(\r\n                            COALESCE([FacebookClickCount], 0)*1 +\r\n                            COALESCE([FacebookImpressionCount], 0)*0.5 +\r\n                            COALESCE([FacebookLikeCount], 0)*1 + \r\n                            COALESCE([FacebookLoveCount], 0)*2 + \r\n                            COALESCE([FacebookWowCount], 0)*1.5 + \r\n                            COALESCE([FacebookHahaCount], 0)*1.5 + \r\n                            COALESCE([FacebookSorryCount], 0)*(-1) + \r\n                            COALESCE([FacebookAngerCount], 0)*(-2) + \r\n                            COALESCE([FacebookShareCount], 0)*3 + \r\n                            COALESCE([FacebookCommentCount], 0)*2\r\n                        AS decimal(18,2)) + \r\n                        CAST(\r\n                            COALESCE([XRetweetCount], 0)*3 +\r\n                            COALESCE([XReplyCount], 0)*2 + \r\n                            COALESCE([XLikeCount], 0)*1.5 + \r\n                            COALESCE([XQuoteCount], 0)*3 + \r\n                            COALESCE([XBookmarkCount], 0)*2 + \r\n                            COALESCE([XImpressionCount], 0)*0.5\r\n                        AS decimal(18,2))) / 3.00\r\n                    AS decimal(18,2))", true);
 
                     b.Property<int>("BookingCount")
                         .HasColumnType("int");
@@ -1675,9 +1702,10 @@ namespace VietWay.Repository.Migrations
                     b.Property<int>("FacebookAngerCount")
                         .HasColumnType("int");
 
-                    b.Property<double>("FacebookCTR")
+                    b.Property<decimal>("FacebookCTR")
                         .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("float");
+                        .HasColumnType("decimal(18,2)")
+                        .HasComputedColumnSql("\r\n                    CAST(\r\n                        CASE\r\n                            WHEN ISNULL([FacebookImpressionCount],0) = 0 THEN 0\r\n                            ELSE COALESCE(CAST([FacebookReferralCount] AS decimal(18,2)) / CAST([FacebookImpressionCount] AS decimal(18,2)), 0)\r\n                        END \r\n                    AS decimal(18,2))", true);
 
                     b.Property<int>("FacebookClickCount")
                         .HasColumnType("int");
@@ -1699,14 +1727,16 @@ namespace VietWay.Repository.Migrations
 
                     b.Property<int>("FacebookReactionCount")
                         .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("int");
+                        .HasColumnType("int")
+                        .HasComputedColumnSql("\r\n                    COALESCE([FacebookLikeCount], 0) + \r\n                    COALESCE([FacebookLoveCount], 0) + \r\n                    COALESCE([FacebookWowCount], 0) + \r\n                    COALESCE([FacebookHahaCount], 0) + \r\n                    COALESCE([FacebookSorryCount], 0) + \r\n                    COALESCE([FacebookAngerCount], 0)", true);
 
                     b.Property<int>("FacebookReferralCount")
                         .HasColumnType("int");
 
-                    b.Property<double>("FacebookScore")
+                    b.Property<decimal>("FacebookScore")
                         .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("float");
+                        .HasColumnType("decimal(18,2)")
+                        .HasComputedColumnSql("\r\n                    CAST(\r\n                        COALESCE([FacebookClickCount], 0)*1 +\r\n                        COALESCE([FacebookImpressionCount], 0)*0.5 +\r\n                        COALESCE([FacebookLikeCount], 0)*1 + \r\n                        COALESCE([FacebookLoveCount], 0)*2 + \r\n                        COALESCE([FacebookWowCount], 0)*1.5 + \r\n                        COALESCE([FacebookHahaCount], 0)*1.5 + \r\n                        COALESCE([FacebookSorryCount], 0)*(-1) + \r\n                        COALESCE([FacebookAngerCount], 0)*(-2) + \r\n                        COALESCE([FacebookShareCount], 0)*3 + \r\n                        COALESCE([FacebookCommentCount], 0)*2\r\n                    AS decimal(18,2))", true);
 
                     b.Property<int>("FacebookShareCount")
                         .HasColumnType("int");
@@ -1744,9 +1774,10 @@ namespace VietWay.Repository.Migrations
                     b.Property<int>("SiteReferralCount")
                         .HasColumnType("int");
 
-                    b.Property<double>("SiteScore")
+                    b.Property<decimal>("SiteScore")
                         .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("float");
+                        .HasColumnType("decimal(18,2)")
+                        .HasComputedColumnSql("\r\n                    CAST(\r\n                        COALESCE([SiteReferralCount], 0)*2 +\r\n                        COALESCE([BookingCount], 0)*8 +\r\n                        COALESCE([CancellationCount], 0)*(-4) +\r\n                        COALESCE([FacebookReferralCount], 0)*1 +\r\n                        COALESCE([XReferralCount], 0)*1 +\r\n                        COALESCE([FiveStarRatingCount], 0)*3 +\r\n                        COALESCE([FourStarRatingCount], 0)*1 +\r\n                        COALESCE([ThreeStarRatingCount], 0)*0 +\r\n                        COALESCE([TwoStarRatingCount], 0)*(-1) +\r\n                        COALESCE([OneStarRatingCount], 0)*(-3)\r\n                    AS decimal(18,2))", true);
 
                     b.Property<int>("ThreeStarRatingCount")
                         .HasColumnType("int");
@@ -1762,9 +1793,10 @@ namespace VietWay.Repository.Migrations
                     b.Property<int>("XBookmarkCount")
                         .HasColumnType("int");
 
-                    b.Property<double>("XCTR")
+                    b.Property<decimal>("XCTR")
                         .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("float");
+                        .HasColumnType("decimal(18,2)")
+                        .HasComputedColumnSql("\r\n                    CAST(\r\n                        CASE\r\n                            WHEN ISNULL([XImpressionCount],0) = 0 THEN 0\r\n                            ELSE COALESCE(CAST([XReferralCount] AS decimal(18,2)) / CAST([XImpressionCount] AS decimal(18,2)), 0)\r\n                        END \r\n                    AS decimal(18,2))", true);
 
                     b.Property<int>("XImpressionCount")
                         .HasColumnType("int");
@@ -1784,9 +1816,10 @@ namespace VietWay.Repository.Migrations
                     b.Property<int>("XRetweetCount")
                         .HasColumnType("int");
 
-                    b.Property<double>("XScore")
+                    b.Property<decimal>("XScore")
                         .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("float");
+                        .HasColumnType("decimal(18,2)")
+                        .HasComputedColumnSql("\r\n                    CAST(\r\n                        COALESCE([XRetweetCount], 0)*3 +\r\n                        COALESCE([XReplyCount], 0)*2 + \r\n                        COALESCE([XLikeCount], 0)*1.5 + \r\n                        COALESCE([XQuoteCount], 0)*3 + \r\n                        COALESCE([XBookmarkCount], 0)*2 + \r\n                        COALESCE([XImpressionCount], 0)*0.5\r\n                    AS decimal(18,2))", true);
 
                     b.HasKey("ReportId");
 
@@ -1845,7 +1878,9 @@ namespace VietWay.Repository.Migrations
                         .HasColumnType("int");
 
                     b.Property<decimal>("Score")
-                        .HasColumnType("decimal(18,2)");
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("decimal(18,2)")
+                        .HasComputedColumnSql("\r\n                    CAST(\r\n                        COALESCE([RetweetCount], 0)*3 +\r\n                        COALESCE([ReplyCount], 0)*2 + \r\n                        COALESCE([LikeCount], 0)*1.5 + \r\n                        COALESCE([QuoteCount], 0)*3 + \r\n                        COALESCE([BookmarkCount], 0)*2 + \r\n                        COALESCE([ImpressionCount], 0)*0.5\r\n                    AS decimal(18,2))", true);
 
                     b.Property<string>("SocialPostId")
                         .IsRequired()
@@ -2095,7 +2130,7 @@ namespace VietWay.Repository.Migrations
             modelBuilder.Entity("VietWay.Repository.EntityModel.HashtagReport", b =>
                 {
                     b.HasOne("VietWay.Repository.EntityModel.Hashtag", "Hashtag")
-                        .WithMany()
+                        .WithMany("HashtagReports")
                         .HasForeignKey("HashtagId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -2200,13 +2235,13 @@ namespace VietWay.Repository.Migrations
             modelBuilder.Entity("VietWay.Repository.EntityModel.SocialMediaPostHashtag", b =>
                 {
                     b.HasOne("VietWay.Repository.EntityModel.Hashtag", "Hashtag")
-                        .WithMany()
+                        .WithMany("SocialMediaPostHashtags")
                         .HasForeignKey("HashtagId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("VietWay.Repository.EntityModel.SocialMediaPost", "SocialMediaPost")
-                        .WithMany()
+                        .WithMany("SocialMediaPostHashtags")
                         .HasForeignKey("SocialPostId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -2431,6 +2466,13 @@ namespace VietWay.Repository.Migrations
                     b.Navigation("StatusHistory");
                 });
 
+            modelBuilder.Entity("VietWay.Repository.EntityModel.Hashtag", b =>
+                {
+                    b.Navigation("HashtagReports");
+
+                    b.Navigation("SocialMediaPostHashtags");
+                });
+
             modelBuilder.Entity("VietWay.Repository.EntityModel.Post", b =>
                 {
                     b.Navigation("PostLikes");
@@ -2457,6 +2499,8 @@ namespace VietWay.Repository.Migrations
             modelBuilder.Entity("VietWay.Repository.EntityModel.SocialMediaPost", b =>
                 {
                     b.Navigation("FacebookPostMetrics");
+
+                    b.Navigation("SocialMediaPostHashtags");
 
                     b.Navigation("TwitterPostMetrics");
                 });

@@ -50,7 +50,7 @@ namespace VietWay.Repository.EntityModel
         public int FacebookCommentCount { get; set; }
 
         [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
-        public int FacebookReactionCount { get; set; }
+        public int FacebookReactionCount { get; }
 
         public int XRetweetCount { get; set; }
         public int XReplyCount { get; set; }
@@ -60,18 +60,23 @@ namespace VietWay.Repository.EntityModel
         public int XImpressionCount { get; set; }
 
         [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
-        public double FacebookScore { get; set; }
+        [Column(TypeName = "decimal(18,2)")]
+        public decimal FacebookScore { get; }
         [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
-        public double XScore { get; set; }
+        [Column(TypeName = "decimal(18,2)")]
+        public decimal XScore { get; }
         [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
-        public double SiteScore { get; set; }
+        [Column(TypeName = "decimal(18,2)")]
+        public decimal SiteScore { get; }
         [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
-        public double AverageScore { get; set; }
+        [Column(TypeName = "decimal(18,2)")]
+        public decimal AverageScore { get; }
         [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
-        public double FacebookCTR { get; set; }
+        [Column(TypeName = "decimal(18,2)")]
+        public decimal FacebookCTR { get; }
         [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
-        public double XCTR { get; set; }
-        [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
+        [Column(TypeName = "decimal(18,2)")]
+        public decimal XCTR { get; }
 
         public virtual Province? Province { get; set; }
         public virtual AttractionCategory? AttractionCategory { get; set; }

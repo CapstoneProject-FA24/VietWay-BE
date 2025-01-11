@@ -21,7 +21,8 @@ namespace VietWay.Repository.EntityModel
         public int FacebookReferralCount { get; set; }
         public int XReferralCount { get; set; }
         [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
-        public double Score { get; set; }
+        [Column(TypeName = "decimal(18,2)")]
+        public decimal Score { get; }
         public DateTime CreatedAt { get; set; }
 
         public virtual Post? Post { get; set; }

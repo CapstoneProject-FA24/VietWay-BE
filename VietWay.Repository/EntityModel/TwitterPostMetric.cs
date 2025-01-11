@@ -21,8 +21,9 @@ namespace VietWay.Repository.EntityModel
         public int QuoteCount { get; set; }
         public int BookmarkCount { get; set; }
         public int ImpressionCount { get; set; }
+        [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
         [Column(TypeName = "decimal(18,2)")]
-        public double Score { get; set; }
+        public decimal Score { get; }
         public required DateTime CreatedAt { get; set; }
 
         public virtual SocialMediaPost? SocialMediaPost { get; set; }

@@ -157,7 +157,7 @@ namespace VietWay.API.Management.Controllers
         }
         [HttpGet("social-media-province")]
         [Produces("application/json")]
-        [Authorize(Roles = $"{nameof(UserRole.Manager)},{nameof(UserRole.Admin)}")]
+        //[Authorize(Roles = $"{nameof(UserRole.Manager)},{nameof(UserRole.Admin)}")]
         [ProducesResponseType<DefaultResponseModel<List<ReportSocialMediaProvinceDTO>>>(StatusCodes.Status200OK)] 
         public async Task<IActionResult> GetSocialMediaProvince(DateTime startDate, DateTime endDate)
         {

@@ -78,6 +78,439 @@ namespace VietWay.Repository.DataAccessObject
                 .HasOne(x => x.AttractionReview)
                 .WithMany(x => x.AttractionReviewLikes)
                 .HasForeignKey(x => x.ReviewId);
+            modelBuilder.Entity<FacebookPostMetric>()
+            .Property(x => x.Score)
+                .HasComputedColumnSql(@"
+                    CAST(
+                        COALESCE([PostClickCount], 0)*1 +
+                        COALESCE([ImpressionCount], 0)*0.5 +
+                        COALESCE([LikeCount], 0)*1 + 
+                        COALESCE([LoveCount], 0)*2 + 
+                        COALESCE([WowCount], 0)*1.5 + 
+                        COALESCE([HahaCount], 0)*1.5 + 
+                        COALESCE([SorryCount], 0)*(-1) + 
+                        COALESCE([AngerCount], 0)*(-2) + 
+                        COALESCE([ShareCount], 0)*3 + 
+                        COALESCE([CommentCount], 0)*2
+                    AS decimal(18,2))", stored: true);
+            modelBuilder.Entity<TwitterPostMetric>()
+                .Property(x => x.Score)
+                .HasComputedColumnSql(@"
+                    CAST(
+                        COALESCE([RetweetCount], 0)*3 +
+                        COALESCE([ReplyCount], 0)*2 + 
+                        COALESCE([LikeCount], 0)*1.5 + 
+                        COALESCE([QuoteCount], 0)*3 + 
+                        COALESCE([BookmarkCount], 0)*2 + 
+                        COALESCE([ImpressionCount], 0)*0.5
+                    AS decimal(18,2))", stored: true);
+            modelBuilder.Entity<AttractionMetric>()
+                .Property(x => x.Score)
+                .HasComputedColumnSql(@"
+                    CAST(
+                        COALESCE([SiteReferralCount], 0)*2 + 
+                        COALESCE([SiteLikeCount], 0)*5 + 
+                        COALESCE([FacebookReferralCount], 0)*1 + 
+                        COALESCE([XReferralCount], 0)*1 + 
+                        COALESCE([FiveStarRatingCount], 0)*3 + 
+                        COALESCE([FiveStarRatingLikeCount], 0)*3 + 
+                        COALESCE([FourStarRatingCount], 0)*1 + 
+                        COALESCE([FourStarRatingLikeCount], 0)*1 + 
+                        COALESCE([ThreeStarRatingCount], 0)*0 + 
+                        COALESCE([ThreeStarRatingLikeCount], 0)*0 + 
+                        COALESCE([TwoStarRatingCount], 0)*(-1) + 
+                        COALESCE([TwoStarRatingLikeCount], 0)*(-1) + 
+                        COALESCE([OneStarRatingCount], 0)*(-3) + 
+                        COALESCE([OneStarRatingLikeCount], 0)*(-3)
+                    AS decimal(18,2))", stored: true);
+            modelBuilder.Entity<PostMetric>()
+                .Property(x => x.Score)
+                .HasComputedColumnSql(@"
+                    CAST(
+                        COALESCE([SiteReferralCount], 0)*2 + 
+                        COALESCE([SiteSaveCount], 0)*5 + 
+                        COALESCE([FacebookReferralCount], 0)*1 + 
+                        COALESCE([XReferralCount], 0)*1
+                    AS decimal(18,2))", stored: true);
+            modelBuilder.Entity<TourTemplateMetric>()
+                .Property(x => x.Score)
+                .HasComputedColumnSql(@"
+                    CAST(
+                        COALESCE([SiteReferralCount], 0)*2 + 
+                        COALESCE([BookingCount], 0)*8 + 
+                        COALESCE([CancellationCount], 0)*(-4) + 
+                        COALESCE([FacebookReferralCount], 0)*1 + 
+                        COALESCE([XReferralCount], 0)*1 + 
+                        COALESCE([FiveStarRatingCount], 0)*3 + 
+                        COALESCE([FourStarRatingCount], 0)*1 + 
+                        COALESCE([ThreeStarRatingCount], 0)*0 + 
+                        COALESCE([TwoStarRatingCount], 0)*(-1) + 
+                        COALESCE([OneStarRatingCount], 0)*(-3)
+                    AS decimal(18,2))", stored: true);
+            modelBuilder.Entity<AttractionReport>()
+                .Property(x => x.FacebookReactionCount)
+                .HasComputedColumnSql(@"
+                    COALESCE([FacebookLikeCount], 0) + 
+                    COALESCE([FacebookLoveCount], 0) + 
+                    COALESCE([FacebookWowCount], 0) + 
+                    COALESCE([FacebookHahaCount], 0) + 
+                    COALESCE([FacebookSorryCount], 0) + 
+                    COALESCE([FacebookAngerCount], 0)", stored: true);
+            modelBuilder.Entity<AttractionReport>()
+                .Property(x => x.FacebookCTR)
+                .HasComputedColumnSql(@"
+                    CAST(
+	                    CASE
+		                    WHEN ISNULL([FacebookImpressionCount],0) = 0 THEN 0
+		                    ELSE COALESCE(CAST([FacebookReferralCount] AS decimal(18,2)) / CAST([FacebookImpressionCount] AS decimal(18,2)), 0)
+	                    END 
+                    AS decimal(18,2))", stored: true);
+            modelBuilder.Entity<AttractionReport>()
+                .Property(x => x.XCTR)
+                .HasComputedColumnSql(@"
+                    CAST(
+                        CASE
+                            WHEN ISNULL([XImpressionCount],0) = 0 THEN 0
+                            ELSE COALESCE(CAST([XReferralCount] AS decimal(18,2)) / CAST([XImpressionCount] AS decimal(18,2)), 0)
+                        END 
+                    AS decimal(18,2))", stored: true);
+            modelBuilder.Entity<AttractionReport>()
+                .Property(x => x.SiteScore)
+                .HasComputedColumnSql(@"
+                    CAST(
+                        COALESCE([SiteReferralCount], 0)*2 +
+                        COALESCE([FacebookReferralCount], 0)*1 +
+                        COALESCE([XReferralCount], 0)*1 +
+                        COALESCE([SiteLikeCount], 0)*5 +
+                        COALESCE([FiveStarRatingCount], 0)*3 +
+                        COALESCE([FiveStarRatingLikeCount], 0)*3 +
+                        COALESCE([FourStarRatingCount], 0)*1 +
+                        COALESCE([FourStarRatingLikeCount], 0)*1 +
+                        COALESCE([ThreeStarRatingCount], 0)*0 +
+                        COALESCE([ThreeStarRatingLikeCount], 0)*0 +
+                        COALESCE([TwoStarRatingCount], 0)*(-1) +
+                        COALESCE([TwoStarRatingLikeCount], 0)*(-1) +
+                        COALESCE([OneStarRatingCount], 0)*(-3) +
+                        COALESCE([OneStarRatingLikeCount], 0)*(-3)
+                    AS decimal(18,2))", stored: true);
+            modelBuilder.Entity<AttractionReport>()
+                .Property(x => x.FacebookScore)
+                .HasComputedColumnSql(@"
+                    CAST(
+                        COALESCE([FacebookClickCount], 0)*1 +
+                        COALESCE([FacebookImpressionCount], 0)*0.5 +
+                        COALESCE([FacebookLikeCount], 0)*1 + 
+                        COALESCE([FacebookLoveCount], 0)*2 + 
+                        COALESCE([FacebookWowCount], 0)*1.5 + 
+                        COALESCE([FacebookHahaCount], 0)*1.5 + 
+                        COALESCE([FacebookSorryCount], 0)*(-1) + 
+                        COALESCE([FacebookAngerCount], 0)*(-2) + 
+                        COALESCE([FacebookShareCount], 0)*3 + 
+                        COALESCE([FacebookCommentCount], 0)*2
+                    AS decimal(18,2))", stored: true);
+            modelBuilder.Entity<AttractionReport>()
+                .Property(x => x.XScore)
+                .HasComputedColumnSql(@"
+                    CAST(
+                        COALESCE([XRetweetCount], 0)*3 +
+                        COALESCE([XReplyCount], 0)*2 + 
+                        COALESCE([XLikeCount], 0)*1.5 + 
+                        COALESCE([XQuoteCount], 0)*3 + 
+                        COALESCE([XBookmarkCount], 0)*2 + 
+                        COALESCE([XImpressionCount], 0)*0.5
+                    AS decimal(18,2))", stored: true);
+            modelBuilder.Entity<AttractionReport>()
+                .Property(x => x.AverageScore)
+                .HasComputedColumnSql(@"
+                    CAST(
+                        (CAST(
+                            COALESCE([FacebookClickCount], 0)*1 +
+                            COALESCE([FacebookImpressionCount], 0)*0.5 +
+                            COALESCE([FacebookLikeCount], 0)*1 + 
+                            COALESCE([FacebookLoveCount], 0)*2 + 
+                            COALESCE([FacebookWowCount], 0)*1.5 + 
+                            COALESCE([FacebookHahaCount], 0)*1.5 + 
+                            COALESCE([FacebookSorryCount], 0)*(-1) + 
+                            COALESCE([FacebookAngerCount], 0)*(-2) + 
+                            COALESCE([FacebookShareCount], 0)*3 + 
+                            COALESCE([FacebookCommentCount], 0)*2
+                        AS decimal(18,2)) +
+                        CAST(
+                            COALESCE([SiteReferralCount], 0)*2 +
+                            COALESCE([FacebookReferralCount], 0)*1 +
+                            COALESCE([XReferralCount], 0)*1 +
+                            COALESCE([SiteLikeCount], 0)*5 +
+                            COALESCE([FiveStarRatingCount], 0)*3 +
+                            COALESCE([FiveStarRatingLikeCount], 0)*3 +
+                            COALESCE([FourStarRatingCount], 0)*1 +
+                            COALESCE([FourStarRatingLikeCount], 0)*1 +
+                            COALESCE([ThreeStarRatingCount], 0)*0 +
+                            COALESCE([ThreeStarRatingLikeCount], 0)*0 +
+                            COALESCE([TwoStarRatingCount], 0)*(-1) +
+                            COALESCE([TwoStarRatingLikeCount], 0)*(-1) +
+                            COALESCE([OneStarRatingCount], 0)*(-3) +
+                            COALESCE([OneStarRatingLikeCount], 0)*(-3)
+                        AS decimal(18,2)) +
+                        CAST(
+                            COALESCE([XRetweetCount], 0)*3 +
+                            COALESCE([XReplyCount], 0)*2 + 
+                            COALESCE([XLikeCount], 0)*1.5 + 
+                            COALESCE([XQuoteCount], 0)*3 + 
+                            COALESCE([XBookmarkCount], 0)*2 + 
+                            COALESCE([XImpressionCount], 0)*0.5
+                        AS decimal(18,2))) / 3.00
+                    AS decimal(18,2))", stored: true);
+            modelBuilder.Entity<PostReport>()
+                .Property(x => x.FacebookReactionCount)
+                .HasComputedColumnSql(@"
+                    COALESCE([FacebookLikeCount], 0) + 
+                    COALESCE([FacebookLoveCount], 0) + 
+                    COALESCE([FacebookWowCount], 0) + 
+                    COALESCE([FacebookHahaCount], 0) + 
+                    COALESCE([FacebookSorryCount], 0) + 
+                    COALESCE([FacebookAngerCount], 0)", stored: true);
+            modelBuilder.Entity<PostReport>()
+                .Property(x => x.FacebookCTR)
+                .HasComputedColumnSql(@"
+                    CAST(
+                        CASE
+                            WHEN ISNULL([FacebookImpressionCount],0) = 0 THEN 0
+                            ELSE COALESCE(CAST([FacebookReferralCount] AS decimal(18,2)) / CAST([FacebookImpressionCount] AS decimal(18,2)), 0)
+                        END 
+                    AS decimal(18,2))", stored: true);
+            modelBuilder.Entity<PostReport>()
+                .Property(x => x.XCTR)
+                .HasComputedColumnSql(@"
+                    CAST(
+                        CASE
+                            WHEN ISNULL([XImpressionCount],0) = 0 THEN 0
+                            ELSE COALESCE(CAST([XReferralCount] AS decimal(18,2)) / CAST([XImpressionCount] AS decimal(18,2)), 0)
+                        END 
+                    AS decimal(18,2))", stored: true);
+            modelBuilder.Entity<PostReport>()
+                .Property(x => x.SiteScore)
+                .HasComputedColumnSql(@"
+                    CAST(
+                        COALESCE([SiteReferralCount], 0)*2 +
+                        COALESCE([SiteLikeCount], 0)*5 +
+                        COALESCE([FacebookReferralCount], 0)*1 +
+                        COALESCE([XReferralCount], 0)*1
+                    AS decimal(18,2))", stored: true);
+            modelBuilder.Entity<PostReport>()
+                .Property(x => x.FacebookScore)
+                .HasComputedColumnSql(@"
+                    CAST(
+                        COALESCE([FacebookClickCount], 0)*1 +
+                        COALESCE([FacebookImpressionCount], 0)*0.5 +
+                        COALESCE([FacebookLikeCount], 0)*1 + 
+                        COALESCE([FacebookLoveCount], 0)*2 + 
+                        COALESCE([FacebookWowCount], 0)*1.5 + 
+                        COALESCE([FacebookHahaCount], 0)*1.5 + 
+                        COALESCE([FacebookSorryCount], 0)*(-1) + 
+                        COALESCE([FacebookAngerCount], 0)*(-2) + 
+                        COALESCE([FacebookShareCount], 0)*3 + 
+                        COALESCE([FacebookCommentCount], 0)*2
+                    AS decimal(18,2))", stored: true);
+            modelBuilder.Entity<PostReport>()
+                .Property(x => x.XScore)
+                .HasComputedColumnSql(@"
+                    CAST(
+                        COALESCE([XRetweetCount], 0)*3 +
+                        COALESCE([XReplyCount], 0)*2 + 
+                        COALESCE([XLikeCount], 0)*1.5 + 
+                        COALESCE([XQuoteCount], 0)*3 + 
+                        COALESCE([XBookmarkCount], 0)*2 + 
+                        COALESCE([XImpressionCount], 0)*0.5
+                    AS decimal(18,2))", stored: true);
+            modelBuilder.Entity<PostReport>()
+                .Property(x => x.AverageScore)
+                .HasComputedColumnSql(@"
+                    CAST(
+                        (CAST(
+                            COALESCE([SiteReferralCount], 0)*2 +
+                            COALESCE([SiteLikeCount], 0)*5 +
+                            COALESCE([FacebookReferralCount], 0)*1 +
+                            COALESCE([XReferralCount], 0)*1
+                        AS decimal(18,2)) + 
+                        CAST(
+                            COALESCE([FacebookClickCount], 0)*1 +
+                            COALESCE([FacebookImpressionCount], 0)*0.5 +
+                            COALESCE([FacebookLikeCount], 0)*1 + 
+                            COALESCE([FacebookLoveCount], 0)*2 + 
+                            COALESCE([FacebookWowCount], 0)*1.5 + 
+                            COALESCE([FacebookHahaCount], 0)*1.5 + 
+                            COALESCE([FacebookSorryCount], 0)*(-1) + 
+                            COALESCE([FacebookAngerCount], 0)*(-2) + 
+                            COALESCE([FacebookShareCount], 0)*3 + 
+                            COALESCE([FacebookCommentCount], 0)*2
+                        AS decimal(18,2)) + 
+                        CAST(
+                            COALESCE([XRetweetCount], 0)*3 +
+                            COALESCE([XReplyCount], 0)*2 + 
+                            COALESCE([XLikeCount], 0)*1.5 + 
+                            COALESCE([XQuoteCount], 0)*3 + 
+                            COALESCE([XBookmarkCount], 0)*2 + 
+                            COALESCE([XImpressionCount], 0)*0.5
+                        AS decimal(18,2))) / 3.00
+                    AS decimal(18,2))", stored: true);
+            modelBuilder.Entity<TourTemplateReport>()
+                .Property(x => x.FacebookReactionCount)
+                .HasComputedColumnSql(@"
+                    COALESCE([FacebookLikeCount], 0) + 
+                    COALESCE([FacebookLoveCount], 0) + 
+                    COALESCE([FacebookWowCount], 0) + 
+                    COALESCE([FacebookHahaCount], 0) + 
+                    COALESCE([FacebookSorryCount], 0) + 
+                    COALESCE([FacebookAngerCount], 0)", stored: true);
+            modelBuilder.Entity<TourTemplateReport>()
+                .Property(x => x.FacebookCTR)
+                .HasComputedColumnSql(@"
+                    CAST(
+                        CASE
+                            WHEN ISNULL([FacebookImpressionCount],0) = 0 THEN 0
+                            ELSE COALESCE(CAST([FacebookReferralCount] AS decimal(18,2)) / CAST([FacebookImpressionCount] AS decimal(18,2)), 0)
+                        END 
+                    AS decimal(18,2))", stored: true);
+            modelBuilder.Entity<TourTemplateReport>()
+                .Property(x => x.XCTR)
+                .HasComputedColumnSql(@"
+                    CAST(
+                        CASE
+                            WHEN ISNULL([XImpressionCount],0) = 0 THEN 0
+                            ELSE COALESCE(CAST([XReferralCount] AS decimal(18,2)) / CAST([XImpressionCount] AS decimal(18,2)), 0)
+                        END 
+                    AS decimal(18,2))", stored: true);
+            modelBuilder.Entity<TourTemplateReport>()
+                .Property(x => x.SiteScore)
+                .HasComputedColumnSql(@"
+                    CAST(
+                        COALESCE([SiteReferralCount], 0)*2 +
+                        COALESCE([BookingCount], 0)*8 +
+                        COALESCE([CancellationCount], 0)*(-4) +
+                        COALESCE([FacebookReferralCount], 0)*1 +
+                        COALESCE([XReferralCount], 0)*1 +
+                        COALESCE([FiveStarRatingCount], 0)*3 +
+                        COALESCE([FourStarRatingCount], 0)*1 +
+                        COALESCE([ThreeStarRatingCount], 0)*0 +
+                        COALESCE([TwoStarRatingCount], 0)*(-1) +
+                        COALESCE([OneStarRatingCount], 0)*(-3)
+                    AS decimal(18,2))", stored: true);
+            modelBuilder.Entity<TourTemplateReport>()
+                .Property(x => x.FacebookScore)
+                .HasComputedColumnSql(@"
+                    CAST(
+                        COALESCE([FacebookClickCount], 0)*1 +
+                        COALESCE([FacebookImpressionCount], 0)*0.5 +
+                        COALESCE([FacebookLikeCount], 0)*1 + 
+                        COALESCE([FacebookLoveCount], 0)*2 + 
+                        COALESCE([FacebookWowCount], 0)*1.5 + 
+                        COALESCE([FacebookHahaCount], 0)*1.5 + 
+                        COALESCE([FacebookSorryCount], 0)*(-1) + 
+                        COALESCE([FacebookAngerCount], 0)*(-2) + 
+                        COALESCE([FacebookShareCount], 0)*3 + 
+                        COALESCE([FacebookCommentCount], 0)*2
+                    AS decimal(18,2))", stored: true);
+            modelBuilder.Entity<TourTemplateReport>()
+                .Property(x => x.XScore)
+                .HasComputedColumnSql(@"
+                    CAST(
+                        COALESCE([XRetweetCount], 0)*3 +
+                        COALESCE([XReplyCount], 0)*2 + 
+                        COALESCE([XLikeCount], 0)*1.5 + 
+                        COALESCE([XQuoteCount], 0)*3 + 
+                        COALESCE([XBookmarkCount], 0)*2 + 
+                        COALESCE([XImpressionCount], 0)*0.5
+                    AS decimal(18,2))", stored: true);
+            modelBuilder.Entity<TourTemplateReport>()
+                .Property(x => x.AverageScore)
+                .HasComputedColumnSql(@"
+                    CAST(
+                        (CAST(
+                            COALESCE([SiteReferralCount], 0)*2 +
+                            COALESCE([BookingCount], 0)*8 +
+                            COALESCE([CancellationCount], 0)*(-4) +
+                            COALESCE([FacebookReferralCount], 0)*1 +
+                            COALESCE([XReferralCount], 0)*1 +
+                            COALESCE([FiveStarRatingCount], 0)*3 +
+                            COALESCE([FourStarRatingCount], 0)*1 +
+                            COALESCE([ThreeStarRatingCount], 0)*0 +
+                            COALESCE([TwoStarRatingCount], 0)*(-1) +
+                            COALESCE([OneStarRatingCount], 0)*(-3)
+                        AS decimal(18,2)) + 
+                        CAST(
+                            COALESCE([FacebookClickCount], 0)*1 +
+                            COALESCE([FacebookImpressionCount], 0)*0.5 +
+                            COALESCE([FacebookLikeCount], 0)*1 + 
+                            COALESCE([FacebookLoveCount], 0)*2 + 
+                            COALESCE([FacebookWowCount], 0)*1.5 + 
+                            COALESCE([FacebookHahaCount], 0)*1.5 + 
+                            COALESCE([FacebookSorryCount], 0)*(-1) + 
+                            COALESCE([FacebookAngerCount], 0)*(-2) + 
+                            COALESCE([FacebookShareCount], 0)*3 + 
+                            COALESCE([FacebookCommentCount], 0)*2
+                        AS decimal(18,2)) + 
+                        CAST(
+                            COALESCE([XRetweetCount], 0)*3 +
+                            COALESCE([XReplyCount], 0)*2 + 
+                            COALESCE([XLikeCount], 0)*1.5 + 
+                            COALESCE([XQuoteCount], 0)*3 + 
+                            COALESCE([XBookmarkCount], 0)*2 + 
+                            COALESCE([XImpressionCount], 0)*0.5
+                        AS decimal(18,2))) / 3.00
+                    AS decimal(18,2))", stored: true);
+            modelBuilder.Entity<HashtagReport>()
+                .Property(x => x.FacebookReactionCount)
+                .HasComputedColumnSql(@"
+                    COALESCE([FacebookLikeCount], 0) + 
+                    COALESCE([FacebookLoveCount], 0) + 
+                    COALESCE([FacebookWowCount], 0) + 
+                    COALESCE([FacebookHahaCount], 0) + 
+                    COALESCE([FacebookSorryCount], 0) + 
+                    COALESCE([FacebookAngerCount], 0)", stored: true);
+            modelBuilder.Entity<HashtagReport>()
+                .Property(x => x.FacebookCTR)
+                .HasComputedColumnSql(@"
+                    CAST(
+                        CASE
+                            WHEN ISNULL([FacebookImpressionCount],0) = 0 THEN 0
+                            ELSE COALESCE(CAST([FacebookReferralCount] AS decimal(18,2)) / CAST([FacebookImpressionCount] AS decimal(18,2)), 0)
+                        END 
+                    AS decimal(18,2))", stored: true);
+            modelBuilder.Entity<HashtagReport>()
+                .Property(x => x.XCTR)
+                .HasComputedColumnSql(@"
+                    CAST(
+                        CASE
+                            WHEN ISNULL([XImpressionCount],0) = 0 THEN 0
+                            ELSE COALESCE(CAST([XReferralCount] AS decimal(18,2)) / CAST([XImpressionCount] AS decimal(18,2)), 0)
+                        END 
+                    AS decimal(18,2))", stored: true);
+            modelBuilder.Entity<HashtagReport>()
+                .Property(x => x.FacebookScore)
+                .HasComputedColumnSql(@"
+                    CAST(
+                        COALESCE([FacebookClickCount], 0)*1 +
+                        COALESCE([FacebookImpressionCount], 0)*0.5 +
+                        COALESCE([FacebookLikeCount], 0)*1 + 
+                        COALESCE([FacebookLoveCount], 0)*2 + 
+                        COALESCE([FacebookWowCount], 0)*1.5 + 
+                        COALESCE([FacebookHahaCount], 0)*1.5 + 
+                        COALESCE([FacebookSorryCount], 0)*(-1) + 
+                        COALESCE([FacebookAngerCount], 0)*(-2) + 
+                        COALESCE([FacebookShareCount], 0)*3 + 
+                        COALESCE([FacebookCommentCount], 0)*2
+                    AS decimal(18,2))", stored:true);
+            modelBuilder.Entity<HashtagReport>()
+                .Property(x => x.XScore)
+                .HasComputedColumnSql(@"
+                    CAST(
+                        COALESCE([XRetweetCount], 0)*3 +
+                        COALESCE([XReplyCount], 0)*2 + 
+                        COALESCE([XLikeCount], 0)*1.5 + 
+                        COALESCE([XQuoteCount], 0)*3 + 
+                        COALESCE([XBookmarkCount], 0)*2 + 
+                        COALESCE([XImpressionCount], 0)*0.5
+                    AS decimal(18,2))", stored: true);
         }
     }
 }
