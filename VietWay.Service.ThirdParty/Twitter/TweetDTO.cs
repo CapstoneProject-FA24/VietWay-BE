@@ -18,4 +18,11 @@ namespace VietWay.Service.ThirdParty.Twitter
         public DateTime? CreatedAt { get; set; }
         public List<string> Hashtags { get; set; }
     }
+
+    public class HashtagCountDTO
+    {
+        public string HashtagId { get; set; }
+        public int Count { get; set; }
+        public bool IsCurrent { get; set; }
+    }
 }

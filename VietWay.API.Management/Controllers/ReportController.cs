@@ -362,5 +362,28 @@ namespace VietWay.API.Management.Controllers
                 Message = "Success"
             });
         }
+        [HttpGet("social-media-hashtag-detail/{hashtagId}")]
+        [Produces("application/json")]
+        //[Authorize(Roles = $"{nameof(UserRole.Manager)},{nameof(UserRole.Admin)}")]
+        [ProducesResponseType<DefaultResponseModel<ReportSocialMediaHashtagDetailDTO>>(StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetSocialMediaHashtagDetailAsync(DateTime startDate, DateTime endDate, string hashtagId)
+        {
+            if (startDate > endDate)
+            {
+                return BadRequest(new DefaultResponseModel<string>
+                {
+                    Message = "START_DATE_MUST_BE_BEFORE_END_DATE",
+                    StatusCode = StatusCodes.Status400BadRequest
+                });
+            }
+            startDate = startDate.Date;
+            endDate = endDate.Date.AddDays(1).AddSeconds(-1);
+            return Ok(new DefaultResponseModel<ReportSocialMediaHashtagDetailDTO>
+            {
+                Data = await _reportService.GetSocialMediaHashtagDetailReport(startDate, endDate, hashtagId),
+                StatusCode = StatusCodes.Status200OK,
+                Message = "Success"
+            });
+        }
     }
 }

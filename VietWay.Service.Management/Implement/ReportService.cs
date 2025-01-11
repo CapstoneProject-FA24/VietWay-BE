@@ -539,6 +539,80 @@ namespace VietWay.Service.Management.Implement
             return result;
         }
 
+        public async Task<ReportSocialMediaHashtagDetailDTO> GetSocialMediaHashtagDetailReport(DateTime startDate, DateTime endDate, string hashtagId)
+        {
+            NormalizePeriod(ref startDate, ref endDate);
+            List<string> labels = GetPeriodLabels(startDate, endDate);
+            ReportPeriod reportPeriod = GetPeriod(startDate, endDate);
+            var report = await _unitOfWork.HashtagReportRepository.Query()
+                .Where(x => labels.Contains(x.ReportLabel) && x.ReportPeriod == reportPeriod)
+                .GroupBy(x => new { x.HashtagId, x.Hashtag.HashtagName })
+                .Select(g => new ReportSocialMediaHashtagDetailDTO
+                {
+                    HashtagName = g.Key.HashtagName,
+                    HashtagId = g.Key.HashtagId,
+                    AverageFacebookScore = g.Average(x => x.FacebookScore),
+                    AverageXScore = g.Average(x => x.XScore),
+                    FacebookCTR = g.Average(x => x.FacebookCTR),
+                    XCTR = g.Average(x => x.XCTR),
+                    TotalFacebookPost = g.SelectMany(x => x.Hashtag.SocialMediaPostHashtags)
+                        .Where(x => x.SocialMediaPost.Site == SocialMediaSite.Facebook).Count(),
+                    TotalXPost = g.SelectMany(x => x.Hashtag.SocialMediaPostHashtags)
+                        .Where(x => x.SocialMediaPost.Site == SocialMediaSite.Twitter).Count()
+                })
+                .FirstOrDefaultAsync() ?? throw new ResourceNotFoundException();
+
+            var hashtagReport = await _unitOfWork.HashtagReportRepository
+                .Query()
+                .Where(x => labels.Contains(x.ReportLabel) && x.ReportPeriod == reportPeriod && x.HashtagId.Equals(hashtagId))
+                .Select(x => new
+                {
+                    ReportLabel = x.ReportLabel!,
+                    x.FacebookCommentCount,
+                    x.FacebookShareCount,
+                    x.FacebookReactionCount,
+                    x.FacebookImpressionCount,
+                    x.FacebookScore,
+                    x.FacebookCTR,
+                    x.XRetweetCount,
+                    x.XReplyCount,
+                    x.XLikeCount,
+                    x.XQuoteCount,
+                    x.XImpressionCount,
+                    x.XScore,
+                    x.XCTR
+                }).ToDictionaryAsync(x => x.ReportLabel, x => new
+                {
+                    x.FacebookCommentCount,
+                    x.FacebookShareCount,
+                    x.FacebookReactionCount,
+                    x.FacebookImpressionCount,
+                    x.FacebookScore,
+                    x.FacebookCTR,
+                    x.XRetweetCount,
+                    x.XReplyCount,
+                    x.XLikeCount,
+                    x.XQuoteCount,
+                    x.XImpressionCount,
+                    x.XScore,
+                    x.XCTR
+                });
+            report.ReportSocialMediaSummary = new();
+            report.ReportSocialMediaSummary.Dates = labels;
+            report.ReportSocialMediaSummary.FacebookComments = labels.Select(label => hashtagReport.TryGetValue(label, out var p) ? p.FacebookCommentCount : 0).ToList();
+            report.ReportSocialMediaSummary.FacebookShares = labels.Select(label => hashtagReport.TryGetValue(label, out var p) ? p.FacebookShareCount : 0).ToList();
+            report.ReportSocialMediaSummary.FacebookReactions = labels.Select(label => hashtagReport.TryGetValue(label, out var p) ? p.FacebookReactionCount : 0).ToList();
+            report.ReportSocialMediaSummary.FacebookImpressions = labels.Select(label => hashtagReport.TryGetValue(label, out var p) ? p.FacebookImpressionCount : 0).ToList();
+            report.ReportSocialMediaSummary.FacebookScore = labels.Select(label => hashtagReport.TryGetValue(label, out var p) ? p.FacebookScore : 0).ToList();
+            report.ReportSocialMediaSummary.XRetweets = labels.Select(label => hashtagReport.TryGetValue(label, out var p) ? p.XRetweetCount : 0).ToList();
+            report.ReportSocialMediaSummary.XReplies = labels.Select(label => hashtagReport.TryGetValue(label, out var p) ? p.XReplyCount + p.XQuoteCount : 0).ToList();
+            report.ReportSocialMediaSummary.XLikes = labels.Select(label => hashtagReport.TryGetValue(label, out var p) ? p.XLikeCount : 0).ToList();
+            report.ReportSocialMediaSummary.XImpressions = labels.Select(label => hashtagReport.TryGetValue(label, out var p) ? p.XImpressionCount : 0).ToList();
+            report.ReportSocialMediaSummary.XScore = labels.Select(label => hashtagReport.TryGetValue(label, out var p) ? p.XScore : 0).ToList();
+
+            return report;
+        }
+
         public async Task<ReportPromotionSummaryDTO> GetPromotionSummaryAsync(DateTime startDate, DateTime endDate)
         {
             NormalizePeriod(ref startDate, ref endDate);

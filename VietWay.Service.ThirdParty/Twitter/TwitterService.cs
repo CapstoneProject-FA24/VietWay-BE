@@ -125,7 +125,7 @@ namespace VietWay.Service.ThirdParty.Twitter
                 return 0;
             }
 
-            var hashtagCount = 0;
+            /*var hashtagCount = 0;
             foreach (var tweet in tweetData.EnumerateArray())
             {
                 string text = tweet.GetProperty("text").GetString();
@@ -135,12 +135,12 @@ namespace VietWay.Service.ThirdParty.Twitter
                     if(hashtag.Equals(tag))
                         hashtagCount++;
                 }
-            }
+            }*/
 
-            return hashtagCount;
+            return tweetData.EnumerateArray().Count();
         }
 
-        private List<string> ExtractHashtags(string input)
+        /*private List<string> ExtractHashtags(string input)
         {
             List<string> hashtags = new List<string>();
             Regex regex = new Regex(@"#\w+");
@@ -152,6 +152,6 @@ namespace VietWay.Service.ThirdParty.Twitter
             }
 
             return hashtags;
-        }
+        }*/
     }
 }
