@@ -261,6 +261,8 @@ namespace VietWay.API.Management
             recurringJobManager
                 .AddOrUpdate<ITweetJob>("getTweetsDetail", (x) => x.GetPublishedTweetsJob(), () => "*/20 * * * *");
             recurringJobManager
+                .AddOrUpdate<ITweetJob>("getPopularHashtag", (x) => x.GetPopularHashtagJob(), () => "*/16 * * * *");
+            recurringJobManager
                 .AddOrUpdate<IProvinceJob>("cacheProvinces", (x) => x.CacheProvinceJob(), () => "0 17 * * *");
             recurringJobManager
                 .AddOrUpdate<ITourCategoryJob>("cacheTourCategories", (x) => x.CacheTourCategoryJob(), () => "0 17 * * *");
@@ -276,7 +278,8 @@ namespace VietWay.API.Management
                 .AddOrUpdate<ITourJob>("changeToursCompleted", (x) => x.ChangeToursToCompletedAsync(), () => "0 17 * * *");
             recurringJobManager
                 .AddOrUpdate<ITourJob>("rejectClosedPendingTours", (x) => x.RejectUnapprovedToursAsync(), () => "0 17 * * *");
-
+            IBackgroundJobClient backgroundJobClient = app.Services.GetRequiredService<IBackgroundJobClient>();
+            //backgroundJobClient.Enqueue<ReportJob>(x => x.Test());
 
             app.UseStaticFiles();
             #region app.UseSwagger(...);

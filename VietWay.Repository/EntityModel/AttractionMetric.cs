@@ -17,23 +17,23 @@ namespace VietWay.Repository.EntityModel
         [ForeignKey(nameof(Attraction))]
         [Required]
         public string? AttractionId { get; set; }
-        public int? NewViewCount { get; set; }
-        public int? NewLikeCount { get; set; }
-        public int? NewFacebookReferralCount { get; set; }
-        public int? NewXReferralCount { get; set; }
-        public int? New5StarRatingCount { get; set; }
-        public int? New5StarRatingLikeCount { get; set; }
-        public int? New4StarRatingCount { get; set; }
-        public int? New4StarRatingLikeCount { get; set; }
-        public int? New3StarRatingCount { get; set; }
-        public int? New3StarRatingLikeCount { get; set; }
-        public int? New2StarRatingCount { get; set; }
-        public int? New2StarRatingLikeCount { get; set; }
-        public int? New1StarRatingCount { get; set; }
-        public int? New1StarRatingLikeCount { get; set; }
+        public int SiteReferralCount { get; set; }
+        public int SiteLikeCount { get; set; }
+        public int FacebookReferralCount { get; set; }
+        public int XReferralCount { get; set; }
+        public int FiveStarRatingCount { get; set; }
+        public int FiveStarRatingLikeCount { get; set; }
+        public int FourStarRatingCount { get; set; }
+        public int FourStarRatingLikeCount { get; set; }
+        public int ThreeStarRatingCount { get; set; }
+        public int ThreeStarRatingLikeCount { get; set; }
+        public int TwoStarRatingCount { get; set; }
+        public int TwoStarRatingLikeCount { get; set; }
+        public int OneStarRatingCount { get; set; }
+        public int OneStarRatingLikeCount { get; set; }
         [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
         [Column(TypeName = "decimal(18,2)")]
-        public decimal? Score { get; set; }
+        public decimal Score { get; }
         public DateTime CreatedAt { get; set; }
 
         public virtual Attraction? Attraction { get; set; }

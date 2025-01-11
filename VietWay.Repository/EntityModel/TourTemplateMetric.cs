@@ -16,18 +16,19 @@ namespace VietWay.Repository.EntityModel
         [StringLength(20)]
         [ForeignKey(nameof(TourTemplate))]
         public string? TourTemplateId { get; set; }
-        public int? NewViewCount { get; set; }
-        public int? NewBookingCount { get; set; }
-        public int? NewCancellationCount { get; set; }
-        public int? NewFacebookReferralCount { get; set; }
-        public int? NewXReferralCount { get; set; }
-        public int? New5StarRatingCount { get; set; }
-        public int? New4StarRatingCount { get; set; }
-        public int? New3StarRatingCount { get; set; }
-        public int? New2StarRatingCount { get; set; }
-        public int? New1StarRatingCount { get; set; }
+        public int SiteReferralCount { get; set; }
+        public int BookingCount { get; set; }
+        public int CancellationCount { get; set; }
+        public int FacebookReferralCount { get; set; }
+        public int XReferralCount { get; set; }
+        public int FiveStarRatingCount { get; set; }
+        public int FourStarRatingCount { get; set; }
+        public int ThreeStarRatingCount { get; set; }
+        public int TwoStarRatingCount { get; set; }
+        public int OneStarRatingCount { get; set; }
+        [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
         [Column(TypeName = "decimal(18,2)")]
-        public decimal? Score { get; set; }
+        public decimal Score { get; }
         public DateTime CreatedAt { get; set; }
         public virtual TourTemplate? TourTemplate { get; set; }
     }

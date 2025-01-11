@@ -28,6 +28,7 @@ namespace VietWay.Repository.EntityModel
 
         public virtual ICollection<FacebookPostMetric>? FacebookPostMetrics { get; set; }
         public virtual ICollection<TwitterPostMetric>? TwitterPostMetrics { get; set; }
+        public virtual ICollection<SocialMediaPostHashtag>? SocialMediaPostHashtags { get; set; }
         public virtual Attraction? Attraction { get; set; }
         public virtual Post? Post { get; set; }
         public virtual TourTemplate? TourTemplate { get; set; }

@@ -16,12 +16,13 @@ namespace VietWay.Repository.EntityModel
         [StringLength(20)]
         [ForeignKey(nameof(Post))]
         public string? PostId { get; set; }
-        public int? NewViewCount { get; set; }
-        public int? NewSaveCount { get; set; }
-        public int? NewFacebookReferralCount { get; set; }
-        public int? NewXReferralCount { get; set; }
+        public int SiteReferralCount { get; set; }
+        public int SiteSaveCount { get; set; }
+        public int FacebookReferralCount { get; set; }
+        public int XReferralCount { get; set; }
+        [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
         [Column(TypeName = "decimal(18,2)")]
-        public decimal? Score { get; set; }
+        public decimal Score { get; }
         public DateTime CreatedAt { get; set; }
 
         public virtual Post? Post { get; set; }
