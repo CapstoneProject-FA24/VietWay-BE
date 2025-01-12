@@ -6,18 +6,21 @@ using VietWay.Repository.EntityModel.Base;
 using VietWay.Repository.UnitOfWork;
 using VietWay.Service.ThirdParty.Redis;
 using VietWay.Service.ThirdParty.Twitter;
+using VietWay.Util.DateTimeUtil;
 
 namespace VietWay.Job.Implementation
 {
-    public class TweetJob(IUnitOfWork unitOfWork, ITwitterService twitterService, IRedisCacheService redisCacheService) : ITweetJob
+    public class TweetJob(IUnitOfWork unitOfWork, ITwitterService twitterService, IRedisCacheService redisCacheService, ITimeZoneHelper timeZoneHelper) : ITweetJob
     {
         private readonly IUnitOfWork _unitOfWork = unitOfWork;
         private readonly ITwitterService _twitterService = twitterService;
         private readonly IRedisCacheService _redisCacheService = redisCacheService;
+        private readonly ITimeZoneHelper _timeZoneHelper = timeZoneHelper;
         public async Task GetPublishedTweetsJob()
         {
+            DateTime createdAt = _timeZoneHelper.GetUTC7Now().AddDays(-90);
             var socialMediaPosts = await _unitOfWork.SocialMediaPostRepository.Query()
-                .Where(x => x.Site == SocialMediaSite.Twitter)
+                .Where(x => x.Site == SocialMediaSite.Twitter && x.CreatedAt >= createdAt)
                 .ToListAsync();
 
             if (socialMediaPosts.IsNullOrEmpty())
@@ -27,21 +30,23 @@ namespace VietWay.Job.Implementation
 
             List<TweetDTO> tweetsDetails = await _twitterService.GetTweetsAsync(socialMediaPosts.Select(x => x.SocialPostId).ToList());
 
-            var tweetLookup = tweetsDetails.ToLookup(x => x.XTweetId);
-
-            var keyValuePairs = socialMediaPosts
-                .Where(post => tweetLookup.Contains(post.SocialPostId))
-                .GroupBy(post => post.EntityType switch
+            foreach (var item in tweetsDetails)
+            {
+                TwitterPostMetric twitterPostMetric = new()
                 {
-                    SocialMediaPostEntity.Attraction => $"{post.AttractionId}-{(int)post.EntityType}",
-                    SocialMediaPostEntity.Post => $"{post.PostId}-{(int)post.EntityType}",
-                    SocialMediaPostEntity.TourTemplate => $"{post.TourTemplateId}-{(int)post.EntityType}",
-                }).ToDictionary(
-                    group => group.Key!,
-                    group => group.SelectMany(post => tweetLookup[post.SocialPostId]).ToList()
-                );
-
-            await _redisCacheService.SetMultipleAsync(keyValuePairs);
+                    CreatedAt = _timeZoneHelper.GetUTC7Now(),
+                    ImpressionCount = item.ImpressionCount,
+                    LikeCount = item.LikeCount,
+                    QuoteCount = item.QuoteCount,
+                    ReplyCount = item.ReplyCount,
+                    RetweetCount = item.RetweetCount,
+                    BookmarkCount = item.BookmarkCount,
+                    MetricId = Guid.NewGuid().ToString(),
+                    SocialPostId = item.XTweetId,
+                };
+                await _unitOfWork.TwitterPostMetricRepository.CreateAsync(twitterPostMetric);
+            }
+            await _redisCacheService.SetAsync("twitterPostMetric", true, TimeSpan.FromHours(20));
         }
 
         public async Task GetPopularHashtagJob()
