@@ -519,9 +519,9 @@ namespace VietWay.Service.Management.Implement
                 .ToListAsync();
             foreach (var item in result)
             {
-                item.AverageFacebookScore = item.AverageFacebookScore / item.TotalFacebookPost;
-                item.AverageXScore = item.AverageXScore / item.TotalXPost;
-                item.AverageAttractionScore = item.AverageAttractionScore / item.TotalAttraction;
+                item.AverageFacebookScore = item.TotalFacebookPost == 0 ? 0 : item.AverageFacebookScore / item.TotalFacebookPost;
+                item.AverageXScore = item.TotalXPost == 0 ? 0 : item.AverageXScore / item.TotalXPost;
+                item.AverageAttractionScore = item.TotalAttraction == 0 ? 0 : item.AverageAttractionScore / item.TotalAttraction;
                 item.AverageScore = (item.AverageFacebookScore + item.AverageXScore + item.AverageAttractionScore) / 3;
             }
             return result;
@@ -821,9 +821,9 @@ namespace VietWay.Service.Management.Implement
                 .ToListAsync();
             foreach (var item in result)
             {
-                item.AverageFacebookScore = item.AverageFacebookScore / item.TotalFacebookPost;
-                item.AverageXScore = item.AverageXScore / item.TotalXPost;
-                item.AverageSitePostScore = item.AverageSitePostScore / item.TotalSitePost;
+                item.AverageFacebookScore = item.TotalFacebookPost == 0 ? 0 : item.AverageFacebookScore / item.TotalFacebookPost;
+                item.AverageXScore = item.TotalXPost == 0 ? 0 : item.AverageXScore / item.TotalXPost;
+                item.AverageSitePostScore = item.TotalSitePost == 0 ? 0 : item.AverageSitePostScore / item.TotalSitePost;
                 item.AverageScore = (item.AverageFacebookScore + item.AverageXScore + item.AverageSitePostScore) / 3;
             }
             return result;
@@ -1391,19 +1391,22 @@ namespace VietWay.Service.Management.Implement
                 {
                     TourCategoryId = g.Key.TourCategoryId,
                     TourCategoryName = g.Key.Name,
-                    AverageFacebookScore = g.Average(x => x.FacebookScore),
-                    AverageXScore = g.Average(x => x.XScore),
+                    AverageFacebookScore = g.Sum(x => x.FacebookScore),
+                    AverageXScore = g.Sum(x => x.XScore),
                     TotalFacebookPost = g.SelectMany(x => x.TourCategory.TourTemplates).SelectMany(x => x.SocialMediaPosts)
                         .Where(x => x.Site == SocialMediaSite.Facebook && x.FacebookPostMetrics.Any(x => x.CreatedAt >= startDate && x.CreatedAt <= endDate)).Count(),
                     TotalXPost = g.SelectMany(x => x.TourCategory.TourTemplates).SelectMany(x => x.SocialMediaPosts)
                         .Where(x => x.Site == SocialMediaSite.Facebook && x.FacebookPostMetrics.Any(x => x.CreatedAt >= startDate && x.CreatedAt <= endDate)).Count(),
                     TotalTourTemplate = g.SelectMany(x => x.TourCategory.TourTemplates)
                         .Where(x => x.TourTemplateMetrics.Any(x => x.CreatedAt >= startDate && x.CreatedAt <= endDate)).Count(),
-                    AverageTourTemplateScore = g.Average(x => x.AverageScore),
+                    AverageTourTemplateScore = g.Sum(x => x.SiteScore),
                 })
                 .ToListAsync();
             foreach (var item in result)
             {
+                item.AverageFacebookScore = item.TotalFacebookPost == 0 ? 0 : item.AverageFacebookScore / item.TotalFacebookPost;
+                item.AverageXScore = item.TotalXPost == 0 ? 0 : item.AverageXScore / item.TotalXPost;
+                item.AverageTourTemplateScore = item.TotalTourTemplate == 0 ? 0 : item.AverageTourTemplateScore / item.TotalTourTemplate;
                 item.AverageScore = (item.AverageFacebookScore + item.AverageXScore + item.AverageTourTemplateScore) / 3;
             }
             return result;
