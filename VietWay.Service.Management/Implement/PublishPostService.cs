@@ -124,6 +124,15 @@ namespace VietWay.Service.Management.Implement
                 }
             }
 
+            var tweetsToRemove = tweetDto
+                .Where(tweet => !socialMediaPosts.Any(post => post.SocialPostId == tweet.XTweetId))
+                .ToList();
+
+            foreach (var tweet in tweetsToRemove)
+            {
+                tweetDto.Remove(tweet);
+            }
+
             return tweetDto;
         }
 
