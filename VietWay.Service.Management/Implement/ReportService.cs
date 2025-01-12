@@ -381,7 +381,6 @@ namespace VietWay.Service.Management.Implement
             };
         }
         #endregion
-
         public async Task<ReportSocialMediaAttractionCategoryDetailDTO> GetSocialMediaAttractionCategoryDetailReport(DateTime startDate, DateTime endDate, string attractionCategoryId)
         {
 
@@ -479,7 +478,6 @@ namespace VietWay.Service.Management.Implement
             report.Provinces = provinces;
             return report;
         }
-
         public async Task<List<ReportSocialMediaAttractionCategoryDTO>> GetSocialMediaAttractionCategoryReport(DateTime startDate, DateTime endDate)
         {
             NormalizePeriod(ref startDate, ref endDate);
@@ -526,7 +524,6 @@ namespace VietWay.Service.Management.Implement
             }
             return result;
         }
-
         public async Task<List<ReportSocialMediaHashtagDTO>> GetSocialMediaHashtagReport(DateTime startDate, DateTime endDate)
         {
             NormalizePeriod(ref startDate, ref endDate);
@@ -571,7 +568,6 @@ namespace VietWay.Service.Management.Implement
             }
             return result;
         }
-
         public async Task<ReportSocialMediaHashtagDetailDTO> GetSocialMediaHashtagDetailReport(DateTime startDate, DateTime endDate, string hashtagId)
         {
             NormalizePeriod(ref startDate, ref endDate);
@@ -698,7 +694,6 @@ namespace VietWay.Service.Management.Implement
                 XRetweetCount = xPosts?.TotalRetweets??0,
             };
         }
-
         public async Task<ReportSocialMediaPostCategoryDetailDTO> GetSocialMediaPostCategoryDetailReport(DateTime startDate, DateTime endDate, string postCategoryId)
         {
             NormalizePeriod(ref startDate, ref endDate);
@@ -741,23 +736,24 @@ namespace VietWay.Service.Management.Implement
             var postReport = await _unitOfWork.PostReportRepository
                 .Query()
                 .Where(x => labels.Contains(x.ReportLabel) && x.ReportPeriod == reportPeriod && x.PostCategoryId.Equals(postCategoryId))
-                .Select(x => new
+                .GroupBy(x => x.ReportLabel)
+                .Select(g => new
                 {
-                    ReportLabel = x.ReportLabel!,
-                    x.FacebookCommentCount,
-                    x.FacebookShareCount,
-                    x.FacebookReactionCount,
-                    x.FacebookImpressionCount,
-                    x.FacebookScore,
-                    x.FacebookCTR,
-                    x.XRetweetCount,
-                    x.XReplyCount,
-                    x.XLikeCount,
-                    x.XQuoteCount,
-                    x.XImpressionCount,
-                    x.XScore,
-                    x.XCTR
-                }).ToDictionaryAsync(x => x.ReportLabel, x => new
+                    ReportLabel = g.Key,
+                    FacebookCommentCount = g.Sum(x => x.FacebookCommentCount),
+                    FacebookShareCount = g.Sum(x => x.FacebookShareCount),
+                    FacebookReactionCount = g.Sum(x => x.FacebookReactionCount),
+                    FacebookImpressionCount = g.Sum(x => x.FacebookImpressionCount),
+                    FacebookScore = g.Sum(x => x.FacebookScore),
+                    FacebookCTR = g.Sum(x => x.FacebookCTR),
+                    XRetweetCount = g.Sum(x => x.XRetweetCount),
+                    XReplyCount = g.Sum(x => x.XReplyCount),
+                    XLikeCount = g.Sum(x => x.XLikeCount),
+                    XQuoteCount = g.Sum(x => x.XQuoteCount),
+                    XImpressionCount = g.Sum(x => x.XImpressionCount),
+                    XScore = g.Sum(x => x.XScore),
+                    XCTR = g.Sum(x => x.XCTR)
+                }).ToDictionaryAsync(x => x.ReportLabel!, x => new
                 {
                     x.FacebookCommentCount,
                     x.FacebookShareCount,
@@ -786,20 +782,18 @@ namespace VietWay.Service.Management.Implement
             report.ReportSocialMediaSummary.XImpressions = labels.Select(label => postReport.TryGetValue(label, out var p) ? p.XImpressionCount : 0).ToList();
             report.ReportSocialMediaSummary.XScore = labels.Select(label => postReport.TryGetValue(label, out var p) ? p.XScore : 0).ToList();
             var provinces = await _unitOfWork.ProvinceRepository.Query()
-                .GroupBy(x => new { x.ProvinceId, x.Name })
                 .Select(g => new ReportSocialMediaProvincePostCategoryDTO
                 {
-                    ProvinceId = g.Key.ProvinceId,
-                    ProvinceName = g.Key.Name,
-                    TotalSitePost = g.SelectMany(x => x.Posts).SelectMany(x => x.PostMetrics)
-                        .Where(x => x.CreatedAt >= startDate && x.CreatedAt <= endDate).Count(),
-                    AverageSitePostScore = g.SelectMany(x => x.PostReports.Where(x => labels.Contains(x.ReportLabel))).Average(x => x.AverageScore),
-                    AverageXScore = g.SelectMany(x => x.PostReports.Where(x => labels.Contains(x.ReportLabel))).Average(x => x.XScore),
-                    AverageFacebookScore = g.SelectMany(x => x.PostReports.Where(x => labels.Contains(x.ReportLabel))).Average(x => x.FacebookScore),
-                    TotalFacebookPost = g.SelectMany(x => x.Posts).SelectMany(x => x.SocialMediaPosts)
-                            .Where(x => x.Site == SocialMediaSite.Facebook && x.FacebookPostMetrics.Any(x => x.CreatedAt >= startDate && x.CreatedAt <= endDate)).Count(),
-                    TotalXPost = g.SelectMany(x => x.Posts).SelectMany(x => x.SocialMediaPosts)
-                            .Where(x => x.Site == SocialMediaSite.Twitter && x.TwitterPostMetrics.Any(x => x.CreatedAt >= startDate && x.CreatedAt <= endDate)).Count(),
+                    ProvinceId = g.ProvinceId,
+                    ProvinceName = g.Name,
+                    TotalSitePost = g.Posts.Where(x => x.PostCategoryId.Equals(postCategoryId)).Count(x => x.PostMetrics.Any(d => d.CreatedAt >= startDate && d.CreatedAt <= endDate)),
+                    AverageSitePostScore = g.PostReports.Where(x => labels.Contains(x.ReportLabel) && x.PostCategoryId.Equals(postCategoryId)).Sum(x => x.SiteScore),
+                    AverageXScore = g.PostReports.Where(x => labels.Contains(x.ReportLabel) && x.PostCategoryId.Equals(postCategoryId)).Sum(x => x.XScore),
+                    AverageFacebookScore = g.PostReports.Where(x => labels.Contains(x.ReportLabel) && x.PostCategoryId.Equals(postCategoryId)).Sum(x => x.FacebookScore),
+                    TotalFacebookPost = g.Posts.Where(x => x.PostCategoryId.Equals(postCategoryId)).SelectMany(x => x.SocialMediaPosts
+                            .Where(x => x.Site == SocialMediaSite.Facebook && x.FacebookPostMetrics.Any(x => x.CreatedAt >= startDate && x.CreatedAt <= endDate))).Count(),
+                    TotalXPost = g.Posts.Where(x => x.PostCategoryId.Equals(postCategoryId)).SelectMany(x => x.SocialMediaPosts
+                            .Where(x => x.Site == SocialMediaSite.Twitter && x.TwitterPostMetrics.Any(x => x.CreatedAt >= startDate && x.CreatedAt <= endDate))).Count(),
                 })
                 .ToListAsync();
             foreach (var item in provinces)
@@ -809,7 +803,6 @@ namespace VietWay.Service.Management.Implement
             report.Provinces = provinces;
             return report;
         }
-
         public async Task<List<ReportSocialMediaPostCategoryDTO>> GetSocialMediaPostCategoryReport(DateTime startDate, DateTime endDate)
         {
             NormalizePeriod(ref startDate, ref endDate);
@@ -856,7 +849,6 @@ namespace VietWay.Service.Management.Implement
             }
             return result;
         }
-
         public async Task<ReportSocialMediaProvinceDetailDTO> GetSocialMediaProvinceDetailReport(DateTime startDate, DateTime endDate, string provinceId)
         {
             NormalizePeriod(ref startDate, ref endDate);
@@ -864,64 +856,59 @@ namespace VietWay.Service.Management.Implement
             ReportPeriod reportPeriod = GetPeriod(startDate, endDate);
             var result = await _unitOfWork.ProvinceRepository.Query()
                 .Where(x=>x.ProvinceId.Equals(provinceId))
-                .GroupBy(x => new { x.ProvinceId, x.Name })
                 .Select(g => new ReportSocialMediaProvinceDetailDTO
                 {
-                    ProvinceId = g.Key.ProvinceId,
-                    ProvinceName = g.Key.Name,
-                    TotalAttraction = g.SelectMany(x => x.Attractions).SelectMany(x => x.AttractionMetrics)
-                        .Where(x => x.CreatedAt >= startDate && x.CreatedAt <= endDate).Count(),
-                    TotalSitePost = g.SelectMany(x => x.Posts).SelectMany(x => x.PostMetrics)
-                        .Where(x => x.CreatedAt >= startDate && x.CreatedAt <= endDate).Count(),
-                    TotalTourTemplate = g.SelectMany(x => x.TourTemplateProvinces)
-                        .Select(x => x.TourTemplate).Where(x => x.TourTemplateMetrics.Any(x => x.CreatedAt >= startDate && x.CreatedAt <= endDate)).Count(),
-                    AverageAttractionScore = g.SelectMany(x => x.AttractionReports.Where(x => labels.Contains(x.ReportLabel))).Average(x => x.AverageScore),
-                    AverageSitePostScore = g.SelectMany(x => x.PostReports.Where(x => labels.Contains(x.ReportLabel))).Average(x => x.AverageScore),
-                    AverageTourTemplateScore = g.SelectMany(x => x.TourTemplateReports.Where(x => labels.Contains(x.ReportLabel))).Average(x => x.AverageScore),
-                    AverageXScore = (g.SelectMany(x => x.PostReports.Where(x => labels.Contains(x.ReportLabel))).Average(x => x.XScore) +
-                        g.SelectMany(x => x.AttractionReports.Where(x => labels.Contains(x.ReportLabel))).Average(x => x.XScore) +
-                        g.SelectMany(x => x.TourTemplateReports.Where(x => labels.Contains(x.ReportLabel))).Average(x => x.XScore)) / 3,
-                    AverageFacebookScore = (g.SelectMany(x => x.PostReports.Where(x => labels.Contains(x.ReportLabel))).Average(x => x.FacebookScore) +
-                        g.SelectMany(x => x.AttractionReports.Where(x => labels.Contains(x.ReportLabel))).Average(x => x.FacebookScore) +
-                        g.SelectMany(x => x.TourTemplateReports.Where(x => labels.Contains(x.ReportLabel))).Average(x => x.FacebookScore)) / 3,
-                    TotalFacebookPost = g.SelectMany(x => x.Posts).SelectMany(x => x.SocialMediaPosts)
-                            .Where(x => x.Site == SocialMediaSite.Facebook && x.FacebookPostMetrics.Any(x => x.CreatedAt >= startDate && x.CreatedAt <= endDate)).Count() +
-                        g.SelectMany(x => x.Attractions).SelectMany(x => x.SocialMediaPosts)
-                            .Where(x => x.Site == SocialMediaSite.Facebook && x.FacebookPostMetrics.Any(x => x.CreatedAt >= startDate && x.CreatedAt <= endDate)).Count() +
-                        g.SelectMany(x => x.TourTemplateProvinces).SelectMany(x => x.TourTemplate.SocialMediaPosts)
-                            .Where(x => x.Site == SocialMediaSite.Facebook && x.FacebookPostMetrics.Any(x => x.CreatedAt >= startDate && x.CreatedAt <= endDate)).Count(),
-                    TotalXPost = g.SelectMany(x => x.Posts).SelectMany(x => x.SocialMediaPosts)
-                            .Where(x => x.Site == SocialMediaSite.Twitter && x.TwitterPostMetrics.Any(x => x.CreatedAt >= startDate && x.CreatedAt <= endDate)).Count() +
-                        g.SelectMany(x => x.Attractions).SelectMany(x => x.SocialMediaPosts)
-                            .Where(x => x.Site == SocialMediaSite.Twitter && x.TwitterPostMetrics.Any(x => x.CreatedAt >= startDate && x.CreatedAt <= endDate)).Count() +
-                        g.SelectMany(x => x.TourTemplateProvinces).SelectMany(x => x.TourTemplate.SocialMediaPosts)
-                            .Where(x => x.Site == SocialMediaSite.Twitter && x.TwitterPostMetrics.Any(x => x.CreatedAt >= startDate && x.CreatedAt <= endDate)).Count(),
+                    ProvinceId = g.ProvinceId,
+                    ProvinceName = g.Name,
+                    TotalAttraction = g.Attractions.Count(x => x.AttractionMetrics.Any(d => d.CreatedAt >= startDate && d.CreatedAt <= endDate)),
+                    TotalSitePost = g.Posts.Count(x => x.PostMetrics.Any(d => d.CreatedAt >= startDate && d.CreatedAt <= endDate)),
+                    TotalTourTemplate = g.TourTemplateProvinces.Select(x => x.TourTemplate).Count(x => x.TourTemplateMetrics.Any(d => d.CreatedAt >= startDate && d.CreatedAt <= endDate)),
+                    AverageAttractionScore = g.AttractionReports.Where(x => labels.Contains(x.ReportLabel)).Sum(x => x.SiteScore),
+                    AverageSitePostScore = g.PostReports.Where(x => labels.Contains(x.ReportLabel)).Sum(x => x.SiteScore),
+                    AverageTourTemplateScore = g.TourTemplateReports.Where(x => labels.Contains(x.ReportLabel)).Sum(x => x.SiteScore),
+                    AverageXScore = (g.PostReports.Where(x => labels.Contains(x.ReportLabel)).Sum(x => x.XScore) +
+                        g.AttractionReports.Where(x => labels.Contains(x.ReportLabel)).Sum(x => x.XScore) +
+                        g.TourTemplateReports.Where(x => labels.Contains(x.ReportLabel)).Sum(x => x.XScore)) / 3,
+                    AverageFacebookScore = (g.PostReports.Where(x => labels.Contains(x.ReportLabel)).Sum(x => x.FacebookScore) +
+                        g.AttractionReports.Where(x => labels.Contains(x.ReportLabel)).Sum(x => x.FacebookScore) +
+                        g.TourTemplateReports.Where(x => labels.Contains(x.ReportLabel)).Sum(x => x.FacebookScore)) / 3,
+                    TotalFacebookPost = g.Posts.SelectMany(x => x.SocialMediaPosts
+                            .Where(x => x.Site == SocialMediaSite.Facebook && x.FacebookPostMetrics.Any(x => x.CreatedAt >= startDate && x.CreatedAt <= endDate))).Count() +
+                        g.Attractions.SelectMany(x => x.SocialMediaPosts
+                            .Where(x => x.Site == SocialMediaSite.Facebook && x.FacebookPostMetrics.Any(x => x.CreatedAt >= startDate && x.CreatedAt <= endDate))).Count() +
+                        g.TourTemplateProvinces.SelectMany(x => x.TourTemplate.SocialMediaPosts
+                            .Where(x => x.Site == SocialMediaSite.Facebook && x.FacebookPostMetrics.Any(x => x.CreatedAt >= startDate && x.CreatedAt <= endDate))).Count(),
+                    TotalXPost = g.Posts.SelectMany(x => x.SocialMediaPosts
+                            .Where(x => x.Site == SocialMediaSite.Twitter && x.TwitterPostMetrics.Any(x => x.CreatedAt >= startDate && x.CreatedAt <= endDate))).Count() +
+                        g.Attractions.SelectMany(x => x.SocialMediaPosts
+                            .Where(x => x.Site == SocialMediaSite.Twitter && x.TwitterPostMetrics.Any(x => x.CreatedAt >= startDate && x.CreatedAt <= endDate))).Count() +
+                        g.TourTemplateProvinces.SelectMany(x => x.TourTemplate.SocialMediaPosts
+                            .Where(x => x.Site == SocialMediaSite.Twitter && x.TwitterPostMetrics.Any(x => x.CreatedAt >= startDate && x.CreatedAt <= endDate))).Count(),
                 })
                 .FirstOrDefaultAsync() ?? throw new ResourceNotFoundException();
             result.AverageScore = (result.AverageFacebookScore + result.AverageXScore + result.AverageAttractionScore + result.AverageSitePostScore + result.AverageTourTemplateScore) / 5;
             result.ReportSocialMediaSummary = new();
-
-
             var attractionReport = await _unitOfWork.AttractionReportRepository
                 .Query()
                 .Where(x => labels.Contains(x.ReportLabel) && x.ReportPeriod == reportPeriod && x.ProvinceId.Equals(provinceId))
-                .Select(x => new
+                .GroupBy(x => x.ReportLabel)
+                .Select(g => new
                 {
-                    ReportLabel = x.ReportLabel!,
-                    x.FacebookCommentCount,
-                    x.FacebookShareCount,
-                    x.FacebookReactionCount,
-                    x.FacebookImpressionCount,
-                    x.FacebookScore,
-                    x.FacebookCTR,
-                    x.XRetweetCount,
-                    x.XReplyCount,
-                    x.XLikeCount,
-                    x.XQuoteCount,
-                    x.XImpressionCount,
-                    x.XScore,
-                    x.XCTR
-                }).ToDictionaryAsync(x => x.ReportLabel, x => new
+                    ReportLabel = g.Key,
+                    FacebookCommentCount = g.Sum(x => x.FacebookCommentCount),
+                    FacebookShareCount = g.Sum(x => x.FacebookShareCount),
+                    FacebookReactionCount = g.Sum(x => x.FacebookReactionCount),
+                    FacebookImpressionCount = g.Sum(x => x.FacebookImpressionCount),
+                    FacebookScore = g.Sum(x => x.FacebookScore),
+                    FacebookCTR = g.Sum(x => x.FacebookCTR),
+                    XRetweetCount = g.Sum(x => x.XRetweetCount),
+                    XReplyCount = g.Sum(x => x.XReplyCount),
+                    XLikeCount = g.Sum(x => x.XLikeCount),
+                    XQuoteCount = g.Sum(x => x.XQuoteCount),
+                    XImpressionCount = g.Sum(x => x.XImpressionCount),
+                    XScore = g.Sum(x => x.XScore),
+                    XCTR = g.Sum(x => x.XCTR)
+                }).ToDictionaryAsync(x => x.ReportLabel!, x => new
                 {
                     x.FacebookCommentCount,
                     x.FacebookShareCount,
@@ -940,23 +927,24 @@ namespace VietWay.Service.Management.Implement
             var postReport = await _unitOfWork.PostReportRepository
                 .Query()
                 .Where(x => labels.Contains(x.ReportLabel) && x.ReportPeriod == reportPeriod && x.ProvinceId.Equals(provinceId))
-                .Select(x => new
+                .GroupBy(x => x.ReportLabel)
+                .Select(g => new
                 {
-                    ReportLabel = x.ReportLabel!,
-                    x.FacebookCommentCount,
-                    x.FacebookShareCount,
-                    x.FacebookReactionCount,
-                    x.FacebookImpressionCount,
-                    x.FacebookScore,
-                    x.FacebookCTR,
-                    x.XRetweetCount,
-                    x.XReplyCount,
-                    x.XLikeCount,
-                    x.XQuoteCount,
-                    x.XImpressionCount,
-                    x.XScore,
-                    x.XCTR
-                }).ToDictionaryAsync(x => x.ReportLabel, x => new
+                    ReportLabel = g.Key,
+                    FacebookCommentCount = g.Sum(x => x.FacebookCommentCount),
+                    FacebookShareCount = g.Sum(x => x.FacebookShareCount),
+                    FacebookReactionCount = g.Sum(x => x.FacebookReactionCount),
+                    FacebookImpressionCount = g.Sum(x => x.FacebookImpressionCount),
+                    FacebookScore = g.Sum(x => x.FacebookScore),
+                    FacebookCTR = g.Sum(x => x.FacebookCTR),
+                    XRetweetCount = g.Sum(x => x.XRetweetCount),
+                    XReplyCount = g.Sum(x => x.XReplyCount),
+                    XLikeCount = g.Sum(x => x.XLikeCount),
+                    XQuoteCount = g.Sum(x => x.XQuoteCount),
+                    XImpressionCount = g.Sum(x => x.XImpressionCount),
+                    XScore = g.Sum(x => x.XScore),
+                    XCTR = g.Sum(x => x.XCTR)
+                }).ToDictionaryAsync(x => x.ReportLabel!, x => new
                 {
                     x.FacebookCommentCount,
                     x.FacebookShareCount,
@@ -975,23 +963,24 @@ namespace VietWay.Service.Management.Implement
             var tourTemplateReport = await _unitOfWork.TourTemplateReportRepository
                 .Query()
                 .Where(x => labels.Contains(x.ReportLabel) && x.ReportPeriod == reportPeriod && x.ProvinceId.Equals(provinceId))
-                .Select(x => new
+                .GroupBy(x => x.ReportLabel)
+                .Select(g => new
                 {
-                    ReportLabel = x.ReportLabel!,
-                    x.FacebookCommentCount,
-                    x.FacebookShareCount,
-                    x.FacebookReactionCount,
-                    x.FacebookImpressionCount,
-                    x.FacebookScore,
-                    x.FacebookCTR,
-                    x.XRetweetCount,
-                    x.XReplyCount,
-                    x.XLikeCount,
-                    x.XQuoteCount,
-                    x.XImpressionCount,
-                    x.XScore,
-                    x.XCTR
-                }).ToDictionaryAsync(x => x.ReportLabel, x => new
+                    ReportLabel = g.Key,
+                    FacebookCommentCount = g.Sum(x => x.FacebookCommentCount),
+                    FacebookShareCount = g.Sum(x => x.FacebookShareCount),
+                    FacebookReactionCount = g.Sum(x => x.FacebookReactionCount),
+                    FacebookImpressionCount = g.Sum(x => x.FacebookImpressionCount),
+                    FacebookScore = g.Sum(x => x.FacebookScore),
+                    FacebookCTR = g.Sum(x => x.FacebookCTR),
+                    XRetweetCount = g.Sum(x => x.XRetweetCount),
+                    XReplyCount = g.Sum(x => x.XReplyCount),
+                    XLikeCount = g.Sum(x => x.XLikeCount),
+                    XQuoteCount = g.Sum(x => x.XQuoteCount),
+                    XImpressionCount = g.Sum(x => x.XImpressionCount),
+                    XScore = g.Sum(x => x.XScore),
+                    XCTR = g.Sum(x => x.XCTR)
+                }).ToDictionaryAsync(x => x.ReportLabel!, x => new
                 {
                     x.FacebookCommentCount,
                     x.FacebookShareCount,
@@ -1067,26 +1056,125 @@ namespace VietWay.Service.Management.Implement
                 (postReport.TryGetValue(label, out var p) ? p.XScore : 0) +
                 (tourTemplateReport.TryGetValue(label, out var t) ? t.XScore : 0)
             ).ToList();
-            result.AttractionCategories = await _unitOfWork.AttractionCategoryRepository.Query()
-                .GroupBy(x => new { x.AttractionCategoryId, x.Name })
+            result.AttractionCategories = await _unitOfWork.AttractionReportRepository.Query()
+                .Where(x => labels.Contains(x.ReportLabel) && x.ReportPeriod == reportPeriod && x.ProvinceId.Equals(provinceId))
+                .GroupBy(x => new { x.AttractionCategoryId, x.AttractionCategory.Name })
                 .Select(g => new ReportSocialMediaAttractionCategoryDTO
                 {
                     AttractionCategoryId = g.Key.AttractionCategoryId,
                     AttractionCategoryName = g.Key.Name,
-                    TotalAttraction = g.SelectMany(x => x.Attractions).SelectMany(x => x.AttractionMetrics)
-                        .Where(x => x.CreatedAt >= startDate && x.CreatedAt <= endDate).Count(),
-                    AverageAttractionScore = g.SelectMany(x => x.AttractionReports.Where(x => labels.Contains(x.ReportLabel))).Average(x => x.AverageScore),
-                    TotalFacebookPost = g.SelectMany(x => x.Attractions).SelectMany(x => x.SocialMediaPosts)
-                        .Where(x => x.Site == SocialMediaSite.Facebook && x.FacebookPostMetrics.Any(x => x.CreatedAt >= startDate && x.CreatedAt <= endDate)).Count(),
-                    TotalXPost = g.SelectMany(x => x.Attractions).SelectMany(x => x.SocialMediaPosts)
-                        .Where(x => x.Site == SocialMediaSite.Twitter && x.TwitterPostMetrics.Any(x => x.CreatedAt >= startDate && x.CreatedAt <= endDate)).Count(),
-                    AverageFacebookScore = g.SelectMany(x => x.AttractionReports.Where(x => labels.Contains(x.ReportLabel))).Average(x => x.FacebookScore),
-                    AverageXScore = g.SelectMany(x => x.AttractionReports.Where(x => labels.Contains(x.ReportLabel))).Average(x => x.XScore),
+                    AverageFacebookScore = g.Sum(x => x.FacebookScore),
+                    AverageXScore = g.Sum(x => x.XScore),
+                    TotalFacebookPost = g.First().AttractionCategory.Attractions
+                        .SelectMany(attraction => attraction.SocialMediaPosts)
+                        .Count(post =>
+                            post.Site == SocialMediaSite.Facebook &&
+                            post.FacebookPostMetrics.Any(metric =>
+                                metric.CreatedAt >= startDate &&
+                                metric.CreatedAt <= endDate)
+                        ),
+                    TotalXPost = g.First().AttractionCategory.Attractions
+                        .SelectMany(attraction => attraction.SocialMediaPosts)
+                        .Count(post =>
+                            post.Site == SocialMediaSite.Twitter &&
+                            post.TwitterPostMetrics.Any(metric =>
+                                metric.CreatedAt >= startDate &&
+                                metric.CreatedAt <= endDate)
+                        ),
+                    AverageAttractionScore = g.Sum(x => x.SiteScore),
+                    TotalAttraction = g.First().AttractionCategory.Attractions
+                        .Count(x => x.AttractionMetrics
+                            .Any(metric => metric.CreatedAt >= startDate &&
+                                          metric.CreatedAt <= endDate))
                 })
                 .ToListAsync();
+            foreach (var item in result.AttractionCategories)
+            {
+                item.AverageFacebookScore = item.TotalFacebookPost == 0 ? 0 : item.AverageFacebookScore / item.TotalFacebookPost;
+                item.AverageXScore = item.TotalXPost == 0 ? 0 : item.AverageXScore / item.TotalXPost;
+                item.AverageAttractionScore = item.TotalAttraction == 0 ? 0 : item.AverageAttractionScore / item.TotalAttraction;
+                item.AverageScore = (item.AverageFacebookScore + item.AverageXScore + item.AverageAttractionScore) / 3;
+            }
+            result.PostCategories = await _unitOfWork.PostReportRepository.Query()
+                .Where(x => labels.Contains(x.ReportLabel) && x.ReportPeriod == reportPeriod && x.ProvinceId.Equals(provinceId))
+                .GroupBy(x => new { x.PostCategoryId, x.PostCategory.Name })
+                .Select(g => new ReportSocialMediaPostCategoryDTO
+                {
+                    PostCategoryId = g.Key.PostCategoryId,
+                    PostCategoryName = g.Key.Name,
+                    AverageFacebookScore = g.Sum(x => x.FacebookScore),
+                    AverageXScore = g.Sum(x => x.XScore),
+                    TotalFacebookPost = g.First().PostCategory.Posts
+                        .SelectMany(attraction => attraction.SocialMediaPosts)
+                        .Count(post =>
+                            post.Site == SocialMediaSite.Facebook &&
+                            post.FacebookPostMetrics.Any(metric =>
+                                metric.CreatedAt >= startDate &&
+                                metric.CreatedAt <= endDate)
+                        ),
+                    TotalXPost = g.First().PostCategory.Posts
+                        .SelectMany(attraction => attraction.SocialMediaPosts)
+                        .Count(post =>
+                            post.Site == SocialMediaSite.Twitter &&
+                            post.TwitterPostMetrics.Any(metric =>
+                                metric.CreatedAt >= startDate &&
+                                metric.CreatedAt <= endDate)
+                        ),
+                    AverageSitePostScore = g.Sum(x => x.SiteScore),
+                    TotalSitePost = g.First().PostCategory.Posts
+                        .Count(x => x.PostMetrics
+                            .Any(metric => metric.CreatedAt >= startDate &&
+                                          metric.CreatedAt <= endDate))
+                })
+                .ToListAsync();
+            foreach (var item in result.PostCategories)
+            {
+                item.AverageFacebookScore = item.TotalFacebookPost == 0 ? 0 : item.AverageFacebookScore / item.TotalFacebookPost;
+                item.AverageXScore = item.TotalXPost == 0 ? 0 : item.AverageXScore / item.TotalXPost;
+                item.AverageSitePostScore = item.TotalSitePost == 0 ? 0 : item.AverageSitePostScore / item.TotalSitePost;
+                item.AverageScore = (item.AverageFacebookScore + item.AverageXScore + item.AverageSitePostScore) / 3;
+            }
+            result.TourTemplateCategories = await _unitOfWork.TourTemplateReportRepository.Query()
+                .Where(x => labels.Contains(x.ReportLabel) && x.ReportPeriod == reportPeriod && x.ProvinceId.Equals(provinceId))
+                .GroupBy(x => new { x.TourCategoryId, x.TourCategory.Name })
+                .Select(g => new ReportSocialMediaTourCategoryDTO
+                {
+                    TourCategoryId = g.Key.TourCategoryId,
+                    TourCategoryName = g.Key.Name,
+                    AverageFacebookScore = g.Sum(x => x.FacebookScore),
+                    AverageXScore = g.Sum(x => x.XScore),
+                    TotalFacebookPost = g.First().TourCategory.TourTemplates
+                        .SelectMany(tour => tour.SocialMediaPosts)
+                        .Count(post =>
+                            post.Site == SocialMediaSite.Facebook &&
+                            post.FacebookPostMetrics.Any(metric =>
+                                metric.CreatedAt >= startDate &&
+                                metric.CreatedAt <= endDate)
+                        ),
+                    TotalXPost = g.First().TourCategory.TourTemplates
+                        .SelectMany(t => t.SocialMediaPosts)
+                        .Count(post =>
+                            post.Site == SocialMediaSite.Twitter &&
+                            post.TwitterPostMetrics.Any(metric =>
+                                metric.CreatedAt >= startDate &&
+                                metric.CreatedAt <= endDate)
+                        ),
+                    TotalTourTemplate = g.First().TourCategory.TourTemplates
+                        .Count(x => x.TourTemplateMetrics
+                            .Any(metric => metric.CreatedAt >= startDate &&
+                                          metric.CreatedAt <= endDate)),
+                    AverageTourTemplateScore = g.Sum(x => x.SiteScore),
+                })
+                .ToListAsync();
+            foreach (var item in result.TourTemplateCategories)
+            {
+                item.AverageFacebookScore = item.TotalFacebookPost == 0 ? 0 : item.AverageFacebookScore / item.TotalFacebookPost;
+                item.AverageXScore = item.TotalXPost == 0 ? 0 : item.AverageXScore / item.TotalXPost;
+                item.AverageTourTemplateScore = item.TotalTourTemplate == 0 ? 0 : item.AverageTourTemplateScore / item.TotalTourTemplate;
+                item.AverageScore = (item.AverageFacebookScore + item.AverageXScore + item.AverageTourTemplateScore) / 3;
+            }
             return result;
         }
-
         public async Task<List<ReportSocialMediaProvinceDTO>> GetSocialMediaProvinceReport(DateTime startDate, DateTime endDate)
         {
             NormalizePeriod(ref startDate, ref endDate);
@@ -1134,7 +1222,6 @@ namespace VietWay.Service.Management.Implement
             }
             return result;
         }
-
         public async Task<ReportSocialMediaSummaryDTO> GetSocialMediaSummaryAsync(DateTime startDate, DateTime endDate)
         {
             NormalizePeriod(ref startDate, ref endDate);
@@ -1310,7 +1397,6 @@ namespace VietWay.Service.Management.Implement
             ).ToList();
             return report;
         }
-
         public async Task<ReportSocialMediaTourCategoryDetailDTO> GetSocialMediaTourCategoryDetailReport(DateTime startDate, DateTime endDate, string tourCategoryId)
         {
             NormalizePeriod(ref startDate, ref endDate);
@@ -1421,7 +1507,6 @@ namespace VietWay.Service.Management.Implement
             report.Provinces = provinces;
             return report;
         }
-
         public async Task<List<ReportSocialMediaTourCategoryDTO>> GetSocialMediaTourTemplateCategoryReport(DateTime startDate, DateTime endDate)
         {
             NormalizePeriod(ref startDate, ref endDate);
@@ -1468,7 +1553,6 @@ namespace VietWay.Service.Management.Implement
             }
             return result;
         }
-
         #region Helper methods
         List<string> GetPeriodLabels(DateTime startDate, DateTime endDate)
         {
