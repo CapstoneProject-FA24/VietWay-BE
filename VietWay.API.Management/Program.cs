@@ -279,8 +279,13 @@ namespace VietWay.API.Management
             recurringJobManager
                 .AddOrUpdate<ITourJob>("rejectClosedPendingTours", (x) => x.RejectUnapprovedToursAsync(), () => "0 17 * * *");
             recurringJobManager
-                .AddOrUpdate<ReportJob>("generateMetrics", (x) => x.GenerateReport(0), () => "0 17 * * *");
-
+                .AddOrUpdate<ReportJob>("generateMetrics", (x) => x.GetMetric(), () => "0 17 * * *");
+            recurringJobManager
+                .AddOrUpdate<ITweetJob>("getTweetsDetail", (x) => x.GetPublishedTweetsJob(), () => "0 17 * * *");
+            recurringJobManager
+                .AddOrUpdate<FacebookJob>("getFacebookDetail", (x) => x.GetPublishedFacebookPostsJob(), () => "0 17 * * *");
+            recurringJobManager
+                .AddOrUpdate<ReportJob>("generateReport", (x) => x.GenerateReport(), () => "0 17 * * *");
             app.UseStaticFiles();
             #region app.UseSwagger(...);
             if (app.Environment.IsDevelopment())

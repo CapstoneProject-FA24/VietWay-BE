@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Hangfire;
 using Microsoft.EntityFrameworkCore;
 using Tweetinvi.Core.Extensions;
 using VietWay.Repository.EntityModel;
@@ -11,15 +12,17 @@ using VietWay.Repository.UnitOfWork;
 using VietWay.Service.ThirdParty.Redis;
 using VietWay.Util.DateTimeUtil;
 using VietWay.Util.IdUtil;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace VietWay.Job.Implementation
 {
-    public class ReportJob(IUnitOfWork unitOfWork, ITimeZoneHelper timeZoneHelper, IRedisCacheService redisCacheService, IIdGenerator idGenerator)
+    public class ReportJob(IUnitOfWork unitOfWork, ITimeZoneHelper timeZoneHelper, IRedisCacheService redisCacheService, IIdGenerator idGenerator, IBackgroundJobClient backgroundJobClient)
     {
         private readonly IUnitOfWork _unitOfWork = unitOfWork;
         private readonly ITimeZoneHelper _timeZoneHelper = timeZoneHelper;
         private readonly IRedisCacheService _redisCacheService = redisCacheService;
         private readonly IIdGenerator _idGenerator = idGenerator;
+        private readonly IBackgroundJobClient _backgroundJobClient = backgroundJobClient;
         public async Task GenerateDailyAttractionReport(DateTime dateTime)
         {
             DateTime startTime = dateTime.Date;
@@ -543,7 +546,6 @@ namespace VietWay.Job.Implementation
                 }
             }
         }
-
         public async Task GetTourTemplateMetrics(DateTime dateTime)
         {
             Dictionary<string, TourTemplateMetric> tourTemplateMetrics = new Dictionary<string, TourTemplateMetric>();
@@ -652,7 +654,7 @@ namespace VietWay.Job.Implementation
             }
         }
 
-        public async Task GenerateReport(int tryNo = 0)
+        public async Task GetMetric()
         {
             DateTime date = _timeZoneHelper.GetUTC7Now();
             bool tourMetric = (await _redisCacheService.GetAsync<string>("tourMetric")).IsNullOrEmpty();
@@ -672,6 +674,29 @@ namespace VietWay.Job.Implementation
             {
                 await GetPostMetrics(date);
                 await _redisCacheService.SetAsync("postMetric", "false", TimeSpan.FromHours(20));
+            }
+            await _redisCacheService.SetAsync("metricGenerated", "true", TimeSpan.FromHours(20));
+        }
+        public async Task GenerateReport()
+        {
+            DateTime date = _timeZoneHelper.GetUTC7Now();
+            bool isReady = true;
+            if ((await _redisCacheService.GetAsync<string>("metricGenerated")).IsNullOrEmpty())
+            {
+                isReady = false;
+            }
+            if ((await _redisCacheService.GetAsync<string>("facebookPostMetric")).IsNullOrEmpty())
+            {
+                isReady = false;
+            }
+            if ((await _redisCacheService.GetAsync<string>("twitterPostMetric")).IsNullOrEmpty())
+            {
+                isReady = false;
+            }
+            if (isReady == false)
+            {
+                _backgroundJobClient.Schedule(() => GenerateReport(date), TimeSpan.FromMinutes(15));
+                return;
             }
             bool tourReport = (await _redisCacheService.GetAsync<string>("tourReport")).IsNullOrEmpty();
             if (tourReport == true)
