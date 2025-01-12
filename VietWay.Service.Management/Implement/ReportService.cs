@@ -554,7 +554,7 @@ namespace VietWay.Service.Management.Implement
                     TotalXPost = g.First().Hashtag.SocialMediaPostHashtags
                     .Select(x => x.SocialMediaPost)
                         .Count(post =>
-                            post.Site == SocialMediaSite.Facebook &&
+                            post.Site == SocialMediaSite.Twitter &&
                             post.FacebookPostMetrics.Any(metric =>
                                 metric.CreatedAt >= startDate &&
                                 metric.CreatedAt <= endDate)
