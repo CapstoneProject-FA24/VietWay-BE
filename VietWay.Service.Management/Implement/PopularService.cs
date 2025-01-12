@@ -42,14 +42,18 @@ namespace VietWay.Service.Management.Implement
             }
             else
             {
+                DateTime startDate = _timeZoneHelper.GetUTC7Now().AddDays(-30);
                 categories = await _unitOfWork.ProvinceRepository.Query()
                     .Where(x => !x.IsDeleted)
-                    .OrderBy(x => x.Name)
+                    .OrderByDescending(x=> 
+                        x.AttractionReports.Where(x=>x.CreatedAt >= startDate).Sum(x=>x.AverageScore) + 
+                        x.TourTemplateReports.Where(x => x.CreatedAt >= startDate).Sum(x=>x.AverageScore) + 
+                        x.PostReports.Where(x => x.CreatedAt >= startDate).Sum(x=>x.AverageScore))
                     .Take(10)
                     .Select(x => x.ProvinceId!)
                     .ToListAsync();
 
-                await _redisCacheService.SetAsync(REDIS_KEY, categories);
+                await _redisCacheService.SetAsync(REDIS_KEY, categories, TimeSpan.FromDays(1));
             }
 
             return categories;
@@ -92,9 +96,10 @@ namespace VietWay.Service.Management.Implement
             }
             else
             {
+                DateTime startDate = _timeZoneHelper.GetUTC7Now().AddDays(-30);
                 categories = await _unitOfWork.AttractionCategoryRepository.Query()
                     .Where(x => !x.IsDeleted)
-                    .OrderBy(x => x.Name)
+                    .OrderByDescending(x => x.AttractionReports.Where(x => x.CreatedAt >= startDate).Sum(x => x.AverageScore))
                     .Take(10)
                     .Select(x => x.AttractionCategoryId!)
                     .ToListAsync();
@@ -142,14 +147,15 @@ namespace VietWay.Service.Management.Implement
             }
             else
             {
+                DateTime startDate = _timeZoneHelper.GetUTC7Now().AddDays(-30);
                 categories = await _unitOfWork.PostCategoryRepository.Query()
                     .Where(x => !x.IsDeleted)
-                    .OrderBy(x => x.Name)
+                    .OrderByDescending(x => x.PostReports.Where(x => x.CreatedAt >= startDate).Sum(x => x.AverageScore))
                     .Take(10)
                     .Select(x => x.PostCategoryId!)
                     .ToListAsync();
 
-                await _redisCacheService.SetAsync(POST_CATEGORY_REDIS_KEY, categories);
+                await _redisCacheService.SetAsync(POST_CATEGORY_REDIS_KEY, categories, TimeSpan.FromDays(1));
             }
 
             return categories;
@@ -171,7 +177,8 @@ namespace VietWay.Service.Management.Implement
                     var categoryIds = categories.Select(p => p.PostCategoryId).ToList();
                     await _redisCacheService.SetAsync(
                         POST_CATEGORY_REDIS_KEY,
-                        categoryIds
+                        categoryIds,
+                        TimeSpan.FromDays(1)
                     );
                 }
             }
@@ -192,14 +199,15 @@ namespace VietWay.Service.Management.Implement
             }
             else
             {
+                DateTime startDate = _timeZoneHelper.GetUTC7Now().AddDays(-30);
                 categories = await _unitOfWork.TourCategoryRepository.Query()
                     .Where(x => !x.IsDeleted)
-                    .OrderBy(x => x.Name)
+                    .OrderByDescending(x => x.TourTemplateReports.Where(x => x.CreatedAt >= startDate).Sum(x => x.AverageScore))
                     .Take(10)
                     .Select(x => x.TourCategoryId!)
                     .ToListAsync();
 
-                await _redisCacheService.SetAsync(TOUR_CATEGORY_REDIS_KEY, categories);
+                await _redisCacheService.SetAsync(TOUR_CATEGORY_REDIS_KEY, categories, TimeSpan.FromDays(1));
             }
 
             return categories;

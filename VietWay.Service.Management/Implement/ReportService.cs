@@ -598,23 +598,24 @@ namespace VietWay.Service.Management.Implement
             var hashtagReport = await _unitOfWork.HashtagReportRepository
                 .Query()
                 .Where(x => labels.Contains(x.ReportLabel) && x.ReportPeriod == reportPeriod && x.HashtagId.Equals(hashtagId))
-                .Select(x => new
+                .GroupBy(x => x.ReportLabel)
+                .Select(g => new
                 {
-                    ReportLabel = x.ReportLabel!,
-                    x.FacebookCommentCount,
-                    x.FacebookShareCount,
-                    x.FacebookReactionCount,
-                    x.FacebookImpressionCount,
-                    x.FacebookScore,
-                    x.FacebookCTR,
-                    x.XRetweetCount,
-                    x.XReplyCount,
-                    x.XLikeCount,
-                    x.XQuoteCount,
-                    x.XImpressionCount,
-                    x.XScore,
-                    x.XCTR
-                }).ToDictionaryAsync(x => x.ReportLabel, x => new
+                    ReportLabel = g.Key,
+                    FacebookCommentCount = g.Sum(x => x.FacebookCommentCount),
+                    FacebookShareCount = g.Sum(x => x.FacebookShareCount),
+                    FacebookReactionCount = g.Sum(x => x.FacebookReactionCount),
+                    FacebookImpressionCount = g.Sum(x => x.FacebookImpressionCount),
+                    FacebookScore = g.Sum(x => x.FacebookScore),
+                    FacebookCTR = g.Sum(x => x.FacebookCTR),
+                    XRetweetCount = g.Sum(x => x.XRetweetCount),
+                    XReplyCount = g.Sum(x => x.XReplyCount),
+                    XLikeCount = g.Sum(x => x.XLikeCount),
+                    XQuoteCount = g.Sum(x => x.XQuoteCount),
+                    XImpressionCount = g.Sum(x => x.XImpressionCount),
+                    XScore = g.Sum(x => x.XScore),
+                    XCTR = g.Sum(x => x.XCTR)
+                }).ToDictionaryAsync(x => x.ReportLabel!, x => new
                 {
                     x.FacebookCommentCount,
                     x.FacebookShareCount,
@@ -645,7 +646,6 @@ namespace VietWay.Service.Management.Implement
 
             return report;
         }
-
         public async Task<ReportPromotionSummaryDTO> GetPromotionSummaryAsync(DateTime startDate, DateTime endDate)
         {
             NormalizePeriod(ref startDate, ref endDate);

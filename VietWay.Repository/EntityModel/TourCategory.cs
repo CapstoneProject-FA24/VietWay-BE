@@ -18,5 +18,6 @@ namespace VietWay.Repository.EntityModel
         public DateTime CreatedAt { get; set; }
 
         public virtual ICollection<TourTemplate>? TourTemplates { get; set; }
+        public virtual ICollection<TourTemplateReport>? TourTemplateReports { get; set; }
     }
 }

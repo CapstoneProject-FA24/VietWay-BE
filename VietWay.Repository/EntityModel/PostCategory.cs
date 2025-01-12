@@ -22,5 +22,6 @@ namespace VietWay.Repository.EntityModel
         public DateTime CreatedAt { get; set; }
 
         public virtual ICollection<Post>? Posts { get; set; }
+        public virtual ICollection<PostReport> PostReports { get; set; }
     }
 }
