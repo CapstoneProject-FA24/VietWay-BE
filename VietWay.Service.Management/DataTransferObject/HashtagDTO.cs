@@ -10,5 +10,6 @@ namespace VietWay.Service.Management.DataTransferObject
     {
         public string HashtagId { get; set; }
         public string HashtagName { get; set; }
+        public DateTime CreatedAt { get; set; }
     }
 }
