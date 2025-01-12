@@ -56,8 +56,7 @@ namespace VietWay.Repository.DataAccessObject
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             optionsBuilder
-                .UseSqlServer(_config.ConnectionString)
-                .LogTo(Console.WriteLine);
+                .UseSqlServer(_config.ConnectionString);
         }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

@@ -74,10 +74,10 @@ namespace VietWay.Service.Customer.Implementation
                     await _redisCacheService.IncrementAsync($"facebookReferrence-{SocialMediaPostEntity.Post}-{postId}");
                     break;
                 case SocialMediaSite.Twitter:
-                    await _redisCacheService.IncrementAsync($"twitterReferrence-{SocialMediaPostEntity.Post} - {postId}");
+                    await _redisCacheService.IncrementAsync($"twitterReferrence-{SocialMediaPostEntity.Post}-{postId}");
                     break;
                 default:
-                    await _redisCacheService.IncrementAsync($"siteReferrence-{SocialMediaPostEntity.Post} - {postId}");
+                    await _redisCacheService.IncrementAsync($"siteReferrence-{SocialMediaPostEntity.Post}-{postId}");
                     break;
             }
 
