@@ -542,7 +542,7 @@ namespace VietWay.Service.Management.Implement
                     AverageFacebookScore = g.Sum(x => x.FacebookScore),
                     AverageXScore = g.Average(x => x.XScore),
                     FacebookCTR = g.Average(x => x.FacebookCTR),
-                    XCTR = g.Sum(x => x.XCTR),
+                    XCTR = g.Average(x => x.XCTR),
                     TotalFacebookPost = g.First().Hashtag.SocialMediaPostHashtags
                         .Select(x=>x.SocialMediaPost)
                         .Count(post =>
@@ -555,7 +555,7 @@ namespace VietWay.Service.Management.Implement
                     .Select(x => x.SocialMediaPost)
                         .Count(post =>
                             post.Site == SocialMediaSite.Twitter &&
-                            post.FacebookPostMetrics.Any(metric =>
+                            post.TwitterPostMetrics.Any(metric =>
                                 metric.CreatedAt >= startDate &&
                                 metric.CreatedAt <= endDate)
                         )
