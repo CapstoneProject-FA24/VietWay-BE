@@ -539,18 +539,34 @@ namespace VietWay.Service.Management.Implement
                 {
                     HashtagName = g.Key.HashtagName,
                     HashtagId = g.Key.HashtagId,
-                    AverageFacebookScore = g.Average(x => x.FacebookScore),
-                    AverageXScore = g.Average(x => x.XScore),
-                    FacebookCTR = g.Average(x => x.FacebookCTR),
-                    XCTR = g.Average(x => x.XCTR),
-                    TotalFacebookPost = g.SelectMany(x => x.Hashtag.SocialMediaPostHashtags)
-                        .Where(x => x.SocialMediaPost.Site == SocialMediaSite.Facebook).Count(),
-                    TotalXPost = g.SelectMany(x => x.Hashtag.SocialMediaPostHashtags)
-                        .Where(x => x.SocialMediaPost.Site == SocialMediaSite.Twitter).Count()
+                    AverageFacebookScore = g.Sum(x => x.FacebookScore),
+                    AverageXScore = g.Sum(x => x.XScore),
+                    FacebookCTR = g.Sum(x => x.FacebookCTR),
+                    XCTR = g.Sum(x => x.XCTR),
+                    TotalFacebookPost = g.First().Hashtag.SocialMediaPostHashtags
+                        .Select(x=>x.SocialMediaPost)
+                        .Count(post =>
+                            post.Site == SocialMediaSite.Facebook &&
+                            post.FacebookPostMetrics.Any(metric =>
+                                metric.CreatedAt >= startDate &&
+                                metric.CreatedAt <= endDate)
+                        ),
+                    TotalXPost = g.First().Hashtag.SocialMediaPostHashtags
+                    .Select(x => x.SocialMediaPost)
+                        .Count(post =>
+                            post.Site == SocialMediaSite.Facebook &&
+                            post.FacebookPostMetrics.Any(metric =>
+                                metric.CreatedAt >= startDate &&
+                                metric.CreatedAt <= endDate)
+                        )
                 })
                 .ToListAsync();
             foreach (var item in result)
             {
+                item.AverageFacebookScore = item.TotalFacebookPost == 0 ? 0 : item.AverageFacebookScore / item.TotalFacebookPost;
+                item.AverageXScore = item.TotalXPost == 0 ? 0 : item.AverageXScore / item.TotalXPost;
+                item.FacebookCTR = item.TotalFacebookPost == 0 ? 0 : item.FacebookCTR / item.TotalFacebookPost;
+                item.XCTR = item.TotalXPost == 0 ? 0 : item.XCTR / item.TotalXPost;
                 item.AverageScore = (item.AverageFacebookScore + item.AverageXScore) / 2;
             }
             return result;
