@@ -524,7 +524,8 @@ namespace VietWay.Service.Management.Implement
                 .Select(x => new HashtagDTO
                 {
                     HashtagId = x.HashtagId,
-                    HashtagName = x.HashtagName
+                    HashtagName = x.HashtagName,
+                    CreatedAt = x.CreatedAt
                 })
                 .ToListAsync();
         }

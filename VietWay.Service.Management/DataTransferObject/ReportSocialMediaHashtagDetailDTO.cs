@@ -8,6 +8,6 @@ namespace VietWay.Service.Management.DataTransferObject
 {
     public class ReportSocialMediaHashtagDetailDTO : ReportSocialMediaHashtagDTO
     {
-
+        public ReportSocialMediaSummaryDTO ReportSocialMediaSummary { get; set; }
     }
 }
