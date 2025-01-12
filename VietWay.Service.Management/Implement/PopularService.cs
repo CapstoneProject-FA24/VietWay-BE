@@ -5,6 +5,7 @@ using VietWay.Repository.UnitOfWork;
 using VietWay.Service.Management.DataTransferObject;
 using VietWay.Service.Management.Interface;
 using VietWay.Service.ThirdParty.Redis;
+using VietWay.Service.ThirdParty.Twitter;
 using VietWay.Util.DateTimeUtil;
 
 namespace VietWay.Service.Management.Implement
@@ -232,13 +233,13 @@ namespace VietWay.Service.Management.Implement
 
         public async Task<List<string>> GetPopularHashtagsAsync(bool isTwitter)
         {
-            var hashtagCounts = await _redisCacheService.GetAsync<Dictionary<string, int>>(HASHTAG_REDIS_KEY);
+            var hashtagCounts = await _redisCacheService.GetAsync<List<HashtagCountDTO>>(HASHTAG_REDIS_KEY);
             if (hashtagCounts != null && hashtagCounts.Any() && isTwitter)
             {
                 var topHashtags = hashtagCounts
-                    .OrderByDescending(kvp => kvp.Value)
+                    .OrderByDescending(kvp => kvp.Count)
                     .Take(5)
-                    .Select(kvp => kvp.Key)
+                    .Select(kvp => kvp.HashtagId)
                     .ToList();
 
                 return topHashtags;
