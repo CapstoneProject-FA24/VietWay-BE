@@ -554,7 +554,7 @@ namespace VietWay.Service.Management.Implement
                     TotalXPost = g.First().Hashtag.SocialMediaPostHashtags
                     .Select(x => x.SocialMediaPost)
                         .Count(post =>
-                            post.Site == SocialMediaSite.Facebook &&
+                            post.Site == SocialMediaSite.Twitter &&
                             post.FacebookPostMetrics.Any(metric =>
                                 metric.CreatedAt >= startDate &&
                                 metric.CreatedAt <= endDate)
@@ -1081,42 +1081,43 @@ namespace VietWay.Service.Management.Implement
             List<string> labels = GetPeriodLabels(startDate, endDate);
             ReportPeriod reportPeriod = GetPeriod(startDate, endDate);
             var result = await _unitOfWork.ProvinceRepository.Query()
-                .GroupBy(x => new { x.ProvinceId, x.Name })
                 .Select(g => new ReportSocialMediaProvinceDTO
                 {
-                    ProvinceId = g.Key.ProvinceId,
-                    ProvinceName = g.Key.Name,
-                    TotalAttraction = g.SelectMany(x => x.Attractions).SelectMany(x => x.AttractionMetrics)
-                        .Where(x => x.CreatedAt >= startDate && x.CreatedAt <= endDate).Count(),
-                    TotalSitePost = g.SelectMany(x => x.Posts).SelectMany(x => x.PostMetrics)
-                        .Where(x => x.CreatedAt >= startDate && x.CreatedAt <= endDate).Count(),
-                    TotalTourTemplate = g.SelectMany(x => x.TourTemplateProvinces)
-                        .Select(x => x.TourTemplate).Where(x => x.TourTemplateMetrics.Any(x => x.CreatedAt >= startDate && x.CreatedAt <= endDate)).Count(),
-                    AverageAttractionScore = g.SelectMany(x => x.AttractionReports.Where(x => labels.Contains(x.ReportLabel))).Average(x => x.AverageScore),
-                    AverageSitePostScore = g.SelectMany(x => x.PostReports.Where(x => labels.Contains(x.ReportLabel))).Average(x => x.AverageScore),
-                    AverageTourTemplateScore = g.SelectMany(x => x.TourTemplateReports.Where(x => labels.Contains(x.ReportLabel))).Average(x => x.AverageScore),
-                    AverageXScore = (g.SelectMany(x => x.PostReports.Where(x => labels.Contains(x.ReportLabel))).Average(x => x.XScore) +
-                        g.SelectMany(x => x.AttractionReports.Where(x => labels.Contains(x.ReportLabel))).Average(x => x.XScore) +
-                        g.SelectMany(x => x.TourTemplateReports.Where(x => labels.Contains(x.ReportLabel))).Average(x => x.XScore)) / 3,
-                    AverageFacebookScore = (g.SelectMany(x => x.PostReports.Where(x => labels.Contains(x.ReportLabel))).Average(x => x.FacebookScore) +
-                        g.SelectMany(x => x.AttractionReports.Where(x => labels.Contains(x.ReportLabel))).Average(x => x.FacebookScore) +
-                        g.SelectMany(x => x.TourTemplateReports.Where(x => labels.Contains(x.ReportLabel))).Average(x => x.FacebookScore)) / 3,
-                    TotalFacebookPost = g.SelectMany(x => x.Posts).SelectMany(x => x.SocialMediaPosts)
-                            .Where(x => x.Site == SocialMediaSite.Facebook && x.FacebookPostMetrics.Any(x => x.CreatedAt >= startDate && x.CreatedAt <= endDate)).Count() +
-                        g.SelectMany(x => x.Attractions).SelectMany(x => x.SocialMediaPosts)
-                            .Where(x => x.Site == SocialMediaSite.Facebook && x.FacebookPostMetrics.Any(x => x.CreatedAt >= startDate && x.CreatedAt <= endDate)).Count() +
-                        g.SelectMany(x => x.TourTemplateProvinces).SelectMany(x => x.TourTemplate.SocialMediaPosts)
-                            .Where(x => x.Site == SocialMediaSite.Facebook && x.FacebookPostMetrics.Any(x => x.CreatedAt >= startDate && x.CreatedAt <= endDate)).Count(),
-                    TotalXPost = g.SelectMany(x => x.Posts).SelectMany(x => x.SocialMediaPosts)
-                            .Where(x => x.Site == SocialMediaSite.Twitter && x.TwitterPostMetrics.Any(x => x.CreatedAt >= startDate && x.CreatedAt <= endDate)).Count() +
-                        g.SelectMany(x => x.Attractions).SelectMany(x => x.SocialMediaPosts)
-                            .Where(x => x.Site == SocialMediaSite.Twitter && x.TwitterPostMetrics.Any(x => x.CreatedAt >= startDate && x.CreatedAt <= endDate)).Count() +
-                        g.SelectMany(x => x.TourTemplateProvinces).SelectMany(x => x.TourTemplate.SocialMediaPosts)
-                            .Where(x => x.Site == SocialMediaSite.Twitter && x.TwitterPostMetrics.Any(x => x.CreatedAt >= startDate && x.CreatedAt <= endDate)).Count(),
+                    ProvinceId = g.ProvinceId,
+                    ProvinceName = g.Name,
+                    TotalAttraction = g.Attractions.Count(x=>x.AttractionMetrics.Any(d=>d.CreatedAt >= startDate && d.CreatedAt <= endDate)),
+                    TotalSitePost = g.Posts.Count(x => x.PostMetrics.Any(d => d.CreatedAt >= startDate && d.CreatedAt <= endDate)),
+                    TotalTourTemplate = g.TourTemplateProvinces.Select(x=>x.TourTemplate).Count(x => x.TourTemplateMetrics.Any(d => d.CreatedAt >= startDate && d.CreatedAt <= endDate)),
+                    AverageAttractionScore = g.AttractionReports.Where(x => labels.Contains(x.ReportLabel)).Sum(x => x.SiteScore),
+                    AverageSitePostScore = g.PostReports.Where(x => labels.Contains(x.ReportLabel)).Sum(x => x.SiteScore),
+                    AverageTourTemplateScore = g.TourTemplateReports.Where(x => labels.Contains(x.ReportLabel)).Sum(x => x.SiteScore),
+                    AverageXScore = (g.PostReports.Where(x => labels.Contains(x.ReportLabel)).Sum(x => x.XScore) +
+                        g.AttractionReports.Where(x => labels.Contains(x.ReportLabel)).Sum(x => x.XScore) +
+                        g.TourTemplateReports.Where(x => labels.Contains(x.ReportLabel)).Sum(x => x.XScore)) / 3,
+                    AverageFacebookScore = (g.PostReports.Where(x => labels.Contains(x.ReportLabel)).Sum(x => x.FacebookScore) +
+                        g.AttractionReports.Where(x => labels.Contains(x.ReportLabel)).Sum(x => x.FacebookScore) +
+                        g.TourTemplateReports.Where(x => labels.Contains(x.ReportLabel)).Sum(x => x.FacebookScore)) / 3,
+                    TotalFacebookPost = g.Posts.SelectMany(x => x.SocialMediaPosts
+                            .Where(x => x.Site == SocialMediaSite.Facebook && x.FacebookPostMetrics.Any(x => x.CreatedAt >= startDate && x.CreatedAt <= endDate))).Count() +
+                        g.Attractions.SelectMany(x => x.SocialMediaPosts
+                            .Where(x => x.Site == SocialMediaSite.Facebook && x.FacebookPostMetrics.Any(x => x.CreatedAt >= startDate && x.CreatedAt <= endDate))).Count() +
+                        g.TourTemplateProvinces.SelectMany(x => x.TourTemplate.SocialMediaPosts
+                            .Where(x => x.Site == SocialMediaSite.Facebook && x.FacebookPostMetrics.Any(x => x.CreatedAt >= startDate && x.CreatedAt <= endDate))).Count(),
+                    TotalXPost = g.Posts.SelectMany(x => x.SocialMediaPosts
+                            .Where(x => x.Site == SocialMediaSite.Twitter && x.TwitterPostMetrics.Any(x => x.CreatedAt >= startDate && x.CreatedAt <= endDate))).Count() +
+                        g.Attractions.SelectMany(x => x.SocialMediaPosts
+                            .Where(x => x.Site == SocialMediaSite.Twitter && x.TwitterPostMetrics.Any(x => x.CreatedAt >= startDate && x.CreatedAt <= endDate))).Count() +
+                        g.TourTemplateProvinces.SelectMany(x => x.TourTemplate.SocialMediaPosts
+                            .Where(x => x.Site == SocialMediaSite.Twitter && x.TwitterPostMetrics.Any(x => x.CreatedAt >= startDate && x.CreatedAt <= endDate))).Count(),
                 })
                 .ToListAsync();
             foreach (var item in result)
             {
+                item.AverageAttractionScore = item.TotalAttraction == 0 ? 0 : item.AverageAttractionScore / item.TotalAttraction;
+                item.AverageSitePostScore = item.TotalSitePost == 0 ? 0 : item.AverageSitePostScore / item.TotalSitePost;
+                item.AverageTourTemplateScore = item.TotalTourTemplate == 0 ? 0 : item.AverageTourTemplateScore / item.TotalTourTemplate;
+                item.AverageFacebookScore = item.TotalFacebookPost == 0 ? 0 : item.AverageFacebookScore / item.TotalFacebookPost;
+                item.AverageXScore = item.TotalXPost == 0 ? 0 : item.AverageXScore / item.TotalXPost;
                 item.AverageScore = (item.AverageFacebookScore + item.AverageXScore + item.AverageAttractionScore + item.AverageSitePostScore + item.AverageTourTemplateScore) / 5;
             }
             return result;
