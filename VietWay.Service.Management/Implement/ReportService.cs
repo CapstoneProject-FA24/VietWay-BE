@@ -510,7 +510,7 @@ namespace VietWay.Service.Management.Implement
                                 metric.CreatedAt >= startDate &&
                                 metric.CreatedAt <= endDate)
                         ),
-                    AverageAttractionScore = g.Sum(x => x.AverageScore),
+                    AverageAttractionScore = g.Sum(x => x.SiteScore),
                     TotalAttraction = g.First().AttractionCategory.Attractions
                         .Count(x => x.AttractionMetrics
                             .Any(metric => metric.CreatedAt >= startDate &&
@@ -519,6 +519,9 @@ namespace VietWay.Service.Management.Implement
                 .ToListAsync();
             foreach (var item in result)
             {
+                item.AverageFacebookScore = item.AverageFacebookScore / item.TotalFacebookPost;
+                item.AverageXScore = item.AverageXScore / item.TotalXPost;
+                item.AverageAttractionScore = item.AverageAttractionScore / item.TotalAttraction;
                 item.AverageScore = (item.AverageFacebookScore + item.AverageXScore + item.AverageAttractionScore) / 3;
             }
             return result;
@@ -710,17 +713,16 @@ namespace VietWay.Service.Management.Implement
             NormalizePeriod(ref startDate, ref endDate);
             List<string> labels = GetPeriodLabels(startDate, endDate);
             ReportPeriod reportPeriod = GetPeriod(startDate, endDate);
-            return await _unitOfWork.PostReportRepository.Query()
+            var result = await _unitOfWork.PostReportRepository.Query()
                 .Where(x => labels.Contains(x.ReportLabel) && x.ReportPeriod == reportPeriod)
                 .GroupBy(x => new { x.PostCategoryId, x.PostCategory.Name })
                 .Select(g => new ReportSocialMediaPostCategoryDTO
                 {
                     PostCategoryId = g.Key.PostCategoryId,
                     PostCategoryName = g.Key.Name,
-                    AverageFacebookScore = g.Average(x => x.FacebookScore),
-                    AverageXScore = g.Average(x => x.XScore),
-                    AverageScore = g.Average(x => x.AverageScore),
-                    AverageSitePostScore = g.Average(x => x.SiteScore),
+                    AverageFacebookScore = g.Sum(x => x.FacebookScore),
+                    AverageXScore = g.Sum(x => x.XScore),
+                    AverageSitePostScore = g.Sum(x => x.SiteScore),
                     TotalFacebookPost = g.First().PostCategory.Posts
                         .SelectMany(attraction => attraction.SocialMediaPosts)
                         .Count(post =>
@@ -743,6 +745,14 @@ namespace VietWay.Service.Management.Implement
                                           metric.CreatedAt <= endDate))
                 })
                 .ToListAsync();
+            foreach (var item in result)
+            {
+                item.AverageFacebookScore = item.AverageFacebookScore / item.TotalFacebookPost;
+                item.AverageXScore = item.AverageXScore / item.TotalXPost;
+                item.AverageSitePostScore = item.AverageSitePostScore / item.TotalSitePost;
+                item.AverageScore = (item.AverageFacebookScore + item.AverageXScore + item.AverageSitePostScore) / 3;
+            }
+            return result;
         }
 
         public async Task<ReportSocialMediaProvinceDetailDTO> GetSocialMediaProvinceDetailReport(DateTime startDate, DateTime endDate, string provinceId)

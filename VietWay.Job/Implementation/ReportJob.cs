@@ -242,13 +242,126 @@ namespace VietWay.Job.Implementation
             }
         }
 
+        public async Task GenerateDailyHashtagReport(DateTime dateTime)
+        {
+            DateTime startTime = dateTime.Date;
+            DateTime endTime = startTime.AddHours(23).AddMinutes(59);
+            var reports = await _unitOfWork.HashtagRepository.Query()
+                .Where(x=>x.SocialMediaPostHashtags.Any(x=>x.SocialMediaPost.FacebookPostMetrics.Any(x=>x.CreatedAt >=startTime && x.CreatedAt <= endTime) || 
+                    x.SocialMediaPost.TwitterPostMetrics.Any(x=>x.CreatedAt >= startTime && x.CreatedAt <= endTime)))
+                .Select(x=> new HashtagReport
+                {
+                    FacebookAngerCount = x.SocialMediaPostHashtags
+                        .SelectMany(x=>x.SocialMediaPost.FacebookPostMetrics
+                        .Where(x => x.CreatedAt >= startTime && x.CreatedAt <= endTime))
+                        .Sum(x=>x.AngerCount),
+                    FacebookClickCount = x.SocialMediaPostHashtags
+                        .SelectMany(x => x.SocialMediaPost.FacebookPostMetrics
+                        .Where(x => x.CreatedAt >= startTime && x.CreatedAt <= endTime))
+                        .Sum(x => x.PostClickCount),
+                    FacebookCommentCount = x.SocialMediaPostHashtags
+                        .SelectMany(x => x.SocialMediaPost.FacebookPostMetrics
+                        .Where(x => x.CreatedAt >= startTime && x.CreatedAt <= endTime))
+                        .Sum(x => x.CommentCount),
+                    FacebookHahaCount = x.SocialMediaPostHashtags
+                        .SelectMany(x => x.SocialMediaPost.FacebookPostMetrics
+                        .Where(x => x.CreatedAt >= startTime && x.CreatedAt <= endTime))
+                        .Sum(x => x.HahaCount),
+                    FacebookImpressionCount = x.SocialMediaPostHashtags
+                        .SelectMany(x => x.SocialMediaPost.FacebookPostMetrics
+                        .Where(x => x.CreatedAt >= startTime && x.CreatedAt <= endTime))
+                        .Sum(x => x.ImpressionCount),
+                    FacebookLikeCount = x.SocialMediaPostHashtags
+                        .SelectMany(x => x.SocialMediaPost.FacebookPostMetrics
+                        .Where(x => x.CreatedAt >= startTime && x.CreatedAt <= endTime))
+                        .Sum(x => x.LikeCount),
+                    FacebookLoveCount = x.SocialMediaPostHashtags
+                        .SelectMany(x => x.SocialMediaPost.FacebookPostMetrics
+                        .Where(x => x.CreatedAt >= startTime && x.CreatedAt <= endTime))
+                        .Sum(x => x.LoveCount),
+                    FacebookShareCount = x.SocialMediaPostHashtags
+                        .SelectMany(x => x.SocialMediaPost.FacebookPostMetrics
+                        .Where(x => x.CreatedAt >= startTime && x.CreatedAt <= endTime))
+                        .Sum(x => x.ShareCount),
+                    FacebookSorryCount = x.SocialMediaPostHashtags
+                        .SelectMany(x => x.SocialMediaPost.FacebookPostMetrics
+                        .Where(x => x.CreatedAt >= startTime && x.CreatedAt <= endTime))
+                        .Sum(x => x.SorryCount),
+                    FacebookWowCount = x.SocialMediaPostHashtags
+                        .SelectMany(x => x.SocialMediaPost.FacebookPostMetrics
+                        .Where(x => x.CreatedAt >= startTime && x.CreatedAt <= endTime))
+                        .Sum(x => x.WowCount),
+                    HashtagId = x.HashtagId,
+                    XBookmarkCount = x.SocialMediaPostHashtags
+                        .SelectMany(x => x.SocialMediaPost.TwitterPostMetrics
+                        .Where(x => x.CreatedAt >= startTime && x.CreatedAt <= endTime))
+                        .Sum(x => x.BookmarkCount),
+                    XImpressionCount = x.SocialMediaPostHashtags
+                        .SelectMany(x => x.SocialMediaPost.TwitterPostMetrics
+                        .Where(x => x.CreatedAt >= startTime && x.CreatedAt <= endTime))
+                        .Sum(x => x.ImpressionCount),
+                    XLikeCount = x.SocialMediaPostHashtags
+                        .SelectMany(x => x.SocialMediaPost.TwitterPostMetrics
+                        .Where(x => x.CreatedAt >= startTime && x.CreatedAt <= endTime))
+                        .Sum(x => x.LikeCount),
+                    XQuoteCount = x.SocialMediaPostHashtags
+                        .SelectMany(x => x.SocialMediaPost.TwitterPostMetrics
+                        .Where(x => x.CreatedAt >= startTime && x.CreatedAt <= endTime))
+                        .Sum(x => x.QuoteCount),
+                    XReplyCount = x.SocialMediaPostHashtags
+                        .SelectMany(x => x.SocialMediaPost.TwitterPostMetrics
+                        .Where(x => x.CreatedAt >= startTime && x.CreatedAt <= endTime))
+                        .Sum(x => x.ReplyCount),
+                    XRetweetCount = x.SocialMediaPostHashtags
+                        .SelectMany(x => x.SocialMediaPost.TwitterPostMetrics
+                        .Where(x => x.CreatedAt >= startTime && x.CreatedAt <= endTime))
+                        .Sum(x => x.RetweetCount),
+                    FacebookReferralCount = x.SocialMediaPostHashtags
+                        .Where(x => x.SocialMediaPost.Site == SocialMediaSite.Facebook)
+                        .SelectMany(x => x.SocialMediaPost.Attraction.AttractionMetrics.Where(x => x.CreatedAt >= startTime && x.CreatedAt <= endTime))
+                        .Sum(x => x.FacebookReferralCount) +
+                        x.SocialMediaPostHashtags
+                        .Where(x => x.SocialMediaPost.Site == SocialMediaSite.Facebook)
+                        .SelectMany(x => x.SocialMediaPost.Post.PostMetrics
+                        .Where(x => x.CreatedAt >= startTime && x.CreatedAt <= endTime))
+                        .Sum(x => x.FacebookReferralCount) +
+                        x.SocialMediaPostHashtags
+                        .Where(x => x.SocialMediaPost.Site == SocialMediaSite.Facebook)
+                        .SelectMany(x => x.SocialMediaPost.TourTemplate.TourTemplateMetrics
+                        .Where(x => x.CreatedAt >= startTime && x.CreatedAt <= endTime))
+                        .Sum(x => x.FacebookReferralCount),
+                    XReferralCount = x.SocialMediaPostHashtags
+                        .Where(x => x.SocialMediaPost.Site == SocialMediaSite.Twitter)
+                        .SelectMany(x => x.SocialMediaPost.Attraction.AttractionMetrics
+                        .Where(x => x.CreatedAt >= startTime && x.CreatedAt <= endTime))
+                        .Sum(x => x.XReferralCount) +
+                        x.SocialMediaPostHashtags
+                        .Where(x => x.SocialMediaPost.Site == SocialMediaSite.Twitter)
+                        .SelectMany(x => x.SocialMediaPost.Post.PostMetrics
+                        .Where(x => x.CreatedAt >= startTime && x.CreatedAt <= endTime))
+                        .Sum(x => x.XReferralCount) +
+                        x.SocialMediaPostHashtags
+                        .Where(x => x.SocialMediaPost.Site == SocialMediaSite.Twitter)
+                        .SelectMany(x => x.SocialMediaPost.TourTemplate.TourTemplateMetrics
+                        .Where(x => x.CreatedAt >= startTime && x.CreatedAt <= endTime))
+                        .Sum(x => x.XReferralCount),
+                }).ToListAsync();
+            foreach (var report in reports)
+            {
+                report.ReportId = Guid.NewGuid().ToString();
+                report.ReportPeriod = ReportPeriod.Daily;
+                report.ReportLabel = dateTime.ToString("dd/MM/yyyy");
+                report.CreatedAt = dateTime;
+                await _unitOfWork.HashtagReportRepository.CreateAsync(report);
+            }
+        }
         public async Task Test()
         {
             DateTime startDate = new DateTime(2024, 12, 1);
             DateTime endDate = new DateTime(2024, 12, 31);
             for (DateTime date = startDate; date <= endDate; date = date.AddDays(1))
             {
-                await GenerateDailyTourTemplateReport(date);
+                await GenerateDailyHashtagReport(date);
             }
         }
     }
