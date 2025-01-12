@@ -1393,12 +1393,26 @@ namespace VietWay.Service.Management.Implement
                     TourCategoryName = g.Key.Name,
                     AverageFacebookScore = g.Sum(x => x.FacebookScore),
                     AverageXScore = g.Sum(x => x.XScore),
-                    TotalFacebookPost = g.SelectMany(x => x.TourCategory.TourTemplates).SelectMany(x => x.SocialMediaPosts)
-                        .Where(x => x.Site == SocialMediaSite.Facebook && x.FacebookPostMetrics.Any(x => x.CreatedAt >= startDate && x.CreatedAt <= endDate)).Count(),
-                    TotalXPost = g.SelectMany(x => x.TourCategory.TourTemplates).SelectMany(x => x.SocialMediaPosts)
-                        .Where(x => x.Site == SocialMediaSite.Facebook && x.FacebookPostMetrics.Any(x => x.CreatedAt >= startDate && x.CreatedAt <= endDate)).Count(),
-                    TotalTourTemplate = g.SelectMany(x => x.TourCategory.TourTemplates)
-                        .Where(x => x.TourTemplateMetrics.Any(x => x.CreatedAt >= startDate && x.CreatedAt <= endDate)).Count(),
+                    TotalFacebookPost = g.First().TourCategory.TourTemplates
+                        .SelectMany(tour => tour.SocialMediaPosts)
+                        .Count(post =>
+                            post.Site == SocialMediaSite.Facebook &&
+                            post.FacebookPostMetrics.Any(metric =>
+                                metric.CreatedAt >= startDate &&
+                                metric.CreatedAt <= endDate)
+                        ),
+                    TotalXPost = g.First().TourCategory.TourTemplates
+                        .SelectMany(t => t.SocialMediaPosts)
+                        .Count(post =>
+                            post.Site == SocialMediaSite.Twitter &&
+                            post.TwitterPostMetrics.Any(metric =>
+                                metric.CreatedAt >= startDate &&
+                                metric.CreatedAt <= endDate)
+                        ),
+                    TotalTourTemplate = g.First().TourCategory.TourTemplates
+                        .Count(x => x.TourTemplateMetrics
+                            .Any(metric => metric.CreatedAt >= startDate &&
+                                          metric.CreatedAt <= endDate)),
                     AverageTourTemplateScore = g.Sum(x => x.SiteScore),
                 })
                 .ToListAsync();
@@ -1460,10 +1474,11 @@ namespace VietWay.Service.Management.Implement
             TimeSpan dateDiff = (endDate - startDate);
             return dateDiff.TotalDays switch
             {
-                <= 31 => ReportPeriod.Daily,
-                <= 365 => ReportPeriod.Monthly,
-                <= 1095 => ReportPeriod.Quarterly,
-                _ => ReportPeriod.Yearly
+                <= 45 => ReportPeriod.Daily,
+                //<= 365 => ReportPeriod.Monthly,
+                //<= 1095 => ReportPeriod.Quarterly,
+                //_ => ReportPeriod.Yearly
+                _ => ReportPeriod.Monthly
             };
         }
         private static void NormalizePeriod(ref DateTime startDate, ref DateTime endDate)
