@@ -540,8 +540,8 @@ namespace VietWay.Service.Management.Implement
                     HashtagName = g.Key.HashtagName,
                     HashtagId = g.Key.HashtagId,
                     AverageFacebookScore = g.Sum(x => x.FacebookScore),
-                    AverageXScore = g.Sum(x => x.XScore),
-                    FacebookCTR = g.Sum(x => x.FacebookCTR),
+                    AverageXScore = g.Average(x => x.XScore),
+                    FacebookCTR = g.Average(x => x.FacebookCTR),
                     XCTR = g.Sum(x => x.XCTR),
                     TotalFacebookPost = g.First().Hashtag.SocialMediaPostHashtags
                         .Select(x=>x.SocialMediaPost)
@@ -565,8 +565,8 @@ namespace VietWay.Service.Management.Implement
             {
                 item.AverageFacebookScore = item.TotalFacebookPost == 0 ? 0 : item.AverageFacebookScore / item.TotalFacebookPost;
                 item.AverageXScore = item.TotalXPost == 0 ? 0 : item.AverageXScore / item.TotalXPost;
-                item.FacebookCTR = item.TotalFacebookPost == 0 ? 0 : item.FacebookCTR / item.TotalFacebookPost;
-                item.XCTR = item.TotalXPost == 0 ? 0 : item.XCTR / item.TotalXPost;
+                item.FacebookCTR = item.TotalFacebookPost == 0 ? 0 : item.FacebookCTR;
+                item.XCTR = item.TotalXPost == 0 ? 0 : item.XCTR;
                 item.AverageScore = (item.AverageFacebookScore + item.AverageXScore) / 2;
             }
             return result;
