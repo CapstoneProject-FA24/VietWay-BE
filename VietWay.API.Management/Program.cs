@@ -278,8 +278,8 @@ namespace VietWay.API.Management
                 .AddOrUpdate<ITourJob>("changeToursCompleted", (x) => x.ChangeToursToCompletedAsync(), () => "0 17 * * *");
             recurringJobManager
                 .AddOrUpdate<ITourJob>("rejectClosedPendingTours", (x) => x.RejectUnapprovedToursAsync(), () => "0 17 * * *");
-            IBackgroundJobClient backgroundJobClient = app.Services.GetRequiredService<IBackgroundJobClient>();
-            //backgroundJobClient.Enqueue<ReportJob>(x => x.Test());
+            recurringJobManager
+                .AddOrUpdate<ReportJob>("generateMetrics", (x) => x.GenerateReport(0), () => "0 17 * * *");
 
             app.UseStaticFiles();
             #region app.UseSwagger(...);
