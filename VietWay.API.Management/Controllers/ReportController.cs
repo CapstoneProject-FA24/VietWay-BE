@@ -364,7 +364,7 @@ namespace VietWay.API.Management.Controllers
         }
         [HttpGet("social-media-hashtag-detail/{hashtagId}")]
         [Produces("application/json")]
-        //[Authorize(Roles = $"{nameof(UserRole.Manager)},{nameof(UserRole.Admin)}")]
+        [Authorize(Roles = $"{nameof(UserRole.Manager)},{nameof(UserRole.Admin)}")]
         [ProducesResponseType<DefaultResponseModel<ReportSocialMediaHashtagDetailDTO>>(StatusCodes.Status200OK)]
         public async Task<IActionResult> GetSocialMediaHashtagDetailAsync(DateTime startDate, DateTime endDate, string hashtagId)
         {
