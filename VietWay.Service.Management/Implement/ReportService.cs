@@ -822,8 +822,8 @@ namespace VietWay.Service.Management.Implement
             foreach (var item in result)
             {
                 item.AverageFacebookScore = item.TotalFacebookPost == 0 ? 0 : item.AverageFacebookScore / item.TotalFacebookPost;
-                item.AverageXScore = item.TotalXPost = 0 ? 0 : item.AverageXScore / item.TotalXPost;
-                item.AverageSitePostScore = = item.TotalSitePost == 0 ? 0 : item.AverageSitePostScore / item.TotalSitePost;
+                item.AverageXScore = item.TotalXPost == 0 ? 0 : item.AverageXScore / item.TotalXPost;
+                item.AverageSitePostScore = item.TotalSitePost == 0 ? 0 : item.AverageSitePostScore / item.TotalSitePost;
                 item.AverageScore = (item.AverageFacebookScore + item.AverageXScore + item.AverageSitePostScore) / 3;
             }
             return result;
