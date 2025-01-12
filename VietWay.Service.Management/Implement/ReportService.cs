@@ -578,7 +578,7 @@ namespace VietWay.Service.Management.Implement
             List<string> labels = GetPeriodLabels(startDate, endDate);
             ReportPeriod reportPeriod = GetPeriod(startDate, endDate);
             var report = await _unitOfWork.HashtagReportRepository.Query()
-                .Where(x => labels.Contains(x.ReportLabel) && x.ReportPeriod == reportPeriod)
+                .Where(x => labels.Contains(x.ReportLabel) && x.ReportPeriod == reportPeriod && x.HashtagId.Equals(hashtagId))
                 .GroupBy(x => new { x.HashtagId, x.Hashtag.HashtagName })
                 .Select(g => new ReportSocialMediaHashtagDetailDTO
                 {
@@ -588,10 +588,22 @@ namespace VietWay.Service.Management.Implement
                     AverageXScore = g.Average(x => x.XScore),
                     FacebookCTR = g.Average(x => x.FacebookCTR),
                     XCTR = g.Average(x => x.XCTR),
-                    TotalFacebookPost = g.SelectMany(x => x.Hashtag.SocialMediaPostHashtags)
-                        .Where(x => x.SocialMediaPost.Site == SocialMediaSite.Facebook).Count(),
-                    TotalXPost = g.SelectMany(x => x.Hashtag.SocialMediaPostHashtags)
-                        .Where(x => x.SocialMediaPost.Site == SocialMediaSite.Twitter).Count()
+                    TotalFacebookPost = g.First().Hashtag.SocialMediaPostHashtags
+                        .Select(x => x.SocialMediaPost)
+                        .Count(post =>
+                            post.Site == SocialMediaSite.Facebook &&
+                            post.FacebookPostMetrics.Any(metric =>
+                                metric.CreatedAt >= startDate &&
+                                metric.CreatedAt <= endDate)
+                        ),
+                    TotalXPost = g.First().Hashtag.SocialMediaPostHashtags
+                    .Select(x => x.SocialMediaPost)
+                        .Count(post =>
+                            post.Site == SocialMediaSite.Twitter &&
+                            post.TwitterPostMetrics.Any(metric =>
+                                metric.CreatedAt >= startDate &&
+                                metric.CreatedAt <= endDate)
+                        )
                 })
                 .FirstOrDefaultAsync() ?? throw new ResourceNotFoundException();
 
